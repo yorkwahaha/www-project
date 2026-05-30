@@ -1,0 +1,25 @@
+{
+  "name": "www-project",
+  "version": "0.0.0-phase0",
+  "private": true,
+  "description": "WWW Project — What We Wonder／大家想知道 (Phase 0 foundation)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "migrate": "node scripts/migrate.mjs",
+    "migrate:check": "node scripts/migrate.mjs --check"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "pg": "^8.16.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.4"
+  }
+}

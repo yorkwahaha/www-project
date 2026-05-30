@@ -1,7 +1,8 @@
 import { pathToFileURL } from 'node:url';
 import { createApp } from './app.js';
+import type { HealthStatus } from './milestone.js';
 
-export function main(): { status: string; phase: number } {
+export function main(): HealthStatus {
   const app = createApp();
   const port = Number(process.env.PORT ?? 3000);
   app.startHttpServer(port);

@@ -1,8 +1,13 @@
-# WWW Project — Phase 4 (Result Display)
+# WWW Project — Phase 0–5B
 
 **What We Wonder／大家想知道** — privacy-preserving public poll platform.
 
-Phase 4 adds privacy-safe display tiers for aggregate Official Vote results. See `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md` for architecture and phases.
+This repository implements delivery milestones **Phase 0 through Phase 5B**: Poll Core, Reference Answer Design B, Official Vote, Result Display, frontend privacy closure (5A), and the public freshness-only discovery feed safe slice (5B).
+
+Normative rules: `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md`.
+Milestone summary and handoff: `docs/www-project-milestone-phase-0-5b-handoff-v1.md`.
+
+**Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phase 5B delivers only `GET /polls/feed` (freshness-only, no answer-direction signals). Phase 6–9 admin/governance features are not implemented.
 
 ## Prerequisites
 
@@ -28,7 +33,7 @@ npm run migrate:check
 - `tests/` — Vitest suites
 - `migrations/` — ordered PostgreSQL migrations
 
-## Phase 4 APIs (stub auth)
+## Current APIs (Phase 0–5B)
 
 All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-Name` on create.
 
@@ -40,16 +45,25 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
 | `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
 | `GET` | `/polls/:id/results` | Read display-safe aggregate Official Vote results |
-| `GET` | `/polls/feed` | Read public freshness-only discovery feed |
+| `GET` | `/polls/feed` | Public freshness-only discovery feed (Phase 5B) |
 | `GET` | `/results/:id` | Public identity-neutral result page |
-| `GET` | `/health` | Health check |
+| `GET` | `/health` | Health check (`milestone: phase-0-5b`) |
+| `GET` | `/frontend/*` | Static frontend assets (Phase 5A) |
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 
-## Phase 4 scope
+## Current scope (Phase 0–5B)
 
-Implemented: `users`, `polls`, `poll_options`, Reference Answer Design B, Official Vote tokens, official aggregate sharded counters, and privacy-safe result display tiers.
+**Implemented:**
 
-Frontend selection state is page-local runtime memory only. The frontend privacy controller clears selected options and request payloads after submission, on `pagehide`, and on BFCache `pageshow` restore.
+- `users`, `polls`, `poll_options`
+- Reference Answer Design B (participation token only; no durable option storage)
+- Official Vote tokens and aggregate sharded counters
+- Privacy-safe result display tiers
+- Frontend selection state in page-local runtime memory; cleared on submit, `pagehide`, and BFCache `pageshow`
+- `GET /polls/feed` — freshness-only public feed (no vote/option/ranking signals)
 
-Also not implemented: ranking complexity and admin governance.
+**Not implemented (see handoff for detail):**
+
+- Full spec §32 Phase 5 Wonder Flow / ranking beyond the 5B feed slice
+- Phase 6–9 admin typo correction, Dual-Admin, suspended correction, high-sensitivity guardrails

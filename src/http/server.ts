@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { getHealthStatus } from '../milestone.js';
 import type { PollService } from '../polls/service.js';
 import { sendJson } from './json.js';
 import { createPollRouteHandlers } from './poll-routes.js';
@@ -33,7 +34,7 @@ async function routeRequest(
   const path = url.pathname;
 
   if (method === 'GET' && path === '/health') {
-    sendJson(res, 200, { status: 'ok', phase: 4 });
+    sendJson(res, 200, getHealthStatus());
     return;
   }
 

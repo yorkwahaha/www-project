@@ -1,6 +1,7 @@
 import type { Server } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import { createHttpServer } from '../../src/http/server.js';
+import { getHealthStatus } from '../../src/milestone.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import { createPollService } from '../../src/polls/service.js';
 
@@ -48,6 +49,17 @@ async function request(
 }
 
 describe('poll HTTP routes', () => {
+  it('GET /health returns delivery milestone status', async () => {
+    const repository = createInMemoryPollRepository();
+    const server = createHttpServer({ pollService: createPollService(repository) });
+
+    await withServer(server, async (baseUrl) => {
+      const response = await request(baseUrl, 'GET', '/health');
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(getHealthStatus());
+    });
+  });
+
   const creatorId = '22222222-2222-4222-8222-222222222222';
 
   it('POST /polls creates poll; GET returns detail without vote signals', async () => {

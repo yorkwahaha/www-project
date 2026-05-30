@@ -51,6 +51,26 @@ export class CorrectionRequestNotPendingError extends AdminError {
   }
 }
 
+export class CorrectionRequestNotApprovedError extends AdminError {
+  constructor(message = 'Correction request is not approved') {
+    super('CORRECTION_REQUEST_NOT_APPROVED', message, 400);
+  }
+}
+
+export class CorrectionAlreadyAppliedError extends AdminError {
+  constructor(message = 'Correction request has already been applied') {
+    super('CORRECTION_ALREADY_APPLIED', message, 409);
+  }
+}
+
+export class CorrectionStaleTargetError extends AdminError {
+  constructor(
+    message = 'Correction target text no longer matches the original snapshot',
+  ) {
+    super('CORRECTION_STALE_TARGET', message, 409);
+  }
+}
+
 export class ProposerCannotApproveError extends AdminError {
   constructor(message = 'Requester cannot approve their own correction request') {
     super('PROPOSER_CANNOT_APPROVE', message, 403);

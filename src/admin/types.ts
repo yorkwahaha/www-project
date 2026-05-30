@@ -134,3 +134,25 @@ export type CorrectionReviewContext = {
   peer_decisions: ReviewContextDecisionSummary[] | null;
   final_decisions: ReviewContextDecisionSummary[] | null;
 };
+
+export type ApplyCorrectionRequestResult = {
+  request_id: string;
+  request_status: 'applied';
+  correction_log_id: string;
+  poll_id: string;
+  correction_target_field: CorrectionTargetField;
+};
+
+export type PollCorrectionLogRow = {
+  id: string;
+  correction_request_id: string;
+  poll_id: string;
+  applied_by_admin_id: string;
+  correction_target_field: CorrectionTargetField;
+  correction_target_id: string | null;
+  original_text: string;
+  applied_text: string;
+  public_notice_id: string | null;
+  applied_at: Date;
+  created_at: Date;
+};

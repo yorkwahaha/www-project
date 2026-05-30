@@ -8,8 +8,6 @@ const FORBIDDEN_TABLES = [
   'vote_events',
   'raw_vote_events',
   'poll_status_snapshot',
-  'poll_vote_tokens',
-  'poll_option_vote_counters',
   'reference_answer_option_counters',
   'reference_answer_events',
   'user_poll_option_links',
@@ -23,7 +21,7 @@ const FORBIDDEN_POLL_COLUMNS = [
   'last_vote_option_id',
 ];
 
-describe('Phase 2 migration schema guard', () => {
+describe('Phase 3 migration schema guard', () => {
   it('does not introduce forbidden vote/counter/event tables', async () => {
     const files = (await readdir(MIGRATIONS_DIR)).filter((name) => name.endsWith('.sql'));
     const combined = await Promise.all(
@@ -34,6 +32,52 @@ describe('Phase 2 migration schema guard', () => {
     for (const table of FORBIDDEN_TABLES) {
       expect(sql).not.toMatch(new RegExp(`create\\s+table\\s+${table}\\b`));
     }
+  });
+
+  it('official vote token stores participation metadata only', async () => {
+    const phase3 = await readFile(
+      join(MIGRATIONS_DIR, '004_phase3_official_vote.sql'),
+      'utf8',
+    );
+    const table = phase3.toLowerCase().match(
+      /create\s+table\s+poll_vote_tokens\s*\(([\s\S]*?)\);/,
+    )?.[1];
+
+    expect(table).toBeTruthy();
+    expect(table).toMatch(/unique\s*\(\s*user_id\s*,\s*poll_id\s*\)/);
+    expect(table).toContain("voted_at_minute = date_trunc('minute', voted_at_minute)");
+    for (const forbidden of [
+      'option_id',
+      'encrypted_option_id',
+      'option_text',
+      'selected_option_index',
+      'vote_snapshot',
+      'result_snapshot',
+      'eligibility_snapshot',
+    ]) {
+      expect(table).not.toContain(forbidden);
+    }
+  });
+
+  it('official counter is aggregate-only and uses no SQL random shard selection', async () => {
+    const phase3 = await readFile(
+      join(MIGRATIONS_DIR, '004_phase3_official_vote.sql'),
+      'utf8',
+    );
+    const lower = phase3.toLowerCase();
+    const table = lower.match(
+      /create\s+table\s+poll_option_vote_counters\s*\(([\s\S]*?)\);/,
+    )?.[1];
+
+    expect(table).toBeTruthy();
+    expect(table).toMatch(
+      /primary\s+key\s*\(\s*poll_id\s*,\s*option_id\s*,\s*shard_id\s*\)/,
+    );
+    expect(table).not.toContain('user_id');
+    expect(table).not.toContain('session');
+    expect(table).not.toContain('device');
+    expect(lower).not.toMatch(/\brandom\s*\(/);
+    expect(lower).not.toContain('vote_events');
   });
 
   it('reference answer token stores participation metadata only', async () => {

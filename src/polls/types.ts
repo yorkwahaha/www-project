@@ -53,6 +53,22 @@ export type PollReferenceAnswerTokenRow = {
   created_at: Date;
 };
 
+export type PollVoteTokenRow = {
+  id: string;
+  user_id: string;
+  poll_id: string;
+  voted_at_minute: Date;
+  expires_at: Date;
+  created_at: Date;
+};
+
+export type PollOptionVoteCounterRow = {
+  poll_id: string;
+  option_id: string;
+  shard_id: number;
+  vote_count: number;
+};
+
 export type CreatePollInput = {
   creatorId: string;
   title: string;
@@ -95,4 +111,9 @@ export type DeletePollResult = {
 export type ReferenceAnswerResult = {
   status: 'recorded';
   reference_answered: true;
+};
+
+export type OfficialVoteResult = {
+  status: 'voted';
+  voted: true;
 };

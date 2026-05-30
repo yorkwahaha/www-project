@@ -1,8 +1,8 @@
-# WWW Project — Phase 2 (Reference Answer Design B)
+# WWW Project — Phase 3 (Official Vote)
 
 **What We Wonder／大家想知道** — privacy-preserving public poll platform.
 
-Phase 2 adds privacy-preserving Reference Answer participation tokens. See `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md` for architecture and phases.
+Phase 3 adds privacy-preserving Official Vote tokens and aggregate sharded counters. See `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md` for architecture and phases.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ npm run migrate:check
 - `tests/` — Vitest suites
 - `migrations/` — ordered PostgreSQL migrations
 
-## Phase 2 APIs (stub auth)
+## Phase 3 APIs (stub auth)
 
 All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-Name` on create.
 
@@ -38,14 +38,15 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `GET` | `/polls/:id` | Poll detail (no vote/ranking signals) |
 | `DELETE` | `/polls/:id` | Creator soft-delete |
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
+| `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
 | `GET` | `/health` | Health check |
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 
-## Phase 2 scope
+## Phase 3 scope
 
-Implemented: `users`, `polls`, `poll_options`, `poll_reference_answer_tokens`, poll service, HTTP APIs, creator delete, zero-edit enforcement, and Reference Answer Design B.
+Implemented: `users`, `polls`, `poll_options`, Reference Answer Design B, Official Vote tokens, and official aggregate sharded counters.
 
 Not implemented yet: frontend runtime selection memory and BFCache clearing because this repository has no frontend. Add page-local memory clearing on `pagehide` and BFCache `pageshow` before a frontend is introduced.
 
-Also not implemented: Official Vote, counters, results, ranking, admin governance.
+Also not implemented: result display, ranking, admin governance.

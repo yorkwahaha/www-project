@@ -13,6 +13,7 @@ export const SCRUB_FIELD_KEYS = [
   'answer_snapshot',
   'vote_snapshot',
   'result_snapshot',
+  'eligibility_snapshot',
   'raw_body',
   'raw_request_body',
   'raw_payload',
@@ -51,6 +52,11 @@ export function scrubLogPayload(
 
 /** Scrubs the sensitive Reference Answer body before diagnostic boundaries. */
 export function scrubReferenceAnswerRequestBody(input: unknown): unknown {
+  return scrubLogPayload({ body: input }, { strict: true });
+}
+
+/** Scrubs the sensitive Official Vote body before diagnostic boundaries. */
+export function scrubOfficialVoteRequestBody(input: unknown): unknown {
   return scrubLogPayload({ body: input }, { strict: true });
 }
 

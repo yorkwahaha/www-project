@@ -33,6 +33,12 @@ export class ReferenceAnswerDuplicateError extends PollError {
   }
 }
 
+export class OfficialVoteDuplicateError extends PollError {
+  constructor(message = 'Official Vote already recorded for this poll') {
+    super('OFFICIAL_VOTE_DUPLICATE', message, 409);
+  }
+}
+
 /** Creator cannot edit poll content after publish (Phase 1+). */
 export class PublishedPollImmutableError extends PollError {
   constructor(message = 'Published polls cannot be edited by the creator') {

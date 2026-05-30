@@ -2,35 +2,61 @@ import type { PollRepository } from './repository.js';
 import type {
   CreatePollInput,
   PollOptionRow,
+  PollOptionVoteCounterRow,
   PollReferenceAnswerTokenRow,
   PollRow,
   PollStatus,
+  PollVoteTokenRow,
   UserRow,
 } from './types.js';
 import type { TrustLevel } from './trust.js';
+import { PollForbiddenError, PollNotFoundError, PollValidationError } from './errors.js';
+import {
+  INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
+  OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+} from './official-vote-messages.js';
+import { isOfficialVoteUser } from './trust.js';
 
 /** In-memory repository for unit tests (no PostgreSQL required). */
 export function createInMemoryPollRepository(): PollRepository & {
   readonly polls: Map<string, PollRow>;
   readonly options: Map<string, PollOptionRow[]>;
   readonly referenceAnswerTokens: Map<string, PollReferenceAnswerTokenRow>;
+  readonly voteTokens: Map<string, PollVoteTokenRow>;
+  readonly voteCounters: Map<string, PollOptionVoteCounterRow>;
   setUserTrustLevel(userId: string, trustLevel: TrustLevel): void;
+  failNextVoteTokenInsert(): void;
+  failNextVoteCounterIncrement(): void;
 } {
   const users = new Map<string, UserRow>();
   const polls = new Map<string, PollRow>();
   const options = new Map<string, PollOptionRow[]>();
   const referenceAnswerTokens = new Map<string, PollReferenceAnswerTokenRow>();
+  const voteTokens = new Map<string, PollVoteTokenRow>();
+  const voteCounters = new Map<string, PollOptionVoteCounterRow>();
+  let failVoteTokenInsert = false;
+  let failVoteCounterIncrement = false;
 
   return {
     polls,
     options,
     referenceAnswerTokens,
+    voteTokens,
+    voteCounters,
 
     setUserTrustLevel(userId, trustLevel) {
       const user = users.get(userId);
       if (user) {
         user.trust_level = trustLevel;
       }
+    },
+
+    failNextVoteTokenInsert() {
+      failVoteTokenInsert = true;
+    },
+
+    failNextVoteCounterIncrement() {
+      failVoteCounterIncrement = true;
     },
 
     async ensureUser(userId, displayName) {
@@ -132,6 +158,61 @@ export function createInMemoryPollRepository(): PollRepository & {
         created_at: new Date(),
       };
       referenceAnswerTokens.set(key, token);
+      return token;
+    },
+
+    async castOfficialVote(userId, pollId, optionId, votedAtMinute, selectShardId) {
+      const user = users.get(userId);
+      if (!user || user.status !== 'active' || !isOfficialVoteUser(user)) {
+        throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
+      }
+      const poll = polls.get(pollId);
+      if (!poll || poll.status === 'deleted') {
+        throw new PollNotFoundError();
+      }
+      if (poll.status !== 'active') {
+        throw new PollValidationError('Official Vote requires an active poll');
+      }
+      if (!(options.get(pollId) ?? []).some((option) => option.id === optionId)) {
+        throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
+      }
+
+      const tokenKey = `${userId}:${pollId}`;
+      if (failVoteTokenInsert) {
+        failVoteTokenInsert = false;
+        throw new Error('simulated vote token insert failure');
+      }
+      if (voteTokens.has(tokenKey)) {
+        const error = new Error('duplicate vote token') as Error & { code: string };
+        error.code = '23505';
+        throw error;
+      }
+
+      const token: PollVoteTokenRow = {
+        id: crypto.randomUUID(),
+        user_id: userId,
+        poll_id: pollId,
+        voted_at_minute: votedAtMinute,
+        expires_at: new Date(poll.closes_at.getTime() + 180 * 24 * 60 * 60 * 1000),
+        created_at: new Date(),
+      };
+      const shardId = selectShardId();
+      const counterKey = `${pollId}:${optionId}:${shardId}`;
+      const existingCounter = voteCounters.get(counterKey);
+      const counter: PollOptionVoteCounterRow = {
+        poll_id: pollId,
+        option_id: optionId,
+        shard_id: shardId,
+        vote_count: (existingCounter?.vote_count ?? 0) + 1,
+      };
+
+      if (failVoteCounterIncrement) {
+        failVoteCounterIncrement = false;
+        throw new Error('simulated vote counter increment failure');
+      }
+
+      voteTokens.set(tokenKey, token);
+      voteCounters.set(counterKey, counter);
       return token;
     },
   };

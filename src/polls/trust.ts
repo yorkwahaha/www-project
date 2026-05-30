@@ -12,3 +12,7 @@ export function isTrustLevel(value: string): value is TrustLevel {
 export function isLowTrustUser(user: Pick<UserRow, 'trust_level'>): boolean {
   return user.trust_level === 'low';
 }
+
+export function isOfficialVoteUser(user: Pick<UserRow, 'trust_level'>): boolean {
+  return user.trust_level === 'official';
+}

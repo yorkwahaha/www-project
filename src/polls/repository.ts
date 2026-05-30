@@ -2,11 +2,19 @@ import type { Pool, PoolClient } from 'pg';
 import type {
   CreatePollInput,
   PollOptionRow,
+  PollOptionVoteCounterRow,
   PollReferenceAnswerTokenRow,
   PollRow,
   PollStatus,
+  PollVoteTokenRow,
   UserRow,
 } from './types.js';
+import { PollForbiddenError, PollNotFoundError, PollValidationError } from './errors.js';
+import {
+  INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
+  OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+} from './official-vote-messages.js';
+import { isOfficialVoteUser } from './trust.js';
 
 export type PollRepository = {
   ensureUser(userId: string, displayName: string): Promise<UserRow>;
@@ -22,6 +30,13 @@ export type PollRepository = {
     answeredAt: Date,
     expiresAt: Date,
   ): Promise<PollReferenceAnswerTokenRow>;
+  castOfficialVote(
+    userId: string,
+    pollId: string,
+    optionId: string,
+    votedAtMinute: Date,
+    selectShardId: () => number,
+  ): Promise<PollVoteTokenRow>;
 };
 
 export function createPgPollRepository(pool: Pool): PollRepository {
@@ -35,7 +50,132 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     softDeletePoll: (pollId, creatorId) => softDeletePoll(pool, pollId, creatorId),
     createReferenceAnswerToken: (userId, pollId, answeredAt, expiresAt) =>
       createReferenceAnswerToken(pool, userId, pollId, answeredAt, expiresAt),
+    castOfficialVote: (userId, pollId, optionId, votedAtMinute, selectShardId) =>
+      castOfficialVote(pool, userId, pollId, optionId, votedAtMinute, selectShardId),
   };
+}
+
+async function castOfficialVote(
+  pool: Pool,
+  userId: string,
+  pollId: string,
+  optionId: string,
+  votedAtMinute: Date,
+  selectShardId: () => number,
+): Promise<PollVoteTokenRow> {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const user = await findUserByIdWithClient(client, userId);
+    if (!user || user.status !== 'active' || !isOfficialVoteUser(user)) {
+      throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
+    }
+    const poll = await findPollByIdWithClient(client, pollId);
+    if (!poll || poll.status === 'deleted') {
+      throw new PollNotFoundError();
+    }
+    if (poll.status !== 'active') {
+      throw new PollValidationError('Official Vote requires an active poll');
+    }
+    if (!(await optionBelongsToPollWithClient(client, pollId, optionId))) {
+      throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
+    }
+    const token = await insertVoteToken(
+      client,
+      userId,
+      pollId,
+      votedAtMinute,
+      poll.closes_at,
+    );
+    const shardId = selectShardId();
+    await incrementVoteCounter(client, pollId, optionId, shardId);
+    await client.query('COMMIT');
+    return token;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function findUserByIdWithClient(
+  client: PoolClient,
+  userId: string,
+): Promise<UserRow | null> {
+  const result = await client.query<UserRow>(
+    `SELECT id, display_name, trust_level, status, created_at, updated_at
+     FROM users WHERE id = $1`,
+    [userId],
+  );
+  return result.rows[0] ?? null;
+}
+
+async function findPollByIdWithClient(
+  client: PoolClient,
+  pollId: string,
+): Promise<PollRow | null> {
+  const result = await client.query<PollRow>(
+    `SELECT
+       id, creator_id, title, description, category, status,
+       eligible_rule_id, published_at, closes_at, deleted_at,
+       created_at, updated_at
+     FROM polls
+     WHERE id = $1`,
+    [pollId],
+  );
+  return result.rows[0] ?? null;
+}
+
+async function optionBelongsToPollWithClient(
+  client: PoolClient,
+  pollId: string,
+  optionId: string,
+): Promise<boolean> {
+  const result = await client.query(
+    `SELECT 1
+     FROM poll_options
+     WHERE poll_id = $1 AND id = $2`,
+    [pollId, optionId],
+  );
+  return result.rows.length > 0;
+}
+
+async function insertVoteToken(
+  client: PoolClient,
+  userId: string,
+  pollId: string,
+  votedAtMinute: Date,
+  closesAt: Date,
+): Promise<PollVoteTokenRow> {
+  const result = await client.query<PollVoteTokenRow>(
+    `INSERT INTO poll_vote_tokens (
+       user_id, poll_id, voted_at_minute, expires_at
+     )
+     VALUES ($1, $2, $3, $4 + INTERVAL '180 days')
+     RETURNING id, user_id, poll_id, voted_at_minute, expires_at, created_at`,
+    [userId, pollId, votedAtMinute, closesAt],
+  );
+  return result.rows[0]!;
+}
+
+async function incrementVoteCounter(
+  client: PoolClient,
+  pollId: string,
+  optionId: string,
+  shardId: number,
+): Promise<PollOptionVoteCounterRow> {
+  const result = await client.query<PollOptionVoteCounterRow>(
+    `INSERT INTO poll_option_vote_counters (
+       poll_id, option_id, shard_id, vote_count
+     )
+     VALUES ($1, $2, $3, 1)
+     ON CONFLICT (poll_id, option_id, shard_id)
+     DO UPDATE SET vote_count = poll_option_vote_counters.vote_count + 1
+     RETURNING poll_id, option_id, shard_id, vote_count`,
+    [pollId, optionId, shardId],
+  );
+  return result.rows[0]!;
 }
 
 async function findUserById(pool: Pool, userId: string): Promise<UserRow | null> {

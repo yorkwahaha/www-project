@@ -1,8 +1,8 @@
 {
   "name": "www-project",
-  "version": "0.1.0-phase2",
+  "version": "0.1.0-phase3",
   "private": true,
-  "description": "WWW Project — What We Wonder／大家想知道 (Phase 2 Reference Answer Design B)",
+  "description": "WWW Project — What We Wonder／大家想知道 (Phase 3 Official Vote)",
   "type": "module",
   "engines": {
     "node": ">=20"

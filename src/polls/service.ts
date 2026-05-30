@@ -1,4 +1,6 @@
+import { randomInt } from 'node:crypto';
 import {
+  OfficialVoteDuplicateError,
   PublishedPollImmutableError,
   PollForbiddenError,
   PollNotFoundError,
@@ -11,12 +13,14 @@ import type {
   CreatePollResult,
   DeletePollResult,
   PollDetail,
+  OfficialVoteResult,
   ReferenceAnswerResult,
 } from './types.js';
 import {
   INVALID_REFERENCE_ANSWER_OPTION_MESSAGE,
   REFERENCE_ANSWER_LOW_TRUST_ONLY_MESSAGE,
 } from './reference-answer-messages.js';
+import { SHARD_COUNT } from './vote-config.js';
 import { isLowTrustUser } from './trust.js';
 import { validateCreatePollInput } from './validation.js';
 
@@ -29,10 +33,19 @@ export type PollService = {
     userId: string,
     optionId: string,
   ): Promise<ReferenceAnswerResult>;
+  castOfficialVote(
+    pollId: string,
+    userId: string,
+    optionId: string,
+  ): Promise<OfficialVoteResult>;
   assertCreatorCannotEditPublishedPoll(): never;
 };
 
-export function createPollService(repository: PollRepository): PollService {
+export function createPollService(
+  repository: PollRepository,
+  options: { selectShardId?: () => number } = {},
+): PollService {
+  const selectShardId = options.selectShardId ?? (() => randomInt(0, SHARD_COUNT));
   return {
     async createPoll(input, displayName) {
       validateCreatePollInput({
@@ -113,6 +126,25 @@ export function createPollService(repository: PollRepository): PollService {
         throw err;
       }
       return { status: 'recorded', reference_answered: true };
+    },
+
+    async castOfficialVote(pollId, userId, optionId) {
+      const votedAtMinute = truncateToMinute(new Date());
+      try {
+        await repository.castOfficialVote(
+          userId,
+          pollId,
+          optionId,
+          votedAtMinute,
+          selectShardId,
+        );
+      } catch (err) {
+        if (isUniqueViolation(err)) {
+          throw new OfficialVoteDuplicateError();
+        }
+        throw err;
+      }
+      return { status: 'voted', voted: true };
     },
 
     assertCreatorCannotEditPublishedPoll(): never {

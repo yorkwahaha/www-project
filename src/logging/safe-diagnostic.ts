@@ -1,6 +1,7 @@
 import {
   payloadContainsForbiddenKey,
   scrubLogPayload,
+  scrubOfficialVoteRequestBody,
   scrubReferenceAnswerRequestBody,
 } from './scrubber.js';
 
@@ -25,6 +26,14 @@ export type ReferenceAnswerDiagnosticInput = {
   error?: { code: string; message: string };
 };
 
+export type OfficialVoteDiagnosticInput = {
+  pollId: string;
+  userId: string;
+  phase: 'request_received' | 'success' | 'error';
+  requestBody?: unknown;
+  error?: { code: string; message: string };
+};
+
 /** Build and emit a scrubbed Reference Answer diagnostic record. */
 export function recordReferenceAnswerDiagnostic(
   input: ReferenceAnswerDiagnosticInput,
@@ -36,6 +45,30 @@ export function recordReferenceAnswerDiagnostic(
   const payload = scrubLogPayload(
     {
       route: 'POST /polls/:id/reference-answer',
+      poll_id: input.pollId,
+      user_id: input.userId,
+      phase: input.phase,
+      ...(scrubbedRequest === undefined ? {} : { request: scrubbedRequest }),
+      ...(input.error === undefined ? {} : { error: input.error }),
+    },
+    { strict: true },
+  );
+
+  emitSafeDiagnostic(payload);
+  return payload;
+}
+
+/** Build and emit a scrubbed Official Vote diagnostic record. */
+export function recordOfficialVoteDiagnostic(
+  input: OfficialVoteDiagnosticInput,
+): unknown {
+  const scrubbedRequest = input.requestBody === undefined
+    ? undefined
+    : scrubOfficialVoteRequestBody(input.requestBody);
+
+  const payload = scrubLogPayload(
+    {
+      route: 'POST /polls/:id/vote',
       poll_id: input.pollId,
       user_id: input.userId,
       phase: input.phase,

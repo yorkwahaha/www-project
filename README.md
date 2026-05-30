@@ -27,6 +27,16 @@ npm run migrate:check
 # DATABASE_URL=postgres://... npm run migrate
 ```
 
+`npm test` stays **DB-free**. Optional PostgreSQL integration tests (local/manual, **PostgreSQL 17+**, isolated database **`www_test` only**):
+
+```bash
+docker compose -f docker-compose.test.yml up -d
+# Windows PowerShell:
+# $env:DATABASE_URL="postgres://postgres:postgres@127.0.0.1:5432/www_test"
+npm run migrate
+npm run test:integration
+```
+
 ## Layout
 
 - `src/` — application code

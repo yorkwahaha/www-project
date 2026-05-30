@@ -154,13 +154,14 @@ async function insertVoteToken(
   votedAtMinute: Date,
   closesAt: Date,
 ): Promise<PollVoteTokenRow> {
+  const expiresAt = new Date(closesAt.getTime() + 180 * 24 * 60 * 60 * 1000);
   const result = await client.query<PollVoteTokenRow>(
     `INSERT INTO poll_vote_tokens (
        user_id, poll_id, voted_at_minute, expires_at
      )
-     VALUES ($1, $2, $3, $4 + INTERVAL '180 days')
+     VALUES ($1, $2, $3, $4)
      RETURNING id, user_id, poll_id, voted_at_minute, expires_at, created_at`,
-    [userId, pollId, votedAtMinute, closesAt],
+    [userId, pollId, votedAtMinute, expiresAt],
   );
   return result.rows[0]!;
 }

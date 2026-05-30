@@ -40,6 +40,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
 | `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
 | `GET` | `/polls/:id/results` | Read display-safe aggregate Official Vote results |
+| `GET` | `/polls/feed` | Read public freshness-only discovery feed |
 | `GET` | `/results/:id` | Public identity-neutral result page |
 | `GET` | `/health` | Health check |
 
@@ -51,4 +52,4 @@ Implemented: `users`, `polls`, `poll_options`, Reference Answer Design B, Offici
 
 Frontend selection state is page-local runtime memory only. The frontend privacy controller clears selected options and request payloads after submission, on `pagehide`, and on BFCache `pageshow` restore.
 
-Also not implemented: ranking and admin governance.
+Also not implemented: ranking complexity and admin governance.

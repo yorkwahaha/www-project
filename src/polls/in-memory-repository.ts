@@ -137,6 +137,23 @@ export function createInMemoryPollRepository(): PollRepository & {
         .sort((a, b) => a.option_order - b.option_order);
     },
 
+    async listPublicFeedPolls() {
+      return [...polls.values()]
+        .filter((poll) => poll.status === 'active' && poll.published_at !== null)
+        .sort((a, b) => (
+          b.published_at!.getTime() - a.published_at!.getTime() ||
+          a.id.localeCompare(b.id)
+        ))
+        .slice(0, 50)
+        .map((poll) => ({
+          id: poll.id,
+          title: poll.title,
+          category: poll.category,
+          status: 'active' as const,
+          published_at: poll.published_at!,
+        }));
+    },
+
     async softDeletePoll(pollId, creatorId) {
       const poll = polls.get(pollId);
       if (!poll || poll.creator_id !== creatorId || poll.status === 'deleted') {

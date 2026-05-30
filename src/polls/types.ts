@@ -76,6 +76,14 @@ export type PollOptionVoteAggregateRow = {
   vote_count: string;
 };
 
+export type PublicFeedPollRow = {
+  id: string;
+  title: string;
+  category: string;
+  status: 'active';
+  published_at: Date;
+};
+
 export type CreatePollInput = {
   creatorId: string;
   title: string;
@@ -141,4 +149,15 @@ export type PollResultDisplay = {
     display_count: string | null;
   }>;
   updated_display: '最近更新';
+};
+
+export type PublicFeedResult = {
+  polls: Array<{
+    poll_id: string;
+    title: string;
+    category: string;
+    status: 'active';
+    published_display: '最近發布';
+    result_page_url: string;
+  }>;
 };

@@ -77,6 +77,18 @@ async function routeRequest(
     return;
   }
 
+  if (path === '/polls/feed' && method === 'GET') {
+    if (url.search) {
+      sendJson(res, 400, {
+        error: 'UNSUPPORTED_QUERY_PARAMS',
+        message: 'Feed query parameters are not supported',
+      });
+      return;
+    }
+    await pollRoutes.handleGetPublicFeed(req, res);
+    return;
+  }
+
   const referenceAnswerMatch = path.match(/^\/polls\/([^/]+)\/reference-answer$/);
   if (referenceAnswerMatch && method === 'POST') {
     const pollId = referenceAnswerMatch[1]!;

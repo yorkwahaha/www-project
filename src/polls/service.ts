@@ -15,6 +15,7 @@ import type {
   PollDetail,
   PollOptionVoteAggregateRow,
   PollResultDisplay,
+  PublicFeedResult,
   OfficialVoteResult,
   ReferenceAnswerResult,
 } from './types.js';
@@ -30,6 +31,7 @@ export type PollService = {
   createPoll(input: CreatePollInput, displayName: string): Promise<CreatePollResult>;
   getPollById(pollId: string): Promise<PollDetail>;
   getPollResults(pollId: string): Promise<PollResultDisplay>;
+  getPublicFeed(): Promise<PublicFeedResult>;
   deletePoll(pollId: string, creatorId: string): Promise<DeletePollResult>;
   submitReferenceAnswer(
     pollId: string,
@@ -84,6 +86,20 @@ export function createPollService(
       }
       const options = await repository.listVoteAggregatesByPollId(pollId);
       return toPollResultDisplay(pollId, options);
+    },
+
+    async getPublicFeed() {
+      const polls = await repository.listPublicFeedPolls();
+      return {
+        polls: polls.map((poll) => ({
+          poll_id: poll.id,
+          title: poll.title,
+          category: poll.category,
+          status: poll.status,
+          published_display: '最近發布',
+          result_page_url: `/results/${poll.id}`,
+        })),
+      };
     },
 
     async deletePoll(pollId, creatorId) {

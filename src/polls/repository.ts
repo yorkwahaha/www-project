@@ -8,6 +8,7 @@ import type {
   PollRow,
   PollStatus,
   PollVoteTokenRow,
+  PublicFeedPollRow,
   UserRow,
 } from './types.js';
 import { PollForbiddenError, PollNotFoundError, PollValidationError } from './errors.js';
@@ -24,6 +25,7 @@ export type PollRepository = {
   findPollById(pollId: string): Promise<PollRow | null>;
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
   listVoteAggregatesByPollId(pollId: string): Promise<PollOptionVoteAggregateRow[]>;
+  listPublicFeedPolls(): Promise<PublicFeedPollRow[]>;
   optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
   softDeletePoll(pollId: string, creatorId: string): Promise<PollRow | null>;
   createReferenceAnswerToken(
@@ -49,6 +51,7 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     findPollById: (pollId) => findPollById(pool, pollId),
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
     listVoteAggregatesByPollId: (pollId) => listVoteAggregatesByPollId(pool, pollId),
+    listPublicFeedPolls: () => listPublicFeedPolls(pool),
     optionBelongsToPoll: (pollId, optionId) => optionBelongsToPoll(pool, pollId, optionId),
     softDeletePoll: (pollId, creatorId) => softDeletePoll(pool, pollId, creatorId),
     createReferenceAnswerToken: (userId, pollId, answeredAt, expiresAt) =>
@@ -320,6 +323,17 @@ async function listVoteAggregatesByPollId(
      GROUP BY options.id, options.option_order, options.option_text
      ORDER BY options.option_order ASC`,
     [pollId],
+  );
+  return result.rows;
+}
+
+async function listPublicFeedPolls(pool: Pool): Promise<PublicFeedPollRow[]> {
+  const result = await pool.query<PublicFeedPollRow>(
+    `SELECT id, title, category, status, published_at
+     FROM polls
+     WHERE status = 'active' AND published_at IS NOT NULL
+     ORDER BY published_at DESC, id ASC
+     LIMIT 50`,
   );
   return result.rows;
 }

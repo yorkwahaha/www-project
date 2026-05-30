@@ -1,11 +1,11 @@
 # WWW Project — Phase 7.3 Admin Audit / Log Visibility Design
 
 **Document path:** `docs/www-project-phase-7-3-admin-audit-log-visibility-design.md`  
-**Status:** Design-only (normative for future implementation)  
+**Status:** **Implemented** on `master` @ `dd8c4bb` (Phase 7.4 audit read API; Phase 7.5 review-context alignment)
 **Depends on:** `/AGENTS.md` v0.2, `docs/www-project-agent-spec-v0.1.md` (§5.8–5.10, §15–19), Phase 7.3A audit findings  
-**Baseline:** `origin/master` @ `8d869e7` (Phase 6B/6C admin correction write path delivered)
+**Baseline:** `origin/master` @ `dd8c4bb`
 
-This document defines **admin-only, read-only** HTTP surfaces for typo-correction governance visibility. It does **not** authorize code changes in this phase.
+This document defines **admin-only, read-only** HTTP surfaces for typo-correction governance visibility. Normative DTO rules below match shipped behavior unless noted as deferred.
 
 ---
 
@@ -18,9 +18,9 @@ This document defines **admin-only, read-only** HTTP surfaces for typo-correctio
 - Reuse existing durable tables: `poll_correction_requests`, `admin_decision_logs`, `poll_correction_logs`, `public_notices` (metadata only).
 - Stay separate from the **workflow** API (`review-context`, decisions, apply) so blind dual-admin review invariants are not weakened.
 
-### Non-goals (this phase and these APIs)
+### Non-goals (these APIs)
 
-- Implement routes, services, repositories, migrations, or tests (future implementation task only).
+- **Optional** global `GET /admin/correction-audit` (§2.3) — not implemented on `master` @ `dd8c4bb`.
 - Real session auth, JWT, OAuth, or RBAC (continue `X-Admin-User-Id` stub until a dedicated auth phase).
 - Public notice **read** or **display** API; notice **body** in JSON responses.
 - Spread Score numeric fields, lock timestamps, recompute diagnostics, or score-based queue ordering.
@@ -60,7 +60,7 @@ All routes:
 | Default sort | `submitted_at` descending only |
 | Invalid poll / empty | `200` with empty `items` or `404` per existing admin error style (pick one in implementation; document in HTTP reference) |
 
-### 2.3 Optional later: `GET /admin/correction-audit`
+### 2.3 Optional later: `GET /admin/correction-audit` — **not implemented**
 
 **Purpose:** Cross-poll operator queue (e.g. pending/expired nearing `valid_until`).
 

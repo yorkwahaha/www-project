@@ -1,6 +1,6 @@
 # Admin correction HTTP API (Phase 6B / 6C)
 
-Operator-facing reference for **current** admin typo-correction routes on `master` (baseline `522dac7` and later).
+Operator-facing reference for **current** admin typo-correction routes on `master` (baseline `dd8c4bb` and later).
 
 Normative privacy and governance rules: `/AGENTS.md`, `docs/www-project-agent-spec-v0.1.md` (§16–19, §33–35).
 
@@ -236,6 +236,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 - Admin HTTP routes with safe response DTOs
 - Admin-only safe audit snapshot and per-poll paginated audit list
 - PostgreSQL + in-memory repositories; integration tests under `tests/integration/`
+- Review-context hardened (Phase 7.5): `decision_summary` only — no `peer_decisions`, `final_decisions`, `admin_id`, or reason fields in responses
 
 ### Stubs / not yet implemented
 
@@ -265,3 +266,5 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 - Domain: `tests/admin/correction-*.test.ts`, `tests/admin/suspended-correction-service.test.ts`
 - PostgreSQL: `tests/integration/admin-correction-http.pg.test.ts`, `correction-*.pg.test.ts`, `suspended-correction.pg.test.ts`
 - Audit PostgreSQL: `tests/integration/admin-audit-http.pg.test.ts`
+
+**Integration validation (Phase 7.6):** `npm run test:integration` requires `DATABASE_URL` on an isolated test database (e.g. `www_test`). It was **not executed** in environments where `DATABASE_URL` is unset. Unit tests (`npm test`) cover HTTP and service contracts without PostgreSQL.

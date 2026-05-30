@@ -164,3 +164,62 @@ export type CreateSuspendedCorrectionRequestResult = CreateCorrectionRequestResu
 export type ApplySuspendedCorrectionRequestResult = ApplyCorrectionRequestResult & {
   public_notice_id: string;
 };
+
+export type CorrectionAuditDecisionSummary =
+  | {
+      state: 'pending_blind';
+    }
+  | {
+      approve_count: number;
+      reject_count: number;
+      quorum_met: boolean;
+      is_finalized: true;
+    };
+
+export type CorrectionAuditTimelineEvent =
+  | 'submitted'
+  | 'decision_quorum_met'
+  | 'rejected'
+  | 'expired'
+  | 'applied';
+
+export type CorrectionAuditTimelineItem = {
+  event: CorrectionAuditTimelineEvent;
+  at: string;
+};
+
+export type CorrectionAuditRecord = {
+  request_id: string;
+  poll_id: string;
+  request_status: CorrectionRequestStatus;
+  poll_status: PollStatus;
+  correction_target_field: CorrectionTargetField;
+  correction_target_id: string | null;
+  original_text: string;
+  proposed_text: string;
+  requires_dual_admin: boolean;
+  submitted_at: string;
+  valid_until: string;
+  updated_at: string;
+  correction_log_id: string | null;
+  applied_text: string | null;
+  applied_at: string | null;
+  has_public_notice: boolean;
+  decision_summary: CorrectionAuditDecisionSummary;
+  timeline: CorrectionAuditTimelineItem[];
+};
+
+export type PollCorrectionAuditListItem = {
+  request_id: string;
+  request_status: CorrectionRequestStatus;
+  correction_target_field: CorrectionTargetField;
+  submitted_at: string;
+  valid_until: string;
+  has_public_notice: boolean;
+  correction_log_id?: string;
+};
+
+export type PollCorrectionAuditList = {
+  items: PollCorrectionAuditListItem[];
+  next_cursor: string | null;
+};

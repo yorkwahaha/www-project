@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { CorrectionService } from '../admin/correction-service.js';
+import type { CorrectionAuditReadService } from '../admin/correction-audit-read-service.js';
 import type { CorrectionApplyService } from '../admin/correction-apply-service.js';
 import type { CorrectionDecisionService } from '../admin/correction-decision-service.js';
 import type { SuspendedCorrectionApplyService } from '../admin/suspended-correction-apply-service.js';
@@ -16,8 +17,10 @@ import { readJsonBody, sendJson } from './json.js';
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const AUDIT_QUERY_PARAM_ALLOWLIST = new Set(['limit', 'cursor']);
 
 export type AdminCorrectionServices = {
+  auditReadService: CorrectionAuditReadService;
   correctionService: CorrectionService;
   decisionService: CorrectionDecisionService;
   applyService: CorrectionApplyService;
@@ -115,6 +118,45 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
           adminUserId,
         );
         sendJson(res, 200, toReviewContextResponse(context));
+      } catch (err) {
+        handleAdminRouteError(res, err);
+      }
+    },
+
+    async handleGetAuditRecord(
+      req: IncomingMessage,
+      res: ServerResponse,
+      requestId: string,
+    ): Promise<void> {
+      try {
+        requireRequestId(requestId);
+        const adminUserId = requireAdminUserId(req);
+        const record = await services.auditReadService.getAuditRecord(
+          requestId,
+          adminUserId,
+        );
+        sendJson(res, 200, record);
+      } catch (err) {
+        handleAdminRouteError(res, err);
+      }
+    },
+
+    async handleGetPollCorrectionAudit(
+      req: IncomingMessage,
+      res: ServerResponse,
+      pollId: string,
+      searchParams: URLSearchParams,
+    ): Promise<void> {
+      try {
+        requirePollId(pollId);
+        const adminUserId = requireAdminUserId(req);
+        const query = parsePollCorrectionAuditQuery(searchParams);
+        const result = await services.auditReadService.listPollCorrectionAudit(
+          pollId,
+          adminUserId,
+          query,
+        );
+        sendJson(res, 200, result);
       } catch (err) {
         handleAdminRouteError(res, err);
       }
@@ -261,6 +303,32 @@ export function requireRequestId(requestId: string): void {
   if (!UUID_PATTERN.test(requestId)) {
     throw new AdminRouteError('INVALID_REQUEST_ID', 'Invalid request id', 400);
   }
+}
+
+export function requirePollId(pollId: string): void {
+  if (!UUID_PATTERN.test(pollId)) {
+    throw new AdminRouteError('INVALID_POLL_ID', 'Invalid poll id', 400);
+  }
+}
+
+function parsePollCorrectionAuditQuery(
+  searchParams: URLSearchParams,
+): { limit?: string; cursor?: string } {
+  for (const key of searchParams.keys()) {
+    if (!AUDIT_QUERY_PARAM_ALLOWLIST.has(key)) {
+      throw new AdminRouteError(
+        'UNSUPPORTED_QUERY_PARAMS',
+        'Audit query parameters are not supported',
+        400,
+      );
+    }
+  }
+  const limit = searchParams.get('limit');
+  const cursor = searchParams.get('cursor');
+  return {
+    ...(limit === null ? {} : { limit }),
+    ...(cursor === null ? {} : { cursor }),
+  };
 }
 
 function parseCorrectionTargetField(value: string | undefined): CorrectionTargetField {

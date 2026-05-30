@@ -1,10 +1,13 @@
 import type { Server } from 'node:http';
+import { createCorrectionAuditReadService } from '../../../src/admin/correction-audit-read-service.js';
+import type { CorrectionAuditReadService } from '../../../src/admin/correction-audit-read-service.js';
 import { createCorrectionApplyService } from '../../../src/admin/correction-apply-service.js';
 import type { CorrectionApplyService } from '../../../src/admin/correction-apply-service.js';
 import { createCorrectionDecisionService } from '../../../src/admin/correction-decision-service.js';
 import type { CorrectionDecisionService } from '../../../src/admin/correction-decision-service.js';
 import { createCorrectionService } from '../../../src/admin/correction-service.js';
 import { createInMemoryCorrectionApplyRepository } from '../../../src/admin/in-memory-correction-apply-repository.js';
+import { createInMemoryCorrectionAuditReadRepository } from '../../../src/admin/in-memory-correction-audit-read-repository.js';
 import { createInMemoryCorrectionDecisionRepository } from '../../../src/admin/in-memory-correction-decision-repository.js';
 import {
   createInMemoryCorrectionRepository,
@@ -81,6 +84,7 @@ export type AdminHttpFixture = {
   applyService: CorrectionApplyService;
   suspendedCorrectionService: SuspendedCorrectionService;
   suspendedApplyService: SuspendedCorrectionApplyService;
+  auditReadService: CorrectionAuditReadService;
   correctionRepo: InMemoryCorrectionRepository;
   adminCorrection: AdminCorrectionServices;
   pollId: string;
@@ -123,7 +127,11 @@ export function createAdminHttpFixture(
   const suspendedApplyService = createSuspendedCorrectionApplyService(suspendedRepo, {
     now: () => defaultSubmittedAt,
   });
+  const auditReadService = createCorrectionAuditReadService(
+    createInMemoryCorrectionAuditReadRepository(correctionRepo),
+  );
   const adminCorrection: AdminCorrectionServices = {
+    auditReadService,
     correctionService,
     decisionService,
     applyService,
@@ -144,6 +152,7 @@ export function createAdminHttpFixture(
     applyService,
     suspendedCorrectionService,
     suspendedApplyService,
+    auditReadService,
     correctionRepo,
     adminCorrection,
     pollId,

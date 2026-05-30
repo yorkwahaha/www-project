@@ -162,6 +162,19 @@ async function routeRequest(
       return;
     }
 
+    const pollCorrectionAuditMatch = path.match(
+      /^\/admin\/polls\/([^/]+)\/correction-audit$/,
+    );
+    if (pollCorrectionAuditMatch && method === 'GET') {
+      const pollId = pollCorrectionAuditMatch[1]!;
+      if (!POLL_ID_PATTERN.test(pollId)) {
+        sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+        return;
+      }
+      await adminRoutes.handleGetPollCorrectionAudit(req, res, pollId, url.searchParams);
+      return;
+    }
+
     const suspendedApplyMatch = path.match(
       /^\/admin\/suspended-correction-requests\/([^/]+)\/apply$/,
     );
@@ -179,7 +192,7 @@ async function routeRequest(
     }
 
     const correctionRequestMatch = path.match(
-      /^\/admin\/correction-requests\/([^/]+)\/(review-context|decisions|apply)$/,
+      /^\/admin\/correction-requests\/([^/]+)\/(review-context|audit-record|decisions|apply)$/,
     );
     if (correctionRequestMatch) {
       const requestId = correctionRequestMatch[1]!;
@@ -193,6 +206,10 @@ async function routeRequest(
       }
       if (subPath === 'review-context' && method === 'GET') {
         await adminRoutes.handleGetReviewContext(req, res, requestId);
+        return;
+      }
+      if (subPath === 'audit-record' && method === 'GET') {
+        await adminRoutes.handleGetAuditRecord(req, res, requestId);
         return;
       }
       if (subPath === 'decisions' && method === 'POST') {

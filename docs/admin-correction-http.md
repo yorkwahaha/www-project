@@ -44,6 +44,8 @@ Admin routes are mounted only when the HTTP server is wired with admin correctio
 |--------|------|---------|
 | `POST` | `/admin/correction-requests` | Create typo correction request for **active** or **closed** poll |
 | `GET` | `/admin/correction-requests/:requestId/review-context` | Blind review context for one admin |
+| `GET` | `/admin/correction-requests/:requestId/audit-record` | Read-only safe audit snapshot and neutral timeline |
+| `GET` | `/admin/polls/:pollId/correction-audit` | Read-only paginated safe correction audit list for one poll |
 | `POST` | `/admin/correction-requests/:requestId/decisions` | Submit independent approve/reject decision |
 | `POST` | `/admin/correction-requests/:requestId/apply` | Apply **approved** request (active/closed path) |
 | `POST` | `/admin/suspended-correction-requests` | Create request for **suspended** poll; poll → `correction_pending` |
@@ -136,6 +138,23 @@ HTTP handlers return **minimal** JSON. Internal DB columns (Spread Score, reques
 | `peer_decisions` | **`null` while request not finalized** |
 | `final_decisions` | **Non-null only** when request is `approved`, `rejected`, `expired`, or `applied`; each item: `admin_id`, `decision`, `reason_code`, `reason_text`, `submitted_at` |
 
+### Allowed on audit record (200)
+
+| Field | Notes |
+|-------|--------|
+| Request snapshot | `request_id`, `poll_id`, `request_status`, `poll_status`, `correction_target_field`, `correction_target_id`, `original_text`, `proposed_text`, `requires_dual_admin`, `submitted_at`, `valid_until`, `updated_at` |
+| Applied correction | `correction_log_id`, `applied_text`, `applied_at`, `has_public_notice`; nullable except the boolean |
+| `decision_summary` | While pending: `{ "state": "pending_blind" }`. After finalization: anonymous `approve_count`, `reject_count`, `quorum_met`, `is_finalized` only. |
+| `timeline` | Neutral lifecycle events and timestamps only: `submitted`, `decision_quorum_met`, `rejected`, `expired`, `applied` |
+
+Audit records never return admin IDs, per-admin decisions, decision reasons, Spread Score values, public notice IDs, or public notice content.
+
+### Allowed on poll correction audit list (200)
+
+`GET /admin/polls/:pollId/correction-audit` accepts `limit` (default `20`, max `50`) and an opaque `cursor`. Unknown polls return `{ "items": [], "next_cursor": null }`.
+
+Each item is limited to `request_id`, `request_status`, `correction_target_field`, `submitted_at`, `valid_until`, `has_public_notice`, and optional `correction_log_id`. Ordering is `submitted_at DESC`, then request ID for stable pagination.
+
 ### Must not appear in HTTP responses
 
 | Category | Examples |
@@ -214,6 +233,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 - Suspended single-transaction apply (content + log + `active` + public notice)
 - Poll recovery: `correction_pending` → `suspended` on reject or expired (decision and apply paths)
 - Admin HTTP routes with safe response DTOs
+- Admin-only safe audit snapshot and per-poll paginated audit list
 - PostgreSQL + in-memory repositories; integration tests under `tests/integration/`
 
 ### Stubs / not yet implemented
@@ -224,7 +244,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 | **24h pre-apply guard** | No recompute of Spread Score at apply when request age > 24h |
 | **Semantic typo guard** | Only normalization + non-empty / must-differ checks |
 | **Real admin auth** | No session middleware; header trust model only |
-| **Admin audit / log visibility** | No HTTP query API for `admin_decision_logs` or `poll_correction_logs` |
+| **Cross-poll admin audit queue** | Optional global `GET /admin/correction-audit` is not implemented |
 | **Public notice read/display** | Write-side only; threat model and API design outstanding |
 | **Passive expiry job** | Expiry enforced when an admin hits decision/apply, not by background scheduler |
 
@@ -240,5 +260,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 ## Related tests
 
 - HTTP contracts: `tests/http/admin-correction-routes.test.ts`
+- Audit HTTP contracts: `tests/http/admin-audit-routes.test.ts`
 - Domain: `tests/admin/correction-*.test.ts`, `tests/admin/suspended-correction-service.test.ts`
 - PostgreSQL: `tests/integration/admin-correction-http.pg.test.ts`, `correction-*.pg.test.ts`, `suspended-correction.pg.test.ts`
+- Audit PostgreSQL: `tests/integration/admin-audit-http.pg.test.ts`

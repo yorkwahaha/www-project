@@ -1,5 +1,7 @@
 import type { Pool } from 'pg';
 import type { AdminCorrectionServices } from '../http/admin-routes.js';
+import { createCorrectionAuditReadService } from './correction-audit-read-service.js';
+import { createPgCorrectionAuditReadRepository } from './correction-audit-read-repository.js';
 import { createCorrectionApplyService } from './correction-apply-service.js';
 import { createPgCorrectionApplyRepository } from './correction-apply-repository.js';
 import { createCorrectionService } from './correction-service.js';
@@ -24,8 +26,10 @@ export function createAdminCorrectionServices(
   const suspendedRepo = createPgSuspendedCorrectionRepository(pool, correctionRepo);
   const decisionRepo = createPgCorrectionDecisionRepository(pool);
   const applyRepo = createPgCorrectionApplyRepository(pool);
+  const auditReadRepo = createPgCorrectionAuditReadRepository(pool);
 
   return {
+    auditReadService: createCorrectionAuditReadService(auditReadRepo),
     correctionService: createCorrectionService(correctionRepo, serviceOptions),
     decisionService: createCorrectionDecisionService(decisionRepo, serviceOptions),
     applyService: createCorrectionApplyService(applyRepo, serviceOptions),

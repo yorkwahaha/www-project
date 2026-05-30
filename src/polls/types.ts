@@ -69,6 +69,13 @@ export type PollOptionVoteCounterRow = {
   vote_count: number;
 };
 
+export type PollOptionVoteAggregateRow = {
+  option_id: string;
+  option_order: number;
+  option_text: string;
+  vote_count: string;
+};
+
 export type CreatePollInput = {
   creatorId: string;
   title: string;
@@ -116,4 +123,22 @@ export type ReferenceAnswerResult = {
 export type OfficialVoteResult = {
   status: 'voted';
   voted: true;
+};
+
+export type PollResultDisplay = {
+  poll_id: string;
+  display_mode:
+    | 'collecting'
+    | 'bucketed_percentage'
+    | 'rounded_with_bucketed_votes'
+    | 'precise';
+  total_votes_display: '收集中' | '30–99' | '100–499' | '500+';
+  collecting: boolean;
+  options: Array<{
+    option_index: number;
+    display_label: string;
+    display_percentage: string | null;
+    display_count: string | null;
+  }>;
+  updated_display: '最近更新';
 };

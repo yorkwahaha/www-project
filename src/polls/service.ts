@@ -13,6 +13,8 @@ import type {
   CreatePollResult,
   DeletePollResult,
   PollDetail,
+  PollOptionVoteAggregateRow,
+  PollResultDisplay,
   OfficialVoteResult,
   ReferenceAnswerResult,
 } from './types.js';
@@ -27,6 +29,7 @@ import { validateCreatePollInput } from './validation.js';
 export type PollService = {
   createPoll(input: CreatePollInput, displayName: string): Promise<CreatePollResult>;
   getPollById(pollId: string): Promise<PollDetail>;
+  getPollResults(pollId: string): Promise<PollResultDisplay>;
   deletePoll(pollId: string, creatorId: string): Promise<DeletePollResult>;
   submitReferenceAnswer(
     pollId: string,
@@ -72,6 +75,15 @@ export function createPollService(
       }
       const options = await repository.listOptionsByPollId(pollId);
       return toPollDetail(poll, options);
+    },
+
+    async getPollResults(pollId) {
+      const poll = await repository.findPollById(pollId);
+      if (!poll || poll.status === 'deleted') {
+        throw new PollNotFoundError();
+      }
+      const options = await repository.listVoteAggregatesByPollId(pollId);
+      return toPollResultDisplay(pollId, options);
     },
 
     async deletePoll(pollId, creatorId) {
@@ -195,4 +207,73 @@ function toPollDetail(
     })),
     user_participation_state: null,
   };
+}
+
+function toPollResultDisplay(
+  pollId: string,
+  options: PollOptionVoteAggregateRow[],
+): PollResultDisplay {
+  const counts = options.map((option) => BigInt(option.vote_count));
+  const total = counts.reduce((sum, count) => sum + count, 0n);
+  const tier = getResultTier(total);
+  return {
+    poll_id: pollId,
+    display_mode: tier.displayMode,
+    total_votes_display: tier.totalVotesDisplay,
+    collecting: total < 30n,
+    options: options.map((option, index) => ({
+      option_index: option.option_order,
+      display_label: option.option_text,
+      display_percentage: formatPercentage(counts[index]!, total),
+      display_count: formatCount(counts[index]!, total),
+    })),
+    updated_display: '最近更新',
+  };
+}
+
+function getResultTier(total: bigint): {
+  displayMode: PollResultDisplay['display_mode'];
+  totalVotesDisplay: PollResultDisplay['total_votes_display'];
+} {
+  if (total < 30n) {
+    return { displayMode: 'collecting', totalVotesDisplay: '收集中' };
+  }
+  if (total < 100n) {
+    return { displayMode: 'bucketed_percentage', totalVotesDisplay: '30–99' };
+  }
+  if (total < 500n) {
+    return {
+      displayMode: 'rounded_with_bucketed_votes',
+      totalVotesDisplay: '100–499',
+    };
+  }
+  return { displayMode: 'precise', totalVotesDisplay: '500+' };
+}
+
+function formatPercentage(count: bigint, total: bigint): string | null {
+  if (total < 30n) {
+    return null;
+  }
+  if (total < 100n) {
+    const lower = (count * 100n / total / 10n) * 10n;
+    const upper = lower + 10n > 100n ? 100n : lower + 10n;
+    return lower === upper ? '約 100%' : `約 ${lower}–${upper}%`;
+  }
+  if (total < 500n) {
+    return `約 ${(count * 100n + total / 2n) / total}%`;
+  }
+  const tenths = (count * 1_000n + total / 2n) / total;
+  return `${tenths / 10n}.${tenths % 10n}%`;
+}
+
+function formatCount(count: bigint, total: bigint): string | null {
+  if (total < 100n) {
+    return null;
+  }
+  if (total < 500n) {
+    const lower = (count / 50n) * 50n;
+    const upper = lower + 50n;
+    return `約 ${lower}–${upper} 票`;
+  }
+  return `約 ${((count + 5n) / 10n) * 10n} 票`;
 }

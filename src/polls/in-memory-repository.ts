@@ -121,6 +121,22 @@ export function createInMemoryPollRepository(): PollRepository & {
       );
     },
 
+    async listVoteAggregatesByPollId(pollId) {
+      return (options.get(pollId) ?? [])
+        .map((option) => ({
+          option_id: option.id,
+          option_order: option.option_order,
+          option_text: option.option_text,
+          vote_count: [...voteCounters.values()]
+            .filter((counter) => (
+              counter.poll_id === pollId && counter.option_id === option.id
+            ))
+            .reduce((total, counter) => total + counter.vote_count, 0)
+            .toString(),
+        }))
+        .sort((a, b) => a.option_order - b.option_order);
+    },
+
     async softDeletePoll(pollId, creatorId) {
       const poll = polls.get(pollId);
       if (!poll || poll.creator_id !== creatorId || poll.status === 'deleted') {

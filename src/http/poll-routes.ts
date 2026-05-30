@@ -76,6 +76,19 @@ export function createPollRouteHandlers(pollService: PollService) {
       return dispatchReferenceAnswer(req, res, pollId, pollService, requireUserId);
     },
 
+    async handleGetPollResults(
+      _req: IncomingMessage,
+      res: ServerResponse,
+      pollId: string,
+    ): Promise<void> {
+      try {
+        const result = await pollService.getPollResults(pollId);
+        sendJson(res, 200, result);
+      } catch (err) {
+        handlePollRouteError(res, err);
+      }
+    },
+
     handlePostOfficialVote(
       req: IncomingMessage,
       res: ServerResponse,

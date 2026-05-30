@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from 'pg';
 import type {
   CreatePollInput,
   PollOptionRow,
+  PollOptionVoteAggregateRow,
   PollOptionVoteCounterRow,
   PollReferenceAnswerTokenRow,
   PollRow,
@@ -22,6 +23,7 @@ export type PollRepository = {
   createPollWithOptions(input: CreatePollInput): Promise<PollRow>;
   findPollById(pollId: string): Promise<PollRow | null>;
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
+  listVoteAggregatesByPollId(pollId: string): Promise<PollOptionVoteAggregateRow[]>;
   optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
   softDeletePoll(pollId: string, creatorId: string): Promise<PollRow | null>;
   createReferenceAnswerToken(
@@ -46,6 +48,7 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     createPollWithOptions: (input) => createPollWithOptions(pool, input),
     findPollById: (pollId) => findPollById(pool, pollId),
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
+    listVoteAggregatesByPollId: (pollId) => listVoteAggregatesByPollId(pool, pollId),
     optionBelongsToPoll: (pollId, optionId) => optionBelongsToPoll(pool, pollId, optionId),
     softDeletePoll: (pollId, creatorId) => softDeletePoll(pool, pollId, creatorId),
     createReferenceAnswerToken: (userId, pollId, answeredAt, expiresAt) =>
@@ -294,6 +297,28 @@ async function listOptionsByPollId(
      FROM poll_options
      WHERE poll_id = $1
      ORDER BY option_order ASC`,
+    [pollId],
+  );
+  return result.rows;
+}
+
+async function listVoteAggregatesByPollId(
+  pool: Pool,
+  pollId: string,
+): Promise<PollOptionVoteAggregateRow[]> {
+  const result = await pool.query<PollOptionVoteAggregateRow>(
+    `SELECT
+       options.id AS option_id,
+       options.option_order,
+       options.option_text,
+       COALESCE(SUM(counters.vote_count), 0)::text AS vote_count
+     FROM poll_options AS options
+     LEFT JOIN poll_option_vote_counters AS counters
+       ON counters.poll_id = options.poll_id
+      AND counters.option_id = options.id
+     WHERE options.poll_id = $1
+     GROUP BY options.id, options.option_order, options.option_text
+     ORDER BY options.option_order ASC`,
     [pollId],
   );
   return result.rows;

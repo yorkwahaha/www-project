@@ -1,8 +1,8 @@
 {
   "name": "www-project",
-  "version": "0.0.0-phase0",
+  "version": "0.1.0-phase1",
   "private": true,
-  "description": "WWW Project — What We Wonder／大家想知道 (Phase 0 foundation)",
+  "description": "WWW Project — What We Wonder／大家想知道 (Phase 1 poll core)",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.29",
+    "@types/pg": "^8.15.2",
     "pg": "^8.16.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.4"

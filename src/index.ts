@@ -1,11 +1,11 @@
 import { pathToFileURL } from 'node:url';
-import { createPhase0App } from './app.js';
+import { createApp } from './app.js';
 
-/**
- * Phase 0 entry: minimal boot only. No poll, vote, or governance APIs.
- */
 export function main(): { status: string; phase: number } {
-  const app = createPhase0App();
+  const app = createApp();
+  const port = Number(process.env.PORT ?? 3000);
+  app.startHttpServer(port);
+  console.log(`WWW Project listening on port ${port}`);
   return app.health();
 }
 
@@ -14,6 +14,5 @@ const isDirectRun =
   import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (isDirectRun) {
-  const health = main();
-  console.log(JSON.stringify(health));
+  main();
 }

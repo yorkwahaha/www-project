@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { readFile } from 'node:fs/promises';
 import type { PollService } from '../polls/service.js';
 import { sendJson } from './json.js';
 import { createPollRouteHandlers } from './poll-routes.js';
@@ -33,6 +34,31 @@ async function routeRequest(
 
   if (method === 'GET' && path === '/health') {
     sendJson(res, 200, { status: 'ok', phase: 4 });
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/result-page.js') {
+    await sendPublicFile(res, 'frontend/result-page.js', 'text/javascript; charset=utf-8');
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/submission-privacy.js') {
+    await sendPublicFile(
+      res,
+      'frontend/submission-privacy.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  const resultPageMatch = path.match(/^\/results\/([^/]+)$/);
+  if (resultPageMatch && method === 'GET') {
+    const pollId = resultPageMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    await sendPublicFile(res, 'results.html', 'text/html; charset=utf-8');
     return;
   }
 
@@ -102,4 +128,20 @@ async function routeRequest(
   }
 
   sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+}
+
+async function sendPublicFile(
+  res: ServerResponse,
+  relativePath: string,
+  contentType: string,
+): Promise<void> {
+  const body = await readFile(new URL(`../../public/${relativePath}`, import.meta.url), 'utf8');
+  res.writeHead(200, {
+    'Content-Type': contentType,
+    'Content-Length': Buffer.byteLength(body),
+    'Cache-Control': 'no-store',
+    'Content-Security-Policy':
+      "default-src 'self'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'",
+  });
+  res.end(body);
 }

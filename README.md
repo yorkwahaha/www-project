@@ -40,6 +40,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
 | `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
 | `GET` | `/polls/:id/results` | Read display-safe aggregate Official Vote results |
+| `GET` | `/results/:id` | Public identity-neutral result page |
 | `GET` | `/health` | Health check |
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
@@ -48,6 +49,6 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 
 Implemented: `users`, `polls`, `poll_options`, Reference Answer Design B, Official Vote tokens, official aggregate sharded counters, and privacy-safe result display tiers.
 
-Not implemented yet: frontend runtime selection memory and BFCache clearing because this repository has no frontend. Add page-local memory clearing on `pagehide` and BFCache `pageshow` before a frontend is introduced.
+Frontend selection state is page-local runtime memory only. The frontend privacy controller clears selected options and request payloads after submission, on `pagehide`, and on BFCache `pageshow` restore.
 
 Also not implemented: ranking and admin governance.

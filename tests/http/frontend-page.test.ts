@@ -1,0 +1,69 @@
+import type { Server } from 'node:http';
+import { describe, expect, it } from 'vitest';
+import { createHttpServer } from '../../src/http/server.js';
+import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
+import { createPollService } from '../../src/polls/service.js';
+
+async function withServer<T>(
+  server: Server,
+  run: (baseUrl: string) => Promise<T>,
+): Promise<T> {
+  await new Promise<void>((resolve) => {
+    server.listen(0, '127.0.0.1', () => resolve());
+  });
+  const address = server.address();
+  if (!address || typeof address === 'string') {
+    throw new Error('failed to bind test server');
+  }
+  try {
+    return await run(`http://127.0.0.1:${address.port}`);
+  } finally {
+    await new Promise<void>((resolve, reject) => {
+      server.close((err) => (err ? reject(err) : resolve()));
+    });
+  }
+}
+
+describe('frontend static routes', () => {
+  it('serves a public result page and named frontend assets only', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+    const pollId = '11111111-1111-4111-8111-111111111111';
+
+    await withServer(server, async (baseUrl) => {
+      const page = await fetch(`${baseUrl}/results/${pollId}`, {
+        headers: { 'X-User-Id': 'ignored-user-id' },
+      });
+      const pageBody = await page.text();
+      const resultScript = await fetch(`${baseUrl}/frontend/result-page.js`);
+      const privacyScript = await fetch(
+        `${baseUrl}/frontend/submission-privacy.js`,
+      );
+
+      expect(page.status).toBe(200);
+      expect(page.headers.get('content-type')).toContain('text/html');
+      expect(page.headers.get('cache-control')).toBe('no-store');
+      expect(pageBody).toContain('/frontend/result-page.js');
+      expect(pageBody).not.toContain('ignored-user-id');
+      expect(resultScript.status).toBe(200);
+      expect(privacyScript.status).toBe(200);
+    });
+  });
+
+  it('returns a safe 400 for an invalid public result page poll id', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const response = await fetch(`${baseUrl}/results/not-a-uuid`);
+
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toEqual({
+        error: 'INVALID_POLL_ID',
+        message: 'Invalid poll id',
+      });
+    });
+  });
+});

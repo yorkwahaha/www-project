@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>投票結果 | What We Wonder</title>
+    <style>
+      body {
+        max-width: 44rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+
+      .result-option {
+        margin: 1rem 0;
+        padding: 1rem;
+        border: 1px solid #d0d0d0;
+        border-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>投票結果</h1>
+      <div id="result-display" aria-live="polite">載入中</div>
+    </main>
+    <script type="module" src="/frontend/result-page.js"></script>
+  </body>
+</html>

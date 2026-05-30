@@ -4,21 +4,28 @@ import { getHealthStatus } from '../milestone.js';
 import type { PollService } from '../polls/service.js';
 import type { PublicFeedQuery } from '../polls/types.js';
 import { sendJson } from './json.js';
+import { createAdminRouteHandlers, type AdminCorrectionServices } from './admin-routes.js';
 import { createPollRouteHandlers } from './poll-routes.js';
+
+export type { AdminCorrectionServices } from './admin-routes.js';
 
 const POLL_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type HttpServerOptions = {
   pollService: PollService;
+  adminCorrection?: AdminCorrectionServices;
 };
 
 export function createHttpServer(options: HttpServerOptions) {
   const pollRoutes = createPollRouteHandlers(options.pollService);
+  const adminRoutes = options.adminCorrection
+    ? createAdminRouteHandlers(options.adminCorrection)
+    : null;
 
   return createServer(async (req, res) => {
     try {
-      await routeRequest(req, res, pollRoutes);
+      await routeRequest(req, res, pollRoutes, adminRoutes);
     } catch {
       sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'Internal server error' });
     }
@@ -29,6 +36,7 @@ async function routeRequest(
   req: IncomingMessage,
   res: ServerResponse,
   pollRoutes: ReturnType<typeof createPollRouteHandlers>,
+  adminRoutes: ReturnType<typeof createAdminRouteHandlers> | null,
 ): Promise<void> {
   const method = req.method ?? 'GET';
   const url = new URL(req.url ?? '/', 'http://localhost');
@@ -137,6 +145,68 @@ async function routeRequest(
       await pollRoutes.handleDeletePoll(req, res, pollId);
       return;
     }
+  }
+
+  if (path.startsWith('/admin/')) {
+    if (!adminRoutes) {
+      sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+      return;
+    }
+    if (path === '/admin/correction-requests' && method === 'POST') {
+      await adminRoutes.handlePostCorrectionRequests(req, res);
+      return;
+    }
+
+    if (path === '/admin/suspended-correction-requests' && method === 'POST') {
+      await adminRoutes.handlePostSuspendedCorrectionRequests(req, res);
+      return;
+    }
+
+    const suspendedApplyMatch = path.match(
+      /^\/admin\/suspended-correction-requests\/([^/]+)\/apply$/,
+    );
+    if (suspendedApplyMatch && method === 'POST') {
+      const requestId = suspendedApplyMatch[1]!;
+      if (!POLL_ID_PATTERN.test(requestId)) {
+        sendJson(res, 400, {
+          error: 'INVALID_REQUEST_ID',
+          message: 'Invalid request id',
+        });
+        return;
+      }
+      await adminRoutes.handlePostSuspendedCorrectionApply(req, res, requestId);
+      return;
+    }
+
+    const correctionRequestMatch = path.match(
+      /^\/admin\/correction-requests\/([^/]+)\/(review-context|decisions|apply)$/,
+    );
+    if (correctionRequestMatch) {
+      const requestId = correctionRequestMatch[1]!;
+      const subPath = correctionRequestMatch[2];
+      if (!POLL_ID_PATTERN.test(requestId)) {
+        sendJson(res, 400, {
+          error: 'INVALID_REQUEST_ID',
+          message: 'Invalid request id',
+        });
+        return;
+      }
+      if (subPath === 'review-context' && method === 'GET') {
+        await adminRoutes.handleGetReviewContext(req, res, requestId);
+        return;
+      }
+      if (subPath === 'decisions' && method === 'POST') {
+        await adminRoutes.handlePostCorrectionDecision(req, res, requestId);
+        return;
+      }
+      if (subPath === 'apply' && method === 'POST') {
+        await adminRoutes.handlePostCorrectionApply(req, res, requestId);
+        return;
+      }
+    }
+
+    sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+    return;
   }
 
   sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });

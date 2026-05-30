@@ -1,3 +1,4 @@
+import { createAdminCorrectionServices } from './admin/create-admin-correction-services.js';
 import { getPool } from './db/client.js';
 import { createHttpServer } from './http/server.js';
 import { getHealthStatus, type HealthStatus } from './milestone.js';
@@ -16,8 +17,12 @@ export function createApp(): WwwApp {
       return getHealthStatus();
     },
     startHttpServer(port = Number(process.env.PORT ?? 3000)) {
-      const pollService = createPollService(createPgPollRepository(getPool()));
-      const server = createHttpServer({ pollService });
+      const pool = getPool();
+      const pollService = createPollService(createPgPollRepository(pool));
+      const server = createHttpServer({
+        pollService,
+        adminCorrection: createAdminCorrectionServices(pool),
+      });
       server.listen(port);
       return server;
     },

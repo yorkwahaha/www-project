@@ -151,6 +151,19 @@ export type PollResultDisplay = {
   updated_display: '最近更新';
 };
 
+export type PublicFeedQuery = {
+  limit?: number | string;
+  cursor?: string;
+};
+
+export type ListPublicFeedPollsParams = {
+  limit: number;
+  cursor?: {
+    publishedAt: Date;
+    pollId: string;
+  };
+};
+
 export type PublicFeedResult = {
   polls: Array<{
     poll_id: string;
@@ -160,4 +173,5 @@ export type PublicFeedResult = {
     published_display: '最近發布';
     result_page_url: string;
   }>;
+  next_cursor: string | null;
 };

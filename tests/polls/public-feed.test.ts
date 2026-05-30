@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { InvalidFeedCursorError, InvalidFeedLimitError } from '../../src/polls/errors.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import { createPollService } from '../../src/polls/service.js';
 
@@ -25,6 +26,21 @@ async function createPoll(
     },
     'Creator',
   );
+}
+
+async function seedPublishedPolls(
+  service: ReturnType<typeof createPollService>,
+  repository: ReturnType<typeof createInMemoryPollRepository>,
+  count: number,
+  publishedAtForIndex: (index: number) => Date,
+) {
+  const pollIds: string[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const created = await createPoll(service, `Feed ${index}`);
+    repository.polls.get(created.poll_id)!.published_at = publishedAtForIndex(index);
+    pollIds.push(created.poll_id);
+  }
+  return pollIds;
 }
 
 describe('public freshness feed', () => {
@@ -59,6 +75,7 @@ describe('public freshness feed', () => {
       newer.poll_id,
       older.poll_id,
     ]);
+    expect(feed.next_cursor).toBeNull();
     expect(feed.polls).not.toContainEqual(expect.objectContaining({ poll_id: draft.poll_id }));
     expect(feed.polls).not.toContainEqual(expect.objectContaining({ poll_id: closed.poll_id }));
     expect(feed.polls).not.toContainEqual(
@@ -66,6 +83,85 @@ describe('public freshness feed', () => {
     );
     expect(feed.polls).not.toContainEqual(
       expect.objectContaining({ poll_id: deleted.poll_id }),
+    );
+  });
+
+  it('defaults to the first 50 rows when more polls exist', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    const pollIds = await seedPublishedPolls(
+      service,
+      repository,
+      55,
+      (index) => new Date(Date.UTC(2026, 0, 1, 0, 0, index)),
+    );
+
+    const feed = await service.getPublicFeed();
+
+    expect(feed.polls).toHaveLength(50);
+    expect(feed.polls[0]!.poll_id).toBe(pollIds[54]);
+    expect(feed.polls[49]!.poll_id).toBe(pollIds[5]);
+    expect(feed.polls.map((poll) => poll.poll_id)).not.toContain(pollIds[0]);
+    expect(feed.next_cursor).toBeTypeOf('string');
+  });
+
+  it('paginates with limit and cursor without duplicates', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    await seedPublishedPolls(
+      service,
+      repository,
+      55,
+      (index) => new Date(Date.UTC(2026, 0, 1, 0, 0, index)),
+    );
+
+    const page1 = await service.getPublicFeed({ limit: 20 });
+    const page2 = await service.getPublicFeed({
+      limit: 20,
+      cursor: page1.next_cursor!,
+    });
+    const page3 = await service.getPublicFeed({
+      limit: 20,
+      cursor: page2.next_cursor!,
+    });
+
+    expect(page1.polls).toHaveLength(20);
+    expect(page2.polls).toHaveLength(20);
+    expect(page3.polls).toHaveLength(15);
+    expect(page3.next_cursor).toBeNull();
+
+    const allIds = [...page1.polls, ...page2.polls, ...page3.polls].map(
+      (poll) => poll.poll_id,
+    );
+    const expectedOrder = [...repository.polls.values()]
+      .filter((poll) => poll.status === 'active' && poll.published_at !== null)
+      .sort(
+        (a, b) =>
+          b.published_at!.getTime() - a.published_at!.getTime() ||
+          a.id.localeCompare(b.id),
+      )
+      .map((poll) => poll.id);
+
+    expect(new Set(allIds).size).toBe(55);
+    expect(allIds).toEqual(expectedOrder);
+  });
+
+  it('rejects invalid feed limit and cursor values', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    await createPoll(service, 'One');
+
+    await expect(service.getPublicFeed({ limit: 0 })).rejects.toBeInstanceOf(
+      InvalidFeedLimitError,
+    );
+    await expect(service.getPublicFeed({ limit: 51 })).rejects.toBeInstanceOf(
+      InvalidFeedLimitError,
+    );
+    await expect(service.getPublicFeed({ limit: 'bad' })).rejects.toBeInstanceOf(
+      InvalidFeedLimitError,
+    );
+    await expect(service.getPublicFeed({ cursor: 'not-a-cursor' })).rejects.toBeInstanceOf(
+      InvalidFeedCursorError,
     );
   });
 
@@ -85,6 +181,7 @@ describe('public freshness feed', () => {
           result_page_url: `/results/${created.poll_id}`,
         },
       ],
+      next_cursor: null,
     });
 
     expect(JSON.stringify(await service.getPublicFeed())).not.toMatch(
@@ -125,15 +222,33 @@ describe('public freshness feed', () => {
       join(process.cwd(), 'src/polls/repository.ts'),
       'utf8',
     );
-    const feedQuery = source.match(
-      /async function listPublicFeedPolls[\s\S]*?`([\s\S]*?)`,\s*\);/,
-    )?.[1];
+    const feedFunction = source.match(
+      /async function listPublicFeedPolls[\s\S]*?return result\.rows;\r?\n}/,
+    )?.[0];
+    const feedSql = source.match(
+      /`SELECT id, title, category, status, published_at[\s\S]*?LIMIT \$\$\{values\.length\}`/,
+    )?.[0];
 
-    expect(feedQuery).toContain('FROM polls');
-    expect(feedQuery).toContain("WHERE status = 'active' AND published_at IS NOT NULL");
-    expect(feedQuery).toContain('ORDER BY published_at DESC, id ASC');
-    expect(feedQuery).not.toMatch(
-      /JOIN|poll_options|poll_option_vote_counters|poll_vote_tokens|poll_reference_answer_tokens|users|option_id|vote_count|shard_id|user_id/i,
-    );
+    expect(feedFunction).toContain("status = 'active'");
+    expect(feedFunction).toContain('published_at IS NOT NULL');
+    expect(feedFunction).toContain('published_at <');
+    expect(feedFunction).toContain('id >');
+    expect(feedSql).toContain('FROM polls');
+    expect(feedSql).toContain('ORDER BY published_at DESC, id ASC');
+    const staticSql = feedSql!
+      .split('\n')
+      .filter((line) => !line.includes('${'))
+      .join('\n');
+    expect(staticSql).not.toMatch(/\bJOIN\b/i);
+    for (const table of [
+      'poll_options',
+      'poll_option_vote_counters',
+      'poll_vote_tokens',
+      'poll_reference_answer_tokens',
+      'users',
+    ]) {
+      expect(staticSql).not.toMatch(new RegExp(`\\bFROM\\s+${table}\\b`, 'i'));
+      expect(staticSql).not.toMatch(new RegExp(`\\bJOIN\\s+${table}\\b`, 'i'));
+    }
   });
 });

@@ -119,6 +119,7 @@ describe('Public Feed PostgreSQL integration', () => {
       newer.poll_id,
       older.poll_id,
     ]);
+    expect(baseline.next_cursor).toBeNull();
     expect(baseline.polls).not.toContainEqual(
       expect.objectContaining({ poll_id: draft.poll_id }),
     );
@@ -175,5 +176,53 @@ describe('Public Feed PostgreSQL integration', () => {
     expect(feed.polls.map((poll) => poll.poll_id)).not.toContain(createdPollIds[0]);
     expect(feed.polls[0]!.poll_id).toBe(createdPollIds[50]);
     expect(feed.polls[49]!.poll_id).toBe(createdPollIds[1]);
+    expect(feed.next_cursor).toBeTypeOf('string');
+
+    const page2 = await service.getPublicFeed({ cursor: feed.next_cursor! });
+    expect(page2.polls).toHaveLength(1);
+    expect(page2.polls[0]!.poll_id).toBe(createdPollIds[0]);
+    expect(page2.next_cursor).toBeNull();
+  });
+
+  it('paginates with limit and same published_at tie-break by id ASC', async () => {
+    const repository = createPgPollRepository(pool);
+    const service = createPollService(repository);
+
+    await repository.ensureUser(creatorId, 'Creator');
+
+    const sameTime = new Date('2026-03-01T00:00:00.000Z');
+    const pollIds: string[] = [];
+    for (let index = 0; index < 5; index += 1) {
+      const created = await createPublishedPoll(service, `Tie ${index}`);
+      await setPollPublishedAt(pool, created.poll_id, sameTime);
+      pollIds.push(created.poll_id);
+    }
+
+    const sortedIds = [...pollIds].sort();
+    const page1 = await service.getPublicFeed({ limit: 2 });
+    const page2 = await service.getPublicFeed({
+      limit: 2,
+      cursor: page1.next_cursor!,
+    });
+    const page3 = await service.getPublicFeed({
+      limit: 2,
+      cursor: page2.next_cursor!,
+    });
+
+    expect(page1.polls.map((poll) => poll.poll_id)).toEqual(sortedIds.slice(0, 2));
+    expect(page2.polls.map((poll) => poll.poll_id)).toEqual(sortedIds.slice(2, 4));
+    expect(page3.polls.map((poll) => poll.poll_id)).toEqual(sortedIds.slice(4, 5));
+    expect(page3.next_cursor).toBeNull();
+  });
+
+  it('has public feed freshness partial index', async () => {
+    const result = await pool.query<{ indexname: string }>(
+      `SELECT indexname
+       FROM pg_indexes
+       WHERE schemaname = 'public'
+         AND tablename = 'polls'
+         AND indexname = 'idx_polls_public_feed_freshness'`,
+    );
+    expect(result.rows).toHaveLength(1);
   });
 });

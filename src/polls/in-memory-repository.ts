@@ -6,6 +6,7 @@ import type {
   PollReferenceAnswerTokenRow,
   PollRow,
   PollStatus,
+  ListPublicFeedPollsParams,
   PollVoteTokenRow,
   UserRow,
 } from './types.js';
@@ -137,14 +138,17 @@ export function createInMemoryPollRepository(): PollRepository & {
         .sort((a, b) => a.option_order - b.option_order);
     },
 
-    async listPublicFeedPolls() {
+    async listPublicFeedPolls(params: ListPublicFeedPollsParams) {
       return [...polls.values()]
         .filter((poll) => poll.status === 'active' && poll.published_at !== null)
+        .filter((poll) => (
+          !params.cursor || isPublicFeedRowAfterCursor(poll, params.cursor)
+        ))
         .sort((a, b) => (
           b.published_at!.getTime() - a.published_at!.getTime() ||
           a.id.localeCompare(b.id)
         ))
-        .slice(0, 50)
+        .slice(0, params.limit + 1)
         .map((poll) => ({
           id: poll.id,
           title: poll.title,
@@ -249,4 +253,19 @@ export function createInMemoryPollRepository(): PollRepository & {
       return token;
     },
   };
+}
+
+function isPublicFeedRowAfterCursor(
+  poll: PollRow,
+  cursor: NonNullable<ListPublicFeedPollsParams['cursor']>,
+): boolean {
+  const publishedAt = poll.published_at!.getTime();
+  const cursorPublishedAt = cursor.publishedAt.getTime();
+  if (publishedAt < cursorPublishedAt) {
+    return true;
+  }
+  if (publishedAt > cursorPublishedAt) {
+    return false;
+  }
+  return poll.id > cursor.pollId;
 }

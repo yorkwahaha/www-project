@@ -15,10 +15,12 @@ import type {
   PollDetail,
   PollOptionVoteAggregateRow,
   PollResultDisplay,
+  PublicFeedQuery,
   PublicFeedResult,
   OfficialVoteResult,
   ReferenceAnswerResult,
 } from './types.js';
+import { decodeFeedCursor, encodeFeedCursor, parseFeedLimit } from './feed-cursor.js';
 import {
   INVALID_REFERENCE_ANSWER_OPTION_MESSAGE,
   REFERENCE_ANSWER_LOW_TRUST_ONLY_MESSAGE,
@@ -31,7 +33,7 @@ export type PollService = {
   createPoll(input: CreatePollInput, displayName: string): Promise<CreatePollResult>;
   getPollById(pollId: string): Promise<PollDetail>;
   getPollResults(pollId: string): Promise<PollResultDisplay>;
-  getPublicFeed(): Promise<PublicFeedResult>;
+  getPublicFeed(query?: PublicFeedQuery): Promise<PublicFeedResult>;
   deletePoll(pollId: string, creatorId: string): Promise<DeletePollResult>;
   submitReferenceAnswer(
     pollId: string,
@@ -88,10 +90,15 @@ export function createPollService(
       return toPollResultDisplay(pollId, options);
     },
 
-    async getPublicFeed() {
-      const polls = await repository.listPublicFeedPolls();
+    async getPublicFeed(query = {}) {
+      const limit = parseFeedLimit(query.limit);
+      const cursor = query.cursor === undefined ? undefined : decodeFeedCursor(query.cursor);
+      const rows = await repository.listPublicFeedPolls({ limit, cursor });
+      const hasMore = rows.length > limit;
+      const pageRows = hasMore ? rows.slice(0, limit) : rows;
+      const lastRow = pageRows.at(-1);
       return {
-        polls: polls.map((poll) => ({
+        polls: pageRows.map((poll) => ({
           poll_id: poll.id,
           title: poll.title,
           category: poll.category,
@@ -99,6 +106,10 @@ export function createPollService(
           published_display: '最近發布',
           result_page_url: `/results/${poll.id}`,
         })),
+        next_cursor:
+          hasMore && lastRow
+            ? encodeFeedCursor(lastRow.published_at, lastRow.id)
+            : null,
       };
     },
 

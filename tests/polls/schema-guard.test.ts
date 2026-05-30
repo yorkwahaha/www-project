@@ -122,6 +122,19 @@ describe('Phase 3 migration schema guard', () => {
     }
   });
 
+  it('adds public feed freshness partial index on polls', async () => {
+    const phase5c = await readFile(
+      join(MIGRATIONS_DIR, '005_phase5c_public_feed_index.sql'),
+      'utf8',
+    );
+    const lower = phase5c.toLowerCase();
+
+    expect(lower).toContain('create index idx_polls_public_feed_freshness');
+    expect(lower).toContain('on polls (published_at desc, id asc)');
+    expect(lower).toContain("where status = 'active' and published_at is not null");
+    expect(lower).not.toMatch(/create\s+table|alter\s+table/);
+  });
+
   it('phase 1 migration only adds users, polls, and poll_options', async () => {
     const phase1 = await readFile(
       join(MIGRATIONS_DIR, '002_phase1_poll_core.sql'),

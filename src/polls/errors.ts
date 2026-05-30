@@ -27,6 +27,18 @@ export class PollValidationError extends PollError {
   }
 }
 
+export class InvalidFeedLimitError extends PollError {
+  constructor(message = 'Feed limit must be an integer from 1 to 50') {
+    super('INVALID_FEED_LIMIT', message, 400);
+  }
+}
+
+export class InvalidFeedCursorError extends PollError {
+  constructor(message = 'Invalid feed cursor') {
+    super('INVALID_FEED_CURSOR', message, 400);
+  }
+}
+
 export class ReferenceAnswerDuplicateError extends PollError {
   constructor(message = 'Reference Answer already recorded for this poll') {
     super('REFERENCE_ANSWER_DUPLICATE', message, 409);

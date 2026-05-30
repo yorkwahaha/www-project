@@ -8,6 +8,7 @@ import type {
   PollRow,
   PollStatus,
   PollVoteTokenRow,
+  ListPublicFeedPollsParams,
   PublicFeedPollRow,
   UserRow,
 } from './types.js';
@@ -25,7 +26,7 @@ export type PollRepository = {
   findPollById(pollId: string): Promise<PollRow | null>;
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
   listVoteAggregatesByPollId(pollId: string): Promise<PollOptionVoteAggregateRow[]>;
-  listPublicFeedPolls(): Promise<PublicFeedPollRow[]>;
+  listPublicFeedPolls(params: ListPublicFeedPollsParams): Promise<PublicFeedPollRow[]>;
   optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
   softDeletePoll(pollId: string, creatorId: string): Promise<PollRow | null>;
   createReferenceAnswerToken(
@@ -51,7 +52,7 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     findPollById: (pollId) => findPollById(pool, pollId),
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
     listVoteAggregatesByPollId: (pollId) => listVoteAggregatesByPollId(pool, pollId),
-    listPublicFeedPolls: () => listPublicFeedPolls(pool),
+    listPublicFeedPolls: (params) => listPublicFeedPolls(pool, params),
     optionBelongsToPoll: (pollId, optionId) => optionBelongsToPoll(pool, pollId, optionId),
     softDeletePoll: (pollId, creatorId) => softDeletePoll(pool, pollId, creatorId),
     createReferenceAnswerToken: (userId, pollId, answeredAt, expiresAt) =>
@@ -328,13 +329,28 @@ async function listVoteAggregatesByPollId(
   return result.rows;
 }
 
-async function listPublicFeedPolls(pool: Pool): Promise<PublicFeedPollRow[]> {
+async function listPublicFeedPolls(
+  pool: Pool,
+  params: ListPublicFeedPollsParams,
+): Promise<PublicFeedPollRow[]> {
+  const conditions = ["status = 'active'", 'published_at IS NOT NULL'];
+  const values: unknown[] = [];
+
+  if (params.cursor) {
+    values.push(params.cursor.publishedAt, params.cursor.pollId);
+    conditions.push(
+      `(published_at < $${values.length - 1} OR (published_at = $${values.length - 1} AND id > $${values.length}))`,
+    );
+  }
+
+  values.push(params.limit + 1);
   const result = await pool.query<PublicFeedPollRow>(
     `SELECT id, title, category, status, published_at
      FROM polls
-     WHERE status = 'active' AND published_at IS NOT NULL
+     WHERE ${conditions.join(' AND ')}
      ORDER BY published_at DESC, id ASC
-     LIMIT 50`,
+     LIMIT $${values.length}`,
+    values,
   );
   return result.rows;
 }

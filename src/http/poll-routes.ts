@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { PollError } from '../polls/errors.js';
+import type { PublicFeedQuery } from '../polls/types.js';
 import type { PollService } from '../polls/service.js';
 import { handlePostOfficialVote as dispatchOfficialVote } from './official-vote-routes.js';
 import { handlePostReferenceAnswer as dispatchReferenceAnswer } from './reference-answer-routes.js';
@@ -79,9 +80,10 @@ export function createPollRouteHandlers(pollService: PollService) {
     async handleGetPublicFeed(
       _req: IncomingMessage,
       res: ServerResponse,
+      query: PublicFeedQuery = {},
     ): Promise<void> {
       try {
-        const feed = await pollService.getPublicFeed();
+        const feed = await pollService.getPublicFeed(query);
         sendJson(res, 200, feed);
       } catch (err) {
         handlePollRouteError(res, err);

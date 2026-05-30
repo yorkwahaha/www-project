@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFile } from 'node:fs/promises';
 import { getHealthStatus } from '../milestone.js';
 import type { PollService } from '../polls/service.js';
+import type { PublicFeedQuery } from '../polls/types.js';
 import { sendJson } from './json.js';
 import { createPollRouteHandlers } from './poll-routes.js';
 
@@ -79,14 +80,12 @@ async function routeRequest(
   }
 
   if (path === '/polls/feed' && method === 'GET') {
-    if (url.search) {
-      sendJson(res, 400, {
-        error: 'UNSUPPORTED_QUERY_PARAMS',
-        message: 'Feed query parameters are not supported',
-      });
+    const feedQuery = parsePublicFeedQuery(url);
+    if ('error' in feedQuery) {
+      sendJson(res, 400, feedQuery.error);
       return;
     }
-    await pollRoutes.handleGetPublicFeed(req, res);
+    await pollRoutes.handleGetPublicFeed(req, res, feedQuery.value);
     return;
   }
 
@@ -157,4 +156,30 @@ async function sendPublicFile(
       "default-src 'self'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'",
   });
   res.end(body);
+}
+
+const FEED_QUERY_PARAM_ALLOWLIST = new Set(['limit', 'cursor']);
+
+function parsePublicFeedQuery(
+  url: URL,
+): { value: PublicFeedQuery } | { error: { error: string; message: string } } {
+  for (const key of url.searchParams.keys()) {
+    if (!FEED_QUERY_PARAM_ALLOWLIST.has(key)) {
+      return {
+        error: {
+          error: 'UNSUPPORTED_QUERY_PARAMS',
+          message: 'Feed query parameters are not supported',
+        },
+      };
+    }
+  }
+
+  const limit = url.searchParams.get('limit');
+  const cursor = url.searchParams.get('cursor');
+  return {
+    value: {
+      ...(limit === null ? {} : { limit }),
+      ...(cursor === null ? {} : { cursor }),
+    },
+  };
 }

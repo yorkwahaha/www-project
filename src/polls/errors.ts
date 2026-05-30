@@ -27,6 +27,12 @@ export class PollValidationError extends PollError {
   }
 }
 
+export class ReferenceAnswerDuplicateError extends PollError {
+  constructor(message = 'Reference Answer already recorded for this poll') {
+    super('REFERENCE_ANSWER_DUPLICATE', message, 409);
+  }
+}
+
 /** Creator cannot edit poll content after publish (Phase 1+). */
 export class PublishedPollImmutableError extends PollError {
   constructor(message = 'Published polls cannot be edited by the creator') {

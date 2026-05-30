@@ -274,6 +274,12 @@ Constraints:
 unique(user_id, poll_id)
 ```
 
+TTL:
+
+```text
+expires_at = poll.closes_at
+```
+
 Must not include:
 
 ```text
@@ -734,7 +740,7 @@ Transaction:
 1. Validate user.
 2. Validate poll is active.
 3. Validate option belongs to poll.
-4. Insert `poll_reference_answer_tokens`.
+4. Insert `poll_reference_answer_tokens` with `expires_at = poll.closes_at`.
 5. Return success.
 
 Database writes:

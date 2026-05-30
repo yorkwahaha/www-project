@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from 'pg';
 import type {
   CreatePollInput,
   PollOptionRow,
+  PollReferenceAnswerTokenRow,
   PollRow,
   PollStatus,
   UserRow,
@@ -9,20 +10,41 @@ import type {
 
 export type PollRepository = {
   ensureUser(userId: string, displayName: string): Promise<UserRow>;
+  findUserById(userId: string): Promise<UserRow | null>;
   createPollWithOptions(input: CreatePollInput): Promise<PollRow>;
   findPollById(pollId: string): Promise<PollRow | null>;
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
+  optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
   softDeletePoll(pollId: string, creatorId: string): Promise<PollRow | null>;
+  createReferenceAnswerToken(
+    userId: string,
+    pollId: string,
+    answeredAt: Date,
+    expiresAt: Date,
+  ): Promise<PollReferenceAnswerTokenRow>;
 };
 
 export function createPgPollRepository(pool: Pool): PollRepository {
   return {
     ensureUser: (userId, displayName) => ensureUser(pool, userId, displayName),
+    findUserById: (userId) => findUserById(pool, userId),
     createPollWithOptions: (input) => createPollWithOptions(pool, input),
     findPollById: (pollId) => findPollById(pool, pollId),
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
+    optionBelongsToPoll: (pollId, optionId) => optionBelongsToPoll(pool, pollId, optionId),
     softDeletePoll: (pollId, creatorId) => softDeletePoll(pool, pollId, creatorId),
+    createReferenceAnswerToken: (userId, pollId, answeredAt, expiresAt) =>
+      createReferenceAnswerToken(pool, userId, pollId, answeredAt, expiresAt),
   };
+}
+
+async function findUserById(pool: Pool, userId: string): Promise<UserRow | null> {
+  const result = await pool.query<UserRow>(
+    `SELECT id, display_name, trust_level, status, created_at, updated_at
+     FROM users WHERE id = $1`,
+    [userId],
+  );
+  return result.rows[0] ?? null;
 }
 
 async function ensureUser(
@@ -153,4 +175,36 @@ async function softDeletePoll(
     [pollId, creatorId],
   );
   return result.rows[0] ?? null;
+}
+
+async function optionBelongsToPoll(
+  pool: Pool,
+  pollId: string,
+  optionId: string,
+): Promise<boolean> {
+  const result = await pool.query(
+    `SELECT 1
+     FROM poll_options
+     WHERE poll_id = $1 AND id = $2`,
+    [pollId, optionId],
+  );
+  return result.rows.length > 0;
+}
+
+async function createReferenceAnswerToken(
+  pool: Pool,
+  userId: string,
+  pollId: string,
+  answeredAt: Date,
+  expiresAt: Date,
+): Promise<PollReferenceAnswerTokenRow> {
+  const result = await pool.query<PollReferenceAnswerTokenRow>(
+    `INSERT INTO poll_reference_answer_tokens (
+       user_id, poll_id, answered_at, expires_at
+     )
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, user_id, poll_id, answered_at, expires_at, created_at`,
+    [userId, pollId, answeredAt, expiresAt],
+  );
+  return result.rows[0]!;
 }

@@ -1,8 +1,8 @@
-# WWW Project — Phase 1 (Poll Core)
+# WWW Project — Phase 2 (Reference Answer Design B)
 
 **What We Wonder／大家想知道** — privacy-preserving public poll platform.
 
-Phase 1 adds poll creation, read, and creator delete. See `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md` for architecture and phases.
+Phase 2 adds privacy-preserving Reference Answer participation tokens. See `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md` for architecture and phases.
 
 ## Prerequisites
 
@@ -24,11 +24,11 @@ npm run migrate:check
 
 ## Layout
 
-- `src/` — application code (Phase 0: health boot + logging scrubber)
-- `tests/` — Vitest suites (scrubber + privacy placeholders)
-- `migrations/` — SQL migrations (Phase 0: `schema_migrations` bootstrap only)
+- `src/` — application code
+- `tests/` — Vitest suites
+- `migrations/` — ordered PostgreSQL migrations
 
-## Phase 1 APIs (stub auth)
+## Phase 2 APIs (stub auth)
 
 All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-Name` on create.
 
@@ -37,12 +37,15 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `POST` | `/polls` | Create draft or published poll |
 | `GET` | `/polls/:id` | Poll detail (no vote/ranking signals) |
 | `DELETE` | `/polls/:id` | Creator soft-delete |
+| `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
 | `GET` | `/health` | Health check |
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 
-## Phase 1 scope
+## Phase 2 scope
 
-Implemented: `users`, `polls`, `poll_options`, poll service, HTTP APIs, creator delete, zero-edit enforcement.
+Implemented: `users`, `polls`, `poll_options`, `poll_reference_answer_tokens`, poll service, HTTP APIs, creator delete, zero-edit enforcement, and Reference Answer Design B.
 
-Not implemented yet: Reference Answer, Official Vote, counters, results, ranking, admin governance.
+Not implemented yet: frontend runtime selection memory and BFCache clearing because this repository has no frontend. Add page-local memory clearing on `pagehide` and BFCache `pageshow` before a frontend is introduced.
+
+Also not implemented: Official Vote, counters, results, ranking, admin governance.

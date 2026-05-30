@@ -42,6 +42,15 @@ export type UserRow = {
   updated_at: Date;
 };
 
+export type PollReferenceAnswerTokenRow = {
+  id: string;
+  user_id: string;
+  poll_id: string;
+  answered_at: Date;
+  expires_at: Date;
+  created_at: Date;
+};
+
 export type CreatePollInput = {
   creatorId: string;
   title: string;
@@ -79,4 +88,9 @@ export type DeletePollResult = {
   poll_id: string;
   status: 'deleted';
   deleted_at: string;
+};
+
+export type ReferenceAnswerResult = {
+  status: 'recorded';
+  reference_answered: true;
 };

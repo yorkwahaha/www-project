@@ -12,7 +12,7 @@ export type WwwApp = {
 export function createApp(): WwwApp {
   return {
     health() {
-      return { status: 'ok', phase: 1 };
+      return { status: 'ok', phase: 2 };
     },
     startHttpServer(port = Number(process.env.PORT ?? 3000)) {
       const pollService = createPollService(createPgPollRepository(getPool()));
@@ -26,7 +26,7 @@ export function createApp(): WwwApp {
 export function createAppWithPollService(pollService: PollService): WwwApp {
   return {
     health() {
-      return { status: 'ok', phase: 1 };
+      return { status: 'ok', phase: 2 };
     },
     startHttpServer(port = Number(process.env.PORT ?? 3000)) {
       const server = createHttpServer({ pollService });

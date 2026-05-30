@@ -32,7 +32,7 @@ async function routeRequest(
   const path = url.pathname;
 
   if (method === 'GET' && path === '/health') {
-    sendJson(res, 200, { status: 'ok', phase: 1 });
+    sendJson(res, 200, { status: 'ok', phase: 2 });
     return;
   }
 
@@ -48,6 +48,17 @@ async function routeRequest(
 
   if (path === '/polls' && method === 'POST') {
     await pollRoutes.handlePostPolls(req, res);
+    return;
+  }
+
+  const referenceAnswerMatch = path.match(/^\/polls\/([^/]+)\/reference-answer$/);
+  if (referenceAnswerMatch && method === 'POST') {
+    const pollId = referenceAnswerMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    await pollRoutes.handlePostReferenceAnswer(req, res, pollId);
     return;
   }
 

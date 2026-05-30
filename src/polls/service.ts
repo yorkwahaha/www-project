@@ -1,10 +1,17 @@
-import { PublishedPollImmutableError, PollForbiddenError, PollNotFoundError } from './errors.js';
+import {
+  PublishedPollImmutableError,
+  PollForbiddenError,
+  PollNotFoundError,
+  PollValidationError,
+  ReferenceAnswerDuplicateError,
+} from './errors.js';
 import type { PollRepository } from './repository.js';
 import type {
   CreatePollInput,
   CreatePollResult,
   DeletePollResult,
   PollDetail,
+  ReferenceAnswerResult,
 } from './types.js';
 import { validateCreatePollInput } from './validation.js';
 
@@ -12,6 +19,11 @@ export type PollService = {
   createPoll(input: CreatePollInput, displayName: string): Promise<CreatePollResult>;
   getPollById(pollId: string): Promise<PollDetail>;
   deletePoll(pollId: string, creatorId: string): Promise<DeletePollResult>;
+  submitReferenceAnswer(
+    pollId: string,
+    userId: string,
+    optionId: string,
+  ): Promise<ReferenceAnswerResult>;
   assertCreatorCannotEditPublishedPoll(): never;
 };
 
@@ -63,10 +75,56 @@ export function createPollService(repository: PollRepository): PollService {
       };
     },
 
+    async submitReferenceAnswer(pollId, userId, optionId) {
+      const user = await repository.findUserById(userId);
+      if (!user || user.status !== 'active') {
+        throw new PollForbiddenError('Active user is required');
+      }
+      const poll = await repository.findPollById(pollId);
+      if (!poll || poll.status === 'deleted') {
+        throw new PollNotFoundError();
+      }
+      if (poll.status !== 'active') {
+        throw new PollValidationError('Reference Answer requires an active poll');
+      }
+      if (!optionId || !(await repository.optionBelongsToPoll(pollId, optionId))) {
+        throw new PollValidationError('option_id must belong to the poll');
+      }
+      const answeredAt = truncateToMinute(new Date());
+      try {
+        await repository.createReferenceAnswerToken(
+          userId,
+          pollId,
+          answeredAt,
+          poll.closes_at,
+        );
+      } catch (err) {
+        if (isUniqueViolation(err)) {
+          throw new ReferenceAnswerDuplicateError();
+        }
+        throw err;
+      }
+      return { status: 'recorded', reference_answered: true };
+    },
+
     assertCreatorCannotEditPublishedPoll(): never {
       throw new PublishedPollImmutableError();
     },
   };
+}
+
+function truncateToMinute(value: Date): Date {
+  value.setSeconds(0, 0);
+  return value;
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'code' in err &&
+    err.code === '23505'
+  );
 }
 
 function toPollDetail(

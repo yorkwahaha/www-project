@@ -49,6 +49,11 @@ export function scrubLogPayload(
   return scrubbed;
 }
 
+/** Scrubs the sensitive Reference Answer body before diagnostic boundaries. */
+export function scrubReferenceAnswerRequestBody(input: unknown): unknown {
+  return scrubLogPayload({ body: input }, { strict: true });
+}
+
 function scrubValue(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map((item) => scrubValue(item));

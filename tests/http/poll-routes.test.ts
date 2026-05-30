@@ -92,4 +92,41 @@ describe('poll HTTP routes', () => {
       expect(response.status).toBe(405);
     });
   });
+
+  it('POST /polls/:id/reference-answer records participation only', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    const server = createHttpServer({ pollService: service });
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'HTTP Reference Answer',
+        description: '',
+        category: 'general',
+        options: ['One', 'Two'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+    const [option] = await repository.listOptionsByPollId(created.poll_id);
+
+    await withServer(server, async (baseUrl) => {
+      const response = await request(
+        baseUrl,
+        'POST',
+        `/polls/${created.poll_id}/reference-answer`,
+        {
+          headers: { 'X-User-Id': creatorId },
+          body: { option_id: option!.id },
+        },
+      );
+
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ status: 'recorded', reference_answered: true });
+      const [token] = [...repository.referenceAnswerTokens.values()];
+      expect(token).not.toHaveProperty('option_id');
+    });
+  });
 });

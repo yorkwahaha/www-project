@@ -2,6 +2,7 @@ import type { PollRepository } from './repository.js';
 import type {
   CreatePollInput,
   PollOptionRow,
+  PollReferenceAnswerTokenRow,
   PollRow,
   PollStatus,
   UserRow,
@@ -11,14 +12,17 @@ import type {
 export function createInMemoryPollRepository(): PollRepository & {
   readonly polls: Map<string, PollRow>;
   readonly options: Map<string, PollOptionRow[]>;
+  readonly referenceAnswerTokens: Map<string, PollReferenceAnswerTokenRow>;
 } {
   const users = new Map<string, UserRow>();
   const polls = new Map<string, PollRow>();
   const options = new Map<string, PollOptionRow[]>();
+  const referenceAnswerTokens = new Map<string, PollReferenceAnswerTokenRow>();
 
   return {
     polls,
     options,
+    referenceAnswerTokens,
 
     async ensureUser(userId, displayName) {
       const existing = users.get(userId);
@@ -68,6 +72,10 @@ export function createInMemoryPollRepository(): PollRepository & {
       return poll;
     },
 
+    async findUserById(userId) {
+      return users.get(userId) ?? null;
+    },
+
     async findPollById(pollId) {
       return polls.get(pollId) ?? null;
     },
@@ -91,6 +99,31 @@ export function createInMemoryPollRepository(): PollRepository & {
       };
       polls.set(pollId, deleted);
       return deleted;
+    },
+
+    async optionBelongsToPoll(pollId, optionId) {
+      return (options.get(pollId) ?? []).some((option) => option.id === optionId);
+    },
+
+    async createReferenceAnswerToken(userId, pollId, answeredAt, expiresAt) {
+      const key = `${userId}:${pollId}`;
+      if (referenceAnswerTokens.has(key)) {
+        const error = new Error('duplicate reference answer token') as Error & {
+          code: string;
+        };
+        error.code = '23505';
+        throw error;
+      }
+      const token: PollReferenceAnswerTokenRow = {
+        id: crypto.randomUUID(),
+        user_id: userId,
+        poll_id: pollId,
+        answered_at: answeredAt,
+        expires_at: expiresAt,
+        created_at: new Date(),
+      };
+      referenceAnswerTokens.set(key, token);
+      return token;
     },
   };
 }

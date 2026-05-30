@@ -8,7 +8,6 @@ const FORBIDDEN_TABLES = [
   'vote_events',
   'raw_vote_events',
   'poll_status_snapshot',
-  'poll_reference_answer_tokens',
   'poll_vote_tokens',
   'poll_option_vote_counters',
   'reference_answer_option_counters',
@@ -24,8 +23,8 @@ const FORBIDDEN_POLL_COLUMNS = [
   'last_vote_option_id',
 ];
 
-describe('Phase 1 migration schema guard', () => {
-  it('does not introduce forbidden vote/reference/counter tables', async () => {
+describe('Phase 2 migration schema guard', () => {
+  it('does not introduce forbidden vote/counter/event tables', async () => {
     const files = (await readdir(MIGRATIONS_DIR)).filter((name) => name.endsWith('.sql'));
     const combined = await Promise.all(
       files.map((file) => readFile(join(MIGRATIONS_DIR, file), 'utf8')),
@@ -34,6 +33,37 @@ describe('Phase 1 migration schema guard', () => {
 
     for (const table of FORBIDDEN_TABLES) {
       expect(sql).not.toMatch(new RegExp(`create\\s+table\\s+${table}\\b`));
+    }
+  });
+
+  it('reference answer token stores participation metadata only', async () => {
+    const phase2 = await readFile(
+      join(MIGRATIONS_DIR, '003_phase2_reference_answer_tokens.sql'),
+      'utf8',
+    );
+    const lower = phase2.toLowerCase();
+    const table = lower.match(
+      /create\s+table\s+poll_reference_answer_tokens\s*\(([\s\S]*?)\);/,
+    )?.[1];
+
+    expect(table).toBeTruthy();
+    expect(table).toContain('user_id');
+    expect(table).toContain('poll_id');
+    expect(table).toContain('answered_at');
+    expect(table).toContain('expires_at');
+    expect(table).toContain('created_at');
+    expect(table).toMatch(/unique\s*\(\s*user_id\s*,\s*poll_id\s*\)/);
+    expect(table).toContain("answered_at = date_trunc('minute', answered_at)");
+
+    for (const forbidden of [
+      'option_id',
+      'encrypted_option_id',
+      'option_text',
+      'selected_option_index',
+      'answer_payload',
+      'answer_snapshot',
+    ]) {
+      expect(table).not.toContain(forbidden);
     }
   });
 

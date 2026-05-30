@@ -93,4 +93,69 @@ describe('PollService', () => {
       code: 'POLL_NOT_FOUND',
     });
   });
+
+  it('records Reference Answer token without selected option data', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'Reference answer',
+        description: '',
+        category: 'general',
+        options: ['A', 'B'],
+        eligibleRuleId: null,
+        closesAt: futureDate(),
+        publish: true,
+      },
+      'Creator D',
+    );
+    const [option] = await repository.listOptionsByPollId(created.poll_id);
+
+    await expect(
+      service.submitReferenceAnswer(created.poll_id, creatorId, option!.id),
+    ).resolves.toEqual({ status: 'recorded', reference_answered: true });
+
+    const [token] = [...repository.referenceAnswerTokens.values()];
+    expect(token).toMatchObject({ user_id: creatorId, poll_id: created.poll_id });
+    expect(token!.answered_at.getSeconds()).toBe(0);
+    expect(token!.answered_at.getMilliseconds()).toBe(0);
+    expect(token).not.toHaveProperty('option_id');
+    expect(token).not.toHaveProperty('encrypted_option_id');
+    expect(token).not.toHaveProperty('answer_payload');
+  });
+
+  it('uses option_id only for validation and blocks duplicate Reference Answer', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'Duplicate reference answer',
+        description: '',
+        category: 'general',
+        options: ['A', 'B'],
+        eligibleRuleId: null,
+        closesAt: futureDate(),
+        publish: true,
+      },
+      'Creator E',
+    );
+    const [option] = await repository.listOptionsByPollId(created.poll_id);
+
+    await expect(
+      service.submitReferenceAnswer(
+        created.poll_id,
+        creatorId,
+        '99999999-9999-4999-8999-999999999999',
+      ),
+    ).rejects.toMatchObject({ code: 'POLL_VALIDATION' });
+    expect(repository.referenceAnswerTokens.size).toBe(0);
+
+    await service.submitReferenceAnswer(created.poll_id, creatorId, option!.id);
+    await expect(
+      service.submitReferenceAnswer(created.poll_id, creatorId, option!.id),
+    ).rejects.toMatchObject({ code: 'REFERENCE_ANSWER_DUPLICATE' });
+    expect(repository.referenceAnswerTokens.size).toBe(1);
+  });
 });

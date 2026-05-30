@@ -3,6 +3,7 @@ import {
   scrubLogPayload,
   serializedPayloadIsScrubClean,
   payloadContainsForbiddenKey,
+  scrubReferenceAnswerRequestBody,
 } from '../../src/logging/scrubber.js';
 
 describe('scrubLogPayload', () => {
@@ -45,5 +46,16 @@ describe('scrubLogPayload', () => {
     expect(serializedPayloadIsScrubClean(output)).toBe(true);
     expect(err.body).toBe('[redacted]');
     expect(JSON.stringify(output)).not.toContain('opt-1');
+  });
+
+  it('redacts Reference Answer request body before diagnostics', () => {
+    const output = scrubReferenceAnswerRequestBody({
+      option_id: 'opt-secret',
+      answer_payload: { selected_option_index: 1 },
+    });
+
+    expect(output).toEqual({ body: '[redacted]' });
+    expect(JSON.stringify(output)).not.toContain('opt-secret');
+    expect(serializedPayloadIsScrubClean(output)).toBe(true);
   });
 });

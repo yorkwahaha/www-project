@@ -10,6 +10,7 @@ import {
   type CorrectionReviewContext,
   type CorrectionTargetField,
 } from '../admin/types.js';
+import { requireAdminUserId } from './admin-auth.js';
 import { AdminRouteError, handleAdminRouteError } from './admin-error.js';
 import { readJsonBody, sendJson } from './json.js';
 
@@ -260,26 +261,6 @@ export function requireRequestId(requestId: string): void {
   if (!UUID_PATTERN.test(requestId)) {
     throw new AdminRouteError('INVALID_REQUEST_ID', 'Invalid request id', 400);
   }
-}
-
-export function requireAdminUserId(req: IncomingMessage): string {
-  const raw = req.headers['x-admin-user-id'];
-  if (raw === undefined || raw === '') {
-    throw new AdminRouteError(
-      'ADMIN_AUTH_REQUIRED',
-      'X-Admin-User-Id header is required',
-      401,
-    );
-  }
-  const adminUserId = raw.toString().trim();
-  if (!UUID_PATTERN.test(adminUserId)) {
-    throw new AdminRouteError(
-      'INVALID_ADMIN_USER_ID',
-      'Invalid X-Admin-User-Id',
-      400,
-    );
-  }
-  return adminUserId;
 }
 
 function parseCorrectionTargetField(value: string | undefined): CorrectionTargetField {

@@ -12,6 +12,7 @@ import type {
 } from './correction-decision-repository.js';
 import type { InMemoryCorrectionRepository } from './in-memory-correction-repository.js';
 import type { AdminDecisionRow } from './types.js';
+import { restorePollToSuspendedIfCorrectionPendingInMemory } from './suspended-correction-poll-recovery.js';
 import { POLL_CORRECTION_REQUEST_TARGET_TYPE } from './types.js';
 
 export function createInMemoryCorrectionDecisionRepository(
@@ -97,6 +98,14 @@ async function submitInMemory(
   request.status = resolveNextRequestStatus(decisionRows, params.requestId, params.decision);
   request.updated_at = params.submittedAt;
   base.correctionRequests.set(request.id, request);
+
+  if (request.status === 'rejected') {
+    restorePollToSuspendedIfCorrectionPendingInMemory(
+      base,
+      request.poll_id,
+      params.submittedAt,
+    );
+  }
 
   return { decision: inserted, request: { ...request } };
 }

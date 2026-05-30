@@ -13,6 +13,7 @@ import type {
   CorrectionRequestRow,
   PollRowForCorrection,
 } from './types.js';
+import { restorePollToSuspendedIfCorrectionPending } from './suspended-correction-poll-recovery.js';
 import { POLL_CORRECTION_REQUEST_TARGET_TYPE } from './types.js';
 
 export type SubmitCorrectionDecisionParams = {
@@ -239,6 +240,14 @@ async function submitCorrectionDecisionOnClient(
        submitted_at, created_at, updated_at`,
     [params.requestId, nextStatus, params.submittedAt],
   );
+
+  if (nextStatus === 'rejected') {
+    await restorePollToSuspendedIfCorrectionPending(
+      client,
+      request.poll_id,
+      params.submittedAt,
+    );
+  }
 
   return {
     decision: { ...inserted.rows[0]!, metadata_json: {} },

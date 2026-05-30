@@ -4,20 +4,11 @@ import {
   CorrectionConflictError,
   CorrectionPollNotEligibleError,
   CorrectionPollNotFoundError,
-  CorrectionValidationError,
 } from './errors.js';
 import { isPollEligibleForCorrectionRequest } from './poll-correction-eligibility.js';
 import { buildSpreadScoreStubFields } from './spread-score-stub.js';
-import {
-  assertNonEmptyReason,
-  assertTypoOnlyProposedChange,
-  assertValidCorrectionTargetId,
-} from './typo-guard.js';
-import type {
-  CorrectionTargetField,
-  CreateCorrectionRequestInput,
-  CreateCorrectionRequestResult,
-} from './types.js';
+import { prepareCorrectionRequestFields } from './correction-request-fields.js';
+import type { CreateCorrectionRequestInput, CreateCorrectionRequestResult } from './types.js';
 
 export type CorrectionService = {
   createCorrectionRequest(
@@ -50,29 +41,12 @@ export function createCorrectionService(
         throw new CorrectionPollNotEligibleError();
       }
 
-      assertValidCorrectionTargetId(
-        input.correctionTargetField,
-        input.correctionTargetId,
-      );
-
-      const correctionTargetId = resolveCorrectionTargetId(
-        input.correctionTargetField,
-        input.correctionTargetId,
-      );
-      const originalText = await resolveOriginalText(
-        repository,
-        poll,
-        input.correctionTargetField,
-        correctionTargetId,
-      );
-
-      const proposedText = assertTypoOnlyProposedChange(originalText, input.proposedText);
-      const reason = assertNonEmptyReason(input.reason);
+      const fields = await prepareCorrectionRequestFields(repository, input, poll);
 
       const pending = await repository.findPendingCorrectionRequest({
         pollId: input.pollId,
         correctionTargetField: input.correctionTargetField,
-        correctionTargetId,
+        correctionTargetId: fields.correctionTargetId,
       });
       if (pending) {
         throw new CorrectionConflictError();
@@ -85,10 +59,10 @@ export function createCorrectionService(
         poll_id: input.pollId,
         requester_admin_id: input.adminUserId,
         correction_target_field: input.correctionTargetField,
-        correction_target_id: correctionTargetId,
-        original_text: originalText,
-        proposed_text: proposedText,
-        reason,
+        correction_target_id: fields.correctionTargetId,
+        original_text: fields.originalText,
+        proposed_text: fields.proposedText,
+        reason: fields.reason,
         status: 'pending',
         requires_dual_admin: spread.requiresDualAdmin,
         spread_score_at_submit: spread.spreadScoreAtSubmit,
@@ -106,38 +80,4 @@ export function createCorrectionService(
       };
     },
   };
-}
-
-function resolveCorrectionTargetId(
-  field: CorrectionTargetField,
-  correctionTargetId: string | null | undefined,
-): string | null {
-  if (field === 'option_text') {
-    return correctionTargetId!.trim();
-  }
-  return null;
-}
-
-async function resolveOriginalText(
-  repository: CorrectionRepository,
-  poll: { id: string; title: string; description: string },
-  field: CorrectionTargetField,
-  correctionTargetId: string | null,
-): Promise<string> {
-  if (field === 'title') {
-    return poll.title;
-  }
-  if (field === 'description') {
-    return poll.description;
-  }
-  if (!correctionTargetId) {
-    throw new CorrectionValidationError(
-      'correctionTargetId is required for option_text corrections',
-    );
-  }
-  const optionText = await repository.findOptionTextForPoll(poll.id, correctionTargetId);
-  if (optionText === null) {
-    throw new CorrectionValidationError('correction target option is not part of this poll');
-  }
-  return optionText;
 }

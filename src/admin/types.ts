@@ -156,3 +156,11 @@ export type PollCorrectionLogRow = {
   applied_at: Date;
   created_at: Date;
 };
+
+export type CreateSuspendedCorrectionRequestInput = CreateCorrectionRequestInput;
+
+export type CreateSuspendedCorrectionRequestResult = CreateCorrectionRequestResult;
+
+export type ApplySuspendedCorrectionRequestResult = ApplyCorrectionRequestResult & {
+  public_notice_id: string;
+};

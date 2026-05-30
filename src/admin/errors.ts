@@ -39,6 +39,18 @@ export class CorrectionPollNotEligibleError extends AdminError {
   }
 }
 
+export class CorrectionPollNotSuspendedError extends AdminError {
+  constructor(message = 'Poll must be suspended for suspended typo correction') {
+    super('POLL_NOT_SUSPENDED', message, 400);
+  }
+}
+
+export class CorrectionPollNotCorrectionPendingError extends AdminError {
+  constructor(message = 'Poll must be correction_pending for suspended typo correction apply') {
+    super('POLL_NOT_CORRECTION_PENDING', message, 400);
+  }
+}
+
 export class CorrectionRequestNotFoundError extends AdminError {
   constructor(message = 'Correction request not found') {
     super('CORRECTION_REQUEST_NOT_FOUND', message, 404);

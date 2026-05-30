@@ -1,0 +1,88 @@
+import { describe, expect, it } from 'vitest';
+import {
+  isParticipationAllowed,
+  isPublicDirectReadable,
+  isPublicFeedEligible,
+  isPublicHiddenPoll,
+  isPublicResultsReadable,
+} from '../../src/polls/public-visibility.js';
+import type { PollRow } from '../../src/polls/types.js';
+
+function poll(overrides: Partial<PollRow> = {}): PollRow {
+  const now = new Date('2026-06-01T12:00:00.000Z');
+  return {
+    id: '11111111-1111-4111-8111-111111111111',
+    creator_id: '22222222-2222-4222-8222-222222222222',
+    title: 'Test',
+    description: '',
+    category: 'general',
+    status: 'active',
+    eligible_rule_id: null,
+    published_at: now,
+    archived_at: null,
+    closes_at: new Date('2026-12-31T12:00:00.000Z'),
+    deleted_at: null,
+    created_at: now,
+    updated_at: now,
+    ...overrides,
+  };
+}
+
+describe('public visibility helpers', () => {
+  it('marks governance and draft states as hidden', () => {
+    for (const status of [
+      'draft',
+      'deleted',
+      'suspended',
+      'correction_pending',
+    ] as const) {
+      expect(isPublicHiddenPoll(poll({ status }))).toBe(true);
+      expect(isPublicDirectReadable(poll({ status }))).toBe(false);
+    }
+  });
+
+  it('allows direct and results read for active, closed, and archived active polls', () => {
+    const active = poll({ status: 'active' });
+    const closed = poll({ status: 'closed' });
+    const archived = poll({
+      status: 'active',
+      archived_at: new Date('2026-06-02T00:00:00.000Z'),
+    });
+
+    expect(isPublicDirectReadable(active)).toBe(true);
+    expect(isPublicResultsReadable(active)).toBe(true);
+    expect(isPublicDirectReadable(closed)).toBe(true);
+    expect(isPublicResultsReadable(closed)).toBe(true);
+    expect(isPublicDirectReadable(archived)).toBe(true);
+    expect(isPublicResultsReadable(archived)).toBe(true);
+  });
+
+  it('excludes archived polls from feed eligibility only', () => {
+    const active = poll();
+    const archived = poll({
+      archived_at: new Date('2026-06-02T00:00:00.000Z'),
+    });
+
+    expect(isPublicFeedEligible(active)).toBe(true);
+    expect(isPublicFeedEligible(archived)).toBe(false);
+    expect(isPublicFeedEligible(poll({ status: 'closed' }))).toBe(false);
+  });
+
+  it('allows participation only for unarchived active polls before closes_at', () => {
+    const open = poll();
+    const archived = poll({
+      archived_at: new Date('2026-06-02T00:00:00.000Z'),
+    });
+    const closed = poll({ status: 'closed' });
+    const expired = poll({
+      closes_at: new Date('2020-01-01T00:00:00.000Z'),
+    });
+
+    expect(isParticipationAllowed(open)).toBe(true);
+    expect(isParticipationAllowed(archived)).toBe(false);
+    expect(isParticipationAllowed(closed)).toBe(false);
+    expect(
+      isParticipationAllowed(expired, new Date('2026-06-01T12:00:00.000Z')),
+    ).toBe(false);
+  });
+});

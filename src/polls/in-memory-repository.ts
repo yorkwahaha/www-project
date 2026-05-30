@@ -16,6 +16,12 @@ import {
   INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
   OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
 } from './official-vote-messages.js';
+import {
+  isParticipationAllowed,
+  isPublicFeedEligible,
+  isPublicHiddenPoll,
+  participationRejectionMessage,
+} from './public-visibility.js';
 import { isOfficialVoteUser } from './trust.js';
 
 /** In-memory repository for unit tests (no PostgreSQL required). */
@@ -90,6 +96,7 @@ export function createInMemoryPollRepository(): PollRepository & {
         status,
         eligible_rule_id: input.eligibleRuleId,
         published_at: input.publish ? now : null,
+        archived_at: null,
         closes_at: input.closesAt,
         deleted_at: null,
         created_at: now,
@@ -140,7 +147,7 @@ export function createInMemoryPollRepository(): PollRepository & {
 
     async listPublicFeedPolls(params: ListPublicFeedPollsParams) {
       return [...polls.values()]
-        .filter((poll) => poll.status === 'active' && poll.published_at !== null)
+        .filter((poll) => isPublicFeedEligible(poll))
         .filter((poll) => (
           !params.cursor || isPublicFeedRowAfterCursor(poll, params.cursor)
         ))
@@ -204,11 +211,14 @@ export function createInMemoryPollRepository(): PollRepository & {
         throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
       }
       const poll = polls.get(pollId);
-      if (!poll || poll.status === 'deleted') {
+      if (isPublicHiddenPoll(poll)) {
         throw new PollNotFoundError();
       }
-      if (poll.status !== 'active') {
-        throw new PollValidationError('Official Vote requires an active poll');
+      if (!poll || !isParticipationAllowed(poll)) {
+        if (!poll) {
+          throw new PollNotFoundError();
+        }
+        throw new PollValidationError(participationRejectionMessage(poll));
       }
       if (!(options.get(pollId) ?? []).some((option) => option.id === optionId)) {
         throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);

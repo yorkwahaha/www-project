@@ -142,4 +142,33 @@ describe('poll HTTP routes', () => {
       expect(token).not.toHaveProperty('option_id');
     });
   });
+
+  it('GET /polls/:id returns 404 for draft polls without leaking state', async () => {
+    const service = createPollService(createInMemoryPollRepository());
+    const server = createHttpServer({ pollService: service });
+    const closesAt = new Date(Date.now() + 86_400_000).toISOString();
+
+    await withServer(server, async (baseUrl) => {
+      const created = await request(baseUrl, 'POST', '/polls', {
+        headers: { 'X-User-Id': creatorId },
+        body: {
+          title: 'Draft poll',
+          description: '',
+          category: 'general',
+          options: ['One', 'Two'],
+          closes_at: closesAt,
+          publish: false,
+        },
+      });
+      const pollId = created.body.poll_id as string;
+      const response = await request(baseUrl, 'GET', `/polls/${pollId}`, {});
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({
+        error: 'POLL_NOT_FOUND',
+        message: 'Poll not found',
+      });
+      expect(JSON.stringify(response.body)).not.toMatch(/draft|suspended|moderation/i);
+    });
+  });
 });

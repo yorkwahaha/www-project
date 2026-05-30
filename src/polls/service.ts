@@ -27,6 +27,13 @@ import {
 } from './reference-answer-messages.js';
 import { SHARD_COUNT } from './vote-config.js';
 import { isLowTrustUser } from './trust.js';
+import {
+  isParticipationAllowed,
+  isPublicDirectReadable,
+  isPublicHiddenPoll,
+  isPublicResultsReadable,
+  participationRejectionMessage,
+} from './public-visibility.js';
 import { validateCreatePollInput } from './validation.js';
 
 export type PollService = {
@@ -74,7 +81,7 @@ export function createPollService(
 
     async getPollById(pollId) {
       const poll = await repository.findPollById(pollId);
-      if (!poll || poll.status === 'deleted') {
+      if (!poll || !isPublicDirectReadable(poll)) {
         throw new PollNotFoundError();
       }
       const options = await repository.listOptionsByPollId(pollId);
@@ -83,7 +90,7 @@ export function createPollService(
 
     async getPollResults(pollId) {
       const poll = await repository.findPollById(pollId);
-      if (!poll || poll.status === 'deleted') {
+      if (!poll || !isPublicResultsReadable(poll)) {
         throw new PollNotFoundError();
       }
       const options = await repository.listVoteAggregatesByPollId(pollId);
@@ -141,11 +148,11 @@ export function createPollService(
         throw new PollForbiddenError(REFERENCE_ANSWER_LOW_TRUST_ONLY_MESSAGE);
       }
       const poll = await repository.findPollById(pollId);
-      if (!poll || poll.status === 'deleted') {
+      if (!poll || isPublicHiddenPoll(poll)) {
         throw new PollNotFoundError();
       }
-      if (poll.status !== 'active') {
-        throw new PollValidationError('Reference Answer requires an active poll');
+      if (!isParticipationAllowed(poll)) {
+        throw new PollValidationError(participationRejectionMessage(poll));
       }
       if (!optionId || !(await repository.optionBelongsToPoll(pollId, optionId))) {
         throw new PollValidationError(INVALID_REFERENCE_ANSWER_OPTION_MESSAGE);

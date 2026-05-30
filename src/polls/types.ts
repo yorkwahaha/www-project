@@ -20,6 +20,7 @@ export type PollRow = {
   status: PollStatus;
   eligible_rule_id: string | null;
   published_at: Date | null;
+  archived_at: Date | null;
   closes_at: Date;
   deleted_at: Date | null;
   created_at: Date;

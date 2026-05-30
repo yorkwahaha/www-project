@@ -135,6 +135,22 @@ describe('Phase 3 migration schema guard', () => {
     expect(lower).not.toMatch(/create\s+table|alter\s+table/);
   });
 
+  it('adds archived_at and tightens feed partial index predicate in phase 6A', async () => {
+    const phase6a = await readFile(
+      join(MIGRATIONS_DIR, '006_phase6a_poll_visibility_archive.sql'),
+      'utf8',
+    );
+    const lower = phase6a.toLowerCase();
+
+    expect(lower).toContain('add column archived_at');
+    expect(lower).toContain('polls_archived_requires_publish_check');
+    expect(lower).toContain('polls_archived_not_draft_check');
+    expect(lower).toContain('drop index if exists idx_polls_public_feed_freshness');
+    expect(lower).toContain('create index idx_polls_public_feed_freshness');
+    expect(lower).toContain('archived_at is null');
+    expect(lower).not.toMatch(/create\s+table/);
+  });
+
   it('phase 1 migration only adds users, polls, and poll_options', async () => {
     const phase1 = await readFile(
       join(MIGRATIONS_DIR, '002_phase1_poll_core.sql'),

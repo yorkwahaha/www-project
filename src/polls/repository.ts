@@ -14,6 +14,11 @@ import type {
 } from './types.js';
 import { PollForbiddenError, PollNotFoundError, PollValidationError } from './errors.js';
 import {
+  isParticipationAllowed,
+  isPublicHiddenPoll,
+  participationRejectionMessage,
+} from './public-visibility.js';
+import {
   INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
   OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
 } from './official-vote-messages.js';
@@ -78,11 +83,14 @@ async function castOfficialVote(
       throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
     }
     const poll = await findPollByIdWithClient(client, pollId);
-    if (!poll || poll.status === 'deleted') {
+    if (isPublicHiddenPoll(poll)) {
       throw new PollNotFoundError();
     }
-    if (poll.status !== 'active') {
-      throw new PollValidationError('Official Vote requires an active poll');
+    if (!poll || !isParticipationAllowed(poll)) {
+      if (!poll) {
+        throw new PollNotFoundError();
+      }
+      throw new PollValidationError(participationRejectionMessage(poll));
     }
     if (!(await optionBelongsToPollWithClient(client, pollId, optionId))) {
       throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
@@ -125,7 +133,7 @@ async function findPollByIdWithClient(
   const result = await client.query<PollRow>(
     `SELECT
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, closes_at, deleted_at,
+       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at
      FROM polls
      WHERE id = $1`,
@@ -250,7 +258,7 @@ async function insertPoll(
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, closes_at, deleted_at,
+       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at`,
     [
       input.creatorId,
@@ -284,7 +292,7 @@ async function findPollById(pool: Pool, pollId: string): Promise<PollRow | null>
   const result = await pool.query<PollRow>(
     `SELECT
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, closes_at, deleted_at,
+       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at
      FROM polls
      WHERE id = $1`,
@@ -333,7 +341,11 @@ async function listPublicFeedPolls(
   pool: Pool,
   params: ListPublicFeedPollsParams,
 ): Promise<PublicFeedPollRow[]> {
-  const conditions = ["status = 'active'", 'published_at IS NOT NULL'];
+  const conditions = [
+    "status = 'active'",
+    'published_at IS NOT NULL',
+    'archived_at IS NULL',
+  ];
   const values: unknown[] = [];
 
   if (params.cursor) {
@@ -366,7 +378,7 @@ async function softDeletePoll(
      WHERE id = $1 AND creator_id = $2 AND status <> 'deleted'
      RETURNING
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, closes_at, deleted_at,
+       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at`,
     [pollId, creatorId],
   );

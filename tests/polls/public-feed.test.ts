@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { InvalidFeedCursorError, InvalidFeedLimitError } from '../../src/polls/errors.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
+import { isPublicFeedEligible } from '../../src/polls/public-visibility.js';
 import { createPollService } from '../../src/polls/service.js';
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
@@ -55,6 +56,7 @@ describe('public freshness feed', () => {
     const closed = await createPoll(service, 'Closed');
     const suspended = await createPoll(service, 'Suspended');
     const deleted = await createPoll(service, 'Deleted');
+    const archived = await createPoll(service, 'Archived');
     const olderTime = new Date('2026-01-01T00:00:00.000Z');
     const newerTime = new Date('2026-02-01T00:00:00.000Z');
     const sameTime = new Date('2026-03-01T00:00:00.000Z');
@@ -66,6 +68,7 @@ describe('public freshness feed', () => {
     repository.polls.get(closed.poll_id)!.status = 'closed';
     repository.polls.get(suspended.poll_id)!.status = 'suspended';
     repository.polls.get(deleted.poll_id)!.status = 'deleted';
+    repository.polls.get(archived.poll_id)!.archived_at = new Date('2026-04-01T00:00:00.000Z');
 
     const feed = await service.getPublicFeed();
     const sameTimeIds = [sameTimeLowerId.poll_id, sameTimeHigherId.poll_id].sort();
@@ -83,6 +86,9 @@ describe('public freshness feed', () => {
     );
     expect(feed.polls).not.toContainEqual(
       expect.objectContaining({ poll_id: deleted.poll_id }),
+    );
+    expect(feed.polls).not.toContainEqual(
+      expect.objectContaining({ poll_id: archived.poll_id }),
     );
   });
 
@@ -134,7 +140,7 @@ describe('public freshness feed', () => {
       (poll) => poll.poll_id,
     );
     const expectedOrder = [...repository.polls.values()]
-      .filter((poll) => poll.status === 'active' && poll.published_at !== null)
+      .filter((poll) => isPublicFeedEligible(poll))
       .sort(
         (a, b) =>
           b.published_at!.getTime() - a.published_at!.getTime() ||
@@ -231,6 +237,7 @@ describe('public freshness feed', () => {
 
     expect(feedFunction).toContain("status = 'active'");
     expect(feedFunction).toContain('published_at IS NOT NULL');
+    expect(feedFunction).toContain('archived_at IS NULL');
     expect(feedFunction).toContain('published_at <');
     expect(feedFunction).toContain('id >');
     expect(feedSql).toContain('FROM polls');

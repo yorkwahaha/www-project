@@ -54,6 +54,13 @@ async function setPollStatus(
   );
 }
 
+async function setPollArchivedAt(pool: Pool, pollId: string, archivedAt: Date): Promise<void> {
+  await pool.query(
+    `UPDATE polls SET archived_at = $2, updated_at = NOW() WHERE id = $1`,
+    [pollId, archivedAt],
+  );
+}
+
 describe('Public Feed PostgreSQL integration', () => {
   const pool = createIntegrationPool();
 
@@ -98,6 +105,7 @@ describe('Public Feed PostgreSQL integration', () => {
     const closed = await createPublishedPoll(service, 'Closed');
     const suspended = await createPublishedPoll(service, 'Suspended');
     const deleted = await createPublishedPoll(service, 'Deleted');
+    const archived = await createPublishedPoll(service, 'Archived');
 
     const olderTime = new Date('2026-01-01T00:00:00.000Z');
     const newerTime = new Date('2026-02-01T00:00:00.000Z');
@@ -110,6 +118,7 @@ describe('Public Feed PostgreSQL integration', () => {
     await setPollStatus(pool, closed.poll_id, 'closed');
     await setPollStatus(pool, suspended.poll_id, 'suspended');
     await setPollStatus(pool, deleted.poll_id, 'deleted');
+    await setPollArchivedAt(pool, archived.poll_id, new Date('2026-04-01T00:00:00.000Z'));
 
     const baseline = await service.getPublicFeed();
     const sameTimeIds = [sameTimeLowerId.poll_id, sameTimeHigherId.poll_id].sort();
@@ -131,6 +140,9 @@ describe('Public Feed PostgreSQL integration', () => {
     );
     expect(baseline.polls).not.toContainEqual(
       expect.objectContaining({ poll_id: deleted.poll_id }),
+    );
+    expect(baseline.polls).not.toContainEqual(
+      expect.objectContaining({ poll_id: archived.poll_id }),
     );
     expect(JSON.stringify(baseline)).not.toMatch(
       /option_id|options|vote|result_bucket|shard|token|user_id|participation|reference_answer|official_vote|published_at|closes_at/i,
@@ -216,13 +228,14 @@ describe('Public Feed PostgreSQL integration', () => {
   });
 
   it('has public feed freshness partial index', async () => {
-    const result = await pool.query<{ indexname: string }>(
-      `SELECT indexname
+    const result = await pool.query<{ indexname: string; indexdef: string }>(
+      `SELECT indexname, indexdef
        FROM pg_indexes
        WHERE schemaname = 'public'
          AND tablename = 'polls'
          AND indexname = 'idx_polls_public_feed_freshness'`,
     );
     expect(result.rows).toHaveLength(1);
+    expect(result.rows[0]!.indexdef.toLowerCase()).toContain('archived_at is null');
   });
 });

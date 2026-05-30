@@ -7,12 +7,14 @@ import type {
   PollStatus,
   UserRow,
 } from './types.js';
+import type { TrustLevel } from './trust.js';
 
 /** In-memory repository for unit tests (no PostgreSQL required). */
 export function createInMemoryPollRepository(): PollRepository & {
   readonly polls: Map<string, PollRow>;
   readonly options: Map<string, PollOptionRow[]>;
   readonly referenceAnswerTokens: Map<string, PollReferenceAnswerTokenRow>;
+  setUserTrustLevel(userId: string, trustLevel: TrustLevel): void;
 } {
   const users = new Map<string, UserRow>();
   const polls = new Map<string, PollRow>();
@@ -23,6 +25,13 @@ export function createInMemoryPollRepository(): PollRepository & {
     polls,
     options,
     referenceAnswerTokens,
+
+    setUserTrustLevel(userId, trustLevel) {
+      const user = users.get(userId);
+      if (user) {
+        user.trust_level = trustLevel;
+      }
+    },
 
     async ensureUser(userId, displayName) {
       const existing = users.get(userId);

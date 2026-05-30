@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { PublishedPollImmutableError } from '../../src/polls/errors.js';
+import {
+  INVALID_REFERENCE_ANSWER_OPTION_MESSAGE,
+  REFERENCE_ANSWER_LOW_TRUST_ONLY_MESSAGE,
+} from '../../src/polls/reference-answer-messages.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import { createPollService } from '../../src/polls/service.js';
 
@@ -125,6 +129,35 @@ describe('PollService', () => {
     expect(token).not.toHaveProperty('answer_payload');
   });
 
+  it('rejects official-trust users from Reference Answer', async () => {
+    const repository = createInMemoryPollRepository();
+    const officialUserId = '55555555-5555-4555-8555-555555555555';
+    await repository.ensureUser(officialUserId, 'Official');
+    repository.setUserTrustLevel(officialUserId, 'official');
+    const service = createPollService(repository);
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'Official user poll',
+        description: '',
+        category: 'general',
+        options: ['A', 'B'],
+        eligibleRuleId: null,
+        closesAt: futureDate(),
+        publish: true,
+      },
+      'Creator F',
+    );
+    const [option] = await repository.listOptionsByPollId(created.poll_id);
+
+    await expect(
+      service.submitReferenceAnswer(created.poll_id, officialUserId, option!.id),
+    ).rejects.toMatchObject({
+      code: 'POLL_FORBIDDEN',
+      message: REFERENCE_ANSWER_LOW_TRUST_ONLY_MESSAGE,
+    });
+  });
+
   it('uses option_id only for validation and blocks duplicate Reference Answer', async () => {
     const repository = createInMemoryPollRepository();
     const service = createPollService(repository);
@@ -149,7 +182,10 @@ describe('PollService', () => {
         creatorId,
         '99999999-9999-4999-8999-999999999999',
       ),
-    ).rejects.toMatchObject({ code: 'POLL_VALIDATION' });
+    ).rejects.toMatchObject({
+      code: 'POLL_VALIDATION',
+      message: INVALID_REFERENCE_ANSWER_OPTION_MESSAGE,
+    });
     expect(repository.referenceAnswerTokens.size).toBe(0);
 
     await service.submitReferenceAnswer(created.poll_id, creatorId, option!.id);

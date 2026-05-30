@@ -95,6 +95,7 @@ describe('poll HTTP routes', () => {
 
   it('POST /polls/:id/reference-answer records participation only', async () => {
     const repository = createInMemoryPollRepository();
+    await repository.ensureUser(creatorId, 'Low trust creator');
     const service = createPollService(repository);
     const server = createHttpServer({ pollService: service });
     const created = await service.createPoll(

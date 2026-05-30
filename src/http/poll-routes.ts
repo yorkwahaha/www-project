@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { PollError } from '../polls/errors.js';
-import { scrubReferenceAnswerRequestBody } from '../logging/scrubber.js';
 import type { PollService } from '../polls/service.js';
+import { handlePostReferenceAnswer as dispatchReferenceAnswer } from './reference-answer-routes.js';
 import { readJsonBody, sendJson } from './json.js';
 
 type CreatePollBody = {
@@ -12,10 +12,6 @@ type CreatePollBody = {
   eligible_rule_id?: string | null;
   closes_at?: string;
   publish?: boolean;
-};
-
-type ReferenceAnswerBody = {
-  option_id?: string;
 };
 
 export function createPollRouteHandlers(pollService: PollService) {
@@ -71,25 +67,12 @@ export function createPollRouteHandlers(pollService: PollService) {
       }
     },
 
-    async handlePostReferenceAnswer(
+    handlePostReferenceAnswer(
       req: IncomingMessage,
       res: ServerResponse,
       pollId: string,
     ): Promise<void> {
-      try {
-        const userId = requireUserId(req);
-        const body = await readJsonBody<ReferenceAnswerBody>(req);
-        // Establish a scrubbed diagnostic boundary before request data can escape.
-        scrubReferenceAnswerRequestBody(body);
-        const result = await pollService.submitReferenceAnswer(
-          pollId,
-          userId,
-          body.option_id ?? '',
-        );
-        sendJson(res, 201, result);
-      } catch (err) {
-        handlePollRouteError(res, err);
-      }
+      return dispatchReferenceAnswer(req, res, pollId, pollService, requireUserId);
     },
   };
 }

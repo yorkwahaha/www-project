@@ -13,6 +13,11 @@ import type {
   PollDetail,
   ReferenceAnswerResult,
 } from './types.js';
+import {
+  INVALID_REFERENCE_ANSWER_OPTION_MESSAGE,
+  REFERENCE_ANSWER_LOW_TRUST_ONLY_MESSAGE,
+} from './reference-answer-messages.js';
+import { isLowTrustUser } from './trust.js';
 import { validateCreatePollInput } from './validation.js';
 
 export type PollService = {
@@ -80,6 +85,9 @@ export function createPollService(repository: PollRepository): PollService {
       if (!user || user.status !== 'active') {
         throw new PollForbiddenError('Active user is required');
       }
+      if (!isLowTrustUser(user)) {
+        throw new PollForbiddenError(REFERENCE_ANSWER_LOW_TRUST_ONLY_MESSAGE);
+      }
       const poll = await repository.findPollById(pollId);
       if (!poll || poll.status === 'deleted') {
         throw new PollNotFoundError();
@@ -88,7 +96,7 @@ export function createPollService(repository: PollRepository): PollService {
         throw new PollValidationError('Reference Answer requires an active poll');
       }
       if (!optionId || !(await repository.optionBelongsToPoll(pollId, optionId))) {
-        throw new PollValidationError('option_id must belong to the poll');
+        throw new PollValidationError(INVALID_REFERENCE_ANSWER_OPTION_MESSAGE);
       }
       const answeredAt = truncateToMinute(new Date());
       try {

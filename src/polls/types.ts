@@ -1,3 +1,5 @@
+import type { TrustLevel } from './trust.js';
+
 export const POLL_STATUSES = [
   'draft',
   'active',
@@ -36,7 +38,7 @@ export type PollOptionRow = {
 export type UserRow = {
   id: string;
   display_name: string;
-  trust_level: string;
+  trust_level: TrustLevel;
   status: string;
   created_at: Date;
   updated_at: Date;

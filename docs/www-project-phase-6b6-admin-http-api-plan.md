@@ -226,17 +226,16 @@ HTTP response mirrors `CorrectionReviewContext` (`src/admin/types.ts`) with thes
 | `valid_until` | ISO-8601 | |
 | `viewer_has_submitted` | boolean | Whether `X-Admin-User-Id` already decided |
 
-### 6.2 Blind fields (spec §18 / AGENTS.md §11)
+### 6.2 Blind decision summary (spec §18 / AGENTS.md §11; aligned in Phase 7.5)
 
 | Field | Rule |
 |-------|------|
-| `peer_decisions` | **Always `null`** until request reaches a **final** status (`approved`, `rejected`, `expired`, `applied`). Never expose another admin’s in-flight decision while `pending`. |
-| `final_decisions` | **`null`** while `pending`. When final, array of `{ admin_id, decision, reason_code, reason_text, submitted_at }` for audit UI **after** workflow completion. |
+| `decision_summary` | While pending: `{ "state": "pending_blind" }`. When final: anonymous `approve_count`, `reject_count`, `quorum_met`, and `is_finalized` only. |
 
 ### 6.3 Must never appear in review-context JSON
 
 - `spread_score_at_submit`, `spread_score_locked_until`, Spread Score component breakdown
-- Other admin’s decision/reason/classification while request is `pending`
+- Admin IDs, per-admin decisions, decision reasons, or peer classification
 - Voter identities, vote tokens, reference-answer tokens, shard ids
 - Raw counter rows or result tier internals
 - `requester_admin_id` (prevents proposer bias before decision)
@@ -334,9 +333,9 @@ Tests should mirror existing service/integration coverage at the HTTP boundary. 
 | H6 | POST normal create | missing header | `401 ADMIN_AUTH_REQUIRED` |
 | H7 | POST suspended create | suspended poll | `201`, poll `correction_pending`, public `GET /polls/:id` still 404 |
 | H8 | POST suspended create | active poll | `400 POLL_NOT_SUSPENDED` |
-| H9 | GET review-context | pending, viewer not decided | `200`, `peer_decisions=null`, `final_decisions=null` |
-| H10 | GET review-context | pending, other admin approved | `200`, still no peer leak |
-| H11 | GET review-context | approved final | `200`, `final_decisions` length 2 |
+| H9 | GET review-context | pending, viewer not decided | `200`, `decision_summary.state=pending_blind` |
+| H10 | GET review-context | pending, other admin approved | `200`, still no partial counts or peer leak |
+| H11 | GET review-context | approved final | `200`, anonymous aggregate `decision_summary` only |
 | H12 | POST decision | first approve | `200`, `request_status=pending` |
 | H13 | POST decision | two approves | `200`, `request_status=approved` |
 | H14 | POST decision | reject | `200`, `request_status=rejected` |

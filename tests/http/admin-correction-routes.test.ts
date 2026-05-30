@@ -34,7 +34,9 @@ function assertSafeApplyResponse(body: Record<string, unknown>): void {
 }
 
 function assertBlindReviewContext(body: Record<string, unknown>): void {
-  expect(body.peer_decisions).toBeNull();
+  expect(body.decision_summary).toEqual({ state: 'pending_blind' });
+  expect(body).not.toHaveProperty('peer_decisions');
+  expect(body).not.toHaveProperty('final_decisions');
   expect(body).not.toHaveProperty('requester_admin_id');
   expect(body).not.toHaveProperty('spread_score_at_submit');
   expect(body).not.toHaveProperty('spread_score_locked_until');
@@ -245,7 +247,7 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
     });
   });
 
-  it('keeps peer_decisions null while pending even after another admin approved', async () => {
+  it('keeps the decision summary blind while pending even after another admin approved', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
 
@@ -268,11 +270,10 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
       expect(response.body.request_status).toBe('pending');
       expect(response.body.viewer_has_submitted).toBe(false);
       assertBlindReviewContext(response.body);
-      expect(response.body.final_decisions).toBeNull();
     });
   });
 
-  it('returns final_decisions after request is approved with peer_decisions still null', async () => {
+  it('returns only an anonymous decision summary after request is approved', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
 
@@ -297,8 +298,17 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.request_status).toBe('approved');
-      assertBlindReviewContext(response.body);
-      expect(response.body.final_decisions).toHaveLength(2);
+      expect(response.body.decision_summary).toEqual({
+        approve_count: 2,
+        reject_count: 0,
+        quorum_met: true,
+        is_finalized: true,
+      });
+      expect(response.body).not.toHaveProperty('peer_decisions');
+      expect(response.body).not.toHaveProperty('final_decisions');
+      expect(response.body).not.toHaveProperty('admin_id');
+      expect(response.body).not.toHaveProperty('reason_code');
+      expect(response.body).not.toHaveProperty('reason_text');
     });
   });
 });

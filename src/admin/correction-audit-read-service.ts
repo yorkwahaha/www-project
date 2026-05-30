@@ -11,7 +11,7 @@ import type {
 } from './correction-audit-read-repository.js';
 import { AdminForbiddenError, CorrectionRequestNotFoundError } from './errors.js';
 import type {
-  CorrectionAuditDecisionSummary,
+  CorrectionDecisionSummary,
   CorrectionAuditRecord,
   CorrectionAuditTimelineItem,
   PollCorrectionAuditList,
@@ -111,7 +111,7 @@ function toAuditRecord(
 function toDecisionSummary(
   request: CorrectionAuditRequestRow,
   aggregate: CorrectionAuditDecisionAggregateRow,
-): CorrectionAuditDecisionSummary {
+): CorrectionDecisionSummary {
   if (request.request_status === 'pending') {
     return { state: 'pending_blind' };
   }

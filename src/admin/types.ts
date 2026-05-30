@@ -111,14 +111,6 @@ export type SubmitCorrectionDecisionResult = {
   decision_id: string;
 };
 
-export type ReviewContextDecisionSummary = {
-  admin_id: string;
-  decision: AdminDecisionValue;
-  reason_code: string;
-  reason_text: string;
-  submitted_at: string;
-};
-
 export type CorrectionReviewContext = {
   request_id: string;
   poll_id: string;
@@ -131,8 +123,7 @@ export type CorrectionReviewContext = {
   requires_dual_admin: boolean;
   valid_until: string;
   viewer_has_submitted: boolean;
-  peer_decisions: ReviewContextDecisionSummary[] | null;
-  final_decisions: ReviewContextDecisionSummary[] | null;
+  decision_summary: CorrectionDecisionSummary;
 };
 
 export type ApplyCorrectionRequestResult = {
@@ -165,7 +156,7 @@ export type ApplySuspendedCorrectionRequestResult = ApplyCorrectionRequestResult
   public_notice_id: string;
 };
 
-export type CorrectionAuditDecisionSummary =
+export type CorrectionDecisionSummary =
   | {
       state: 'pending_blind';
     }
@@ -205,7 +196,7 @@ export type CorrectionAuditRecord = {
   applied_text: string | null;
   applied_at: string | null;
   has_public_notice: boolean;
-  decision_summary: CorrectionAuditDecisionSummary;
+  decision_summary: CorrectionDecisionSummary;
   timeline: CorrectionAuditTimelineItem[];
 };
 

@@ -205,14 +205,12 @@ describe('CorrectionDecisionService', () => {
 
     const undecidedView = await decisionService.getReviewContext(requestId, adminCId);
     expect(undecidedView.viewer_has_submitted).toBe(false);
-    expect(undecidedView.peer_decisions).toBeNull();
-    expect(undecidedView.final_decisions).toBeNull();
+    expect(undecidedView.decision_summary).toEqual({ state: 'pending_blind' });
     expect(undecidedView.request_status).toBe('pending');
 
     const decidedPendingView = await decisionService.getReviewContext(requestId, adminBId);
     expect(decidedPendingView.viewer_has_submitted).toBe(true);
-    expect(decidedPendingView.peer_decisions).toBeNull();
-    expect(decidedPendingView.final_decisions).toBeNull();
+    expect(decidedPendingView.decision_summary).toEqual({ state: 'pending_blind' });
 
     await decisionService.submitCorrectionDecision(requestId, adminCId, {
       decision: 'approve',
@@ -222,11 +220,12 @@ describe('CorrectionDecisionService', () => {
 
     const finalView = await decisionService.getReviewContext(requestId, adminCId);
     expect(finalView.request_status).toBe('approved');
-    expect(finalView.final_decisions).toHaveLength(2);
-    expect(finalView.final_decisions!.map((row) => row.admin_id).sort()).toEqual(
-      [adminBId, adminCId].sort(),
-    );
-    expect(finalView.peer_decisions).toBeNull();
+    expect(finalView.decision_summary).toEqual({
+      approve_count: 2,
+      reject_count: 0,
+      quorum_met: true,
+      is_finalized: true,
+    });
   });
 
   it('does not modify polls or poll_options', async () => {

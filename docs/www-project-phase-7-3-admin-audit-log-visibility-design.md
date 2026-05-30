@@ -160,7 +160,7 @@ Must **never** appear in audit read responses or query parameters:
 5. **Do not** use audit endpoints to bypass blind review on `GET …/review-context`. Operators reviewing a pending request for approval must use workflow routes only.
 6. Long-term collusion analysis using `admin_decision_logs.admin_id` remains **offline / Phase 2**; not exposed via these REST DTOs.
 
-**Note:** Current `review-context` returns `final_decisions` with `admin_id` after finalize. A separate small task may align workflow DTOs with AGENTS.md §11; that is **out of scope** for the first audit-read implementation unless explicitly approved.
+**Phase 7.5 note:** `review-context` now follows the same masking rule: pending responses return only `{ "state": "pending_blind" }`, and finalized responses return anonymous aggregate counts without admin IDs or reason fields.
 
 ---
 

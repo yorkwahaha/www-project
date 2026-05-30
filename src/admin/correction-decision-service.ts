@@ -6,9 +6,8 @@ import {
   ProposerCannotApproveError,
 } from './errors.js';
 import type {
-  AdminDecisionRow,
+  CorrectionDecisionSummary,
   CorrectionReviewContext,
-  ReviewContextDecisionSummary,
   SubmitCorrectionDecisionInput,
   SubmitCorrectionDecisionResult,
 } from './types.js';
@@ -97,12 +96,7 @@ export function createCorrectionDecisionService(
       const viewerDecision = decisions.find((row) => row.admin_id === viewingAdminId);
       const isFinal = FINAL_REQUEST_STATUSES.has(request.status);
 
-      let peer_decisions: ReviewContextDecisionSummary[] | null = null;
-      let final_decisions: ReviewContextDecisionSummary[] | null = null;
-
-      if (isFinal) {
-        final_decisions = decisions.map(toDecisionSummary);
-      }
+      const decision_summary = toDecisionSummary(decisions, isFinal);
 
       return {
         request_id: request.id,
@@ -116,19 +110,26 @@ export function createCorrectionDecisionService(
         requires_dual_admin: request.requires_dual_admin,
         valid_until: request.valid_until.toISOString(),
         viewer_has_submitted: viewerDecision !== undefined,
-        peer_decisions,
-        final_decisions,
+        decision_summary,
       };
     },
   };
 }
 
-function toDecisionSummary(row: AdminDecisionRow): ReviewContextDecisionSummary {
+function toDecisionSummary(
+  decisions: Array<{ decision: 'approve' | 'reject' }>,
+  isFinal: boolean,
+): CorrectionDecisionSummary {
+  if (!isFinal) {
+    return { state: 'pending_blind' };
+  }
+
+  const approve_count = decisions.filter((row) => row.decision === 'approve').length;
+  const reject_count = decisions.filter((row) => row.decision === 'reject').length;
   return {
-    admin_id: row.admin_id,
-    decision: row.decision,
-    reason_code: row.reason_code,
-    reason_text: row.reason_text,
-    submitted_at: row.submitted_at.toISOString(),
+    approve_count,
+    reject_count,
+    quorum_met: approve_count >= 2,
+    is_finalized: true,
   };
 }

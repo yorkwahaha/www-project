@@ -135,8 +135,9 @@ HTTP handlers return **minimal** JSON. Internal DB columns (Spread Score, reques
 | `original_text`, `proposed_text` | |
 | `requires_dual_admin`, `valid_until` | |
 | `viewer_has_submitted` | Whether **this** admin already decided |
-| `peer_decisions` | **`null` while request not finalized** |
-| `final_decisions` | **Non-null only** when request is `approved`, `rejected`, `expired`, or `applied`; each item: `admin_id`, `decision`, `reason_code`, `reason_text`, `submitted_at` |
+| `decision_summary` | While pending: `{ "state": "pending_blind" }`. After finalization: anonymous `approve_count`, `reject_count`, `quorum_met`, `is_finalized` only. |
+
+Review context never returns admin IDs, per-admin decisions, decision reasons, Spread Score values, or public notice content.
 
 ### Allowed on audit record (200)
 
@@ -161,7 +162,7 @@ Each item is limited to `request_id`, `request_status`, `correction_target_field
 |----------|----------|
 | Spread Score internals | `spread_score_at_submit`, `spread_score_locked_until` |
 | Requester identity | `requester_admin_id` |
-| Pending peer leakage | `peer_decisions` entries before request is finalized |
+| Peer / per-admin decisions | `peer_decisions`, `final_decisions`, raw decision rows |
 | Vote / result / feed linkage | Raw counters, tokens, shard ids, option-level vote aggregates |
 | Recovery helpers | Internal poll-restore utilities (not exposed as routes) |
 
@@ -228,7 +229,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 ### Implemented (Phase 6B / 6C)
 
 - Correction request create for active/closed and suspended polls
-- Dual-admin independent decisions and blind `review-context` (`peer_decisions` null until finalized)
+- Dual-admin independent decisions and blind `review-context` (pending summary masked; finalized summary anonymous)
 - Approved apply with `original_text` stale guard
 - Suspended single-transaction apply (content + log + `active` + public notice)
 - Poll recovery: `correction_pending` → `suspended` on reject or expired (decision and apply paths)

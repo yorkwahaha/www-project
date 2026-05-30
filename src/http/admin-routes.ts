@@ -371,7 +371,6 @@ function toReviewContextResponse(
     requires_dual_admin: context.requires_dual_admin,
     valid_until: context.valid_until,
     viewer_has_submitted: context.viewer_has_submitted,
-    peer_decisions: context.peer_decisions,
-    final_decisions: context.final_decisions,
+    decision_summary: context.decision_summary,
   };
 }

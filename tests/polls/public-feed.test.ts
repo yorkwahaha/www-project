@@ -57,6 +57,7 @@ describe('public freshness feed', () => {
     const suspended = await createPoll(service, 'Suspended');
     const deleted = await createPoll(service, 'Deleted');
     const archived = await createPoll(service, 'Archived');
+    const expired = await createPoll(service, 'Expired');
     const olderTime = new Date('2026-01-01T00:00:00.000Z');
     const newerTime = new Date('2026-02-01T00:00:00.000Z');
     const sameTime = new Date('2026-03-01T00:00:00.000Z');
@@ -69,6 +70,7 @@ describe('public freshness feed', () => {
     repository.polls.get(suspended.poll_id)!.status = 'suspended';
     repository.polls.get(deleted.poll_id)!.status = 'deleted';
     repository.polls.get(archived.poll_id)!.archived_at = new Date('2026-04-01T00:00:00.000Z');
+    repository.polls.get(expired.poll_id)!.closes_at = new Date(Date.now() - 60_000);
 
     const feed = await service.getPublicFeed();
     const sameTimeIds = [sameTimeLowerId.poll_id, sameTimeHigherId.poll_id].sort();
@@ -89,6 +91,9 @@ describe('public freshness feed', () => {
     );
     expect(feed.polls).not.toContainEqual(
       expect.objectContaining({ poll_id: archived.poll_id }),
+    );
+    expect(feed.polls).not.toContainEqual(
+      expect.objectContaining({ poll_id: expired.poll_id }),
     );
   });
 
@@ -238,6 +243,7 @@ describe('public freshness feed', () => {
     expect(feedFunction).toContain("status = 'active'");
     expect(feedFunction).toContain('published_at IS NOT NULL');
     expect(feedFunction).toContain('archived_at IS NULL');
+    expect(feedFunction).toContain('closes_at > $1');
     expect(feedFunction).toContain('published_at <');
     expect(feedFunction).toContain('id >');
     expect(feedSql).toContain('FROM polls');

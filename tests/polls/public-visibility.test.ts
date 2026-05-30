@@ -58,14 +58,26 @@ describe('public visibility helpers', () => {
   });
 
   it('excludes archived polls from feed eligibility only', () => {
+    const now = new Date('2026-06-01T12:00:00.000Z');
     const active = poll();
     const archived = poll({
       archived_at: new Date('2026-06-02T00:00:00.000Z'),
     });
 
-    expect(isPublicFeedEligible(active)).toBe(true);
-    expect(isPublicFeedEligible(archived)).toBe(false);
-    expect(isPublicFeedEligible(poll({ status: 'closed' }))).toBe(false);
+    expect(isPublicFeedEligible(active, now)).toBe(true);
+    expect(isPublicFeedEligible(archived, now)).toBe(false);
+    expect(isPublicFeedEligible(poll({ status: 'closed' }), now)).toBe(false);
+  });
+
+  it('excludes active polls with expired closes_at from feed eligibility', () => {
+    const now = new Date('2026-06-01T12:00:00.000Z');
+    const open = poll({ closes_at: new Date('2026-12-31T12:00:00.000Z') });
+    const expired = poll({ closes_at: new Date('2026-01-01T00:00:00.000Z') });
+
+    expect(isPublicFeedEligible(open, now)).toBe(true);
+    expect(isPublicFeedEligible(expired, now)).toBe(false);
+    expect(isPublicDirectReadable(expired)).toBe(true);
+    expect(isPublicResultsReadable(expired)).toBe(true);
   });
 
   it('allows participation only for unarchived active polls before closes_at', () => {

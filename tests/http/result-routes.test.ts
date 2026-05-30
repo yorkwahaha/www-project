@@ -97,6 +97,40 @@ describe('Result Display HTTP route', () => {
     });
   });
 
+  it('returns 404 for hidden poll states without leaking moderation labels', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'Hidden results poll',
+        description: '',
+        category: 'general',
+        options: ['One', 'Two'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+    const server = createHttpServer({ pollService: service });
+
+    await withServer(server, async (baseUrl) => {
+      for (const status of ['suspended', 'correction_pending'] as const) {
+        repository.polls.get(created.poll_id)!.status = status;
+        const response = await request(baseUrl, `/polls/${created.poll_id}/results`);
+        const serialized = JSON.stringify(response.body);
+
+        expect(response.status).toBe(404);
+        expect(response.body).toEqual({
+          error: 'POLL_NOT_FOUND',
+          message: 'Poll not found',
+        });
+        expect(serialized).not.toMatch(/suspended|correction_pending|moderation/i);
+      }
+    });
+  });
+
   it('returns a scrubbed safe 404 for a missing poll', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),

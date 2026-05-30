@@ -341,12 +341,14 @@ async function listPublicFeedPolls(
   pool: Pool,
   params: ListPublicFeedPollsParams,
 ): Promise<PublicFeedPollRow[]> {
+  const feedOpenAt = new Date();
   const conditions = [
     "status = 'active'",
     'published_at IS NOT NULL',
     'archived_at IS NULL',
+    'closes_at > $1',
   ];
-  const values: unknown[] = [];
+  const values: unknown[] = [feedOpenAt];
 
   if (params.cursor) {
     values.push(params.cursor.publishedAt, params.cursor.pollId);

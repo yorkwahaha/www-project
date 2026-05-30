@@ -12,11 +12,19 @@ export function isPublicHiddenPoll(poll: PollRow | null | undefined): boolean {
   );
 }
 
-export function isPublicFeedEligible(poll: PollRow): boolean {
+function isPollOpenByCloseTime(poll: PollRow, now: Date): boolean {
+  return poll.closes_at.getTime() > now.getTime();
+}
+
+export function isPublicFeedEligible(
+  poll: PollRow,
+  now: Date = new Date(),
+): boolean {
   return (
     poll.status === 'active' &&
     poll.published_at !== null &&
-    poll.archived_at === null
+    poll.archived_at === null &&
+    isPollOpenByCloseTime(poll, now)
   );
 }
 
@@ -41,7 +49,7 @@ export function isParticipationAllowed(
   if (poll.archived_at !== null) {
     return false;
   }
-  if (poll.closes_at.getTime() <= now.getTime()) {
+  if (!isPollOpenByCloseTime(poll, now)) {
     return false;
   }
   return true;

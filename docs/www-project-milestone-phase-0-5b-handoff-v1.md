@@ -3,7 +3,8 @@
 **Document path:** `docs/www-project-milestone-phase-0-5b-handoff-v1.md`  
 **Status:** Delivery record (non-normative)  
 **Depends on:** `/AGENTS.md` v0.2, `docs/www-project-agent-spec-v0.1.md`  
-**Current HEAD:** `d424444` — `feat: add public freshness feed`
+**Current HEAD (this document):** `d424444` — `feat: add public freshness feed`
+**Later feed work:** Phase 5C cursor pagination is documented in `docs/www-project-milestone-phase-0-5c-handoff-v1.md` (repo HEAD `d5ae2f5`). Sections §5 and §9 below describe the **5B** feed contract only (no `limit`/`cursor`).
 
 This document summarizes **completed implementation work through Phase 5B**. It does not change product architecture, privacy rules, or API contracts. For normative requirements, use `AGENTS.md` and the agent implementation spec only.
 

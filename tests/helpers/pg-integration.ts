@@ -5,6 +5,11 @@ import pg from 'pg';
 const REQUIRED_TEST_DATABASE = 'www_test';
 
 const BUSINESS_TABLES = [
+  'admin_decision_logs',
+  'poll_correction_logs',
+  'poll_correction_requests',
+  'public_notices',
+  'admin_users',
   'poll_option_vote_counters',
   'poll_vote_tokens',
   'poll_reference_answer_tokens',

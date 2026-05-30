@@ -302,6 +302,35 @@ describe('SuspendedCorrectionService', () => {
     expect(correctionRepo.polls.get(pollId)!.status).toBe('suspended');
   });
 
+  it('expired decision on suspended path restores poll to suspended', async () => {
+    const { correctionRepo, suspendedService, decisionService } = setupSuspended();
+    const created = await suspendedService.createSuspendedCorrectionRequest({
+      adminUserId: proposerId,
+      pollId,
+      correctionTargetField: 'title',
+      proposedText: 'Suspended Titel',
+      reason: 'Typo',
+    });
+    expect(correctionRepo.polls.get(pollId)!.status).toBe('correction_pending');
+
+    const stored = correctionRepo.correctionRequests.get(created.request_id)!;
+    stored.valid_until = new Date('2026-06-14T00:00:00.000Z');
+    correctionRepo.correctionRequests.set(created.request_id, stored);
+
+    await expect(
+      decisionService.submitCorrectionDecision(created.request_id, adminBId, {
+        decision: 'approve',
+        reason_code: 'LATE',
+      }),
+    ).rejects.toBeInstanceOf(CorrectionExpiredError);
+
+    expect(correctionRepo.correctionRequests.get(created.request_id)!.status).toBe(
+      'expired',
+    );
+    expect(correctionRepo.polls.get(pollId)!.status).toBe('suspended');
+    expect(correctionRepo.decisionLogs).toHaveLength(0);
+  });
+
   it('rejected active-path request does not change poll status', async () => {
     const { correctionRepo, activeCorrectionService, decisionService } = setupSuspended(
       basePoll({ status: 'active' }),

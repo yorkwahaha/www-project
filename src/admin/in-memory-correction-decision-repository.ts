@@ -61,6 +61,11 @@ async function submitInMemory(
     request.status = 'expired';
     request.updated_at = params.submittedAt;
     base.correctionRequests.set(request.id, request);
+    restorePollToSuspendedIfCorrectionPendingInMemory(
+      base,
+      request.poll_id,
+      params.submittedAt,
+    );
     throw new CorrectionExpiredError();
   }
   if (

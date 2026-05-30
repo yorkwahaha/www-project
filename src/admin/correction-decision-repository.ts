@@ -182,6 +182,11 @@ async function submitCorrectionDecisionOnClient(
        WHERE id = $1 AND status = 'pending'`,
       [params.requestId, params.submittedAt],
     );
+    await restorePollToSuspendedIfCorrectionPending(
+      client,
+      request.poll_id,
+      params.submittedAt,
+    );
     await client.query('COMMIT');
     throw new CorrectionExpiredError('Correction request has expired', true);
   }

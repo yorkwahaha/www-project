@@ -81,3 +81,56 @@ export type InsertCorrectionRequestRow = {
   valid_until: Date;
   submitted_at: Date;
 };
+
+export const POLL_CORRECTION_REQUEST_TARGET_TYPE = 'poll_correction_request' as const;
+
+export type AdminDecisionValue = 'approve' | 'reject';
+
+export type AdminDecisionRow = {
+  id: string;
+  admin_id: string;
+  target_type: typeof POLL_CORRECTION_REQUEST_TARGET_TYPE;
+  target_id: string;
+  decision: AdminDecisionValue;
+  reason_code: string;
+  reason_text: string;
+  submitted_at: Date;
+  metadata_json: Record<string, never>;
+  created_at: Date;
+};
+
+export type SubmitCorrectionDecisionInput = {
+  decision: AdminDecisionValue;
+  reason_code: string;
+  reason_text?: string;
+};
+
+export type SubmitCorrectionDecisionResult = {
+  request_id: string;
+  request_status: CorrectionRequestStatus;
+  decision_id: string;
+};
+
+export type ReviewContextDecisionSummary = {
+  admin_id: string;
+  decision: AdminDecisionValue;
+  reason_code: string;
+  reason_text: string;
+  submitted_at: string;
+};
+
+export type CorrectionReviewContext = {
+  request_id: string;
+  poll_id: string;
+  request_status: CorrectionRequestStatus;
+  poll_status: PollStatus;
+  correction_target_field: CorrectionTargetField;
+  correction_target_id: string | null;
+  original_text: string;
+  proposed_text: string;
+  requires_dual_admin: boolean;
+  valid_until: string;
+  viewer_has_submitted: boolean;
+  peer_decisions: ReviewContextDecisionSummary[] | null;
+  final_decisions: ReviewContextDecisionSummary[] | null;
+};

@@ -126,7 +126,19 @@ try {
     if (!body.includes('href="/polls/new"')) {
       throw new Error('Landing page missing link to /polls/new');
     }
+    if (!body.includes('/frontend/public-mvp.css')) {
+      throw new Error('Landing page missing shared public MVP stylesheet');
+    }
     pass('GET / links /polls/new');
+  }
+
+  {
+    const { response, body } = await requestText(baseUrl, '/frontend/public-mvp.css');
+    expectStatus('GET /frontend/public-mvp.css', response, 200);
+    if (!body.includes('.mvp-shell')) {
+      throw new Error('Shared public MVP stylesheet missing layout rules');
+    }
+    pass('GET /frontend/public-mvp.css serves shared styles');
   }
 
   {
@@ -137,6 +149,9 @@ try {
     }
     if (!body.includes('aria-live') || !body.includes('role="status"')) {
       throw new Error('Create poll page missing accessible status regions');
+    }
+    if (!body.includes('/frontend/public-mvp.css')) {
+      throw new Error('Create poll page missing shared public MVP stylesheet');
     }
     pass('GET /polls/new serves create poll page');
   }
@@ -187,8 +202,12 @@ try {
   }
 
   {
-    const { response } = await requestText(baseUrl, `/vote/${pollId}`);
+    const { response, body } = await requestText(baseUrl, `/vote/${pollId}`);
     expectStatus('GET /vote/:pollId voting page', response, 200);
+    if (!body.includes('/frontend/public-mvp.css')) {
+      throw new Error('Vote page missing shared public MVP stylesheet');
+    }
+    pass('GET /vote/:pollId links shared stylesheet');
   }
 
   let optionIds = [];
@@ -241,8 +260,12 @@ try {
   }
 
   {
-    const { response } = await requestText(baseUrl, `/results/${pollId}`);
+    const { response, body } = await requestText(baseUrl, `/results/${pollId}`);
     expectStatus('GET /results/:pollId result page', response, 200);
+    if (!body.includes('/frontend/public-mvp.css')) {
+      throw new Error('Results page missing shared public MVP stylesheet');
+    }
+    pass('GET /results/:pollId links shared stylesheet');
   }
 
   await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));

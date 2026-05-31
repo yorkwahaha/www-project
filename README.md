@@ -16,6 +16,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 27 (docs):** Public MVP manual QA handoff (local setup, validation commands, browser checklist for `/` → create → vote → results) — `docs/www-project-public-mvp-manual-qa-v1.md`.
 
+**Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
+
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
 
 **Admin / governance (Phase 6B–12):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields), poll-scoped public notice **read + display**, the safe global `GET /admin/correction-audit` queue, and a server-side opaque Bearer token + RBAC v1 boundary are **implemented**. Full login/session/JWT/OAuth management, real Spread Score calculation, and semantic typo detection are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-12-handoff-v1.md`.
@@ -75,7 +77,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `GET` | `/polls/new` | Minimal public poll creation UI |
 | `GET` | `/vote/:id` | Minimal public voting UI |
 | `GET` | `/health` | Health check |
-| `GET` | `/frontend/*` | Static frontend assets (Phase 5A) |
+| `GET` | `/frontend/*` | Static frontend assets (JS, shared `public-mvp.css`) |
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 

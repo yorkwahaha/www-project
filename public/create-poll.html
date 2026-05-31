@@ -4,134 +4,45 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>建立問卷 | What We Wonder</title>
-    <style>
-      body {
-        max-width: 44rem;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        font-family: system-ui, sans-serif;
-        line-height: 1.5;
-      }
-
-      label {
-        display: block;
-        margin-top: 1rem;
-        font-weight: 600;
-      }
-
-      input,
-      textarea,
-      button {
-        box-sizing: border-box;
-        width: 100%;
-        margin-top: 0.35rem;
-        padding: 0.75rem;
-        font: inherit;
-      }
-
-      .option-label {
-        font-weight: 400;
-      }
-
-      #form-message {
-        margin-top: 1rem;
-      }
-
-      #success-panel {
-        margin-top: 1rem;
-        padding: 1rem;
-        border: 1px solid #b6ccb8;
-        background: #f4faf4;
-      }
-
-      #success-panel a {
-        display: block;
-        margin-top: 0.5rem;
-      }
-
-      .copy-link-button {
-        width: auto;
-        margin-top: 0.5rem;
-        padding: 0.5rem 0.75rem;
-        cursor: pointer;
-      }
-
-      .copy-status {
-        min-height: 1.25rem;
-        font-size: 0.9rem;
-        color: #355e37;
-      }
-
-      .public-nav {
-        margin-top: 2rem;
-        font-size: 0.95rem;
-      }
-
-      .public-nav a + a {
-        margin-left: 0.75rem;
-      }
-
-      .skip-link {
-        position: absolute;
-        left: -9999px;
-        top: 0;
-        padding: 0.5rem 0.75rem;
-        background: #fff;
-        color: #1a5f2a;
-        z-index: 1;
-      }
-
-      .skip-link:focus {
-        left: 1rem;
-        top: 1rem;
-      }
-
-      :focus-visible {
-        outline: 2px solid #1a5f2a;
-        outline-offset: 2px;
-      }
-
-      button:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-      }
-    </style>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
   </head>
-  <body>
+  <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
-    <main id="main-content">
+    <main id="main-content" class="mvp-shell">
       <nav class="public-nav" aria-label="網站導覽">
         <a href="/">首頁</a>
         <a href="/polls/new" aria-current="page">建立問卷</a>
       </nav>
+      <p class="mvp-brand">What We Wonder · 公開 MVP</p>
       <h1>建立問卷</h1>
-      <p>建立後即可公開分享。發布後如需修正，請刪除並重新建立。</p>
-      <form id="create-poll-form">
+      <p class="mvp-lead">建立完成後，請複製<strong>投票連結</strong>給參與者，並可用<strong>結果連結</strong>查看公開統計。發布後無法在此編輯，若有錯字請刪除並重新建立。</p>
+      <form id="create-poll-form" class="mvp-form">
         <label for="poll-title">問卷標題</label>
-        <input id="poll-title" name="title" maxlength="200" required>
+        <input id="poll-title" name="title" maxlength="200" required autocomplete="off">
 
         <label for="poll-description">補充說明（選填）</label>
-        <textarea id="poll-description" name="description" rows="4"></textarea>
+        <textarea id="poll-description" name="description" rows="4" autocomplete="off"></textarea>
 
         <fieldset>
-          <legend>選項（至少填寫 2 項，最多 6 項）</legend>
+          <legend>選項（至少 2 項，最多 6 項）</legend>
           <label class="option-label" for="poll-option-1">選項 1</label>
-          <input id="poll-option-1" name="option" required>
+          <input id="poll-option-1" name="option" required autocomplete="off">
           <label class="option-label" for="poll-option-2">選項 2</label>
-          <input id="poll-option-2" name="option" required>
+          <input id="poll-option-2" name="option" required autocomplete="off">
           <label class="option-label" for="poll-option-3">選項 3（選填）</label>
-          <input id="poll-option-3" name="option">
+          <input id="poll-option-3" name="option" autocomplete="off">
           <label class="option-label" for="poll-option-4">選項 4（選填）</label>
-          <input id="poll-option-4" name="option">
+          <input id="poll-option-4" name="option" autocomplete="off">
           <label class="option-label" for="poll-option-5">選項 5（選填）</label>
-          <input id="poll-option-5" name="option">
+          <input id="poll-option-5" name="option" autocomplete="off">
           <label class="option-label" for="poll-option-6">選項 6（選填）</label>
-          <input id="poll-option-6" name="option">
+          <input id="poll-option-6" name="option" autocomplete="off">
         </fieldset>
 
         <button
           id="create-poll-submit"
           type="submit"
+          class="mvp-btn-primary"
           aria-describedby="form-message"
         >建立問卷</button>
       </form>

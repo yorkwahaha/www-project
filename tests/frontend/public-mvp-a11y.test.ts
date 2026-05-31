@@ -43,6 +43,7 @@ describe('public MVP accessibility', () => {
 
     expect(createPage).toContain('role="status"');
     expect(createPage).toContain('aria-live="polite"');
+    expect(createPage).toContain('/frontend/public-mvp.css');
     expect(votePage).toContain('id="form-message"');
     expect(votePage).toContain('role="alert"');
     expect(resultsPage).toContain('aria-label="投票結果統計"');

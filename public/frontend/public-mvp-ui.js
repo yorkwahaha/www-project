@@ -230,6 +230,7 @@ export function renderPollSharePanel(root, pollId, {
   root.append(copyStatus);
 
   const voteLink = root.ownerDocument.createElement('a');
+  voteLink.className = 'mvp-action-link';
   voteLink.href = votePath;
   voteLink.textContent = '前往投票頁（可分享）';
   root.append(voteLink);
@@ -244,6 +245,7 @@ export function renderPollSharePanel(root, pollId, {
   }
 
   const resultLink = root.ownerDocument.createElement('a');
+  resultLink.className = 'mvp-action-link';
   resultLink.href = resultPath;
   resultLink.textContent = '查看公開結果頁';
   root.append(resultLink);

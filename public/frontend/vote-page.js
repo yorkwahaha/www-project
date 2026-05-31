@@ -114,6 +114,7 @@ export function renderVoteSuccess(root, pollId) {
   root.append(hint);
 
   const link = root.ownerDocument.createElement('a');
+  link.className = 'mvp-action-link';
   link.href = buildPublicResultPath(pollId);
   link.textContent = '查看公開結果頁';
   root.append(link);

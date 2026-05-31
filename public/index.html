@@ -4,79 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>What We Wonder｜大家想知道</title>
-    <style>
-      body {
-        max-width: 44rem;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        font-family: system-ui, sans-serif;
-        line-height: 1.5;
-      }
-
-      .tagline {
-        color: #444;
-      }
-
-      .cta {
-        display: inline-block;
-        margin-top: 1.25rem;
-        padding: 0.75rem 1.25rem;
-        background: #1a5f2a;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-      }
-
-      .flow {
-        margin-top: 1.5rem;
-        padding-left: 1.25rem;
-      }
-
-      .flow li {
-        margin: 0.35rem 0;
-      }
-
-      .note {
-        margin-top: 1.5rem;
-        font-size: 0.95rem;
-        color: #555;
-      }
-
-      .skip-link {
-        position: absolute;
-        left: -9999px;
-        top: 0;
-        padding: 0.5rem 0.75rem;
-        background: #fff;
-        color: #1a5f2a;
-        z-index: 1;
-      }
-
-      .skip-link:focus {
-        left: 1rem;
-        top: 1rem;
-      }
-
-      :focus-visible {
-        outline: 2px solid #1a5f2a;
-        outline-offset: 2px;
-      }
-    </style>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
   </head>
-  <body>
+  <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
-    <main id="main-content">
-      <h1>What We Wonder</h1>
-      <p class="tagline">大家想知道 — 隱私優先的公開問卷平台</p>
-      <p>建立問卷、分享投票連結、查看公開結果。無需登入，也無問卷列表或排行。</p>
-      <a class="cta" href="/polls/new">建立問卷</a>
+    <main id="main-content" class="mvp-shell">
+      <p class="mvp-brand">What We Wonder · 公開 MVP</p>
+      <h1>大家想知道</h1>
+      <p class="mvp-lead">隱私優先的公開問卷雛形。建立問卷後可分享<strong>投票連結</strong>與<strong>結果連結</strong>給朋友試用，無需登入。</p>
+      <a class="mvp-cta" href="/polls/new">建立問卷</a>
       <ol class="flow">
-        <li><strong>建立</strong> — 填寫標題與選項，完成後複製投票／結果頁連結</li>
-        <li><strong>投票</strong> — 參與者開啟 <code>/vote/…</code> 選擇一個選項並送出</li>
-        <li><strong>結果</strong> — 在 <code>/results/…</code> 查看顯示安全的統計（非原始計數）</li>
+        <li><strong>建立</strong> — 填寫標題與選項，完成後複製連結</li>
+        <li><strong>投票</strong> — 參與者開啟投票頁選擇一個選項</li>
+        <li><strong>結果</strong> — 查看顯示安全的統計摘要（非原始票數）</li>
       </ol>
-      <p class="note">本頁僅提供入口說明，不列出問卷、不提供熱門排行或個人化推薦。</p>
+      <p class="note">本 MVP 不提供問卷列表、熱門排行、登入帳號、分類選擇或管理後台介面。</p>
     </main>
   </body>
 </html>

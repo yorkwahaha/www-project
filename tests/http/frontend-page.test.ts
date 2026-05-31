@@ -39,6 +39,8 @@ describe('frontend static routes', () => {
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('What We Wonder');
       expect(pageBody).toContain('href="/polls/new"');
+      expect(pageBody).toContain('/frontend/public-mvp.css');
+      expect(pageBody).toContain('class="mvp-body"');
       expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
     });
   });
@@ -63,6 +65,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('/frontend/result-page.js');
+      expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/polls/new');
       expect(pageBody).not.toContain('ignored-user-id');
@@ -103,6 +106,7 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('建立問卷');
       expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/frontend/create-poll-page.js');
+      expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('aria-live');
       expect(pageBody).not.toContain('option_id');
       expect(script.status).toBe(200);
@@ -128,9 +132,27 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/polls/new');
       expect(pageBody).toContain('/frontend/vote-page.js');
+      expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('role="alert"');
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
+    });
+  });
+
+  it('serves the shared public MVP stylesheet', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const response = await fetch(`${baseUrl}/frontend/public-mvp.css`);
+      const body = await response.text();
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toContain('text/css');
+      expect(response.headers.get('cache-control')).toBe('no-store');
+      expect(body).toContain('.mvp-body');
+      expect(body).toContain('.vote-option');
     });
   });
 });

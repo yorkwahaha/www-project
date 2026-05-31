@@ -4,108 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>參與投票 | What We Wonder</title>
-    <style>
-      body {
-        max-width: 44rem;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        font-family: system-ui, sans-serif;
-        line-height: 1.5;
-      }
-
-      #poll-description:empty {
-        display: none;
-      }
-
-      .vote-option {
-        display: block;
-        margin: 0.75rem 0;
-        padding: 0.75rem;
-        border: 1px solid #d0d0d0;
-        border-radius: 0.5rem;
-      }
-
-      button {
-        width: 100%;
-        margin-top: 1rem;
-        padding: 0.75rem;
-        font: inherit;
-      }
-
-      #form-message {
-        margin-top: 1rem;
-      }
-
-      #success-panel {
-        margin-top: 1rem;
-        padding: 1rem;
-        border: 1px solid #b6ccb8;
-        background: #f4faf4;
-      }
-
-      #success-panel a,
-      #error-panel a {
-        display: block;
-        margin-top: 0.5rem;
-      }
-
-      #error-panel {
-        margin-top: 1rem;
-        padding: 1rem;
-        border: 1px solid #e0c9c9;
-        background: #fdf6f6;
-      }
-
-      .panel-heading {
-        margin: 0 0 0.5rem;
-        font-size: 1.1rem;
-      }
-
-      .panel-message {
-        margin: 0 0 0.75rem;
-      }
-
-      button:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-      }
-
-      .public-nav {
-        margin-top: 2rem;
-        font-size: 0.95rem;
-      }
-
-      .public-nav a + a {
-        margin-left: 0.75rem;
-      }
-
-      .skip-link {
-        position: absolute;
-        left: -9999px;
-        top: 0;
-        padding: 0.5rem 0.75rem;
-        background: #fff;
-        color: #1a5f2a;
-        z-index: 1;
-      }
-
-      .skip-link:focus {
-        left: 1rem;
-        top: 1rem;
-      }
-
-      :focus-visible {
-        outline: 2px solid #1a5f2a;
-        outline-offset: 2px;
-      }
-    </style>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
   </head>
-  <body>
+  <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
-    <main id="main-content">
+    <main id="main-content" class="mvp-shell">
+      <nav class="public-nav" aria-label="網站導覽">
+        <a href="/">首頁</a>
+        <a href="/polls/new">建立問卷</a>
+      </nav>
+      <p class="mvp-brand">What We Wonder · 公開 MVP</p>
       <h1 id="poll-title" aria-live="polite">載入中</h1>
       <p id="poll-description"></p>
-      <form id="vote-form" hidden aria-labelledby="poll-title">
+      <p class="mvp-meta">選擇一個選項並送出；完成後可前往結果頁查看公開統計。</p>
+      <form id="vote-form" class="mvp-form" hidden aria-labelledby="poll-title">
         <fieldset>
           <legend>請選擇一個選項（可用方向鍵或 Tab 切換）</legend>
           <div id="poll-options" role="radiogroup" aria-label="投票選項"></div>
@@ -113,6 +25,7 @@
         <button
           id="vote-submit"
           type="submit"
+          class="mvp-btn-primary"
           aria-describedby="form-message"
         >送出投票</button>
       </form>
@@ -125,10 +38,6 @@
         aria-live="polite"
         hidden
       ></section>
-      <nav class="public-nav" aria-label="網站導覽">
-        <a href="/">首頁</a>
-        <a href="/polls/new">建立問卷</a>
-      </nav>
     </main>
     <script type="module" src="/frontend/vote-page.js"></script>
   </body>

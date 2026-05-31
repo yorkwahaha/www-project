@@ -12,6 +12,7 @@ import {
   createSuspendedAdminHttpFixture,
   defaultAdminId,
   nonAdminCredentialId,
+  readOnlyAdminId,
   withServer,
 } from './helpers/admin-http-fixture.js';
 
@@ -385,6 +386,22 @@ describe('GET /admin/correction-audit', () => {
       );
       assertNoDeniedKeys(first.body);
       assertNoDeniedKeys(second.body);
+    });
+  });
+
+  it('allows correction:read token to GET global audit queue', async () => {
+    const fixture = createAdminHttpFixture();
+    const server = createAdminHttpServer(fixture);
+
+    await withServer(server, async (baseUrl) => {
+      await createPendingCorrectionRequest(baseUrl, fixture);
+
+      const response = await adminRequest(baseUrl, 'GET', '/admin/correction-audit', {
+        headers: adminAuthHeaders(readOnlyAdminId),
+      });
+      expect(response.status).toBe(200);
+      expect((response.body.items as unknown[]).length).toBeGreaterThanOrEqual(1);
+      assertNoDeniedKeys(response.body);
     });
   });
 

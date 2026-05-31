@@ -35,6 +35,8 @@ This document defines **admin-only, read-only** HTTP surfaces for typo-correctio
 
 ## 2. Proposed future route boundary
 
+**Historical note (Phase 12+):** 以下 §2 起為 Phase 12 前的歷史描述；現行 admin auth 以 Phase 12 與 `docs/admin-correction-http.md` 為準。
+
 All routes:
 
 - Live under existing `/admin/` prefix (same mount as Phase 6B correction workflow).

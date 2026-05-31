@@ -38,6 +38,7 @@ export const adminBId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 export const adminCId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 export const nonAdminCredentialId = '99999999-9999-4999-8999-999999999999';
 export const readOnlyAdminId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+export const revokedAdminId = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
 export const defaultPollId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 export const defaultOptionId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 export const defaultSubmittedAt = new Date('2026-06-15T10:00:00.000Z');
@@ -114,6 +115,7 @@ export function createAdminHttpFixture(
   const correctionRepo = createInMemoryCorrectionRepository();
   correctionRepo.ensureAdmin(adminId);
   correctionRepo.ensureAdmin(readOnlyAdminId);
+  correctionRepo.ensureAdmin(revokedAdminId, 'revoked');
   for (const extraAdminId of options.extraAdminIds ?? [adminBId, adminCId]) {
     correctionRepo.ensureAdmin(extraAdminId);
   }
@@ -155,6 +157,7 @@ export function createAdminHttpFixture(
     { adminId: adminCId },
     { adminId: nonAdminCredentialId },
     { adminId: readOnlyAdminId, permissions: ['correction:read'] },
+    { adminId: revokedAdminId },
   ]);
 
   const pollRepo = createInMemoryPollRepository();

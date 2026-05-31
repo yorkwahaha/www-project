@@ -20,6 +20,7 @@ import {
   defaultSubmittedAt,
   nonAdminCredentialId,
   readOnlyAdminId,
+  revokedAdminId,
   withServer,
 } from './helpers/admin-http-fixture.js';
 
@@ -112,6 +113,23 @@ describe('POST /admin/correction-requests', () => {
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
         headers: adminAuthHeaders(nonAdminCredentialId),
+        body: titleCorrectionBody(),
+      });
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        error: 'ADMIN_FORBIDDEN',
+        message: 'Active admin permission is required',
+      });
+    });
+  });
+
+  it('returns 403 ADMIN_FORBIDDEN when token maps to a revoked admin_users row', async () => {
+    const fixture = createAdminHttpFixture();
+    const server = createAdminHttpServer(fixture);
+
+    await withServer(server, async (baseUrl) => {
+      const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
+        headers: adminAuthHeaders(revokedAdminId),
         body: titleCorrectionBody(),
       });
       expect(response.status).toBe(403);

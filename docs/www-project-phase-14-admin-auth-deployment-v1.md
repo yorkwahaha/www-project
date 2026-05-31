@@ -153,6 +153,18 @@ Bearer 驗證通過後，domain 層仍會查 DB；**revoked 或不存在**的 ad
 
 ## 8. 部署後煙霧測試（curl 風格）
 
+### 本機快速驗證
+
+已安裝 Docker Compose 時，可用隔離的本機 `www_test`、合成 fixture 與明確標示為 fake-local-only 的 token 驗證 Admin Auth v1 基本邊界：
+
+```bash
+npm run smoke:admin:local
+```
+
+此命令會啟動或重用 `docker-compose.test.yml` 的 PG、等待 healthy、套用 migration、build，然後走 production `createApp()` wiring 驗證：缺少／錯誤 Bearer、legacy `X-Admin-User-Id` 不可代替 Bearer、read token 可讀 audit queue、read-only token 不可寫入，以及 write token 可建立 active poll 校正請求。它會 `TRUNCATE` `www_test` 的業務表並重建合成 fixture，且刻意保留 Docker 測試容器運行；切勿對 production DB 執行。
+
+### 正式環境 curl 檢查
+
 將 `BASE`、`TOKEN`、`READ_TOKEN`、`ADMIN_UUID` 換成環境值。下列使用**占位**路徑；404 在已驗證 auth 下可能表示路由或資源不存在，屬預期。
 
 ```bash

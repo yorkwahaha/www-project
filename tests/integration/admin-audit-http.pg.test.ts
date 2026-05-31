@@ -38,7 +38,6 @@ const DENIED_KEYS = [
   'spread_score_at_submit',
   'spread_score_locked_until',
   'public_notice_id',
-  'correction_target_id',
   'review_context',
   'option_id',
   'user_id',
@@ -518,13 +517,20 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
     await withBoundServer(fixture.server, async (baseUrl) => {
       const requestIds: string[] = [];
       for (let index = 0; index < 21; index += 1) {
-        requestIds.push(
-          await createPendingCorrectionRequest(
-            baseUrl,
-            index % 2 === 0 ? fixture.pollId : secondPoll.poll_id,
-            `PG Audit Titel ${index}`,
-          ),
+        const requestId = await createPendingCorrectionRequest(
+          baseUrl,
+          index % 2 === 0 ? fixture.pollId : secondPoll.poll_id,
+          `PG Audit Titel ${index}`,
         );
+        requestIds.push(requestId);
+        const rejected = await jsonRequest(
+          baseUrl,
+          'POST',
+          `/admin/correction-requests/${requestId}/decisions`,
+          adminBId,
+          { decision: 'reject', reason_code: 'PRIVATE_CODE' },
+        );
+        expect(rejected.status).toBe(200);
       }
       const rowCountBefore = await pool.query<{ count: string }>(
         `SELECT COUNT(*)::text AS count FROM poll_correction_requests`,

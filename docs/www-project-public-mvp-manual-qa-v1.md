@@ -1,12 +1,14 @@
 # WWW Project — 公開 MVP 手動測試交接（v1）
 
-適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`；探索邊界 `GET /explore`（Phase 23–30 基準）。
+適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`；探索邊界 `GET /explore`（公開 MVP 文件鏈 Phase 23–32）。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
-**Demo／展示交接（Phase 31）：** 可展示功能摘要、5–10 分鐘 demo 腳本、發布前驗證命令與隱私邊界清單見 [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md)。
+**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ③ 本文件逐步 QA。
 
-**本機啟動（Phase 32）：** Docker `www_test`、shell 內 `DATABASE_URL`、`migrate`、`npm start`、常見問題見 [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md)。本文件專注**逐步手動 QA**，不重複貼完整啟動步驟。
+**提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore` 是 **placeholder**（說明邊界），不是真實 feed 列表，也不會查詢或列出問卷。
+
+**Demo／展示（Phase 31）** 與 **本機啟動（Phase 32）** 細節見上列連結；本文件不重複完整啟動步驟。
 
 ---
 
@@ -30,7 +32,7 @@ npm run smoke:admin:local
 npm run test:integration:local
 ```
 
-全部通過後再進行下方手動流程。`smoke:public:local` 不取代瀏覽器操作，但可確認路由與公開 JSON 未洩漏 `option_id`、vote token、shard 等欄位。
+全部通過後再進行下方手動流程。`smoke:public:local` 不取代瀏覽器操作，但可確認 `GET /`、`/polls/new`、`/explore`、`/vote/:pollId`、`/results/:pollId` 與 `POST /polls`、`vote-by-index`、公開 JSON 未洩漏 `option_id`、vote token、shard 等欄位（以煙霧內建 HTTP 檢查代替長駐 server 時可用）。
 
 ---
 
@@ -85,17 +87,18 @@ npm run test:integration:local
 
 ### 3.7 公開 MVP 視覺／手機寬度簡測（Phase 28）
 
-四個公開頁應共用 `GET /frontend/public-mvp.css`（簡潔淺色版面、最大寬度約 42rem）。
+五個公開頁（`/`、`/polls/new`、`/vote/:pollId`、`/results/:pollId`、`/explore`）應共用 `GET /frontend/public-mvp.css`（簡潔淺色版面、最大寬度約 42rem）。
 
-1. 開發者工具切換 **320px、375px、430px** 寬度，各走一次 3.2–3.5。
+1. 開發者工具切換 **320px、375px、430px** 寬度，各走一次 3.1a、3.2–3.5（含 `/explore` 導覽不破版）。
 2. 檢查項目：
    - 首頁「建立問卷」CTA 不換行破版、不超出螢幕。
    - 建立頁標題／說明／選項欄位可讀、可點，複製按鈕不造成水平捲軸。
    - 投票選項有足夠點擊區域，長文字自動換行。
    - 結果頁選項標籤與百分比不溢出。
 3. 桌機寬度（≥1024px）內容仍置中、不過寬；無需 dark mode 或動畫。
+4. **此為開發者工具簡測**，不等於 Safari／Firefox／實機行動裝置的完整跨瀏覽器認證（見 demo handoff 下一階段候選）。
 
-**Phase 28–30 仍不包含：** 真實 feed 列表 UI、ranking／推薦演算法、登入、admin UI、分類選擇、發布後編輯。`/explore` 僅為邊界說明頁，不是 `GET /polls/feed` 的前台實作。
+**Phase 28–32 仍不包含：** 真實 feed 列表 UI、ranking／推薦演算法、登入、admin UI、分類選擇、發布後編輯、production 一鍵部署。`/explore` 僅為邊界說明頁，不是 `GET /polls/feed` 的前台實作。
 
 ### 3.8 輔助工具（選做）
 

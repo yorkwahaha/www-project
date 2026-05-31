@@ -1,6 +1,6 @@
 # WWW Project — 公開 MVP Demo／Release 交接（v1）
 
-適用基準：`origin/master` 含 Phase 23–30 公開前台（分享連結流通、結果唯讀頁、`/explore` placeholder）。
+適用基準：公開 MVP 文件鏈 Phase 23–32（分享連結、結果唯讀頁、`/explore` placeholder、本機啟動交接）；以目前 `origin/master` 為準，勿綁定特定 commit hash。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
@@ -26,7 +26,7 @@
 
 **事前準備：** 依 [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 完成本機啟動（Docker `www_test`、shell 內 `DATABASE_URL`、`migrate`、`npm run build`、`npm start`）。建議用一般瀏覽器＋一個無痕視窗模擬「另一位投票者」。
 
-1. **打開首頁** — 瀏覽 `http://localhost:<port>/`，確認有「建立問卷」與「探索（尚未開放）」連結。
+1. **打開首頁** — 瀏覽 `http://127.0.0.1:3000/`（或你設定的 `PORT`），確認有「建立問卷」與「探索（尚未開放）」連結。
 2. **前往建立問卷** — 點「建立問卷」或開啟 `/polls/new`。
 3. **建立一個 2–4 選項問卷** — 填標題與至少兩個選項，按「建立問卷」，等待成功區塊出現。
 4. **複製投票連結** — 在成功區塊按「複製投票連結」，或手動選取顯示的完整網址（應為 `/vote/<pollId>`，僅含問卷 id）。

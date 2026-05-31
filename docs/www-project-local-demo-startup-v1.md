@@ -13,8 +13,10 @@
 | 適合 | 不適合 |
 |------|--------|
 | 本機瀏覽器展示公開 MVP | Production 一鍵部署 |
-| 本機手動 QA（見 manual QA 文件） | 連線正式營運資料庫 |
+| 本機手動 QA（見 [`www-project-public-mvp-manual-qa-v1.md`](./www-project-public-mvp-manual-qa-v1.md)） | 連線正式營運資料庫 |
 | 發 demo 前先跑一輪驗證命令 | 把真實密碼寫進 git |
+
+**下一頁：** 啟動完成後依 [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) 展示，或依 manual QA 逐步檢查。
 
 ---
 

@@ -20,6 +20,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 32 (docs):** Local public MVP demo startup (Docker `www_test`, session `DATABASE_URL`, migrate, `npm start`, troubleshooting) — `docs/www-project-local-demo-startup-v1.md`.
 
+**Phase 33 (docs):** Public MVP manual QA checklist pass — doc cross-links and smoke-aligned route checks; see `docs/www-project-public-mvp-manual-qa-v1.md` (read order: startup → demo handoff → manual QA).
+
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).

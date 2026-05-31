@@ -401,6 +401,7 @@ export async function bootstrapResultPage({
         collecting,
         skipFollowPanel:
           uiMockState === 'followed' || uiMockState === 'ineligible',
+        skipGlossary: Boolean(uiMockState),
       });
     }
   } catch (error) {

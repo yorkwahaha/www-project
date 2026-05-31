@@ -81,6 +81,25 @@ describe('public poll creation page', () => {
     });
   });
 
+  it('demo submit returns a static poll id without calling fetch', async () => {
+    const { submitCreatePollDemo } = await loadCreatePollPageModule();
+    const fetchImpl = vi.fn();
+
+    const created = submitCreatePollDemo({
+      formValues: {
+        title: '示範問卷',
+        description: '',
+        options: ['甲', '乙'],
+      },
+    });
+
+    expect(created.poll_id).toMatch(
+      /^00000000-0000-4000-8000-000000000099$/i,
+    );
+    expect(created.status).toBe('demo_static');
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it('requires a title', async () => {
     const { normalizeCreatePollForm } = await loadCreatePollPageModule();
 
@@ -171,5 +190,12 @@ describe('public poll creation page', () => {
     expect(source).not.toMatch(
       /reference-answer|vote-by-index|loadPollDetail|\/polls\/feed|\/polls\/.*\/results|ranking|spread_score|option_id/,
     );
+  });
+
+  it('create poll page copy marks default submit as demo static', async () => {
+    const html = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
+    expect(html).toMatch(/示意，不儲存/);
+    expect(html).toMatch(/\?live=1/);
+    expect(html).toMatch(/不透露/);
   });
 });

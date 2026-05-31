@@ -276,6 +276,10 @@ export async function bootstrapVotePage({
       renderVotePagePolicyPanels(policyPanels, { mockState: uiMockState });
       policyPanels.hidden = false;
     }
+    const collectingNotice = documentObject.getElementById('vote-collecting-notice');
+    if (collectingNotice) {
+      collectingNotice.hidden = Boolean(policyPanels && !policyPanels.hidden);
+    }
     form.hidden = false;
     applyVotePageUiMockState({
       mockState: uiMockState,

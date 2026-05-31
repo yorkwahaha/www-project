@@ -10,10 +10,16 @@
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <header id="site-header" data-nav="guest" data-active=""></header>
     <main id="main-content" class="mvp-page mvp-shell">
+      <p class="mvp-demo-nav-switch" role="note">
+        導覽示範：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
       <p class="mvp-brand">公開結果（唯讀）</p>
       <h1 id="page-title" aria-live="polite">公開結果（唯讀）</h1>
       <p class="mvp-meta" style="margin-top:-0.35rem">
-        網址可加 <code>?ui_state=</code> 預覽政策狀態（collecting、locked、cancelled 等）。
+        預覽：<code>?ui_state=</code>（collecting、revealed、locked、cancelled…）
       </p>
 
       <section
@@ -35,6 +41,7 @@
 
       <nav id="bottom-nav" class="public-nav mvp-result-footer" aria-label="頁面導覽"></nav>
     </main>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
     <script type="module" src="/frontend/result-page.js"></script>
   </body>
 </html>

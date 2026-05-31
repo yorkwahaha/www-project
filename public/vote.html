@@ -10,23 +10,30 @@
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <header id="site-header" data-nav="guest" data-active=""></header>
     <main id="main-content" class="mvp-page mvp-shell">
+      <p class="mvp-demo-nav-switch" role="note">
+        導覽示範：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
       <div class="mvp-vote-layout">
         <div class="mvp-vote-main">
           <p class="mvp-brand">參與投票</p>
           <h1 id="poll-title" aria-live="polite">載入中</h1>
           <p id="poll-description"></p>
 
-          <div class="mvp-policy-panel mvp-policy-panel-compact" aria-label="收票規則">
+          <p class="mvp-mock-banner" role="note">
+            正式環境會載入問卷 API。預覽狀態請加
+            <code>?ui_state=ineligible</code>、<code>followed</code>、<code>cancelled</code> 等。
+          </p>
+
+          <div id="vote-collecting-notice" class="mvp-policy-panel mvp-policy-panel-compact" aria-label="收票規則">
             <div class="mvp-policy-panel-header">
               <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0">收票中</h2>
-              <span class="mvp-status-badge">盲測</span>
+              <span class="mvp-badge mvp-badge-collecting">盲測</span>
             </div>
             <p class="policy-panel-text" style="margin:0">
-              不顯示票數或百分比。結果將於統計結束後公開。
-              <span class="mvp-help" tabindex="0" role="button" aria-label="為何隱藏">
-                <span class="mvp-help-icon" aria-hidden="true">?</span>
-                <span class="mvp-help-tip" role="tooltip">避免影響後續投票者；發起者亦看不到期中結果。</span>
-              </span>
+              不顯示票數或百分比；結果於統計結束後公開。
             </p>
           </div>
 
@@ -56,18 +63,27 @@
           ></section>
         </div>
 
-        <aside class="mvp-side-panel" aria-label="資格與追蹤（示意）" id="vote-side-panel">
+        <aside class="mvp-side-panel mvp-side-panel-compact" aria-label="資格與關注" id="vote-side-panel">
           <div class="mvp-mascot mvp-mascot--followed" style="width:3rem;height:3rem;margin-bottom:0.5rem" aria-hidden="true">
             <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
           </div>
-          <h2>投票資格（示意）</h2>
-          <p class="mvp-meta" style="margin:0 0 0.5rem">加 <code>?ui_state=ineligible</code> 預覽無法投票狀態。</p>
-          <p class="mvp-meta" style="margin:0">
-            投票不會公開個人資料或個別投票紀錄。
+          <h2>關注結果（站內通知示意）</h2>
+          <p class="mvp-meta" style="margin:0 0 0.5rem">
+            不符合資格或暫不投票時，可關注結果公開通知（不含 Email／推播）。
           </p>
+          <button type="button" class="mvp-btn-mock" disabled aria-disabled="true">關注結果（示意，未連線）</button>
+          <p class="mvp-follow-mock-note" style="margin:0.35rem 0 0;font-size:0.82rem;color:var(--mvp-muted);font-style:italic">
+            不會儲存關注或發送真實通知。
+          </p>
+          <ul class="mvp-preview-links">
+            <li><a href="?ui_state=ineligible">預覽：不符合資格</a></li>
+            <li><a href="?ui_state=followed">預覽：已關注</a></li>
+            <li><a href="?ui_state=cancelled">預覽：已取消</a></li>
+          </ul>
         </aside>
       </div>
     </main>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
     <script type="module" src="/frontend/vote-page.js"></script>
   </body>
 </html>

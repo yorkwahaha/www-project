@@ -18,14 +18,26 @@
       </p>
       <h1 id="explore-heading">探索問卷</h1>
       <p class="mvp-lead">
-        靜態列表示意；不依收票中票數排序。
+        靜態探索頁；不依收票中票數排序。
         <a href="/">返回首頁</a>
       </p>
 
-      <div class="mvp-filter-row" aria-label="篩選（視覺示意）">
+      <div class="mvp-search-row" role="search">
+        <input
+          class="mvp-search-input"
+          type="search"
+          disabled
+          placeholder="搜尋問卷標題（示意，尚未啟用）"
+          aria-label="搜尋問卷"
+        >
+        <button type="button" class="mvp-btn mvp-btn-secondary mvp-btn-sm" disabled>搜尋</button>
+      </div>
+
+      <div class="mvp-filter-row" aria-label="篩選（示意）">
         <span class="mvp-filter-chip is-active">全部</span>
         <span class="mvp-filter-chip">收票中</span>
-        <span class="mvp-filter-chip">結果已公開</span>
+        <span class="mvp-filter-chip">已公開</span>
+        <span class="mvp-filter-chip">鎖定期</span>
         <span class="mvp-filter-chip">生活</span>
         <span class="mvp-filter-chip">職場</span>
       </div>
@@ -37,15 +49,9 @@
             <span class="mvp-badge mvp-badge-collecting">收票中</span>
           </div>
           <p class="mvp-poll-card-meta">生活 · 2 天後截止</p>
-          <p class="mvp-poll-card-hint">
-            盲測
-            <span class="mvp-help" tabindex="0" role="button" aria-label="收票中列表說明">
-              <span class="mvp-help-icon" aria-hidden="true">?</span>
-              <span class="mvp-help-tip" role="tooltip">收票中不顯示領先選項或趨勢。</span>
-            </span>
-          </p>
+          <p class="mvp-poll-card-hint">盲測 · 無票數</p>
           <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-primary" href="/vote/00000000-0000-4000-8000-000000000001">前往投票</a>
+            <a class="mvp-btn mvp-btn-primary" href="/vote/00000000-0000-4000-8000-000000000001">投票</a>
           </div>
         </article>
 
@@ -54,9 +60,56 @@
             <h3>團隊站立會議最適合的頻率？</h3>
             <span class="mvp-badge mvp-badge-revealed">結果已公開</span>
           </div>
-          <p class="mvp-poll-card-meta">職場 · 結果已公開</p>
+          <p class="mvp-poll-card-meta">職場</p>
+          <div class="mvp-result-preview">約 38%（區間示意）
+            <div class="mvp-result-preview-bar" aria-hidden="true"><span style="width:38%"></span></div>
+          </div>
           <div class="mvp-poll-card-footer">
             <a class="mvp-btn mvp-btn-secondary" href="/results/00000000-0000-4000-8000-000000000002">查看結果</a>
+          </div>
+        </article>
+
+        <article class="mvp-poll-card">
+          <div class="mvp-poll-card-top">
+            <h3>午休偏好調查</h3>
+            <span class="mvp-badge mvp-badge-locked">公開鎖定期</span>
+          </div>
+          <p class="mvp-poll-card-meta">生活 · 鎖定中</p>
+          <div class="mvp-poll-card-footer">
+            <a class="mvp-btn mvp-btn-secondary" href="/results/00000000-0000-4000-8000-000000000002?ui_state=locked">查看結果</a>
+          </div>
+        </article>
+
+        <article class="mvp-poll-card mvp-poll-card--muted">
+          <div class="mvp-poll-card-top">
+            <h3>舊版交通意見（已取消）</h3>
+            <span class="mvp-badge mvp-badge-danger">已取消</span>
+          </div>
+          <p class="mvp-poll-card-meta">無公開結果</p>
+          <div class="mvp-poll-card-footer">
+            <a class="mvp-btn mvp-btn-ghost mvp-btn-sm" href="/results/00000000-0000-4000-8000-000000000001?ui_state=cancelled">說明</a>
+          </div>
+        </article>
+
+        <article class="mvp-poll-card mvp-poll-card--muted">
+          <div class="mvp-poll-card-top">
+            <h3>春季活動意願（已下架）</h3>
+            <span class="mvp-badge mvp-badge-muted">已下架</span>
+          </div>
+          <p class="mvp-poll-card-meta">鎖定期後下架</p>
+          <div class="mvp-poll-card-footer">
+            <a class="mvp-btn mvp-btn-ghost mvp-btn-sm" href="/results/00000000-0000-4000-8000-000000000003?ui_state=unpublished">說明</a>
+          </div>
+        </article>
+
+        <article class="mvp-poll-card">
+          <div class="mvp-poll-card-top">
+            <h3>夜間運動習慣</h3>
+            <span class="mvp-badge mvp-badge-followed">已關注</span>
+          </div>
+          <p class="mvp-poll-card-meta">收票中 · 站內通知（示意）</p>
+          <div class="mvp-poll-card-footer">
+            <a class="mvp-btn mvp-btn-secondary" href="/vote/00000000-0000-4000-8000-000000000001?ui_state=followed">查看</a>
           </div>
         </article>
       </div>
@@ -65,7 +118,7 @@
         <div class="mvp-mascot mvp-mascot--idle" aria-hidden="true">
           <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
         </div>
-        <p>更多問卷將於列表 API 就緒後顯示。目前亦可透過分享連結參與。</p>
+        <p>正式列表 API 就緒後會顯示更多問卷。</p>
         <a class="mvp-btn mvp-btn-secondary" href="/polls/new" style="margin-top:0.75rem">發起提問</a>
       </div>
     </main>

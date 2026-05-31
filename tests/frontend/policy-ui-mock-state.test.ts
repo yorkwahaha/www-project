@@ -137,6 +137,20 @@ describe('policy ui mock state', () => {
     expect(text).toMatch(/示範/);
   });
 
+  it('skips glossary aside when skipGlossary is true', async () => {
+    const { renderResultPagePolicyExtras } = await loadPolicyUiMockModule();
+    const root = createRoot();
+
+    renderResultPagePolicyExtras(root, {
+      collecting: false,
+      skipGlossary: true,
+      skipFollowPanel: true,
+    });
+
+    const text = collectText(root).join(' ');
+    expect(text).not.toMatch(/名詞對照/);
+  });
+
   it('renders preview banner marked as non-persistent', async () => {
     const { renderUiMockPreviewBanner } = await loadPolicyUiMockModule();
     const root = createRoot();

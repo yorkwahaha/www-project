@@ -10,13 +10,19 @@
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <header id="site-header" data-nav="logged-in-mock" data-active=""></header>
     <main id="main-content" class="mvp-page">
+      <p class="mvp-demo-nav-switch" role="note">
+        導覽示範：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
       <p class="mvp-mock-banner" role="note">
-        以下為靜態示意畫面：發起額度、等級與品質點數均未連線後端，不代表你的真實帳號或分數。
+        發起者儀表板為靜態示意；額度與品質點數未連線後端，不代表真實帳號。
       </p>
       <h1>我的問卷</h1>
       <p class="mvp-lead">收票中看不到票數；鎖定期內無法下架或編輯。</p>
 
-      <div class="mvp-quota-card mvp-quota-card--mock" aria-label="發起額度與品質點數（靜態示意，未實作）">
+      <div class="mvp-quota-card mvp-quota-card--mock" aria-label="發起額度（示意，未實作）">
         <div class="mvp-quota-stat">
           <strong>—</strong>
           <span>發起者等級</span>
@@ -45,28 +51,39 @@
             <tr>
               <td><strong>週末休閒活動偏好</strong></td>
               <td><span class="mvp-badge mvp-badge-collecting">收票中</span></td>
-              <td>06/20 23:59 公開</td>
+              <td>06/20 公開結果</td>
               <td>
                 <a class="mvp-btn mvp-btn-ghost mvp-btn-sm" href="#">分享</a>
-                <button type="button" class="mvp-btn mvp-btn-sm mvp-btn-accent-outline" disabled title="示意：尚未連線">取消問卷</button>
+                <button type="button" class="mvp-btn mvp-btn-sm mvp-btn-accent-outline" disabled title="示意">取消問卷</button>
               </td>
             </tr>
             <tr>
               <td><strong>遠端工作天數調查</strong></td>
-              <td><span class="mvp-badge mvp-badge-locked">結果鎖定期</span></td>
+              <td><span class="mvp-badge mvp-badge-locked">公開鎖定期</span></td>
               <td>鎖定至 06/02</td>
               <td class="toolbar-disabled">
-                <button type="button" class="mvp-btn mvp-btn-ghost mvp-btn-sm" disabled>下架</button>
-                <button type="button" class="mvp-btn mvp-btn-ghost mvp-btn-sm" disabled>刪除</button>
+                <span class="mvp-meta">無法下架／刪除／修改</span>
               </td>
             </tr>
             <tr>
               <td><strong>科技產品期待度</strong></td>
               <td><span class="mvp-badge mvp-badge-muted">鎖定期已結束</span></td>
-              <td>可下架（未來）</td>
+              <td>可下架</td>
               <td>
                 <button type="button" class="mvp-btn mvp-btn-secondary mvp-btn-sm" disabled title="示意">下架問卷</button>
               </td>
+            </tr>
+            <tr>
+              <td><strong>春季旅遊意願</strong></td>
+              <td><span class="mvp-badge mvp-badge-danger">已取消</span></td>
+              <td>—</td>
+              <td><span class="mvp-meta">無公開結果</span></td>
+            </tr>
+            <tr>
+              <td><strong>路面改善優先順序</strong></td>
+              <td><span class="mvp-badge mvp-badge-muted">已下架</span></td>
+              <td>鎖定期後</td>
+              <td><span class="mvp-meta">此問卷已結束公開鎖定期，並由發起者下架。</span></td>
             </tr>
           </tbody>
         </table>
@@ -76,8 +93,8 @@
         <div class="mvp-mascot mvp-mascot--locked" style="width:3rem;height:3rem;margin-bottom:0.5rem" aria-hidden="true">
           <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
         </div>
-        <h2>收票中發起者看不到</h2>
-        <p class="mvp-meta" style="margin:0">目前票數、參與人數、選項分布、排名或趨勢。</p>
+        <h2>發起者看不到期中結果</h2>
+        <p class="mvp-meta" style="margin:0">收票中不顯示票數、分布、排名或趨勢。</p>
       </aside>
     </main>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>

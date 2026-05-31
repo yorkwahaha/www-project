@@ -1,4 +1,8 @@
 import {
+  DEMO_MOCK_POLL_ID,
+  parseLiveApiMode,
+} from './public-mvp-demo.js';
+import {
   announceToStatusRegion,
   focusFirstFocusable,
   renderPollSharePanel,
@@ -14,8 +18,9 @@ import {
 const MAX_OPTIONS = 6;
 const PUBLISH_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const SAFE_FAILURE_MESSAGE = '目前無法建立問卷，請稍後再試。';
-const SUBMIT_IDLE_LABEL = '建立問卷';
-const SUBMIT_BUSY_LABEL = '建立中…';
+const SUBMIT_IDLE_LABEL = '建立問卷（示意，不儲存）';
+const SUBMIT_IDLE_LABEL_LIVE = '建立問卷';
+const SUBMIT_BUSY_LABEL = '處理中…';
 
 export function normalizeCreatePollForm({ title, description = '', options }) {
   const normalizedTitle = title.trim();
@@ -35,6 +40,16 @@ export function normalizeCreatePollForm({ title, description = '', options }) {
     title: normalizedTitle,
     description: description.trim(),
     options: normalizedOptions,
+  };
+}
+
+export function submitCreatePollDemo({ formValues }) {
+  const normalized = normalizeCreatePollForm(formValues);
+  return {
+    poll_id: DEMO_MOCK_POLL_ID,
+    status: 'demo_static',
+    title: normalized.title,
+    created_at: new Date().toISOString(),
   };
 }
 
@@ -94,8 +109,12 @@ export function bootstrapCreatePollPage({
     return;
   }
 
-  const uiMockState = parseUiMockState(globalThis.location?.search ?? '');
+  const search = globalThis.location?.search ?? '';
+  const useLiveApi = parseLiveApiMode(search);
+  const uiMockState = parseUiMockState(search);
   mountUiMockPreviewChrome(documentObject, uiMockState);
+  submitButton.textContent = useLiveApi ? SUBMIT_IDLE_LABEL_LIVE : SUBMIT_IDLE_LABEL;
+
   const formParent = form.parentElement;
   if (uiMockState && formParent) {
     if (uiMockState === 'cancelled' || uiMockState === 'unpublished') {
@@ -115,26 +134,34 @@ export function bootstrapCreatePollPage({
     }
     setBusySubmitButton(submitButton, {
       busy: true,
-      idleLabel: SUBMIT_IDLE_LABEL,
+      idleLabel: useLiveApi ? SUBMIT_IDLE_LABEL_LIVE : SUBMIT_IDLE_LABEL,
       busyLabel: SUBMIT_BUSY_LABEL,
     });
     announceToStatusRegion(message, '建立中…');
     success.hidden = true;
     success.replaceChildren();
 
+    const formValues = {
+      title: documentObject.getElementById('poll-title')?.value ?? '',
+      description: documentObject.getElementById('poll-description')?.value ?? '',
+      options: [...documentObject.querySelectorAll('input[name="option"]')].map(
+        (input) => input.value,
+      ),
+    };
+
     try {
-      const created = await submitCreatePoll({
-        formValues: {
-          title: documentObject.getElementById('poll-title')?.value ?? '',
-          description: documentObject.getElementById('poll-description')?.value ?? '',
-          options: [...documentObject.querySelectorAll('input[name="option"]')]
-            .map((input) => input.value),
-        },
-        fetchImpl,
-        uuidFactory,
-        now,
-      });
-      announceToStatusRegion(message, '問卷已建立。');
+      const created = useLiveApi
+        ? await submitCreatePoll({
+            formValues,
+            fetchImpl,
+            uuidFactory,
+            now,
+          })
+        : submitCreatePollDemo({ formValues });
+      announceToStatusRegion(
+        message,
+        useLiveApi ? '問卷已建立。' : '（示意）表單通過驗證；未呼叫建立 API。',
+      );
       renderCreatePollSuccess(success, created);
       form.reset();
       form.hidden = true;
@@ -146,7 +173,7 @@ export function bootstrapCreatePollPage({
       );
       setBusySubmitButton(submitButton, {
         busy: false,
-        idleLabel: SUBMIT_IDLE_LABEL,
+        idleLabel: useLiveApi ? SUBMIT_IDLE_LABEL_LIVE : SUBMIT_IDLE_LABEL,
         busyLabel: SUBMIT_BUSY_LABEL,
       });
     }

@@ -100,6 +100,15 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/public-mvp-demo.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-mvp-demo.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   if (method === 'GET' && path === '/frontend/policy-ui-placeholders.js') {
     await sendPublicFile(
       res,

@@ -212,7 +212,7 @@ export function renderCollectingPolicyExtras(block) {
 
 export function renderResultPagePolicyExtras(
   root,
-  { collecting, skipFollowPanel = false } = {},
+  { collecting, skipFollowPanel = false, skipGlossary = false } = {},
 ) {
   const doc = root.ownerDocument;
   const wrap = doc.createElement('aside');
@@ -235,16 +235,20 @@ export function renderResultPagePolicyExtras(
     wrap.append(followPanel);
   }
 
-  const { section: glossary } = createPolicyPanel(doc, {
-    title: '名詞對照',
-    mascotVariant: 'locked',
-  });
-  appendPanelClass(glossary, 'mvp-policy-panel-compact');
-  appendParagraph(glossary, POLICY_UI_COPY.closeVsLock);
-  appendParagraph(glossary, POLICY_UI_COPY.cancelVsUnpublish);
-  wrap.append(glossary);
+  if (!skipGlossary) {
+    const { section: glossary } = createPolicyPanel(doc, {
+      title: '名詞對照',
+      mascotVariant: 'locked',
+    });
+    appendPanelClass(glossary, 'mvp-policy-panel-compact');
+    appendParagraph(glossary, POLICY_UI_COPY.closeVsLock);
+    appendParagraph(glossary, POLICY_UI_COPY.cancelVsUnpublish);
+    wrap.append(glossary);
+  }
 
-  root.append(wrap);
+  if (wrap.children.length > 0) {
+    root.append(wrap);
+  }
 }
 
 export function renderVoteSuccessPolicyExtras(root) {

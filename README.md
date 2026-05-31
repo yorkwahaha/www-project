@@ -10,6 +10,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 14 (docs):** Admin Auth v1 production deployment handoff — `docs/www-project-phase-14-admin-auth-deployment-v1.md` (configure and verify `ADMIN_AUTH_CREDENTIALS_JSON` before admin UI / JWT / OAuth work).
 
+**Phase 15 (docs):** PostgreSQL integration test setup — `docs/www-project-phase-15-pg-integration-test-setup-v1.md` (run `npm run test:integration` against isolated `www_test` when `DATABASE_URL` is set).
+
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
 
 **Admin / governance (Phase 6B–12):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields), poll-scoped public notice **read + display**, the safe global `GET /admin/correction-audit` queue, and a server-side opaque Bearer token + RBAC v1 boundary are **implemented**. Full login/session/JWT/OAuth management, real Spread Score calculation, and semantic typo detection are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-12-handoff-v1.md`.
@@ -32,17 +34,18 @@ npm run migrate:check
 # DATABASE_URL=postgres://... npm run migrate
 ```
 
-`npm test` stays **DB-free**. Optional PostgreSQL integration tests (local/manual, **PostgreSQL 17+**, isolated database **`www_test` only**):
+`npm test` stays **DB-free**. Optional PostgreSQL integration tests (local/manual, **PostgreSQL 17+**, isolated database **`www_test` only**). Full setup, safety checks, and single-file runs: **`docs/www-project-phase-15-pg-integration-test-setup-v1.md`**.
 
 ```bash
 docker compose -f docker-compose.test.yml up -d
 # Windows PowerShell:
 # $env:DATABASE_URL="postgres://postgres:postgres@127.0.0.1:5432/www_test"
+npm run migrate:check
 npm run migrate
 npm run test:integration
 ```
 
-**Validation gap (Phase 10):** PG integration coverage now includes the Phase 8 public notice read API and Phase 9 global admin correction audit queue. `npm run test:integration` remains **pending** in environments where `DATABASE_URL` is missing; run it when `DATABASE_URL` points at an isolated `www_test` database.
+If `DATABASE_URL` is unset, `npm run test:integration` exits immediately with setup instructions (environment not ready — not a unit-test regression). See Phase 15 doc §8.
 
 ## Layout
 
@@ -144,4 +147,4 @@ Public correction notices are read through `GET /polls/:id/public-notices`; see 
 - Other frontend admin UI
 - Future high-sensitivity category guardrails and other deferred spec phases
 
-Run `npm run migrate:check` for the current migration count. Run `npm test` on any branch; run `npm run test:integration` only when `DATABASE_URL` is set to an isolated test DB (currently **pending** in environments without it).
+Run `npm run migrate:check` for the current migration count. Run `npm test` on any branch; run `npm run test:integration` when `DATABASE_URL` points at isolated `www_test` (see Phase 15 doc).

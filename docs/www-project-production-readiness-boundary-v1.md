@@ -14,6 +14,8 @@
 | [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md) | 跨瀏覽器／實機 QA 記錄（須實測填寫） |
 | [`www-project-phase-14-admin-auth-deployment-v1.md`](./www-project-phase-14-admin-auth-deployment-v1.md) | Admin Bearer 憑證正式環境設定 |
 | [`www-project-phase-15-pg-integration-test-setup-v1.md`](./www-project-phase-15-pg-integration-test-setup-v1.md) | 本機 `www_test` 整合測試（勿指 production DB） |
+| [`www-project-phase-39-poll-lifecycle-policy-v1.md`](./www-project-phase-39-poll-lifecycle-policy-v1.md) | 未來政策：問卷生命週期／關閉揭曉／鎖定期／取消下架（**僅文件，未實作**） |
+| [`www-project-phase-40-user-profile-eligibility-follow-policy-v1.md`](./www-project-phase-40-user-profile-eligibility-follow-policy-v1.md) | 未來政策：使用者資料／投票資格／追蹤結果通知（**僅文件，未實作**；須與 Phase 39 一併滿足） |
 
 ---
 

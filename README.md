@@ -30,6 +30,10 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 35 (docs):** Production readiness boundary — `docs/www-project-production-readiness-boundary-v1.md` (public MVP is demo-ready, not production-ready; gates and checklist before external trial).
 
+**Phase 39 (docs, policy only — not implemented):** Poll lifecycle — close, reveal, public lock period, cancel, unpublish/archive, collecting result visibility — `docs/www-project-phase-39-poll-lifecycle-policy-v1.md`. Read together with Phase 40.
+
+**Phase 40 (docs, policy only — not implemented):** User profile, voting eligibility (age/region), ineligible UX, follow-result notification — `docs/www-project-phase-40-user-profile-eligibility-follow-policy-v1.md`. Implementation must satisfy **both** Phase 39 and Phase 40 (no collecting-stage result leakage; founders without intermediate signals during collecting).
+
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).

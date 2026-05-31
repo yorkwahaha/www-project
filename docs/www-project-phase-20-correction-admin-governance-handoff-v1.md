@@ -93,6 +93,8 @@ Production 憑證設定：`docs/www-project-phase-14-admin-auth-deployment-v1.md
 | PG 整合測試設定 | `docs/www-project-phase-15-pg-integration-test-setup-v1.md` |
 | Admin Auth 里程碑 | `docs/www-project-milestone-phase-12-handoff-v1.md` |
 | 專案命令總覽 | `README.md` |
+| 問卷生命週期政策（Phase 39，僅文件） | `docs/www-project-phase-39-poll-lifecycle-policy-v1.md` |
+| 使用者資格／追蹤結果政策（Phase 40，僅文件） | `docs/www-project-phase-40-user-profile-eligibility-follow-policy-v1.md` |
 
 ---
 

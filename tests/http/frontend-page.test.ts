@@ -123,6 +123,22 @@ describe('frontend static routes', () => {
     });
   });
 
+  it('serves demo slug vote and result pages without treating them as API ids', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const votePage = await fetch(`${baseUrl}/vote/demo`);
+      const resultPage = await fetch(`${baseUrl}/results/demo`);
+
+      expect(votePage.status).toBe(200);
+      expect(resultPage.status).toBe(200);
+      expect(await votePage.text()).toContain('vote-page.js');
+      expect(await resultPage.text()).toContain('result-page.js');
+    });
+  });
+
   it('serves the public voting page and its named frontend asset', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),

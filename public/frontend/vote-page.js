@@ -1,5 +1,10 @@
 import {
-  POLL_ID_PATTERN,
+  getDemoPollDetail,
+  isDemoPollRouteId,
+  submitVoteDemo,
+} from './public-mvp-demo.js';
+import {
+  isPublicMvpPagePollId,
   announceToStatusRegion,
   buildPublicResultPath,
   focusFirstFocusable,
@@ -96,7 +101,15 @@ export function renderPollOptions(root, options, onSelect) {
     input.name = 'poll-option';
     input.value = String(option.option_index);
     input.setAttribute('aria-label', option.label);
-    input.addEventListener('change', () => onSelect(option.option_index));
+    input.addEventListener('change', () => {
+      for (const peer of root.children) {
+        if (peer.className?.startsWith('vote-option')) {
+          peer.className = 'vote-option';
+        }
+      }
+      label.className = 'vote-option is-selected';
+      onSelect(option.option_index);
+    });
     label.append(input);
 
     const text = root.ownerDocument.createElement('span');
@@ -107,7 +120,7 @@ export function renderPollOptions(root, options, onSelect) {
   }
 }
 
-export function renderVoteSuccess(root, pollId) {
+export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
   root.replaceChildren();
   root.hidden = false;
   root.setAttribute('role', 'region');
@@ -115,12 +128,15 @@ export function renderVoteSuccess(root, pollId) {
 
   const message = root.ownerDocument.createElement('p');
   message.className = 'panel-message';
-  message.textContent = '投票已送出，感謝參與。';
+  message.textContent = demoOnly
+    ? '（示意）投票已記錄於本頁，未連線正式投票 API。'
+    : '投票已送出，感謝參與。';
   root.append(message);
 
   const hint = root.ownerDocument.createElement('p');
-  hint.textContent =
-    '收集中結果頁不顯示票數或百分比。結果公開後可查看彙總統計：';
+  hint.textContent = demoOnly
+    ? '收集中結果頁不顯示票數或百分比。可前往示範結果頁預覽收集中說明：'
+    : '收集中結果頁不顯示票數或百分比。結果公開後可查看彙總統計：';
   root.append(hint);
 
   renderVoteSuccessPolicyExtras(root);
@@ -238,7 +254,7 @@ export async function bootstrapVotePage({
     return;
   }
 
-  if (!POLL_ID_PATTERN.test(pollId)) {
+  if (!isPublicMvpPagePollId(pollId)) {
     showRouteError(
       '無法開啟投票頁',
       '網址中的問卷識別碼格式不正確，請確認連結是否完整。',
@@ -246,7 +262,8 @@ export async function bootstrapVotePage({
     return;
   }
 
-  title.textContent = '載入問卷中…';
+  const demoOnly = isDemoPollRouteId(pollId);
+  title.textContent = demoOnly ? '示範問卷' : '載入問卷中…';
   title.setAttribute('aria-busy', 'true');
   announceToStatusRegion(message, '');
 
@@ -259,11 +276,16 @@ export async function bootstrapVotePage({
       for (const input of documentObject.querySelectorAll('input[name="poll-option"]')) {
         input.checked = false;
       }
+      for (const label of documentObject.querySelectorAll('.vote-option.is-selected')) {
+        label.className = 'vote-option';
+      }
     },
   });
 
   try {
-    const detail = await loadPollDetail({ pollId, fetchImpl });
+    const detail = demoOnly
+      ? getDemoPollDetail()
+      : await loadPollDetail({ pollId, fetchImpl });
     if (errorPanel) {
       errorPanel.hidden = true;
       errorPanel.replaceChildren();
@@ -311,11 +333,26 @@ export async function bootstrapVotePage({
     success.hidden = true;
     success.replaceChildren();
     try {
-      await controller.submit();
+      if (demoOnly) {
+        if (controller.hasSensitiveRuntimeState() === false) {
+          throw new Error(MISSING_SELECTION_MESSAGE);
+        }
+        const selected = documentObject.querySelector(
+          'input[name="poll-option"]:checked',
+        );
+        const optionIndex = selected ? Number(selected.value) : null;
+        submitVoteDemo({ optionIndex });
+        controller.clearRuntimeMemory();
+      } else {
+        await controller.submit();
+      }
       voteCompleted = true;
-      announceToStatusRegion(message, '投票已送出。');
+      announceToStatusRegion(
+        message,
+        demoOnly ? '（示意）投票流程完成。' : '投票已送出。',
+      );
       form.hidden = true;
-      renderVoteSuccess(success, pollId);
+      renderVoteSuccess(success, pollId, { demoOnly });
       focusFirstFocusable(success);
     } catch (error) {
       announceToStatusRegion(

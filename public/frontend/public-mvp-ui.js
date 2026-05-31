@@ -3,6 +3,16 @@
 export const POLL_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+/** Demo slug allowed on public HTML routes only (not backend poll APIs). */
+export const PUBLIC_MVP_DEMO_POLL_SLUG = 'demo';
+
+export function isPublicMvpPagePollId(pollId) {
+  return (
+    POLL_ID_PATTERN.test(pollId) ||
+    pollId === PUBLIC_MVP_DEMO_POLL_SLUG
+  );
+}
+
 const GENERIC_LOAD_FAILURE = '目前無法載入，請稍後再試。';
 
 export function setBusySubmitButton(

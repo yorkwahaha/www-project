@@ -1,5 +1,7 @@
 import {
-  DEMO_MOCK_POLL_ID,
+  DEMO_POLL_SLUG,
+  buildDemoResultPath,
+  buildDemoVotePath,
   parseLiveApiMode,
 } from './public-mvp-demo.js';
 import {
@@ -46,7 +48,7 @@ export function normalizeCreatePollForm({ title, description = '', options }) {
 export function submitCreatePollDemo({ formValues }) {
   const normalized = normalizeCreatePollForm(formValues);
   return {
-    poll_id: DEMO_MOCK_POLL_ID,
+    poll_id: DEMO_POLL_SLUG,
     status: 'demo_static',
     title: normalized.title,
     created_at: new Date().toISOString(),
@@ -92,7 +94,42 @@ export async function submitCreatePoll({
 }
 
 export function renderCreatePollSuccess(root, created, options = {}) {
+  if (options.demoStatic) {
+    renderCreatePollDemoSuccess(root);
+    return;
+  }
   renderPollSharePanel(root, created.poll_id, options);
+}
+
+export function renderCreatePollDemoSuccess(root) {
+  root.replaceChildren();
+  root.hidden = false;
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', '問卷建立成功');
+
+  const hint = root.ownerDocument.createElement('p');
+  hint.className = 'panel-message';
+  hint.textContent =
+    '（示意）表單通過驗證；未呼叫建立 API，也未寫入資料庫。可繼續測試下列示範頁面：';
+  root.append(hint);
+
+  const voteLink = root.ownerDocument.createElement('a');
+  voteLink.className = 'mvp-action-link';
+  voteLink.href = buildDemoVotePath();
+  voteLink.textContent = '查看示範投票頁';
+  root.append(voteLink);
+
+  const myPollsLink = root.ownerDocument.createElement('a');
+  myPollsLink.className = 'mvp-action-link';
+  myPollsLink.href = '/my-polls?nav=logged-in-mock';
+  myPollsLink.textContent = '前往我的問卷';
+  root.append(myPollsLink);
+
+  const resultLink = root.ownerDocument.createElement('a');
+  resultLink.className = 'mvp-action-link mvp-action-link-muted';
+  resultLink.href = buildDemoResultPath('collecting');
+  resultLink.textContent = '查看收集中結果頁（示意）';
+  root.append(resultLink);
 }
 
 export function bootstrapCreatePollPage({
@@ -162,7 +199,7 @@ export function bootstrapCreatePollPage({
         message,
         useLiveApi ? '問卷已建立。' : '（示意）表單通過驗證；未呼叫建立 API。',
       );
-      renderCreatePollSuccess(success, created);
+      renderCreatePollSuccess(success, created, { demoStatic: !useLiveApi });
       form.reset();
       form.hidden = true;
       focusFirstFocusable(success);

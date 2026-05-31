@@ -2,6 +2,8 @@
  * Phase 42A — shared public chrome (static visual only; no auth/persistence).
  */
 
+import { showDemoOnlyFeedback } from './public-mvp-demo.js';
+
 export const HELP_COPY = {
   collectingHidden:
     '收票中不顯示票數、百分比、排名或趨勢，避免影響後續投票者。',
@@ -176,11 +178,26 @@ export function renderSiteHeader(mount, options = {}) {
     signup.href = '#signup-mock';
     signup.textContent = '註冊 / 開始使用';
 
+    wireMockAuthLink(login);
+    wireMockAuthLink(signup);
     actions.append(login, signup);
   }
 
   inner.append(brand, nav, actions);
   mount.append(inner);
+}
+
+function wireMockAuthLink(link) {
+  link.addEventListener('click', (event) => {
+    if (!link.getAttribute('href')?.startsWith('#')) {
+      return;
+    }
+    event.preventDefault();
+    showDemoOnlyFeedback(
+      link,
+      '（示意）尚未實作登入或註冊。請使用頁面上方「登入後」切換導覽列預覽。',
+    );
+  });
 }
 
 export function renderDemoNavBanner(parent, navMode) {

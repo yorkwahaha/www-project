@@ -93,9 +93,7 @@ describe('public poll creation page', () => {
       },
     });
 
-    expect(created.poll_id).toMatch(
-      /^00000000-0000-4000-8000-000000000099$/i,
-    );
+    expect(created.poll_id).toBe('demo');
     expect(created.status).toBe('demo_static');
     expect(fetchImpl).not.toHaveBeenCalled();
   });
@@ -106,6 +104,23 @@ describe('public poll creation page', () => {
     expect(() =>
       normalizeCreatePollForm({ title: ' ', options: ['One', 'Two'] }),
     ).toThrow('請填寫問卷標題。');
+  });
+
+  it('renders demo next-step links after static create success', async () => {
+    const { renderCreatePollDemoSuccess } = await loadCreatePollPageModule();
+    const root = createDomRoot();
+
+    renderCreatePollDemoSuccess(root);
+
+    const links = root.children.filter((child) => child.tagName === 'a');
+    expect(links.map((link) => link.textContent)).toEqual([
+      '查看示範投票頁',
+      '前往我的問卷',
+      '查看收集中結果頁（示意）',
+    ]);
+    expect(links[0]!.href).toBe('/vote/demo');
+    expect(links[1]!.href).toBe('/my-polls?nav=logged-in-mock');
+    expect(links[2]!.href).toBe('/results/demo?ui_state=collecting');
   });
 
   it('renders vote and result links after successful creation', async () => {

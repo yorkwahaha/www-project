@@ -10,6 +10,17 @@ async function loadPublicMvpUiModule() {
 }
 
 describe('public MVP UI helpers', () => {
+  it('accepts demo slug on public page routes only', async () => {
+    const { isPublicMvpPagePollId, PUBLIC_MVP_DEMO_POLL_SLUG } =
+      await loadPublicMvpUiModule();
+    expect(PUBLIC_MVP_DEMO_POLL_SLUG).toBe('demo');
+    expect(isPublicMvpPagePollId('demo')).toBe(true);
+    expect(
+      isPublicMvpPagePollId('11111111-1111-4111-8111-111111111111'),
+    ).toBe(true);
+    expect(isPublicMvpPagePollId('not-a-poll')).toBe(false);
+  });
+
   it('marks error panels as alerts', async () => {
     const { renderPublicErrorPanel } = await loadPublicMvpUiModule();
     let documentObject: {

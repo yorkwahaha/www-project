@@ -1,5 +1,10 @@
 import {
-  POLL_ID_PATTERN,
+  getDemoCollectingResultPayload,
+  isDemoPollRouteId,
+  renderResultUiStatePreviewLinks,
+} from './public-mvp-demo.js';
+import {
+  isPublicMvpPagePollId,
   buildPublicVotePath,
   markRegionBusy,
   messageForPollLoadFailure,
@@ -299,6 +304,7 @@ export async function bootstrapResultPage({
   const pageTitle = documentObject.getElementById('page-title');
   const errorPanel = documentObject.getElementById('error-panel');
   const bottomNav = documentObject.getElementById('bottom-nav');
+  const statePreviewLinks = documentObject.getElementById('result-state-preview-links');
   if (!root) {
     return;
   }
@@ -341,12 +347,18 @@ export async function bootstrapResultPage({
     return;
   }
 
-  if (!POLL_ID_PATTERN.test(pollId)) {
+  if (!isPublicMvpPagePollId(pollId)) {
     showRouteError(
       '無法開啟結果頁',
       '網址中的問卷識別碼格式不正確，請確認連結是否完整。',
     );
     return;
+  }
+
+  const demoOnly = isDemoPollRouteId(pollId);
+  if (statePreviewLinks) {
+    renderResultUiStatePreviewLinks(statePreviewLinks, pollId);
+    statePreviewLinks.hidden = false;
   }
 
   if (pageTitle) {
@@ -360,7 +372,9 @@ export async function bootstrapResultPage({
   markRegionBusy(root, true);
 
   try {
-    const result = await loadResultDisplay({ pollId, fetchImpl });
+    const result = demoOnly
+      ? getDemoCollectingResultPayload()
+      : await loadResultDisplay({ pollId, fetchImpl });
     if (errorPanel) {
       errorPanel.hidden = true;
       errorPanel.replaceChildren();
@@ -370,6 +384,8 @@ export async function bootstrapResultPage({
         pageTitle.textContent = '問卷已取消（預覽）';
       } else if (uiMockState === 'unpublished') {
         pageTitle.textContent = '問卷已下架（預覽）';
+      } else if (demoOnly) {
+        pageTitle.textContent = '示範結果頁（唯讀）';
       } else {
         pageTitle.textContent = '公開結果（唯讀）';
       }
@@ -394,14 +410,14 @@ export async function bootstrapResultPage({
         uiMockState != null
           ? isCollectingUiMockState(uiMockState)
           : isCollectingResult(result);
-      if (uiMockState) {
+      if (uiMockState && uiMockState !== 'collecting') {
         renderUiMockStatePanel(root, uiMockState);
       }
       renderResultPagePolicyExtras(root, {
         collecting,
         skipFollowPanel:
           uiMockState === 'followed' || uiMockState === 'ineligible',
-        skipGlossary: Boolean(uiMockState),
+        skipGlossary: Boolean(uiMockState) || demoOnly,
       });
     }
   } catch (error) {
@@ -411,16 +427,25 @@ export async function bootstrapResultPage({
   }
 
   if (publicNoticesRoot) {
-    try {
-      const notices = await loadPublicNotices({ pollId, fetchImpl });
-      renderPublicNotices(publicNoticesRoot, notices);
-    } catch {
+    if (demoOnly) {
       renderPublicNotices(publicNoticesRoot, { notices: [] });
+    } else {
+      try {
+        const notices = await loadPublicNotices({ pollId, fetchImpl });
+        renderPublicNotices(publicNoticesRoot, notices);
+      } catch {
+        renderPublicNotices(publicNoticesRoot, { notices: [] });
+      }
     }
   }
 
   if (bottomNav) {
     renderResultPageNav(bottomNav, pollId);
+    const myPolls = bottomNav.ownerDocument.createElement('a');
+    myPolls.className = 'mvp-action-link';
+    myPolls.href = '/my-polls?nav=logged-in-mock';
+    myPolls.textContent = '我的問卷（示意）';
+    bottomNav.append(myPolls);
   }
 }
 

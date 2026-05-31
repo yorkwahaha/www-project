@@ -16,6 +16,13 @@ export type { AdminCorrectionServices } from './admin-routes.js';
 const POLL_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+/** Demo slug for public HTML vote/result pages only (not poll APIs). */
+const PUBLIC_MVP_DEMO_POLL_SLUG = 'demo';
+
+function isPublicMvpPagePollId(pollId: string): boolean {
+  return POLL_ID_PATTERN.test(pollId) || pollId === PUBLIC_MVP_DEMO_POLL_SLUG;
+}
+
 export type HttpServerOptions = {
   pollService: PollService;
   adminCorrection?: AdminCorrectionServices;
@@ -135,7 +142,7 @@ async function routeRequest(
   const resultPageMatch = path.match(/^\/results\/([^/]+)$/);
   if (resultPageMatch && method === 'GET') {
     const pollId = resultPageMatch[1]!;
-    if (!POLL_ID_PATTERN.test(pollId)) {
+    if (!isPublicMvpPagePollId(pollId)) {
       sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
       return;
     }
@@ -256,10 +263,19 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/my-polls-page.js') {
+    await sendPublicFile(
+      res,
+      'frontend/my-polls-page.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   const votePageMatch = path.match(/^\/vote\/([^/]+)$/);
   if (votePageMatch && method === 'GET') {
     const pollId = votePageMatch[1]!;
-    if (!POLL_ID_PATTERN.test(pollId)) {
+    if (!isPublicMvpPagePollId(pollId)) {
       sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
       return;
     }

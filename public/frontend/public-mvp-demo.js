@@ -1,9 +1,25 @@
 /**
- * Phase 43 — shared public MVP demo/static helpers (no API, no persistence).
+ * Phase 44 — shared public MVP demo/static helpers (no API, no persistence).
  */
 
-/** Fixed UUID for create-poll demo success links only. */
-export const DEMO_MOCK_POLL_ID = '00000000-0000-4000-8000-000000000099';
+import { buildPublicResultPath, buildPublicVotePath } from './public-mvp-ui.js';
+
+/** Stable slug for clickable demo vote/result routes (not a backend poll id). */
+export const DEMO_POLL_SLUG = 'demo';
+
+/** Legacy alias used by create-poll demo success payloads. */
+export const DEMO_MOCK_POLL_ID = DEMO_POLL_SLUG;
+
+const DEMO_POLL_TITLE = '你平常通勤主要使用哪種交通工具？';
+const DEMO_POLL_DESCRIPTION =
+  '此為示範問卷，用於手機上測試投票與結果頁流程；未連線後端資料。';
+
+const DEMO_POLL_OPTION_LABELS = [
+  '大眾運輸（捷運、公車等）',
+  '自行開車或機車',
+  '單車或步行',
+  '多種方式混合',
+];
 
 export function parseLiveApiMode(search = '') {
   const rawSearch =
@@ -15,9 +31,139 @@ export function parseLiveApiMode(search = '') {
   return new URLSearchParams(rawSearch).get('live') === '1';
 }
 
+export function parseDemoQueryFlag(search = '') {
+  const rawSearch =
+    typeof search === 'string' && search.length > 0
+      ? search.startsWith('?')
+        ? search
+        : `?${search}`
+      : '';
+  return new URLSearchParams(rawSearch).get('demo') === '1';
+}
+
+export function isDemoPollRouteId(pollId) {
+  return typeof pollId === 'string' && pollId.trim().toLowerCase() === DEMO_POLL_SLUG;
+}
+
+export function buildDemoVotePath() {
+  return buildPublicVotePath(DEMO_POLL_SLUG);
+}
+
+export function buildDemoResultPath(uiState) {
+  const base = buildPublicResultPath(DEMO_POLL_SLUG);
+  if (!uiState) {
+    return base;
+  }
+  return `${base}?ui_state=${encodeURIComponent(uiState)}`;
+}
+
+export { buildPublicResultPath, buildPublicVotePath };
+
 export function buildExploreStateHref(path, uiState) {
-  const base = path.includes('?') ? path : `${path}?ui_state=${encodeURIComponent(uiState)}`;
-  return base.includes('ui_state=')
-    ? path
-    : `${path}?ui_state=${encodeURIComponent(uiState)}`;
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}ui_state=${encodeURIComponent(uiState)}`;
+}
+
+export function getDemoPollDetail() {
+  return {
+    title: DEMO_POLL_TITLE,
+    description: DEMO_POLL_DESCRIPTION,
+    options: DEMO_POLL_OPTION_LABELS.map((label, option_index) => ({
+      option_index,
+      label,
+    })),
+  };
+}
+
+export function getDemoCollectingResultPayload() {
+  return {
+    poll_id: DEMO_POLL_SLUG,
+    collecting: true,
+    display_mode: 'collecting',
+    total_votes_display: '收集中',
+    updated_display: '',
+    options: DEMO_POLL_OPTION_LABELS.map((display_label, option_index) => ({
+      option_index,
+      display_label,
+      display_percentage: null,
+      display_count: null,
+    })),
+  };
+}
+
+export function submitVoteDemo({ optionIndex }) {
+  if (!Number.isInteger(optionIndex) || optionIndex < 0) {
+    throw new Error('請先選擇一個選項。');
+  }
+  return { ok: true, demo: true };
+}
+
+/**
+ * @param {HTMLElement} target
+ * @param {string} message
+ */
+export function showDemoOnlyFeedback(target, message) {
+  if (!target) {
+    return;
+  }
+  const doc = target.ownerDocument;
+  const host =
+    target.closest('[data-demo-feedback-host]') ??
+    target.closest('td') ??
+    target.parentElement;
+  if (!host) {
+    return;
+  }
+  let status = host.querySelector('.mvp-demo-action-feedback');
+  if (!status) {
+    status = doc.createElement('p');
+    status.className = 'mvp-demo-action-feedback';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    host.append(status);
+  }
+  status.textContent = message;
+}
+
+export const RESULT_UI_STATE_PREVIEW_LINKS = [
+  { uiState: 'collecting', label: '收集中（無票數）' },
+  { uiState: 'revealed', label: '結果已公開' },
+  { uiState: 'locked', label: '公開鎖定期' },
+  { uiState: 'post_lock', label: '鎖定期已結束' },
+  { uiState: 'cancelled', label: '已取消' },
+  { uiState: 'unpublished', label: '已下架' },
+  { uiState: 'ineligible', label: '不符合資格' },
+  { uiState: 'followed', label: '已關注' },
+];
+
+export function renderResultUiStatePreviewLinks(root, pollId) {
+  root.replaceChildren();
+  const doc = root.ownerDocument;
+  const wrap = doc.createElement('div');
+  wrap.className = 'mvp-preview-links-block';
+  wrap.setAttribute('role', 'navigation');
+  wrap.setAttribute('aria-label', '結果頁狀態預覽');
+
+  const lead = doc.createElement('p');
+  lead.className = 'mvp-meta';
+  lead.textContent = '狀態預覽（示意，僅前端文案）：';
+  wrap.append(lead);
+
+  const list = doc.createElement('ul');
+  list.className = 'mvp-preview-links';
+
+  for (const item of RESULT_UI_STATE_PREVIEW_LINKS) {
+    const li = doc.createElement('li');
+    const a = doc.createElement('a');
+    const href = item.uiState
+      ? `${buildPublicResultPath(pollId)}?ui_state=${encodeURIComponent(item.uiState)}`
+      : buildPublicResultPath(pollId);
+    a.href = href;
+    a.textContent = item.label;
+    li.append(a);
+    list.append(li);
+  }
+  wrap.append(list);
+  root.append(wrap);
+  return wrap;
 }

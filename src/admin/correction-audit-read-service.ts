@@ -7,20 +7,30 @@ import type {
   CorrectionAuditDecisionAggregateRow,
   CorrectionAuditReadRepository,
   CorrectionAuditRequestRow,
+  GlobalCorrectionAuditListRow,
   PollCorrectionAuditListRow,
 } from './correction-audit-read-repository.js';
-import { AdminForbiddenError, CorrectionRequestNotFoundError } from './errors.js';
+import { AdminError, AdminForbiddenError, CorrectionRequestNotFoundError } from './errors.js';
 import type {
   CorrectionDecisionSummary,
   CorrectionAuditRecord,
   CorrectionAuditTimelineItem,
+  GlobalCorrectionAuditList,
+  GlobalCorrectionAuditListItem,
   PollCorrectionAuditList,
   PollCorrectionAuditListItem,
 } from './types.js';
+import type { CorrectionRequestStatus } from './types.js';
 
 export type ListPollCorrectionAuditQuery = {
   limit?: string;
   cursor?: string;
+};
+
+export type ListGlobalCorrectionAuditQuery = ListPollCorrectionAuditQuery & {
+  status?: string;
+  valid_before?: string;
+  valid_after?: string;
 };
 
 export type CorrectionAuditReadService = {
@@ -30,6 +40,10 @@ export type CorrectionAuditReadService = {
     viewingAdminId: string,
     query?: ListPollCorrectionAuditQuery,
   ): Promise<PollCorrectionAuditList>;
+  listGlobalCorrectionAudit(
+    viewingAdminId: string,
+    query?: ListGlobalCorrectionAuditQuery,
+  ): Promise<GlobalCorrectionAuditList>;
 };
 
 export function createCorrectionAuditReadService(
@@ -62,6 +76,34 @@ export function createCorrectionAuditReadService(
       const last = visibleRows.at(-1);
       return {
         items: visibleRows.map(toListItem),
+        next_cursor:
+          hasNext && last
+            ? encodeCorrectionAuditCursor(last.submitted_at, last.request_id)
+            : null,
+      };
+    },
+
+    async listGlobalCorrectionAudit(viewingAdminId, query = {}) {
+      await requireActiveAdmin(repository, viewingAdminId);
+      const limit = parseCorrectionAuditLimit(query.limit);
+      const cursor = query.cursor
+        ? decodeCorrectionAuditCursor(query.cursor)
+        : undefined;
+      const status = parseCorrectionAuditStatus(query.status);
+      const validBefore = parseCorrectionAuditTimestamp(query.valid_before, 'valid_before');
+      const validAfter = parseCorrectionAuditTimestamp(query.valid_after, 'valid_after');
+      const rows = await repository.listGlobalCorrectionAudit({
+        limit,
+        ...(cursor ? { cursor } : {}),
+        ...(status ? { status } : {}),
+        ...(validBefore ? { validBefore } : {}),
+        ...(validAfter ? { validAfter } : {}),
+      });
+      const hasNext = rows.length > limit;
+      const visibleRows = rows.slice(0, limit);
+      const last = visibleRows.at(-1);
+      return {
+        items: visibleRows.map(toGlobalListItem),
         next_cursor:
           hasNext && last
             ? encodeCorrectionAuditCursor(last.submitted_at, last.request_id)
@@ -173,6 +215,49 @@ function toListItem(row: PollCorrectionAuditListRow): PollCorrectionAuditListIte
       ? { correction_log_id: row.correction_log_id }
       : {}),
   };
+}
+
+function toGlobalListItem(
+  row: GlobalCorrectionAuditListRow,
+): GlobalCorrectionAuditListItem {
+  return {
+    poll_id: row.poll_id,
+    ...toListItem(row),
+  };
+}
+
+const CORRECTION_AUDIT_STATUSES = new Set<CorrectionRequestStatus>([
+  'pending',
+  'approved',
+  'rejected',
+  'expired',
+  'applied',
+]);
+
+function parseCorrectionAuditStatus(
+  value: string | undefined,
+): CorrectionRequestStatus | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!CORRECTION_AUDIT_STATUSES.has(value as CorrectionRequestStatus)) {
+    throw new AdminError('INVALID_AUDIT_STATUS', 'Invalid audit status');
+  }
+  return value as CorrectionRequestStatus;
+}
+
+function parseCorrectionAuditTimestamp(
+  value: string | undefined,
+  field: 'valid_before' | 'valid_after',
+): Date | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new AdminError('INVALID_AUDIT_TIMESTAMP', `Invalid ${field}`);
+  }
+  return parsed;
 }
 
 const TIMELINE_EVENT_ORDER = {

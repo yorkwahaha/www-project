@@ -46,6 +46,7 @@ Admin routes are mounted only when the HTTP server is wired with admin correctio
 | `GET` | `/admin/correction-requests/:requestId/review-context` | Blind review context for one admin |
 | `GET` | `/admin/correction-requests/:requestId/audit-record` | Read-only safe audit snapshot and neutral timeline |
 | `GET` | `/admin/polls/:pollId/correction-audit` | Read-only paginated safe correction audit list for one poll |
+| `GET` | `/admin/correction-audit` | Read-only paginated safe global correction audit queue |
 | `POST` | `/admin/correction-requests/:requestId/decisions` | Submit independent approve/reject decision |
 | `POST` | `/admin/correction-requests/:requestId/apply` | Apply **approved** request (active/closed path) |
 | `POST` | `/admin/suspended-correction-requests` | Create request for **suspended** poll; poll → `correction_pending` |
@@ -157,6 +158,12 @@ Audit records never return admin IDs, per-admin decisions, decision reasons, Spr
 
 Each item is limited to `request_id`, `request_status`, `correction_target_field`, `submitted_at`, `valid_until`, `has_public_notice`, and optional `correction_log_id`. Ordering is `submitted_at DESC`, then request ID for stable pagination.
 
+### Allowed on global correction audit queue (200)
+
+`GET /admin/correction-audit` accepts `limit` (default `20`, max `50`), opaque `cursor`, optional `status`, optional `valid_before`, and optional `valid_after`. Timestamp filters are inclusive against `valid_until`.
+
+Each item uses the poll audit list fields plus `poll_id`. Ordering is fixed: `submitted_at DESC`, then request ID for stable pagination. Sort parameters, Spread Score filtering, and score-based priority are not supported.
+
 ### Must not appear in HTTP responses
 
 | Category | Examples |
@@ -248,7 +255,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 | **24h pre-apply guard** | No recompute of Spread Score at apply when request age > 24h |
 | **Semantic typo guard** | Only normalization + non-empty / must-differ checks |
 | **Real admin auth** | No session middleware; header trust model only |
-| **Cross-poll admin audit queue** | Optional global `GET /admin/correction-audit` is not implemented |
+| **Cross-poll admin audit queue** | Implemented in Phase 9: bounded global list with safe status / validity filters |
 | **Public notice UI / global feed** | No embedded poll UI or cross-poll notice listing beyond `GET /polls/:pollId/public-notices` |
 | **Passive expiry job** | Expiry enforced when an admin hits decision/apply, not by background scheduler |
 

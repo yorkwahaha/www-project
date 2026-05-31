@@ -20,7 +20,7 @@ This document defines **admin-only, read-only** HTTP surfaces for typo-correctio
 
 ### Non-goals (these APIs)
 
-- **Optional** global `GET /admin/correction-audit` (§2.3) — not implemented on `master` @ `dd8c4bb`.
+- **Optional** global `GET /admin/correction-audit` (§2.3) — implemented in Phase 9.
 - Real session auth, JWT, OAuth, or RBAC (continue `X-Admin-User-Id` stub until a dedicated auth phase).
 - Public notice **read** in admin audit DTOs; notice **body** in audit responses. *(Poll-scoped public read is Phase 8 — `GET /polls/:pollId/public-notices` — not this API family.)*
 - Spread Score numeric fields, lock timestamps, recompute diagnostics, or score-based queue ordering.
@@ -60,15 +60,15 @@ All routes:
 | Default sort | `submitted_at` descending only |
 | Invalid poll / empty | `200` with empty `items` or `404` per existing admin error style (pick one in implementation; document in HTTP reference) |
 
-### 2.3 Optional later: `GET /admin/correction-audit` — **not implemented**
+### 2.3 `GET /admin/correction-audit` — **implemented in Phase 9**
 
 **Purpose:** Cross-poll operator queue (e.g. pending/expired nearing `valid_until`).
 
 | Item | Rule |
 |------|------|
 | Query filters | `status` (enum), optional `valid_before` / `valid_after` (ISO timestamps) |
-| Sort allowlist | `submitted_at`, `valid_until` only — **never** `spread_score_*` |
-| Deferral | Implement only after 7.3B.1 and 7.3B.2 are stable; not required for first implementation slice |
+| Sort | Fixed `submitted_at DESC`, then request ID; **never** `spread_score_*` |
+| Phase 9 scope | Bounded `limit`, opaque cursor, `status`, `valid_before`, `valid_after`; no score priority |
 
 ### Wiring sketch (future)
 
@@ -168,8 +168,8 @@ Must **never** appear in audit read responses or query parameters:
 
 1. Audit responses expose **at most** `requires_dual_admin` (boolean).
 2. Never return `spread_score_at_submit`, `spread_score_locked_until`, or derived numeric risk.
-3. List/queue endpoints (`correction-audit`, optional global queue) must not accept or implement sort/filter by spread score.
-4. Allowed sort keys: `submitted_at`, `valid_until` (asc/desc documented per endpoint).
+3. List/queue endpoints (`correction-audit`, global queue) must not accept or implement sort/filter by spread score.
+4. Client `sort` query parameters are not supported; list ordering is fixed (`submitted_at DESC`, request ID). Optional filters are `status`, `valid_before`, and `valid_after` on the global queue only.
 5. Spread Score remains governance-internal (DB + future admin tooling); spec §16 “do not use Spread Score as pre-vote ranking input” applies unchanged.
 
 ---

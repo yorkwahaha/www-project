@@ -17,7 +17,14 @@ import { readJsonBody, sendJson } from './json.js';
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const AUDIT_QUERY_PARAM_ALLOWLIST = new Set(['limit', 'cursor']);
+const POLL_AUDIT_QUERY_PARAM_ALLOWLIST = new Set(['limit', 'cursor']);
+const GLOBAL_AUDIT_QUERY_PARAM_ALLOWLIST = new Set([
+  'limit',
+  'cursor',
+  'status',
+  'valid_before',
+  'valid_after',
+]);
 
 export type AdminCorrectionServices = {
   auditReadService: CorrectionAuditReadService;
@@ -153,6 +160,24 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
         const query = parsePollCorrectionAuditQuery(searchParams);
         const result = await services.auditReadService.listPollCorrectionAudit(
           pollId,
+          adminUserId,
+          query,
+        );
+        sendJson(res, 200, result);
+      } catch (err) {
+        handleAdminRouteError(res, err);
+      }
+    },
+
+    async handleGetGlobalCorrectionAudit(
+      req: IncomingMessage,
+      res: ServerResponse,
+      searchParams: URLSearchParams,
+    ): Promise<void> {
+      try {
+        const adminUserId = requireAdminUserId(req);
+        const query = parseGlobalCorrectionAuditQuery(searchParams);
+        const result = await services.auditReadService.listGlobalCorrectionAudit(
           adminUserId,
           query,
         );
@@ -314,8 +339,45 @@ export function requirePollId(pollId: string): void {
 function parsePollCorrectionAuditQuery(
   searchParams: URLSearchParams,
 ): { limit?: string; cursor?: string } {
+  requireAllowedAuditQueryParams(searchParams, POLL_AUDIT_QUERY_PARAM_ALLOWLIST);
+  const limit = searchParams.get('limit');
+  const cursor = searchParams.get('cursor');
+  return {
+    ...(limit === null ? {} : { limit }),
+    ...(cursor === null ? {} : { cursor }),
+  };
+}
+
+function parseGlobalCorrectionAuditQuery(
+  searchParams: URLSearchParams,
+): {
+  limit?: string;
+  cursor?: string;
+  status?: string;
+  valid_before?: string;
+  valid_after?: string;
+} {
+  requireAllowedAuditQueryParams(searchParams, GLOBAL_AUDIT_QUERY_PARAM_ALLOWLIST);
+  const limit = searchParams.get('limit');
+  const cursor = searchParams.get('cursor');
+  const status = searchParams.get('status');
+  const validBefore = searchParams.get('valid_before');
+  const validAfter = searchParams.get('valid_after');
+  return {
+    ...(limit === null ? {} : { limit }),
+    ...(cursor === null ? {} : { cursor }),
+    ...(status === null ? {} : { status }),
+    ...(validBefore === null ? {} : { valid_before: validBefore }),
+    ...(validAfter === null ? {} : { valid_after: validAfter }),
+  };
+}
+
+function requireAllowedAuditQueryParams(
+  searchParams: URLSearchParams,
+  allowlist: ReadonlySet<string>,
+): void {
   for (const key of searchParams.keys()) {
-    if (!AUDIT_QUERY_PARAM_ALLOWLIST.has(key)) {
+    if (!allowlist.has(key)) {
       throw new AdminRouteError(
         'UNSUPPORTED_QUERY_PARAMS',
         'Audit query parameters are not supported',
@@ -323,12 +385,6 @@ function parsePollCorrectionAuditQuery(
       );
     }
   }
-  const limit = searchParams.get('limit');
-  const cursor = searchParams.get('cursor');
-  return {
-    ...(limit === null ? {} : { limit }),
-    ...(cursor === null ? {} : { cursor }),
-  };
 }
 
 function parseCorrectionTargetField(value: string | undefined): CorrectionTargetField {

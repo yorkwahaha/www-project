@@ -45,3 +45,5 @@ The read path allowlists `suspended_typo_correction_applied` and never selects o
 ---
 
 *End of Phase 8 handoff v1.*
+
+Phase 9 supersedes the optional global admin audit queue limitation with the safe read-only route documented in `docs/www-project-milestone-phase-9-handoff-v1.md`.

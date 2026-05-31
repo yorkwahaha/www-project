@@ -184,6 +184,11 @@ async function routeRequest(
       return;
     }
 
+    if (path === '/admin/correction-audit' && method === 'GET') {
+      await adminRoutes.handleGetGlobalCorrectionAudit(req, res, url.searchParams);
+      return;
+    }
+
     const pollCorrectionAuditMatch = path.match(
       /^\/admin\/polls\/([^/]+)\/correction-audit$/,
     );

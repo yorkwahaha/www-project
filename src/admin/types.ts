@@ -214,3 +214,12 @@ export type PollCorrectionAuditList = {
   items: PollCorrectionAuditListItem[];
   next_cursor: string | null;
 };
+
+export type GlobalCorrectionAuditListItem = PollCorrectionAuditListItem & {
+  poll_id: string;
+};
+
+export type GlobalCorrectionAuditList = {
+  items: GlobalCorrectionAuditListItem[];
+  next_cursor: string | null;
+};

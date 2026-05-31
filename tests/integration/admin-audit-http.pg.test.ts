@@ -260,6 +260,27 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
       expect(list.status).toBe(200);
       expect(list.body.items).toHaveLength(1);
       assertNoDeniedKeys(list.body);
+
+      const globalList = await jsonRequest(
+        baseUrl,
+        'GET',
+        '/admin/correction-audit?status=applied&limit=1',
+        adminAId,
+      );
+      expect(globalList.status).toBe(200);
+      expect(globalList.body.items).toEqual([
+        {
+          request_id: requestId,
+          poll_id: fixture.pollId,
+          request_status: 'applied',
+          correction_target_field: 'title',
+          submitted_at: '2026-06-15T10:00:00.000Z',
+          valid_until: '2026-06-22T10:00:00.000Z',
+          has_public_notice: false,
+          correction_log_id: applied.body.correction_log_id,
+        },
+      ]);
+      assertNoDeniedKeys(globalList.body);
     });
   });
 

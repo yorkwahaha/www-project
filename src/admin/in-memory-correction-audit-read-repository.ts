@@ -3,6 +3,7 @@ import type {
   CorrectionAuditDecisionAggregateRow,
   CorrectionAuditReadRepository,
   CorrectionAuditRequestRow,
+  GlobalCorrectionAuditListRow,
   PollCorrectionAuditListRow,
 } from './correction-audit-read-repository.js';
 import type { AdminDecisionRow, PollCorrectionLogRow } from './types.js';
@@ -96,7 +97,67 @@ export function createInMemoryCorrectionAuditReadRepository(
         });
       return rows;
     },
+
+    listGlobalCorrectionAudit: async ({
+      limit,
+      cursor,
+      status,
+      validBefore,
+      validAfter,
+    }) => {
+      return [...base.correctionRequests.values()]
+        .filter((request) => status === undefined || request.status === status)
+        .filter(
+          (request) =>
+            validBefore === undefined ||
+            request.valid_until.getTime() <= validBefore.getTime(),
+        )
+        .filter(
+          (request) =>
+            validAfter === undefined ||
+            request.valid_until.getTime() >= validAfter.getTime(),
+        )
+        .filter((request) => isBeforeCursor(request, cursor))
+        .sort(compareRequestsDescending)
+        .slice(0, limit + 1)
+        .map((request): GlobalCorrectionAuditListRow => {
+          const log = correctionLogs(base).find(
+            (row) => row.correction_request_id === request.id,
+          );
+          return {
+            request_id: request.id,
+            poll_id: request.poll_id,
+            request_status: request.status,
+            correction_target_field: request.correction_target_field,
+            submitted_at: request.submitted_at,
+            valid_until: request.valid_until,
+            correction_log_id: log?.id ?? null,
+            has_public_notice: log?.public_notice_id !== null && log !== undefined,
+          };
+        });
+    },
   };
+}
+
+function isBeforeCursor(
+  request: { id: string; submitted_at: Date },
+  cursor?: { requestId: string; submittedAt: Date },
+): boolean {
+  if (!cursor) {
+    return true;
+  }
+  const timeDifference = request.submitted_at.getTime() - cursor.submittedAt.getTime();
+  return timeDifference < 0 || (timeDifference === 0 && request.id < cursor.requestId);
+}
+
+function compareRequestsDescending(
+  a: { id: string; submitted_at: Date },
+  b: { id: string; submitted_at: Date },
+): number {
+  return (
+    b.submitted_at.getTime() - a.submitted_at.getTime() ||
+    b.id.localeCompare(a.id)
+  );
 }
 
 function decisionLogs(base: InMemoryCorrectionRepository): AdminDecisionRow[] {

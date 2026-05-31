@@ -45,6 +45,7 @@ function createRepository(
       first_reject_at: null,
     }),
     listPollCorrectionAudit: async () => [],
+    listGlobalCorrectionAudit: async () => [],
   };
 }
 

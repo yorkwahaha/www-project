@@ -52,6 +52,21 @@ export type PollCorrectionAuditListParams = {
   };
 };
 
+export type GlobalCorrectionAuditListRow = PollCorrectionAuditListRow & {
+  poll_id: string;
+};
+
+export type GlobalCorrectionAuditListParams = {
+  limit: number;
+  cursor?: {
+    submittedAt: Date;
+    requestId: string;
+  };
+  status?: CorrectionRequestStatus;
+  validBefore?: Date;
+  validAfter?: Date;
+};
+
 export type CorrectionAuditReadRepository = {
   findActiveAdminByUserId(userId: string): Promise<AdminUserRow | null>;
   findAuditRequestById(requestId: string): Promise<CorrectionAuditRequestRow | null>;
@@ -61,6 +76,9 @@ export type CorrectionAuditReadRepository = {
   listPollCorrectionAudit(
     params: PollCorrectionAuditListParams,
   ): Promise<PollCorrectionAuditListRow[]>;
+  listGlobalCorrectionAudit(
+    params: GlobalCorrectionAuditListParams,
+  ): Promise<GlobalCorrectionAuditListRow[]>;
 };
 
 export function createPgCorrectionAuditReadRepository(
@@ -139,6 +157,46 @@ export function createPgCorrectionAuditReadRepository(
          ORDER BY request.submitted_at DESC, request.id DESC
          LIMIT $4`,
         [pollId, cursor?.submittedAt ?? null, cursor?.requestId ?? null, limit + 1],
+      );
+      return result.rows;
+    },
+
+    listGlobalCorrectionAudit: async ({
+      limit,
+      cursor,
+      status,
+      validBefore,
+      validAfter,
+    }) => {
+      const result = await pool.query<GlobalCorrectionAuditListRow>(
+        `SELECT
+           request.id AS request_id,
+           request.poll_id,
+           request.status AS request_status,
+           request.correction_target_field,
+           request.submitted_at,
+           request.valid_until,
+           log.id AS correction_log_id,
+           (log.public_notice_id IS NOT NULL) AS has_public_notice
+         FROM poll_correction_requests request
+         LEFT JOIN poll_correction_logs log ON log.correction_request_id = request.id
+         WHERE ($1::text IS NULL OR request.status = $1)
+           AND ($2::timestamptz IS NULL OR request.valid_until <= $2)
+           AND ($3::timestamptz IS NULL OR request.valid_until >= $3)
+           AND (
+             $4::timestamptz IS NULL
+             OR (request.submitted_at, request.id) < ($4::timestamptz, $5::uuid)
+           )
+         ORDER BY request.submitted_at DESC, request.id DESC
+         LIMIT $6`,
+        [
+          status ?? null,
+          validBefore ?? null,
+          validAfter ?? null,
+          cursor?.submittedAt ?? null,
+          cursor?.requestId ?? null,
+          limit + 1,
+        ],
       );
       return result.rows;
     },

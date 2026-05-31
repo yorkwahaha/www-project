@@ -27,6 +27,11 @@ const DENIED_KEYS = [
   'spread_score_at_submit',
   'spread_score_locked_until',
   'public_notice_id',
+  'vote_token',
+  'poll_vote_tokens',
+  'option_vote_counters',
+  'user_id',
+  'review_context',
   'title',
   'body',
 ] as const;
@@ -323,6 +328,156 @@ describe('GET /admin/polls/:pollId/correction-audit', () => {
       );
       expect(unauthenticated.status).toBe(401);
       expect(unauthenticated.body.error).toBe('ADMIN_AUTH_REQUIRED');
+    });
+  });
+});
+
+describe('GET /admin/correction-audit', () => {
+  it('returns a stable paginated safe global list with poll ids', async () => {
+    const fixture = createAdminHttpFixture();
+    const secondPollId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+    fixture.correctionRepo.setPoll({
+      ...fixture.correctionRepo.polls.get(fixture.pollId)!,
+      id: secondPollId,
+      title: 'Second poll',
+    });
+    const server = createAdminHttpServer(fixture);
+    const headers = { 'X-Admin-User-Id': defaultAdminId };
+
+    await withServer(server, async (baseUrl) => {
+      for (const pollId of [fixture.pollId, secondPollId]) {
+        const created = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
+          headers,
+          body: {
+            poll_id: pollId,
+            correction_target_field: 'title',
+            proposed_text: `Typo ${pollId}`,
+            reason: 'Private request reason',
+          },
+        });
+        expect(created.status).toBe(201);
+      }
+
+      const first = await adminRequest(
+        baseUrl,
+        'GET',
+        '/admin/correction-audit?limit=1',
+        { headers },
+      );
+      expect(first.status).toBe(200);
+      expect(first.body.items).toHaveLength(1);
+      expect(typeof first.body.next_cursor).toBe('string');
+
+      const second = await adminRequest(
+        baseUrl,
+        'GET',
+        `/admin/correction-audit?limit=1&cursor=${first.body.next_cursor as string}`,
+        { headers },
+      );
+      expect(second.status).toBe(200);
+      expect(second.body.items).toHaveLength(1);
+      expect(second.body.next_cursor).toBeNull();
+
+      const items = [
+        ...(first.body.items as Record<string, unknown>[]),
+        ...(second.body.items as Record<string, unknown>[]),
+      ];
+      expect(new Set(items.map((item) => item.poll_id))).toEqual(
+        new Set([fixture.pollId, secondPollId]),
+      );
+      assertNoDeniedKeys(first.body);
+      assertNoDeniedKeys(second.body);
+    });
+  });
+
+  it('supports safe status and validity filters', async () => {
+    const fixture = createAdminHttpFixture();
+    const server = createAdminHttpServer(fixture);
+    const headers = { 'X-Admin-User-Id': defaultAdminId };
+
+    await withServer(server, async (baseUrl) => {
+      const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
+      const rejected = await adminRequest(
+        baseUrl,
+        'POST',
+        `/admin/correction-requests/${requestId}/decisions`,
+        {
+          headers: { 'X-Admin-User-Id': adminBId },
+          body: { decision: 'reject', reason_code: 'PRIVATE_CODE' },
+        },
+      );
+      expect(rejected.status).toBe(200);
+
+      const byStatus = await adminRequest(
+        baseUrl,
+        'GET',
+        '/admin/correction-audit?status=rejected',
+        { headers },
+      );
+      expect(byStatus.status).toBe(200);
+      expect(byStatus.body.items).toHaveLength(1);
+
+      const beforeWindow = await adminRequest(
+        baseUrl,
+        'GET',
+        '/admin/correction-audit?valid_before=2026-06-21T00:00:00.000Z',
+        { headers },
+      );
+      expect(beforeWindow.status).toBe(200);
+      expect(beforeWindow.body).toEqual({ items: [], next_cursor: null });
+
+      const afterWindow = await adminRequest(
+        baseUrl,
+        'GET',
+        '/admin/correction-audit?valid_after=2026-06-23T00:00:00.000Z',
+        { headers },
+      );
+      expect(afterWindow.status).toBe(200);
+      expect(afterWindow.body).toEqual({ items: [], next_cursor: null });
+      assertNoDeniedKeys(byStatus.body);
+    });
+  });
+
+  it('uses existing admin guards and rejects unsafe query shapes', async () => {
+    const fixture = createAdminHttpFixture();
+    const server = createAdminHttpServer(fixture);
+    const headers = { 'X-Admin-User-Id': defaultAdminId };
+
+    await withServer(server, async (baseUrl) => {
+      const empty = await adminRequest(baseUrl, 'GET', '/admin/correction-audit', {
+        headers,
+      });
+      expect(empty.status).toBe(200);
+      expect(empty.body).toEqual({ items: [], next_cursor: null });
+
+      const missing = await adminRequest(baseUrl, 'GET', '/admin/correction-audit');
+      expect(missing.status).toBe(401);
+      expect(missing.body.error).toBe('ADMIN_AUTH_REQUIRED');
+
+      const forbidden = await adminRequest(baseUrl, 'GET', '/admin/correction-audit', {
+        headers: {
+          'X-Admin-User-Id': '99999999-9999-4999-8999-999999999999',
+        },
+      });
+      expect(forbidden.status).toBe(403);
+      expect(forbidden.body.error).toBe('ADMIN_FORBIDDEN');
+
+      for (const [query, error] of [
+        ['limit=51', 'INVALID_AUDIT_LIMIT'],
+        ['cursor=not-a-cursor', 'INVALID_AUDIT_CURSOR'],
+        ['status=unknown', 'INVALID_AUDIT_STATUS'],
+        ['valid_before=not-a-date', 'INVALID_AUDIT_TIMESTAMP'],
+        ['sort=spread_score', 'UNSUPPORTED_QUERY_PARAMS'],
+      ]) {
+        const response = await adminRequest(
+          baseUrl,
+          'GET',
+          `/admin/correction-audit?${query}`,
+          { headers },
+        );
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe(error);
+      }
     });
   });
 });

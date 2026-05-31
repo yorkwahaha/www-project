@@ -17,6 +17,13 @@
       <p class="mvp-brand">What We Wonder · 公開 MVP</p>
       <h1>建立問卷</h1>
       <p class="mvp-lead">建立完成後，請複製<strong>投票連結</strong>給參與者，並可用<strong>結果連結</strong>查看公開統計。發布後無法在此編輯，若有錯字請刪除並重新建立。</p>
+      <section class="mvp-policy-panel" aria-label="發起者收集中可見性">
+        <h2 class="mvp-policy-panel-title">收集中你看不到中間結果</h2>
+        <p class="policy-panel-text">
+          統計期間內，系統不會向發起者顯示目前票數、參與人數、選項票數、百分比、排名或任何進度訊號。
+          若要停止問卷，請使用「取消」（不會產生公開彙總結果），勿與鎖定期結束後的「下架」混淆。
+        </p>
+      </section>
       <form id="create-poll-form" class="mvp-form">
         <label for="poll-title">問卷標題</label>
         <input id="poll-title" name="title" maxlength="200" required autocomplete="off">
@@ -38,6 +45,30 @@
           <input id="poll-option-5" name="option" autocomplete="off">
           <label class="option-label" for="poll-option-6">選項 6（選填）</label>
           <input id="poll-option-6" name="option" autocomplete="off">
+        </fieldset>
+
+        <fieldset class="policy-future-fields" disabled aria-disabled="true">
+          <legend>統計截止與結果公開（尚未在此表單啟用）</legend>
+          <p class="policy-panel-text policy-panel-muted">
+            MVP 目前由系統設定預設統計期間。未來將可指定精確的截止／公開時間（兩者於 MVP 可相同），以及人數門檻等進階條件。
+          </p>
+          <label for="poll-close-at">截止與結果公開時間</label>
+          <input id="poll-close-at" name="close_at" type="datetime-local" disabled>
+          <p class="policy-panel-text policy-panel-muted">
+            結果公開後進入約 <strong>5 天</strong>公開鎖定期；鎖定期內不可下架、刪除、修改內容、重新開放投票或隱藏結果。
+            鎖定期結束後，發起者方可下架。下架範例：「此問卷已結束公開鎖定期，並由發起者下架。」
+          </p>
+        </fieldset>
+
+        <fieldset class="policy-future-fields" disabled aria-disabled="true">
+          <legend>投票資格（尚未在此表單啟用）</legend>
+          <p class="policy-panel-text policy-panel-muted">
+            年齡依自行填寫的出生年／月計算（非官方驗證）；地區可限制縣市；性別資料可能收集，但 MVP 預設不以性別作為投票資格。
+          </p>
+          <label for="poll-eligibility-age">年齡區間（示範）</label>
+          <input id="poll-eligibility-age" type="text" disabled placeholder="例如 18–30" value="">
+          <label for="poll-eligibility-region">地區（示範）</label>
+          <input id="poll-eligibility-region" type="text" disabled placeholder="例如 高雄市" value="">
         </fieldset>
 
         <button

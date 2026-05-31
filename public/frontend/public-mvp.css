@@ -507,6 +507,129 @@ button:disabled {
   list-style: disc;
 }
 
+/* Phase 41A — policy panels & mock controls */
+.mvp-policy-panel {
+  margin: 1rem 0;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-surface);
+  box-shadow: var(--mvp-shadow);
+}
+
+.mvp-policy-panel-compact {
+  padding: 0.85rem 1rem;
+}
+
+.mvp-policy-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.mvp-policy-panel-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.mvp-status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--mvp-notice-bg);
+  border: 1px solid var(--mvp-notice-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #625b4b;
+}
+
+.policy-panel-text {
+  margin: 0 0 0.55rem;
+  font-size: 0.95rem;
+  color: var(--mvp-muted);
+}
+
+.policy-panel-text:last-child {
+  margin-bottom: 0;
+}
+
+.policy-panel-emphasis {
+  color: var(--mvp-text);
+  font-weight: 500;
+}
+
+.policy-panel-muted {
+  font-size: 0.9rem;
+}
+
+.policy-field-list {
+  margin: 0 0 0.65rem;
+  padding-left: 1.15rem;
+  color: var(--mvp-muted);
+  font-size: 0.95rem;
+}
+
+.vote-policy-panels {
+  margin: 0.75rem 0 1rem;
+}
+
+.mvp-policy-aside {
+  margin-top: 1rem;
+}
+
+.mvp-follow-mock {
+  margin-top: 0.5rem;
+}
+
+.mvp-btn-mock {
+  display: inline-block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0.35rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px dashed var(--mvp-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-bg);
+  color: var(--mvp-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.mvp-follow-mock-note {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--mvp-muted);
+  font-style: italic;
+}
+
+.policy-future-fields {
+  opacity: 0.92;
+}
+
+.policy-future-fields input:disabled {
+  background: var(--mvp-bg);
+  color: var(--mvp-muted);
+}
+
+.result-status-label {
+  font-weight: 600;
+  color: var(--mvp-text);
+}
+
+.result-collecting-reveal,
+.result-collecting-privacy {
+  margin: 0 0 0.45rem;
+  color: var(--mvp-muted);
+  font-size: 0.95rem;
+}
+
+.results-intro-privacy {
+  margin: 0;
+}
+
 @media (max-width: 430px) {
   .mvp-shell {
     padding: 1rem 0.85rem 2rem;

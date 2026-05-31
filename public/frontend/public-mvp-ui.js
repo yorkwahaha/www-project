@@ -249,7 +249,7 @@ export function renderPollSharePanel(root, pollId, {
   const hint = root.ownerDocument.createElement('p');
   hint.className = 'panel-message';
   hint.textContent =
-    '問卷已建立。下方為可分享的完整網址（僅含問卷識別碼，不含登入或個人資訊）。請將投票連結傳給參與者；結果連結為公開唯讀統計頁。';
+    '問卷已建立。下方為可分享的完整網址（僅含問卷識別碼）。請將投票連結傳給參與者；結果連結為公開唯讀統計頁。收集中不顯示票數或百分比，發起者亦看不到中間結果。';
   root.append(hint);
 
   const copyStatus = root.ownerDocument.createElement('p');

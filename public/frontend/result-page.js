@@ -7,6 +7,11 @@ import {
   renderPublicErrorPanel,
   renderPublicNav,
 } from './public-mvp-ui.js';
+import {
+  POLICY_UI_COPY,
+  renderCollectingPolicyExtras,
+  renderResultPagePolicyExtras,
+} from './policy-ui-placeholders.js';
 
 function appendText(parent, tagName, text, className) {
   const element = parent.ownerDocument.createElement(tagName);
@@ -115,15 +120,16 @@ export function renderCollectingStatusBlock(root) {
   appendText(
     block,
     'p',
-    '你可以確認問卷與選項已公開，但收集中階段暫不顯示票數與百分比。',
+    '本問卷仍在統計期間。收集中不顯示總票數、選項票數、百分比、排名、趨勢或任何進度訊號。',
     'result-collecting-summary',
   );
   appendText(
     block,
     'p',
-    '這是為了避免即時票數造成引導或壓力；統計會在開放顯示後呈現。',
-    'result-collecting-why',
+    POLICY_UI_COPY.collectingRevealHint,
+    'result-collecting-reveal',
   );
+  renderCollectingPolicyExtras(block);
 
   root.append(block);
 }
@@ -141,7 +147,11 @@ export function renderResultsReadOnlyIntro(root, pollId) {
   const scope = root.ownerDocument.createElement('p');
   scope.className = 'mvp-meta results-intro-scope';
   scope.textContent =
-    '本頁不含登入、個人化推薦、排行榜或 feed 列表；統計為區間化呈現，非即時原始票數。';
+    '本頁不含登入、個人化推薦、排行榜或 feed 列表。已公開結果為顯示安全的區間化摘要，非即時原始票數。';
+  const privacy = root.ownerDocument.createElement('p');
+  privacy.className = 'mvp-meta results-intro-privacy';
+  privacy.textContent = POLICY_UI_COPY.votePrivacy;
+  root.append(privacy);
   root.append(scope);
 
   if (pollId) {
@@ -180,17 +190,24 @@ export function renderResultDisplay(root, result) {
 
   if (normalized.collecting) {
     renderCollectingStatusBlock(root);
-    appendText(root, 'p', normalized.total_votes_display, 'result-total');
+    appendText(
+      root,
+      'p',
+      `狀態：${normalized.total_votes_display}`,
+      'result-status-label',
+    );
     if (normalized.updated_display) {
       appendText(root, 'p', normalized.updated_display, 'result-updated');
     }
     if (normalized.options.length === 0) {
       appendText(root, 'p', '目前尚無可顯示的選項。', 'result-empty');
+      renderResultPagePolicyExtras(root, { collecting: true });
       return;
     }
     renderOptionLabelsList(root, normalized.options, {
-      headingText: '目前公開的選項',
+      headingText: '目前公開的選項（不含票數）',
     });
+    renderResultPagePolicyExtras(root, { collecting: true });
     return;
   }
 
@@ -201,6 +218,7 @@ export function renderResultDisplay(root, result) {
 
   if (normalized.options.length === 0) {
     appendText(root, 'p', '目前尚無可顯示的選項統計。', 'result-empty');
+    renderResultPagePolicyExtras(root, { collecting: false });
     return;
   }
 
@@ -216,6 +234,8 @@ export function renderResultDisplay(root, result) {
     }
     root.append(optionElement);
   }
+
+  renderResultPagePolicyExtras(root, { collecting: false });
 }
 
 export function renderPublicNotices(root, noticeList) {

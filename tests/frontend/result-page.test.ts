@@ -168,13 +168,16 @@ describe('public result page', () => {
 
     renderResultDisplay(root, displaySafeResult);
 
-    expect(collectText(root)).toEqual([
+    const text = collectText(root);
+    expect(text.slice(0, 5)).toEqual([
       '100–499',
       '最近更新',
       '選項 A',
       '約 43%',
       '約 100–150 票',
     ]);
+    expect(text.join(' ')).toMatch(/名詞對照/);
+    expect(text.join(' ')).toMatch(/取消/);
   });
 
   it('explains collecting mode without fake vote counts or percentages', async () => {
@@ -187,11 +190,12 @@ describe('public result page', () => {
     const text = collectText(root).join(' ');
     expect(text).toMatch(/目前仍在收集中/);
     expect(text).toMatch(/不代表投票失敗/);
-    expect(text).toMatch(/暫不顯示票數與百分比/);
+    expect(text).toMatch(/不顯示總票數、選項票數、百分比/);
     expect(text).toMatch(/目前公開的選項/);
+    expect(text).toMatch(/狀態：收集中/);
     expect(text).toContain('選項甲');
     expect(text).toContain('選項乙');
-    expect(text).toContain('收集中');
+    expect(text).toMatch(/關注結果|站內通知/);
     expect(text).not.toMatch(/0\s*票|0%/);
     expect(text).not.toMatch(/option_id|shard|token/i);
   });

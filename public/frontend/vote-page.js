@@ -12,6 +12,10 @@ import {
   resolvePublicMvpUserId,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
+import {
+  renderVotePagePolicyPanels,
+  renderVoteSuccessPolicyExtras,
+} from './policy-ui-placeholders.js';
 
 const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入問卷，請稍後再試。';
 const SAFE_SUBMIT_FAILURE_MESSAGE = '目前無法送出投票，請稍後再試。';
@@ -111,8 +115,11 @@ export function renderVoteSuccess(root, pollId) {
   root.append(message);
 
   const hint = root.ownerDocument.createElement('p');
-  hint.textContent = '可前往結果頁查看公開統計：';
+  hint.textContent =
+    '收集中結果頁不顯示票數或百分比。結果公開後可查看彙總統計：';
   root.append(hint);
+
+  renderVoteSuccessPolicyExtras(root);
 
   const link = root.ownerDocument.createElement('a');
   link.className = 'mvp-action-link';
@@ -182,6 +189,7 @@ export async function bootstrapVotePage({
   const submitButton = documentObject.getElementById('vote-submit');
   const success = documentObject.getElementById('success-panel');
   const errorPanel = documentObject.getElementById('error-panel');
+  const policyPanels = documentObject.getElementById('vote-policy-panels');
   if (
     !title ||
     !description ||
@@ -255,6 +263,10 @@ export async function bootstrapVotePage({
     title.removeAttribute('aria-busy');
     description.textContent = detail.description ?? '';
     renderPollOptions(options, detail.options, controller.selectOption);
+    if (policyPanels) {
+      renderVotePagePolicyPanels(policyPanels);
+      policyPanels.hidden = false;
+    }
     form.hidden = false;
     markRegionBusy(form, false);
   } catch (error) {

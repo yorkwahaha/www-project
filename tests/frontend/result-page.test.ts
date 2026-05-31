@@ -70,6 +70,28 @@ const displaySafeResult = {
   updated_display: '最近更新',
 };
 
+const collectingResult = {
+  poll_id: '11111111-1111-4111-8111-111111111111',
+  display_mode: 'collecting',
+  total_votes_display: '收集中',
+  collecting: true,
+  options: [
+    {
+      option_index: 0,
+      display_label: '選項甲',
+      display_percentage: null,
+      display_count: null,
+    },
+    {
+      option_index: 1,
+      display_label: '選項乙',
+      display_percentage: null,
+      display_count: null,
+    },
+  ],
+  updated_display: '最近更新',
+};
+
 const publicNotice = {
   notice_id: '22222222-2222-4222-8222-222222222222',
   poll_id: displaySafeResult.poll_id,
@@ -153,6 +175,25 @@ describe('public result page', () => {
       '約 43%',
       '約 100–150 票',
     ]);
+  });
+
+  it('explains collecting mode without fake vote counts or percentages', async () => {
+    const { isCollectingResult, renderResultDisplay } = await loadResultPageModule();
+    const root = createRoot();
+
+    expect(isCollectingResult(collectingResult)).toBe(true);
+    renderResultDisplay(root, collectingResult);
+
+    const text = collectText(root).join(' ');
+    expect(text).toMatch(/目前仍在收集中/);
+    expect(text).toMatch(/不代表投票失敗/);
+    expect(text).toMatch(/暫不顯示票數與百分比/);
+    expect(text).toMatch(/目前公開的選項/);
+    expect(text).toContain('選項甲');
+    expect(text).toContain('選項乙');
+    expect(text).toContain('收集中');
+    expect(text).not.toMatch(/0\s*票|0%/);
+    expect(text).not.toMatch(/option_id|shard|token/i);
   });
 
   it('renders identical content for direct visits and post-vote redirects', async () => {

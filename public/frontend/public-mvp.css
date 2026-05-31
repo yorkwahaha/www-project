@@ -350,6 +350,48 @@ button:disabled {
   font-style: italic;
 }
 
+.result-collecting-status {
+  margin: 0 0 1rem;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--mvp-notice-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-notice-bg);
+}
+
+.result-collecting-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--mvp-text);
+}
+
+.result-collecting-vote-ok {
+  margin: 0 0 0.45rem;
+  font-weight: 600;
+  color: var(--mvp-accent);
+}
+
+.result-collecting-summary,
+.result-collecting-why {
+  margin: 0 0 0.45rem;
+  color: var(--mvp-muted);
+  font-size: 0.95rem;
+}
+
+.result-options-heading {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.result-option-label-only {
+  box-shadow: none;
+}
+
+.result-option-label-only .result-label {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .vote-cta-link {
   font-weight: 600;
 }

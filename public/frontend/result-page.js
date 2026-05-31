@@ -55,6 +55,26 @@ export async function loadPublicNotices({ pollId, fetchImpl = globalThis.fetch }
   return response.json();
 }
 
+export function isCollectingResult(result) {
+  if (!result || typeof result !== 'object') {
+    return false;
+  }
+  if (result.collecting === true || result.display_mode === 'collecting') {
+    return true;
+  }
+  const options = Array.isArray(result.options) ? result.options : [];
+  if (options.length === 0) {
+    return false;
+  }
+  return options.every(
+    (option) =>
+      option &&
+      typeof option === 'object' &&
+      option.display_count == null &&
+      option.display_percentage == null,
+  );
+}
+
 export function normalizeDisplaySafeResult(result) {
   if (!result || typeof result !== 'object') {
     return null;
@@ -68,6 +88,7 @@ export function normalizeDisplaySafeResult(result) {
       )
     : [];
   return {
+    collecting: isCollectingResult(result),
     total_votes_display:
       typeof result.total_votes_display === 'string'
         ? result.total_votes_display
@@ -76,6 +97,35 @@ export function normalizeDisplaySafeResult(result) {
       typeof result.updated_display === 'string' ? result.updated_display : '',
     options,
   };
+}
+
+export function renderCollectingStatusBlock(root) {
+  const block = root.ownerDocument.createElement('section');
+  block.className = 'result-collecting-status';
+  block.setAttribute('role', 'status');
+  block.setAttribute('aria-label', '收集中狀態說明');
+
+  appendText(block, 'h2', '目前仍在收集中', 'result-collecting-title');
+  appendText(
+    block,
+    'p',
+    '若你剛完成投票，系統已收到你的選擇；這不代表投票失敗。',
+    'result-collecting-vote-ok',
+  );
+  appendText(
+    block,
+    'p',
+    '你可以確認問卷與選項已公開，但收集中階段暫不顯示票數與百分比。',
+    'result-collecting-summary',
+  );
+  appendText(
+    block,
+    'p',
+    '這是為了避免即時票數造成引導或壓力；統計會在開放顯示後呈現。',
+    'result-collecting-why',
+  );
+
+  root.append(block);
 }
 
 export function renderResultsReadOnlyIntro(root, pollId) {
@@ -108,11 +158,39 @@ export function renderResultsReadOnlyIntro(root, pollId) {
   }
 }
 
+function renderOptionLabelsList(root, options, { headingText }) {
+  if (headingText) {
+    appendText(root, 'h2', headingText, 'result-options-heading');
+  }
+  for (const option of options) {
+    const optionElement = root.ownerDocument.createElement('section');
+    optionElement.className = 'result-option result-option-label-only';
+    appendText(optionElement, 'h3', option.display_label, 'result-label');
+    root.append(optionElement);
+  }
+}
+
 export function renderResultDisplay(root, result) {
   root.replaceChildren();
   const normalized = normalizeDisplaySafeResult(result);
   if (!normalized) {
     appendText(root, 'p', '目前無法顯示統計，請稍後再試。', 'result-empty');
+    return;
+  }
+
+  if (normalized.collecting) {
+    renderCollectingStatusBlock(root);
+    appendText(root, 'p', normalized.total_votes_display, 'result-total');
+    if (normalized.updated_display) {
+      appendText(root, 'p', normalized.updated_display, 'result-updated');
+    }
+    if (normalized.options.length === 0) {
+      appendText(root, 'p', '目前尚無可顯示的選項。', 'result-empty');
+      return;
+    }
+    renderOptionLabelsList(root, normalized.options, {
+      headingText: '目前公開的選項',
+    });
     return;
   }
 
@@ -130,10 +208,10 @@ export function renderResultDisplay(root, result) {
     const optionElement = root.ownerDocument.createElement('section');
     optionElement.className = 'result-option';
     appendText(optionElement, 'h2', option.display_label, 'result-label');
-    if (option.display_percentage !== null) {
+    if (option.display_percentage != null && option.display_percentage !== '') {
       appendText(optionElement, 'p', option.display_percentage, 'result-percentage');
     }
-    if (option.display_count !== null) {
+    if (option.display_count != null && option.display_count !== '') {
       appendText(optionElement, 'p', option.display_count, 'result-count');
     }
     root.append(optionElement);

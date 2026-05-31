@@ -13,6 +13,9 @@ import {
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import {
+  applyVotePageUiMockState,
+  mountUiMockPreviewChrome,
+  parseUiMockState,
   renderVotePagePolicyPanels,
   renderVoteSuccessPolicyExtras,
 } from './policy-ui-placeholders.js';
@@ -202,6 +205,9 @@ export async function bootstrapVotePage({
     return;
   }
 
+  const uiMockState = parseUiMockState(windowObject.location.search);
+  mountUiMockPreviewChrome(documentObject, uiMockState);
+
   const showRouteError = (heading, body) => {
     title.textContent = heading;
     description.textContent = '';
@@ -264,10 +270,17 @@ export async function bootstrapVotePage({
     description.textContent = detail.description ?? '';
     renderPollOptions(options, detail.options, controller.selectOption);
     if (policyPanels) {
-      renderVotePagePolicyPanels(policyPanels);
+      renderVotePagePolicyPanels(policyPanels, { mockState: uiMockState });
       policyPanels.hidden = false;
     }
     form.hidden = false;
+    applyVotePageUiMockState({
+      mockState: uiMockState,
+      form,
+      policyPanels,
+      message,
+      title,
+    });
     markRegionBusy(form, false);
   } catch (error) {
     const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;

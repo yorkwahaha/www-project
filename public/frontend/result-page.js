@@ -9,8 +9,13 @@ import {
 } from './public-mvp-ui.js';
 import {
   POLICY_UI_COPY,
+  applyResultUiMockState,
+  isCollectingUiMockState,
+  mountUiMockPreviewChrome,
+  parseUiMockState,
   renderCollectingPolicyExtras,
   renderResultPagePolicyExtras,
+  renderUiMockStatePanel,
 } from './policy-ui-placeholders.js';
 
 function appendText(parent, tagName, text, className) {
@@ -180,7 +185,11 @@ function renderOptionLabelsList(root, options, { headingText }) {
   }
 }
 
-export function renderResultDisplay(root, result) {
+export function renderResultDisplay(
+  root,
+  result,
+  { attachPolicyExtras = true } = {},
+) {
   root.replaceChildren();
   const normalized = normalizeDisplaySafeResult(result);
   if (!normalized) {
@@ -201,13 +210,17 @@ export function renderResultDisplay(root, result) {
     }
     if (normalized.options.length === 0) {
       appendText(root, 'p', '目前尚無可顯示的選項。', 'result-empty');
-      renderResultPagePolicyExtras(root, { collecting: true });
+      if (attachPolicyExtras) {
+        renderResultPagePolicyExtras(root, { collecting: true });
+      }
       return;
     }
     renderOptionLabelsList(root, normalized.options, {
       headingText: '目前公開的選項（不含票數）',
     });
-    renderResultPagePolicyExtras(root, { collecting: true });
+    if (attachPolicyExtras) {
+      renderResultPagePolicyExtras(root, { collecting: true });
+    }
     return;
   }
 
@@ -218,7 +231,9 @@ export function renderResultDisplay(root, result) {
 
   if (normalized.options.length === 0) {
     appendText(root, 'p', '目前尚無可顯示的選項統計。', 'result-empty');
-    renderResultPagePolicyExtras(root, { collecting: false });
+    if (attachPolicyExtras) {
+      renderResultPagePolicyExtras(root, { collecting: false });
+    }
     return;
   }
 
@@ -235,7 +250,9 @@ export function renderResultDisplay(root, result) {
     root.append(optionElement);
   }
 
-  renderResultPagePolicyExtras(root, { collecting: false });
+  if (attachPolicyExtras) {
+    renderResultPagePolicyExtras(root, { collecting: false });
+  }
 }
 
 export function renderPublicNotices(root, noticeList) {
@@ -284,6 +301,9 @@ export async function bootstrapResultPage({
   if (!root) {
     return;
   }
+
+  const uiMockState = parseUiMockState(windowObject.location.search);
+  mountUiMockPreviewChrome(documentObject, uiMockState);
 
   const showRouteError = (heading, body) => {
     if (pageTitle) {
@@ -343,14 +363,43 @@ export async function bootstrapResultPage({
       errorPanel.replaceChildren();
     }
     if (pageTitle) {
-      pageTitle.textContent = '公開結果（唯讀）';
+      if (uiMockState === 'cancelled') {
+        pageTitle.textContent = '問卷已取消（預覽）';
+      } else if (uiMockState === 'unpublished') {
+        pageTitle.textContent = '問卷已下架（預覽）';
+      } else {
+        pageTitle.textContent = '公開結果（唯讀）';
+      }
       pageTitle.removeAttribute('aria-busy');
     }
     if (introRoot) {
-      renderResultsReadOnlyIntro(introRoot, pollId);
+      introRoot.hidden =
+        uiMockState === 'cancelled' || uiMockState === 'unpublished';
+      if (!introRoot.hidden) {
+        renderResultsReadOnlyIntro(introRoot, pollId);
+      } else {
+        introRoot.replaceChildren();
+      }
     }
     markRegionBusy(root, false);
-    renderResultDisplay(root, result);
+    const mockApply = applyResultUiMockState(root, result, uiMockState);
+    if (!mockApply.terminal) {
+      renderResultDisplay(root, mockApply.payload ?? result, {
+        attachPolicyExtras: false,
+      });
+      const collecting =
+        uiMockState != null
+          ? isCollectingUiMockState(uiMockState)
+          : isCollectingResult(result);
+      if (uiMockState && uiMockState !== 'collecting') {
+        renderUiMockStatePanel(root, uiMockState);
+      }
+      renderResultPagePolicyExtras(root, {
+        collecting,
+        skipFollowPanel:
+          uiMockState === 'followed' || uiMockState === 'ineligible',
+      });
+    }
   } catch (error) {
     const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;
     showRouteError('無法載入結果', body);

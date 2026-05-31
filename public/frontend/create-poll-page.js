@@ -4,6 +4,12 @@ import {
   renderPollSharePanel,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
+import {
+  mountUiMockPreviewChrome,
+  parseUiMockState,
+  renderMockTerminalResultState,
+  renderUiMockStatePanel,
+} from './policy-ui-placeholders.js';
 
 const MAX_OPTIONS = 6;
 const PUBLISH_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -86,6 +92,20 @@ export function bootstrapCreatePollPage({
   const submitButton = documentObject.getElementById('create-poll-submit');
   if (!form || !message || !success || !submitButton) {
     return;
+  }
+
+  const uiMockState = parseUiMockState(globalThis.location?.search ?? '');
+  mountUiMockPreviewChrome(documentObject, uiMockState);
+  const formParent = form.parentElement;
+  if (uiMockState && formParent) {
+    if (uiMockState === 'cancelled' || uiMockState === 'unpublished') {
+      const terminalHost = documentObject.createElement('div');
+      terminalHost.id = 'create-mock-terminal';
+      formParent.insertBefore(terminalHost, form);
+      renderMockTerminalResultState(terminalHost, uiMockState);
+    } else if (uiMockState !== 'collecting') {
+      renderUiMockStatePanel(formParent, uiMockState);
+    }
   }
 
   form.addEventListener('submit', async (event) => {

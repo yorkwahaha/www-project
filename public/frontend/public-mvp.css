@@ -630,6 +630,55 @@ button:disabled {
   margin: 0;
 }
 
+.ui-mock-preview-banner {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px dashed var(--mvp-notice-border);
+  border-radius: var(--mvp-radius);
+  background: #fffef8;
+}
+
+.ui-mock-preview-badge {
+  margin-right: 0.5rem;
+}
+
+.ui-mock-preview-text {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--mvp-muted);
+}
+
+.ui-mock-state-panel {
+  margin-top: 1rem;
+}
+
+.ui-mock-terminal-state {
+  margin: 0.5rem 0 1rem;
+}
+
+.ui-mock-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.ui-mock-actions .mvp-btn-mock {
+  width: auto;
+  flex: 1 1 12rem;
+}
+
+.ui-mock-followed-chip {
+  margin: 0.35rem 0 0;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-success-bg);
+  border: 1px solid var(--mvp-success-border);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--mvp-accent);
+}
+
 @media (max-width: 430px) {
   .mvp-shell {
     padding: 1rem 0.85rem 2rem;

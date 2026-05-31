@@ -92,6 +92,7 @@ npm run test:integration:local
 
 ## F. 建議下一階段候選（僅列方向，本 Phase 不實作）
 
+0. **Production readiness 邊界** — 見 [`www-project-production-readiness-boundary-v1.md`](./www-project-production-readiness-boundary-v1.md)（demo-ready vs production-ready、對外試用前檢查、Gate 0–3）。
 1. **Production／本機環境交接** — 正式 `DATABASE_URL`、反向代理、靜態資源快取策略。
 2. **公開 feed 隱私設計** — 若未來要做探索列表，需先定 freshness-only 與禁止答案方向訊號。
 3. **Rate limit／濫用防護設計** — 投票與建立問卷的限流策略。
@@ -110,3 +111,4 @@ npm run test:integration:local
 | `README.md` | 指令、API 表、Public MVP 現況摘要 |
 | `AGENTS.md` | 隱私與治理紅線 |
 | `docs/www-project-phase-15-pg-integration-test-setup-v1.md` | 本機 PG 整合測試 |
+| `docs/www-project-production-readiness-boundary-v1.md` | 正式環境就緒邊界（非已完成部署） |

@@ -24,6 +24,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 34 (docs):** Cross-browser / device manual QA result log template — `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` (fill when testing real browsers; smoke does not replace this).
 
+**Phase 35 (docs):** Production readiness boundary — `docs/www-project-production-readiness-boundary-v1.md` (public MVP is demo-ready, not production-ready; gates and checklist before external trial).
+
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
@@ -108,6 +110,8 @@ Manual browser checklist (Traditional Chinese): **`docs/www-project-public-mvp-m
 Demo/release handoff (Traditional Chinese, showcase + boundaries): **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
 
 Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real devices): **`docs/www-project-public-mvp-cross-browser-qa-log-v1.md`**.
+
+**Production readiness boundary (Traditional Chinese, demo vs production gates; not a deploy completion proof):** **`docs/www-project-production-readiness-boundary-v1.md`**.
 
 **Local demo startup (Traditional Chinese):** set `DATABASE_URL` to isolated `www_test` in your shell only, then migrate → build → optional smokes → `npm start` → open `http://127.0.0.1:3000/`. Step-by-step: **`docs/www-project-local-demo-startup-v1.md`** (not for production deploy).
 

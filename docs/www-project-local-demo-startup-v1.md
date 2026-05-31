@@ -2,7 +2,7 @@
 
 **用途：** 在本機最快啟動公開 MVP（建立問卷 → 分享連結 → 投票 → 看結果），給自己展示或交給同事試用。
 
-**不適用：** 正式環境部署、production 資料庫、對外上線設定。
+**不適用：** 正式環境部署、production 資料庫、對外上線設定。對外試用前檢查見 [`www-project-production-readiness-boundary-v1.md`](./www-project-production-readiness-boundary-v1.md)。
 
 規範依據：`AGENTS.md` v0.2。展示腳本與邊界見 [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md)。
 
@@ -158,6 +158,7 @@ npm start
 | 文件 | 用途 |
 |------|------|
 | [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) | Demo 腳本與展示邊界 |
+| [`www-project-production-readiness-boundary-v1.md`](./www-project-production-readiness-boundary-v1.md) | Demo vs production、對外試用前檢查 |
 | [`www-project-public-mvp-manual-qa-v1.md`](./www-project-public-mvp-manual-qa-v1.md) | 逐步手動 QA |
 | [`www-project-phase-15-pg-integration-test-setup-v1.md`](./www-project-phase-15-pg-integration-test-setup-v1.md) | PG 整合測試細節 |
 | `README.md` | 指令與 API 總覽 |

@@ -8,38 +8,32 @@
   </head>
   <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
-    <main id="main-content" class="mvp-shell">
-      <nav class="public-nav" aria-label="網站導覽">
-        <a href="/">首頁</a>
-        <a href="/explore">探索（尚未開放）</a>
-        <a href="/polls/new">建立問卷</a>
-      </nav>
-      <p class="mvp-brand">What We Wonder · 公開 MVP</p>
+    <header id="site-header" data-nav="guest" data-active=""></header>
+    <main id="main-content" class="mvp-page mvp-shell">
+      <p class="mvp-brand">公開結果（唯讀）</p>
       <h1 id="page-title" aria-live="polite">公開結果（唯讀）</h1>
+      <p class="mvp-meta" style="margin-top:-0.35rem">
+        網址可加 <code>?ui_state=</code> 預覽政策狀態（collecting、locked、cancelled 等）。
+      </p>
+
       <section
         id="results-intro"
         class="results-intro"
         aria-label="公開結果頁說明"
         hidden
       ></section>
-      <p class="mvp-meta">
-        以下為顯示安全的統計摘要（區間化呈現），非即時原始票數。
-        收集中僅顯示狀態與選項名稱，不顯示票數或百分比。
-        投票不會公開揭露個人資料或個人投票紀錄。
-      </p>
-      <section id="error-panel" role="alert" aria-live="assertive" hidden></section>
-      <section id="public-notices" aria-label="修正公告" hidden></section>
+
       <div
         id="result-display"
         role="region"
         aria-label="投票結果統計"
         aria-live="polite"
       >載入中</div>
-      <nav id="bottom-nav" class="public-nav" aria-label="頁面導覽">
-        <a href="/">首頁</a>
-        <a href="/explore">探索（尚未開放）</a>
-        <a href="/polls/new">建立問卷</a>
-      </nav>
+
+      <section id="error-panel" role="alert" aria-live="assertive" hidden></section>
+      <section id="public-notices" aria-label="修正公告" hidden></section>
+
+      <nav id="bottom-nav" class="public-nav mvp-result-footer" aria-label="頁面導覽"></nav>
     </main>
     <script type="module" src="/frontend/result-page.js"></script>
   </body>

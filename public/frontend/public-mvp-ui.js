@@ -118,12 +118,12 @@ export function renderPublicNav(root) {
 
   const explore = root.ownerDocument.createElement('a');
   explore.href = '/explore';
-  explore.textContent = '探索（尚未開放）';
+  explore.textContent = '探索';
   nav.append(explore);
 
   const create = root.ownerDocument.createElement('a');
   create.href = '/polls/new';
-  create.textContent = '建立問卷';
+  create.textContent = '發起提問';
   nav.append(create);
 
   root.append(nav);

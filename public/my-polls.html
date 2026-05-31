@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>我的問卷（示意）｜What We Wonder</title>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
+  </head>
+  <body class="mvp-body">
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <header id="site-header" data-nav="logged-in-mock" data-active=""></header>
+    <main id="main-content" class="mvp-page">
+      <p class="mvp-mock-banner" role="note">
+        發起者儀表板為靜態示意；額度與品質點數尚未連線後端。
+      </p>
+      <h1>我的問卷</h1>
+      <p class="mvp-lead">收票中看不到即時票數；鎖定期內無法下架或編輯。</p>
+
+      <div class="mvp-quota-card" aria-label="發起額度（概念示意）">
+        <div class="mvp-quota-stat">
+          <strong>Lv.1</strong>
+          <span>發起者等級（示意）</span>
+        </div>
+        <div class="mvp-quota-stat">
+          <strong>2 / 5</strong>
+          <span>今日剩餘發起額度</span>
+        </div>
+        <div class="mvp-quota-stat">
+          <strong>120</strong>
+          <span>品質點數（概念／未實作）</span>
+        </div>
+      </div>
+
+      <div class="mvp-dash-table-wrap">
+        <table class="mvp-dash-table">
+          <thead>
+            <tr>
+              <th>標題</th>
+              <th>狀態</th>
+              <th>時間</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>週末休閒活動偏好</strong></td>
+              <td><span class="mvp-badge mvp-badge-collecting">收票中</span></td>
+              <td>06/20 23:59 公開</td>
+              <td>
+                <a class="mvp-btn mvp-btn-ghost mvp-btn-sm" href="#">分享</a>
+                <button type="button" class="mvp-btn mvp-btn-sm mvp-btn-accent-outline" disabled title="示意：尚未連線">取消問卷</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>遠端工作天數調查</strong></td>
+              <td><span class="mvp-badge mvp-badge-locked">結果鎖定期</span></td>
+              <td>鎖定至 06/02</td>
+              <td class="toolbar-disabled">
+                <button type="button" class="mvp-btn mvp-btn-ghost mvp-btn-sm" disabled>下架</button>
+                <button type="button" class="mvp-btn mvp-btn-ghost mvp-btn-sm" disabled>刪除</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>科技產品期待度</strong></td>
+              <td><span class="mvp-badge mvp-badge-muted">鎖定期已結束</span></td>
+              <td>可下架（未來）</td>
+              <td>
+                <button type="button" class="mvp-btn mvp-btn-secondary mvp-btn-sm" disabled title="示意">下架問卷</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <aside class="mvp-side-panel" style="margin-top:1rem">
+        <div class="mvp-mascot mvp-mascot--locked" style="width:3rem;height:3rem;margin-bottom:0.5rem" aria-hidden="true">
+          <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
+        </div>
+        <h2>收票中發起者看不到</h2>
+        <p class="mvp-meta" style="margin:0">目前票數、參與人數、選項分布、排名或趨勢。</p>
+      </aside>
+    </main>
+    <script type="module">
+      import { mountSiteChrome, renderSiteHeader } from '/frontend/public-mvp-layout.js';
+      const params = new URLSearchParams(location.search);
+      const header = document.getElementById('site-header');
+      if (header && params.get('nav') === 'logged-in-mock') {
+        header.dataset.nav = 'logged-in-mock';
+      }
+      mountSiteChrome(document);
+    </script>
+  </body>
+</html>

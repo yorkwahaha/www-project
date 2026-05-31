@@ -12,6 +12,7 @@ import {
   resolvePublicMvpUserId,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
+import { mountSiteChrome } from './public-mvp-layout.js';
 import {
   applyVotePageUiMockState,
   mountUiMockPreviewChrome,
@@ -204,6 +205,8 @@ export async function bootstrapVotePage({
   ) {
     return;
   }
+
+  mountSiteChrome(documentObject);
 
   const uiMockState = parseUiMockState(windowObject.location.search);
   mountUiMockPreviewChrome(documentObject, uiMockState);

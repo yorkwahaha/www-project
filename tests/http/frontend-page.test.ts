@@ -73,8 +73,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('/frontend/result-page.js');
       expect(pageBody).toContain('/frontend/public-mvp.css');
-      expect(pageBody).toContain('href="/"');
-      expect(pageBody).toContain('/polls/new');
+      expect(pageBody).toContain('id="site-header"');
       expect(pageBody).toContain('results-intro');
       expect(pageBody).toContain('公開結果（唯讀）');
       expect(pageBody).not.toContain('ignored-user-id');
@@ -113,7 +112,8 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('建立問卷');
-      expect(pageBody).toContain('href="/"');
+      expect(pageBody).toContain('id="site-header"');
+      expect(pageBody).toContain('/frontend/public-mvp-layout.js');
       expect(pageBody).toContain('/frontend/create-poll-page.js');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('aria-live');
@@ -138,8 +138,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('參與投票');
-      expect(pageBody).toContain('href="/"');
-      expect(pageBody).toContain('/polls/new');
+      expect(pageBody).toContain('id="site-header"');
       expect(pageBody).toContain('/frontend/vote-page.js');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('role="alert"');
@@ -162,7 +161,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('explore-placeholder');
       expect(pageBody).toContain('/frontend/public-mvp.css');
-      expect(pageBody).toContain('href="/"');
+      expect(pageBody).toContain('id="site-header"');
       expect(pageBody).toContain('href="/polls/new"');
       expect(pageBody).not.toMatch(/option_id|shard_id|vote_token|personalization/i);
     });
@@ -182,6 +181,22 @@ describe('frontend static routes', () => {
       expect(response.headers.get('cache-control')).toBe('no-store');
       expect(body).toContain('.mvp-body');
       expect(body).toContain('.vote-option');
+      expect(body).toContain('.mvp-site-header');
+    });
+  });
+
+  it('serves my-polls mock page and layout script', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const page = await fetch(`${baseUrl}/my-polls`);
+      const layout = await fetch(`${baseUrl}/frontend/public-mvp-layout.js`);
+
+      expect(page.status).toBe(200);
+      expect(await page.text()).toContain('我的問卷');
+      expect(layout.status).toBe(200);
     });
   });
 });

@@ -8,41 +8,65 @@
   </head>
   <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
-    <main id="main-content" class="mvp-shell">
-      <nav class="public-nav" aria-label="網站導覽">
-        <a href="/">首頁</a>
-        <a href="/explore">探索（尚未開放）</a>
-        <a href="/polls/new">建立問卷</a>
-      </nav>
-      <p class="mvp-brand">What We Wonder · 公開 MVP</p>
-      <h1 id="poll-title" aria-live="polite">載入中</h1>
-      <p id="poll-description"></p>
-      <p class="mvp-meta">
-        選擇一個選項並送出。收集中不顯示票數或百分比；結果公開後才可查看彙總統計。
-        投票不會公開揭露個人資料或個人投票紀錄。
-      </p>
-      <div id="vote-policy-panels" class="vote-policy-panels" hidden></div>
-      <form id="vote-form" class="mvp-form" hidden aria-labelledby="poll-title">
-        <fieldset>
-          <legend>請選擇一個選項（可用方向鍵或 Tab 切換）</legend>
-          <div id="poll-options" role="radiogroup" aria-label="投票選項"></div>
-        </fieldset>
-        <button
-          id="vote-submit"
-          type="submit"
-          class="mvp-btn-primary"
-          aria-describedby="form-message"
-        >送出投票</button>
-      </form>
-      <p id="form-message" role="status" aria-live="polite"></p>
-      <section id="error-panel" role="alert" aria-live="assertive" hidden></section>
-      <section
-        id="success-panel"
-        role="region"
-        aria-label="投票成功"
-        aria-live="polite"
-        hidden
-      ></section>
+    <header id="site-header" data-nav="guest" data-active=""></header>
+    <main id="main-content" class="mvp-page mvp-shell">
+      <div class="mvp-vote-layout">
+        <div class="mvp-vote-main">
+          <p class="mvp-brand">參與投票</p>
+          <h1 id="poll-title" aria-live="polite">載入中</h1>
+          <p id="poll-description"></p>
+
+          <div class="mvp-policy-panel mvp-policy-panel-compact" aria-label="收票規則">
+            <div class="mvp-policy-panel-header">
+              <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0">收票中</h2>
+              <span class="mvp-status-badge">盲測</span>
+            </div>
+            <p class="policy-panel-text" style="margin:0">
+              不顯示票數或百分比。結果將於統計結束後公開。
+              <span class="mvp-help" tabindex="0" role="button" aria-label="為何隱藏">
+                <span class="mvp-help-icon" aria-hidden="true">?</span>
+                <span class="mvp-help-tip" role="tooltip">避免影響後續投票者；發起者亦看不到期中結果。</span>
+              </span>
+            </p>
+          </div>
+
+          <div id="vote-policy-panels" class="vote-policy-panels" hidden></div>
+
+          <form id="vote-form" class="mvp-form" hidden aria-labelledby="poll-title">
+            <fieldset>
+              <legend>請選擇一個選項</legend>
+              <div id="poll-options" role="radiogroup" aria-label="投票選項"></div>
+            </fieldset>
+            <button
+              id="vote-submit"
+              type="submit"
+              class="mvp-btn-primary"
+              aria-describedby="form-message"
+            >送出投票</button>
+          </form>
+
+          <p id="form-message" role="status" aria-live="polite"></p>
+          <section id="error-panel" role="alert" aria-live="assertive" hidden></section>
+          <section
+            id="success-panel"
+            role="region"
+            aria-label="投票成功"
+            aria-live="polite"
+            hidden
+          ></section>
+        </div>
+
+        <aside class="mvp-side-panel" aria-label="資格與追蹤（示意）" id="vote-side-panel">
+          <div class="mvp-mascot mvp-mascot--followed" style="width:3rem;height:3rem;margin-bottom:0.5rem" aria-hidden="true">
+            <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
+          </div>
+          <h2>投票資格（示意）</h2>
+          <p class="mvp-meta" style="margin:0 0 0.5rem">加 <code>?ui_state=ineligible</code> 預覽無法投票狀態。</p>
+          <p class="mvp-meta" style="margin:0">
+            投票不會公開個人資料或個別投票紀錄。
+          </p>
+        </aside>
+      </div>
     </main>
     <script type="module" src="/frontend/vote-page.js"></script>
   </body>

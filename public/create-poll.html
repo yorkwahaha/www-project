@@ -8,76 +8,86 @@
   </head>
   <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
-    <main id="main-content" class="mvp-shell">
-      <nav class="public-nav" aria-label="網站導覽">
-        <a href="/">首頁</a>
-        <a href="/explore">探索（尚未開放）</a>
-        <a href="/polls/new" aria-current="page">建立問卷</a>
-      </nav>
-      <p class="mvp-brand">What We Wonder · 公開 MVP</p>
+    <header id="site-header" data-nav="guest" data-active="create"></header>
+    <main id="main-content" class="mvp-page mvp-shell">
       <h1>建立問卷</h1>
-      <p class="mvp-lead">建立完成後，請複製<strong>投票連結</strong>給參與者，並可用<strong>結果連結</strong>查看公開統計。發布後無法在此編輯，若有錯字請刪除並重新建立。</p>
-      <section class="mvp-policy-panel" aria-label="發起者收集中可見性">
-        <h2 class="mvp-policy-panel-title">收集中你看不到中間結果</h2>
-        <p class="policy-panel-text">
-          統計期間內，系統不會向發起者顯示目前票數、參與人數、選項票數、百分比、排名或任何進度訊號。
-          若要停止問卷，請使用「取消」（不會產生公開彙總結果），勿與鎖定期結束後的「下架」混淆。
-        </p>
-      </section>
-      <form id="create-poll-form" class="mvp-form">
-        <label for="poll-title">問卷標題</label>
-        <input id="poll-title" name="title" maxlength="200" required autocomplete="off">
+      <p class="mvp-lead">發布後無法在此編輯題目或選項。完成後請複製投票連結分享。</p>
 
-        <label for="poll-description">補充說明（選填）</label>
-        <textarea id="poll-description" name="description" rows="4" autocomplete="off"></textarea>
+      <div class="mvp-founder-callout" role="note">
+        <strong>發起者須知</strong>
+        <ul>
+          <li>收票中<strong>看不到</strong>即時票數或選項分布。</li>
+          <li>收票中若要停止，請用「<strong>取消</strong>」，不是「下架」。</li>
+          <li>結果公開後約 <strong>5 天</strong>公開鎖定期，期間無法下架或修改。
+            <span class="mvp-help" tabindex="0" role="button" aria-label="鎖定期說明">
+              <span class="mvp-help-icon" aria-hidden="true">?</span>
+              <span class="mvp-help-tip" role="tooltip">鎖定期內不可編輯、下架、刪除、重新開放投票或隱藏結果。</span>
+            </span>
+          </li>
+        </ul>
+      </div>
 
-        <fieldset>
-          <legend>選項（至少 2 項，最多 6 項）</legend>
-          <label class="option-label" for="poll-option-1">選項 1</label>
-          <input id="poll-option-1" name="option" required autocomplete="off">
-          <label class="option-label" for="poll-option-2">選項 2</label>
-          <input id="poll-option-2" name="option" required autocomplete="off">
-          <label class="option-label" for="poll-option-3">選項 3（選填）</label>
-          <input id="poll-option-3" name="option" autocomplete="off">
-          <label class="option-label" for="poll-option-4">選項 4（選填）</label>
-          <input id="poll-option-4" name="option" autocomplete="off">
-          <label class="option-label" for="poll-option-5">選項 5（選填）</label>
-          <input id="poll-option-5" name="option" autocomplete="off">
-          <label class="option-label" for="poll-option-6">選項 6（選填）</label>
-          <input id="poll-option-6" name="option" autocomplete="off">
-        </fieldset>
+      <div class="mvp-form-card">
+        <form id="create-poll-form" class="mvp-form">
+          <label for="poll-title">問卷標題</label>
+          <input id="poll-title" name="title" maxlength="200" required autocomplete="off">
 
-        <fieldset class="policy-future-fields" disabled aria-disabled="true">
-          <legend>統計截止與結果公開（尚未在此表單啟用）</legend>
-          <p class="policy-panel-text policy-panel-muted">
-            MVP 目前由系統設定預設統計期間。未來將可指定精確的截止／公開時間（兩者於 MVP 可相同），以及人數門檻等進階條件。
-          </p>
-          <label for="poll-close-at">截止與結果公開時間</label>
-          <input id="poll-close-at" name="close_at" type="datetime-local" disabled>
-          <p class="policy-panel-text policy-panel-muted">
-            結果公開後進入約 <strong>5 天</strong>公開鎖定期；鎖定期內不可下架、刪除、修改內容、重新開放投票或隱藏結果。
-            鎖定期結束後，發起者方可下架。下架範例：「此問卷已結束公開鎖定期，並由發起者下架。」
-          </p>
-        </fieldset>
+          <label for="poll-description">補充說明（選填）</label>
+          <textarea id="poll-description" name="description" rows="3" autocomplete="off"></textarea>
 
-        <fieldset class="policy-future-fields" disabled aria-disabled="true">
-          <legend>投票資格（尚未在此表單啟用）</legend>
-          <p class="policy-panel-text policy-panel-muted">
-            年齡依自行填寫的出生年／月計算（非官方驗證）；地區可限制縣市；性別資料可能收集，但 MVP 預設不以性別作為投票資格。
-          </p>
-          <label for="poll-eligibility-age">年齡區間（示範）</label>
-          <input id="poll-eligibility-age" type="text" disabled placeholder="例如 18–30" value="">
-          <label for="poll-eligibility-region">地區（示範）</label>
-          <input id="poll-eligibility-region" type="text" disabled placeholder="例如 高雄市" value="">
-        </fieldset>
+          <fieldset>
+            <legend>選項（至少 2 項，最多 6 項）</legend>
+            <label class="option-label" for="poll-option-1">選項 1</label>
+            <input id="poll-option-1" name="option" required autocomplete="off">
+            <label class="option-label" for="poll-option-2">選項 2</label>
+            <input id="poll-option-2" name="option" required autocomplete="off">
+            <label class="option-label" for="poll-option-3">選項 3（選填）</label>
+            <input id="poll-option-3" name="option" autocomplete="off">
+            <label class="option-label" for="poll-option-4">選項 4（選填）</label>
+            <input id="poll-option-4" name="option" autocomplete="off">
+            <label class="option-label" for="poll-option-5">選項 5（選填）</label>
+            <input id="poll-option-5" name="option" autocomplete="off">
+            <label class="option-label" for="poll-option-6">選項 6（選填）</label>
+            <input id="poll-option-6" name="option" autocomplete="off">
+          </fieldset>
 
-        <button
-          id="create-poll-submit"
-          type="submit"
-          class="mvp-btn-primary"
-          aria-describedby="form-message"
-        >建立問卷</button>
-      </form>
+          <fieldset class="policy-future-fields" disabled aria-disabled="true">
+            <legend>統計截止與結果公開（尚未啟用）</legend>
+            <p class="policy-panel-text policy-panel-muted">
+              MVP 由系統設定預設統計期。未來可指定截止／公開時間。
+              <span class="mvp-help" tabindex="0" role="button" aria-label="公開時間">
+                <span class="mvp-help-icon" aria-hidden="true">?</span>
+                <span class="mvp-help-tip" role="tooltip">MVP：截止時間即結果公開時間。</span>
+              </span>
+            </p>
+            <label for="poll-close-at">截止與結果公開時間</label>
+            <input id="poll-close-at" name="close_at" type="datetime-local" disabled>
+          </fieldset>
+
+          <fieldset class="policy-future-fields" disabled aria-disabled="true">
+            <legend>投票資格（尚未啟用）</legend>
+            <p class="policy-panel-text policy-panel-muted">
+              年齡依自行填寫的出生年／月判斷，非官方驗證。
+              <span class="mvp-help" tabindex="0" role="button" aria-label="資格說明">
+                <span class="mvp-help-icon" aria-hidden="true">?</span>
+                <span class="mvp-help-tip" role="tooltip">資格為使用者自行宣告，非政府驗證。</span>
+              </span>
+            </p>
+            <label for="poll-eligibility-age">年齡區間（示範）</label>
+            <input id="poll-eligibility-age" type="text" disabled placeholder="例如 18–30">
+            <label for="poll-eligibility-region">地區（示範）</label>
+            <input id="poll-eligibility-region" type="text" disabled placeholder="例如 高雄市">
+          </fieldset>
+
+          <button
+            id="create-poll-submit"
+            type="submit"
+            class="mvp-btn-primary"
+            aria-describedby="form-message"
+          >建立問卷</button>
+        </form>
+      </div>
+
       <p id="form-message" role="status" aria-live="polite"></p>
       <section
         id="success-panel"
@@ -87,6 +97,7 @@
         hidden
       ></section>
     </main>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
     <script type="module" src="/frontend/create-poll-page.js"></script>
   </body>
 </html>

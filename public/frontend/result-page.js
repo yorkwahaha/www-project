@@ -7,6 +7,7 @@ import {
   renderPublicErrorPanel,
   renderPublicNav,
 } from './public-mvp-ui.js';
+import { mountSiteChrome } from './public-mvp-layout.js';
 import {
   POLICY_UI_COPY,
   applyResultUiMockState,
@@ -301,6 +302,8 @@ export async function bootstrapResultPage({
   if (!root) {
     return;
   }
+
+  mountSiteChrome(documentObject);
 
   const uiMockState = parseUiMockState(windowObject.location.search);
   mountUiMockPreviewChrome(documentObject, uiMockState);

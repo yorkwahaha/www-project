@@ -91,6 +91,24 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/public-mvp-layout.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-mvp-layout.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/policy-ui-placeholders.js') {
+    await sendPublicFile(
+      res,
+      'frontend/policy-ui-placeholders.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   if (method === 'GET' && path === '/frontend/result-page.js') {
     await sendPublicFile(res, 'frontend/result-page.js', 'text/javascript; charset=utf-8');
     return;
@@ -221,6 +239,11 @@ async function routeRequest(
 
   if (method === 'GET' && path === '/explore') {
     await sendPublicFile(res, 'explore.html', 'text/html; charset=utf-8');
+    return;
+  }
+
+  if (method === 'GET' && path === '/my-polls') {
+    await sendPublicFile(res, 'my-polls.html', 'text/html; charset=utf-8');
     return;
   }
 

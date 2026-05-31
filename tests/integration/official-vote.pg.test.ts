@@ -108,4 +108,62 @@ describe('Official Vote PostgreSQL integration', () => {
     );
     expect(countersAfterDuplicate.rows).toEqual([{ vote_count: '1' }]);
   });
+
+  it('maps a public option index inside the official vote transaction', async () => {
+    const repository = createPgPollRepository(pool);
+    const service = createPollService(repository, {
+      selectShardId: () => FIXED_SHARD_ID,
+    });
+
+    await repository.ensureUser(creatorId, 'Creator');
+    await repository.ensureUser(officialUserId, 'Official voter');
+    await setUserTrustLevel(pool, officialUserId, 'official');
+
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'PG Official Vote By Index',
+        description: '',
+        category: 'general',
+        options: ['A', 'B'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+    const options = await repository.listOptionsByPollId(created.poll_id);
+
+    await expect(
+      service.castOfficialVoteByIndex(created.poll_id, officialUserId, 1),
+    ).resolves.toEqual({ status: 'voted', voted: true });
+
+    const tokens = await pool.query<{ user_id: string; poll_id: string }>(
+      `SELECT user_id, poll_id
+       FROM poll_vote_tokens
+       WHERE poll_id = $1`,
+      [created.poll_id],
+    );
+    expect(tokens.rows).toEqual([{ user_id: officialUserId, poll_id: created.poll_id }]);
+
+    const counters = await pool.query<{
+      poll_id: string;
+      option_id: string;
+      shard_id: number;
+      vote_count: string;
+    }>(
+      `SELECT poll_id, option_id, shard_id, vote_count::text AS vote_count
+       FROM poll_option_vote_counters
+       WHERE poll_id = $1`,
+      [created.poll_id],
+    );
+    expect(counters.rows).toEqual([
+      {
+        poll_id: created.poll_id,
+        option_id: options[1]!.id,
+        shard_id: FIXED_SHARD_ID,
+        vote_count: '1',
+      },
+    ]);
+  });
 });

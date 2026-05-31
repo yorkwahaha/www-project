@@ -47,6 +47,13 @@ export type PollRepository = {
     votedAtMinute: Date,
     selectShardId: () => number,
   ): Promise<PollVoteTokenRow>;
+  castOfficialVoteByIndex(
+    userId: string,
+    pollId: string,
+    optionIndex: number,
+    votedAtMinute: Date,
+    selectShardId: () => number,
+  ): Promise<PollVoteTokenRow>;
 };
 
 export function createPgPollRepository(pool: Pool): PollRepository {
@@ -63,15 +70,35 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     createReferenceAnswerToken: (userId, pollId, answeredAt, expiresAt) =>
       createReferenceAnswerToken(pool, userId, pollId, answeredAt, expiresAt),
     castOfficialVote: (userId, pollId, optionId, votedAtMinute, selectShardId) =>
-      castOfficialVote(pool, userId, pollId, optionId, votedAtMinute, selectShardId),
+      castOfficialVote(
+        pool,
+        userId,
+        pollId,
+        { optionId },
+        votedAtMinute,
+        selectShardId,
+      ),
+    castOfficialVoteByIndex: (userId, pollId, optionIndex, votedAtMinute, selectShardId) =>
+      castOfficialVote(
+        pool,
+        userId,
+        pollId,
+        { optionIndex },
+        votedAtMinute,
+        selectShardId,
+      ),
   };
 }
+
+type OfficialVoteOptionSelector =
+  | { optionId: string }
+  | { optionIndex: number };
 
 async function castOfficialVote(
   pool: Pool,
   userId: string,
   pollId: string,
-  optionId: string,
+  optionSelector: OfficialVoteOptionSelector,
   votedAtMinute: Date,
   selectShardId: () => number,
 ): Promise<PollVoteTokenRow> {
@@ -92,7 +119,12 @@ async function castOfficialVote(
       }
       throw new PollValidationError(participationRejectionMessage(poll));
     }
-    if (!(await optionBelongsToPollWithClient(client, pollId, optionId))) {
+    const optionId = await resolveOfficialVoteOptionIdWithClient(
+      client,
+      pollId,
+      optionSelector,
+    );
+    if (!optionId) {
       throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
     }
     const token = await insertVoteToken(
@@ -112,6 +144,28 @@ async function castOfficialVote(
   } finally {
     client.release();
   }
+}
+
+async function resolveOfficialVoteOptionIdWithClient(
+  client: PoolClient,
+  pollId: string,
+  selector: OfficialVoteOptionSelector,
+): Promise<string | null> {
+  if ('optionId' in selector) {
+    return (await optionBelongsToPollWithClient(client, pollId, selector.optionId))
+      ? selector.optionId
+      : null;
+  }
+  if (!Number.isInteger(selector.optionIndex) || selector.optionIndex < 0) {
+    return null;
+  }
+  const result = await client.query<{ id: string }>(
+    `SELECT id
+     FROM poll_options
+     WHERE poll_id = $1 AND option_order = $2`,
+    [pollId, selector.optionIndex],
+  );
+  return result.rows[0]?.id ?? null;
 }
 
 async function findUserByIdWithClient(

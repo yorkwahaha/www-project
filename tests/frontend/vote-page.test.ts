@@ -1,0 +1,208 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { describe, expect, it, vi } from 'vitest';
+
+async function loadVotePageModule() {
+  const url = pathToFileURL(
+    join(process.cwd(), 'public/frontend/vote-page.js'),
+  ).href;
+  return import(/* @vite-ignore */ url);
+}
+
+function createWindowObject() {
+  const listeners = new Map<string, Array<(event: { persisted?: boolean }) => void>>();
+  return {
+    addEventListener(
+      type: string,
+      listener: (event: { persisted?: boolean }) => void,
+    ) {
+      listeners.set(type, [...(listeners.get(type) ?? []), listener]);
+    },
+    dispatch(type: string, event: { persisted?: boolean } = {}) {
+      for (const listener of listeners.get(type) ?? []) listener(event);
+    },
+  };
+}
+
+function createRoot() {
+  let documentObject: {
+    createElement(tagName: string): ReturnType<typeof createElement>;
+  };
+  function createElement(tagName: string) {
+    return {
+      tagName,
+      ownerDocument: documentObject,
+      className: '',
+      textContent: '',
+      hidden: false,
+      href: '',
+      type: '',
+      name: '',
+      value: '',
+      children: [] as ReturnType<typeof createElement>[],
+      listeners: new Map<string, () => void>(),
+      addEventListener(type: string, listener: () => void) {
+        this.listeners.set(type, listener);
+      },
+      append(child: ReturnType<typeof createElement>) {
+        this.children.push(child);
+      },
+      replaceChildren() {
+        this.children = [];
+      },
+    };
+  }
+  documentObject = { createElement };
+  return createElement('div');
+}
+
+function collectText(element: ReturnType<typeof createRoot>): string[] {
+  return [
+    element.textContent,
+    ...element.children.flatMap((child) => collectText(child)),
+  ].filter(Boolean);
+}
+
+describe('public voting page', () => {
+  it('parses the poll id from the public voting page path', async () => {
+    const { getPollIdFromVotePath } = await loadVotePageModule();
+
+    expect(getPollIdFromVotePath('/vote/11111111-1111-4111-8111-111111111111'))
+      .toBe('11111111-1111-4111-8111-111111111111');
+    expect(getPollIdFromVotePath('/results/11111111-1111-4111-8111-111111111111'))
+      .toBeNull();
+  });
+
+  it('loads public detail and renders public option indexes with labels', async () => {
+    const { loadPollDetail, renderPollOptions } = await loadVotePageModule();
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        title: 'Lunch?',
+        description: 'Pick one',
+        options: [
+          { option_index: 0, label: 'Rice' },
+          { option_index: 1, label: 'Noodles' },
+        ],
+      }),
+    }));
+    const detail = await loadPollDetail({ pollId: 'public-poll-id', fetchImpl });
+    const root = createRoot();
+    const onSelect = vi.fn();
+
+    renderPollOptions(root, detail.options, onSelect);
+
+    expect(fetchImpl).toHaveBeenCalledWith('/polls/public-poll-id', {
+      method: 'GET',
+      credentials: 'omit',
+      cache: 'no-store',
+    });
+    expect(collectText(root)).toEqual(['Rice', 'Noodles']);
+    root.children[1]!.children[0]!.listeners.get('change')!();
+    expect(onSelect).toHaveBeenCalledWith(1);
+  });
+
+  it('blocks submission when no option is selected', async () => {
+    const { submitVoteByIndex } = await loadVotePageModule();
+    const fetchImpl = vi.fn();
+
+    await expect(
+      submitVoteByIndex({
+        pollId: 'public-poll-id',
+        optionIndex: null,
+        userId: 'runtime-user-id',
+        fetchImpl,
+      }),
+    ).rejects.toThrow('請先選擇一個選項。');
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('submits only the selected public option index to the bridge endpoint', async () => {
+    const { submitVoteByIndex } = await loadVotePageModule();
+    const fetchImpl = vi.fn(async () => ({ ok: true }));
+
+    await submitVoteByIndex({
+      pollId: 'public-poll-id',
+      optionIndex: 1,
+      userId: 'runtime-user-id',
+      fetchImpl,
+    });
+
+    expect(fetchImpl).toHaveBeenCalledWith('/polls/public-poll-id/vote-by-index', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Id': 'runtime-user-id',
+      },
+      body: JSON.stringify({ option_index: 1 }),
+      credentials: 'same-origin',
+    });
+  });
+
+  it('shows safe failures without exposing backend payloads', async () => {
+    const { submitVoteByIndex } = await loadVotePageModule();
+    const fetchImpl = vi.fn(async () => ({
+      ok: false,
+      json: async () => ({ message: 'private database detail' }),
+    }));
+
+    await expect(
+      submitVoteByIndex({
+        pollId: 'public-poll-id',
+        optionIndex: 0,
+        userId: 'runtime-user-id',
+        fetchImpl,
+      }),
+    ).rejects.toThrow('目前無法送出投票，請稍後再試。');
+  });
+
+  it('renders a safe public result link after success', async () => {
+    const { renderVoteSuccess } = await loadVotePageModule();
+    const root = createRoot();
+
+    renderVoteSuccess(root, 'public-poll-id');
+
+    expect(root.hidden).toBe(false);
+    expect(collectText(root)).toEqual(['投票已送出。', '查看公開結果頁']);
+    expect(root.children[1]!.href).toBe('/results/public-poll-id');
+  });
+
+  it('clears page-local selection state after submit, pagehide, and BFCache restore', async () => {
+    const { createVotePageController } = await loadVotePageModule();
+    const windowObject = createWindowObject();
+    const resetSelectionUi = vi.fn();
+    const controller = createVotePageController({
+      pollId: 'public-poll-id',
+      userId: 'runtime-user-id',
+      fetchImpl: vi.fn(async () => ({ ok: true })),
+      windowObject,
+      resetSelectionUi,
+    });
+
+    controller.selectOption(1);
+    await controller.submit();
+    expect(controller.hasSensitiveRuntimeState()).toBe(false);
+
+    controller.selectOption(0);
+    windowObject.dispatch('pagehide');
+    expect(controller.hasSensitiveRuntimeState()).toBe(false);
+
+    controller.selectOption(0);
+    windowObject.dispatch('pageshow', { persisted: true });
+    expect(controller.hasSensitiveRuntimeState()).toBe(false);
+    expect(resetSelectionUi).toHaveBeenCalledTimes(3);
+  });
+
+  it('uses no persistent storage, URL selection state, analytics, or debug output', async () => {
+    const source = await readFile(
+      join(process.cwd(), 'public/frontend/vote-page.js'),
+      'utf8',
+    );
+
+    expect(source).not.toMatch(
+      /localStorage|sessionStorage|indexedDB|document\.cookie|pushState|replaceState|searchParams/,
+    );
+    expect(source).not.toMatch(/console\.|analytics|WebSocket|EventSource|option_id/);
+  });
+});

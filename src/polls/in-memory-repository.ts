@@ -262,6 +262,43 @@ export function createInMemoryPollRepository(): PollRepository & {
       voteCounters.set(counterKey, counter);
       return token;
     },
+
+    async castOfficialVoteByIndex(
+      userId,
+      pollId,
+      optionIndex,
+      votedAtMinute,
+      selectShardId,
+    ) {
+      const user = users.get(userId);
+      if (!user || user.status !== 'active' || !isOfficialVoteUser(user)) {
+        throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
+      }
+      const poll = polls.get(pollId);
+      if (isPublicHiddenPoll(poll)) {
+        throw new PollNotFoundError();
+      }
+      if (!poll || !isParticipationAllowed(poll)) {
+        if (!poll) {
+          throw new PollNotFoundError();
+        }
+        throw new PollValidationError(participationRejectionMessage(poll));
+      }
+      const optionId = Number.isInteger(optionIndex) && optionIndex >= 0
+        ? (options.get(pollId) ?? [])
+          .find((option) => option.option_order === optionIndex)?.id
+        : undefined;
+      if (!optionId) {
+        throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
+      }
+      return this.castOfficialVote(
+        userId,
+        pollId,
+        optionId,
+        votedAtMinute,
+        selectShardId,
+      );
+    },
   };
 }
 

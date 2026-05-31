@@ -86,4 +86,25 @@ describe('frontend static routes', () => {
       expect(script.headers.get('content-type')).toContain('text/javascript');
     });
   });
+
+  it('serves the public voting page and its named frontend asset', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+    const pollId = '11111111-1111-4111-8111-111111111111';
+
+    await withServer(server, async (baseUrl) => {
+      const page = await fetch(`${baseUrl}/vote/${pollId}`);
+      const pageBody = await page.text();
+      const script = await fetch(`${baseUrl}/frontend/vote-page.js`);
+
+      expect(page.status).toBe(200);
+      expect(page.headers.get('content-type')).toContain('text/html');
+      expect(page.headers.get('cache-control')).toBe('no-store');
+      expect(pageBody).toContain('參與投票');
+      expect(pageBody).toContain('/frontend/vote-page.js');
+      expect(script.status).toBe(200);
+      expect(script.headers.get('content-type')).toContain('text/javascript');
+    });
+  });
 });

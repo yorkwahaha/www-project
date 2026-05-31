@@ -1,11 +1,16 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { recordOfficialVoteDiagnostic } from '../logging/safe-diagnostic.js';
-import { PollError } from '../polls/errors.js';
+import { PollError, PollValidationError } from '../polls/errors.js';
+import { INVALID_OFFICIAL_VOTE_OPTION_MESSAGE } from '../polls/official-vote-messages.js';
 import type { PollService } from '../polls/service.js';
 import { readJsonBody, sendJson } from './json.js';
 
 type OfficialVoteBody = {
   option_id?: string;
+};
+
+type OfficialVoteByIndexBody = {
+  option_index?: unknown;
 };
 
 type OfficialVoteRouteContext = {
@@ -51,6 +56,37 @@ export async function handlePostOfficialVote(
     sendJson(res, 201, result);
   } catch (err) {
     handleOfficialVoteRouteError(res, err, { pollId, userId, requestBody });
+  }
+}
+
+export async function handlePostOfficialVoteByIndex(
+  req: IncomingMessage,
+  res: ServerResponse,
+  pollId: string,
+  pollService: PollService,
+  requireUserId: (req: IncomingMessage) => string,
+): Promise<void> {
+  try {
+    const userId = requireUserId(req);
+    const requestBody = await readJsonBody<OfficialVoteByIndexBody>(req);
+    if (
+      !Number.isInteger(requestBody.option_index) ||
+      (requestBody.option_index as number) < 0
+    ) {
+      throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
+    }
+    const result = await pollService.castOfficialVoteByIndex(
+      pollId,
+      userId,
+      requestBody.option_index as number,
+    );
+    sendJson(res, 201, result);
+  } catch (err) {
+    const response = mapRouteError(err);
+    sendJson(res, response.statusCode, {
+      error: response.error,
+      message: response.message,
+    });
   }
 }
 

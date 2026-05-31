@@ -52,6 +52,11 @@ export type PollService = {
     userId: string,
     optionId: string,
   ): Promise<OfficialVoteResult>;
+  castOfficialVoteByIndex(
+    pollId: string,
+    userId: string,
+    optionIndex: number,
+  ): Promise<OfficialVoteResult>;
   assertCreatorCannotEditPublishedPoll(): never;
 };
 
@@ -181,6 +186,25 @@ export function createPollService(
           userId,
           pollId,
           optionId,
+          votedAtMinute,
+          selectShardId,
+        );
+      } catch (err) {
+        if (isUniqueViolation(err)) {
+          throw new OfficialVoteDuplicateError();
+        }
+        throw err;
+      }
+      return { status: 'voted', voted: true };
+    },
+
+    async castOfficialVoteByIndex(pollId, userId, optionIndex) {
+      const votedAtMinute = truncateToMinute(new Date());
+      try {
+        await repository.castOfficialVoteByIndex(
+          userId,
+          pollId,
+          optionIndex,
           votedAtMinute,
           selectShardId,
         );

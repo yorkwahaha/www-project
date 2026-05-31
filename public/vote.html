@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>參與投票 | What We Wonder</title>
+    <style>
+      body {
+        max-width: 44rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+
+      #poll-description:empty {
+        display: none;
+      }
+
+      .vote-option {
+        display: block;
+        margin: 0.75rem 0;
+        padding: 0.75rem;
+        border: 1px solid #d0d0d0;
+        border-radius: 0.5rem;
+      }
+
+      button {
+        width: 100%;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        font: inherit;
+      }
+
+      #form-message {
+        margin-top: 1rem;
+      }
+
+      #success-panel {
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid #b6ccb8;
+        background: #f4faf4;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 id="poll-title">載入中</h1>
+      <p id="poll-description"></p>
+      <form id="vote-form" hidden>
+        <fieldset>
+          <legend>請選擇一個選項</legend>
+          <div id="poll-options"></div>
+        </fieldset>
+        <button id="vote-submit" type="submit">送出投票</button>
+      </form>
+      <p id="form-message" role="status" aria-live="polite"></p>
+      <section id="success-panel" aria-live="polite" hidden></section>
+    </main>
+    <script type="module" src="/frontend/vote-page.js"></script>
+  </body>
+</html>

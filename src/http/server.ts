@@ -140,6 +140,17 @@ async function routeRequest(
     return;
   }
 
+  const officialVoteByIndexMatch = path.match(/^\/polls\/([^/]+)\/vote-by-index$/);
+  if (officialVoteByIndexMatch && method === 'POST') {
+    const pollId = officialVoteByIndexMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    await pollRoutes.handlePostOfficialVoteByIndex(req, res, pollId);
+    return;
+  }
+
   const resultMatch = path.match(/^\/polls\/([^/]+)\/results$/);
   if (resultMatch && method === 'GET') {
     const pollId = resultMatch[1]!;
@@ -175,8 +186,24 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/vote-page.js') {
+    await sendPublicFile(res, 'frontend/vote-page.js', 'text/javascript; charset=utf-8');
+    return;
+  }
+
   if (method === 'GET' && path === '/polls/new') {
     await sendPublicFile(res, 'create-poll.html', 'text/html; charset=utf-8');
+    return;
+  }
+
+  const votePageMatch = path.match(/^\/vote\/([^/]+)$/);
+  if (votePageMatch && method === 'GET') {
+    const pollId = votePageMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    await sendPublicFile(res, 'vote.html', 'text/html; charset=utf-8');
     return;
   }
 

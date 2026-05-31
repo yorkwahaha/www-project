@@ -2,7 +2,10 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { PollError } from '../polls/errors.js';
 import type { PublicFeedQuery } from '../polls/types.js';
 import type { PollService } from '../polls/service.js';
-import { handlePostOfficialVote as dispatchOfficialVote } from './official-vote-routes.js';
+import {
+  handlePostOfficialVote as dispatchOfficialVote,
+  handlePostOfficialVoteByIndex as dispatchOfficialVoteByIndex,
+} from './official-vote-routes.js';
 import { handlePostReferenceAnswer as dispatchReferenceAnswer } from './reference-answer-routes.js';
 import { readJsonBody, sendJson } from './json.js';
 
@@ -109,6 +112,14 @@ export function createPollRouteHandlers(pollService: PollService) {
       pollId: string,
     ): Promise<void> {
       return dispatchOfficialVote(req, res, pollId, pollService, requireUserId);
+    },
+
+    handlePostOfficialVoteByIndex(
+      req: IncomingMessage,
+      res: ServerResponse,
+      pollId: string,
+    ): Promise<void> {
+      return dispatchOfficialVoteByIndex(req, res, pollId, pollService, requireUserId);
     },
   };
 }

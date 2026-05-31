@@ -63,6 +63,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `DELETE` | `/polls/:id` | Creator soft-delete |
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
 | `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
+| `POST` | `/polls/:id/vote-by-index` | Record Official Vote from a public option index; internal option ID stays server-side |
 | `GET` | `/polls/:id/results` | Read display-safe aggregate Official Vote results |
 | `GET` | `/polls/feed` | Public freshness-only discovery feed (5B–5C; see below) |
 | `GET` | `/polls/:id/public-notices` | Read visible public correction notices (Phase 8) |
@@ -73,6 +74,8 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 
 Minimal public poll creation UI: `GET /polls/new`. It submits to the existing `POST /polls` contract with general MVP defaults and does not add login, session, ranking, or edit behavior.
+
+Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits the selected public `option_index` to `POST /polls/:id/vote-by-index`, and links to the identity-neutral result page without exposing internal option IDs.
 
 Polls in `suspended` or `correction_pending` are hidden from public GET/feed/vote/result/reference-answer.
 

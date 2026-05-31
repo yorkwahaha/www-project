@@ -57,7 +57,13 @@ Tests use an injected registry with deterministic test-only token strings and th
 
 ---
 
-## 5. Still not implemented
+## 5. Phase 14 deployment handoff
+
+Operator-focused production setup and smoke checks for `ADMIN_AUTH_CREDENTIALS_JSON` (no schema or auth code changes): `docs/www-project-phase-14-admin-auth-deployment-v1.md`.
+
+---
+
+## 6. Still not implemented
 
 - Admin login UI.
 - Session lifecycle and revocation store.

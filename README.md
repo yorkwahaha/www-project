@@ -8,6 +8,8 @@ Normative rules: `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md`.
 
 Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (through 5B), `docs/www-project-milestone-phase-0-5c-handoff-v1.md` (5C feed pagination), `docs/www-project-milestone-phase-10-handoff-v1.md` (Phase 8/9 PG integration synchronization), `docs/www-project-milestone-phase-11-handoff-v1.md` (public notice display UI), and `docs/www-project-milestone-phase-12-handoff-v1.md` (Admin Auth / RBAC v1).
 
+**Phase 14 (docs):** Admin Auth v1 production deployment handoff — `docs/www-project-phase-14-admin-auth-deployment-v1.md` (configure and verify `ADMIN_AUTH_CREDENTIALS_JSON` before admin UI / JWT / OAuth work).
+
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
 
 **Admin / governance (Phase 6B–12):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields), poll-scoped public notice **read + display**, the safe global `GET /admin/correction-audit` queue, and a server-side opaque Bearer token + RBAC v1 boundary are **implemented**. Full login/session/JWT/OAuth management, real Spread Score calculation, and semantic typo detection are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-12-handoff-v1.md`.
@@ -95,7 +97,7 @@ PostgreSQL partial index: `idx_polls_public_feed_freshness` (`migrations/005_pha
 
 ## Admin correction APIs (Phase 6B–12)
 
-Require `Authorization: Bearer <opaque-token>`. Production config supplies SHA-256 token digests, admin IDs, role, and permissions through `ADMIN_AUTH_CREDENTIALS_JSON`; legacy `X-Admin-User-Id` is not trusted. See `docs/admin-correction-http.md`.
+Require `Authorization: Bearer <opaque-token>`. Production config supplies SHA-256 token digests, admin IDs, role, and permissions through `ADMIN_AUTH_CREDENTIALS_JSON`; legacy `X-Admin-User-Id` is not trusted. See `docs/admin-correction-http.md` and `docs/www-project-phase-14-admin-auth-deployment-v1.md`.
 
 Full route table, DTO allowlist, status machines, public notice behavior, and stubs: **`docs/admin-correction-http.md`**.
 

@@ -25,7 +25,9 @@ Authorization: Bearer <opaque-token>
 
 ### Server-side credential registry
 
-Production startup requires `ADMIN_AUTH_CREDENTIALS_JSON`. It is a JSON array:
+Production startup requires `ADMIN_AUTH_CREDENTIALS_JSON`. It is a JSON array.
+
+**Deployment / operator checklist (Phase 14):** safe env setup, digest generation, pre/post-deploy smoke tests, and security reminders — see `docs/www-project-phase-14-admin-auth-deployment-v1.md`.
 
 ```json
 [

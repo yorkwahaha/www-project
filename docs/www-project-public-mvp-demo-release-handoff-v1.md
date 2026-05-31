@@ -114,3 +114,4 @@ npm run test:integration:local
 | `docs/www-project-production-readiness-boundary-v1.md` | 正式環境就緒邊界（非已完成部署） |
 | `docs/www-project-phase-39-poll-lifecycle-policy-v1.md` | 未來政策：問卷生命週期／收集中不顯示結果／關閉揭曉／鎖定期（僅文件） |
 | `docs/www-project-phase-40-user-profile-eligibility-follow-policy-v1.md` | 未來政策：資格／不符合資格 UX／追蹤揭曉通知（僅文件；與 Phase 39 併讀） |
+| `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md` | 規劃：Public MVP UI 如何落實 Phase 39／40（僅文件；UI-only vs API 分類） |

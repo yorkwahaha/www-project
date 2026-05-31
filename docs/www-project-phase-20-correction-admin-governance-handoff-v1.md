@@ -95,6 +95,7 @@ Production 憑證設定：`docs/www-project-phase-14-admin-auth-deployment-v1.md
 | 專案命令總覽 | `README.md` |
 | 問卷生命週期政策（Phase 39，僅文件） | `docs/www-project-phase-39-poll-lifecycle-policy-v1.md` |
 | 使用者資格／追蹤結果政策（Phase 40，僅文件） | `docs/www-project-phase-40-user-profile-eligibility-follow-policy-v1.md` |
+| Public MVP UI 政策落實規劃（Phase 41，僅文件） | `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md` |
 
 ---
 

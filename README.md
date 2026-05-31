@@ -34,6 +34,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 40 (docs, policy only — not implemented):** User profile, voting eligibility (age/region), ineligible UX, follow-result notification — `docs/www-project-phase-40-user-profile-eligibility-follow-policy-v1.md`. Implementation must satisfy **both** Phase 39 and Phase 40 (no collecting-stage result leakage; founders without intermediate signals during collecting).
 
+**Phase 41 (docs, planning only — not implemented):** Public MVP UI policy implementation plan — maps Phase 39 lifecycle and Phase 40 eligibility/follow policies onto current pages (`/`, `/polls/new`, `/vote/:id`, `/results/:id`, `/explore`); classifies UI-only vs schema/API work — `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md`.
+
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).

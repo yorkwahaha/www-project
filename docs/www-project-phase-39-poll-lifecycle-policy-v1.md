@@ -10,6 +10,8 @@ This document defines the **future** product and engineering policy for poll lif
 
 **Related policy:** `docs/www-project-phase-40-user-profile-eligibility-follow-policy-v1.md` — user profile, voting eligibility, ineligible-user UX, and result-follow notification.
 
+**UI implementation planning:** `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md` — maps Phase 39/40 onto Public MVP pages (planning only; no implementation by itself).
+
 ---
 
 ## 1. Context

@@ -10,6 +10,8 @@ This document defines the **future** product and engineering policy for user pro
 
 **Related policy:** `docs/www-project-phase-39-poll-lifecycle-policy-v1.md` — collecting, close, result reveal, public lock period, cancellation, unpublish/archive, and lifecycle visibility by poll state.
 
+**UI implementation planning:** `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md` — maps Phase 39/40 onto Public MVP pages (planning only; no implementation by itself).
+
 ---
 
 ## 1. Context

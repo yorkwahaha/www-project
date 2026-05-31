@@ -16,6 +16,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 27 (docs):** Public MVP manual QA handoff (local setup, validation commands, browser checklist for `/` → create → vote → results) — `docs/www-project-public-mvp-manual-qa-v1.md`.
 
+**Phase 31 (docs):** Public MVP demo/release handoff (showcase script, validation checklist, privacy boundaries, out-of-scope list) — `docs/www-project-public-mvp-demo-release-handoff-v1.md`.
+
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
@@ -96,6 +98,20 @@ Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits 
 6. `GET /results/:pollId` — **read-only** display-safe results with vote-page navigation; no login, real feed UI, ranking, or admin UI (Phase 29–30)
 
 Manual browser checklist (Traditional Chinese): **`docs/www-project-public-mvp-manual-qa-v1.md`**.
+
+Demo/release handoff (Traditional Chinese, showcase + boundaries): **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
+
+### Public MVP current status (Phase 31)
+
+The public browser surface is **share-link first**: create a poll, copy vote/results URLs, vote once per user header, read display-safe results. There is **no** login, poll list UI, ranking UI, or admin UI on these pages.
+
+| Page | Route | Notes |
+|------|-------|--------|
+| Landing | `/` | Entry; links to create and explore placeholder |
+| Create poll | `/polls/new` | Posts to `POST /polls`; shows share URLs on success |
+| Vote | `/vote/:pollId` | Submits `option_index` via `vote-by-index` |
+| Results | `/results/:pollId` | Read-only display-safe stats |
+| Explore | `/explore` | **Placeholder only** — explains list/explore is not open; **not** `GET /polls/feed` UI and does not query the database |
 
 Polls in `suspended` or `correction_pending` are hidden from public GET/feed/vote/result/reference-answer.
 

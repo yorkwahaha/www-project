@@ -4,6 +4,8 @@
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
+**Demo／展示交接（Phase 31）：** 可展示功能摘要、5–10 分鐘 demo 腳本、發布前驗證命令與隱私邊界清單見 [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md)。本文件專注**逐步手動 QA**，避免重複貼上長篇說明。
+
 ---
 
 ## 1. 本機啟動前提
@@ -140,5 +142,6 @@ npm run test:integration:local
 ## 6. 相關文件
 
 - `README.md` — 指令與 API 總覽
+- `docs/www-project-public-mvp-demo-release-handoff-v1.md` — Demo／release 展示與邊界交接（Phase 31）
 - `docs/www-project-phase-15-pg-integration-test-setup-v1.md` — 本機 PostgreSQL 整合測試
 - `AGENTS.md` — 代理與隱私紅線

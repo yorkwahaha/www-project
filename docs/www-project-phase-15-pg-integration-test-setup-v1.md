@@ -52,6 +52,23 @@ docker compose -f docker-compose.test.yml up -d
 postgres://postgres:postgres@127.0.0.1:5432/www_test
 ```
 
+### 快速重跑：Docker Compose + migration + integration tests
+
+已安裝 Docker Compose 時，Windows PowerShell、Linux 與 macOS 可直接使用：
+
+```bash
+npm run test:integration:local
+```
+
+此命令會：
+
+1. 以 `docker-compose.test.yml` 啟動本機測試 PG，並等待 healthy。
+2. 固定使用本文件的本機 placeholder URL：`postgres://postgres:postgres@127.0.0.1:5432/www_test`。
+3. 依序執行 `npm run migrate:check`、`npm run migrate`、`npm run test:integration`。
+4. 保留 Docker 測試容器繼續運行，方便後續快速重跑；不會執行 `stop` 或 `down`。
+
+腳本固定覆寫子程序的 `DATABASE_URL`，不讀取或寫入 `.env`，也不會使用 shell 內既有的 production URL。整合測試 helper 仍會再次硬性拒絕資料庫名稱不是 `www_test` 的 URL。
+
 ### 方式 B：本機已安裝 PostgreSQL
 
 若尚未有 `www_test`：
@@ -127,6 +144,12 @@ npm run test:integration -- tests/integration/official-vote.pg.test.ts
 ```
 
 將路徑換成其它 `tests/integration/*.pg.test.ts` 即可。
+
+使用本機 Docker 快速入口時，也可傳入單一檔案：
+
+```bash
+npm run test:integration:local -- tests/integration/official-vote.pg.test.ts
+```
 
 ---
 

@@ -10,7 +10,7 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 14 (docs):** Admin Auth v1 production deployment handoff — `docs/www-project-phase-14-admin-auth-deployment-v1.md` (configure and verify `ADMIN_AUTH_CREDENTIALS_JSON` before admin UI / JWT / OAuth work).
 
-**Phase 15 (docs):** PostgreSQL integration test setup — `docs/www-project-phase-15-pg-integration-test-setup-v1.md` (run `npm run test:integration` against isolated `www_test` when `DATABASE_URL` is set).
+**Phase 15 (docs):** PostgreSQL integration test setup — `docs/www-project-phase-15-pg-integration-test-setup-v1.md` (use `npm run test:integration:local` for the isolated local Docker `www_test`, or run `npm run test:integration` when `DATABASE_URL` is set explicitly).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
 
@@ -37,15 +37,10 @@ npm run migrate:check
 `npm test` stays **DB-free**. Optional PostgreSQL integration tests (local/manual, **PostgreSQL 17+**, isolated database **`www_test` only**). Full setup, safety checks, and single-file runs: **`docs/www-project-phase-15-pg-integration-test-setup-v1.md`**.
 
 ```bash
-docker compose -f docker-compose.test.yml up -d
-# Windows PowerShell:
-# $env:DATABASE_URL="postgres://postgres:postgres@127.0.0.1:5432/www_test"
-npm run migrate:check
-npm run migrate
-npm run test:integration
+npm run test:integration:local
 ```
 
-If `DATABASE_URL` is unset, `npm run test:integration` exits immediately with setup instructions (environment not ready — not a unit-test regression). See Phase 15 doc §8.
+The quick command starts the local Docker test service if needed, waits for health, runs migration validation and apply, then runs the integration suite. It intentionally leaves the test container running for fast reruns. If `DATABASE_URL` is unset, the lower-level `npm run test:integration` exits immediately with setup instructions (environment not ready — not a unit-test regression). See Phase 15 doc §8.
 
 ## Layout
 
@@ -147,4 +142,4 @@ Public correction notices are read through `GET /polls/:id/public-notices`; see 
 - Other frontend admin UI
 - Future high-sensitivity category guardrails and other deferred spec phases
 
-Run `npm run migrate:check` for the current migration count. Run `npm test` on any branch; run `npm run test:integration` when `DATABASE_URL` points at isolated `www_test` (see Phase 15 doc).
+Run `npm run migrate:check` for the current migration count. Run `npm test` on any branch; use `npm run test:integration:local` for the isolated local Docker `www_test`, or run `npm run test:integration` when `DATABASE_URL` points at an isolated `www_test` (see Phase 15 doc).

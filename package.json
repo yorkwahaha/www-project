@@ -13,6 +13,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.ts",
+    "test:integration:local": "node scripts/test-pg-integration-local.mjs",
     "test:watch": "vitest",
     "migrate": "node scripts/migrate.mjs",
     "migrate:check": "node scripts/migrate.mjs --check"

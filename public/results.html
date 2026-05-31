@@ -45,6 +45,11 @@
       .public-notice-body {
         white-space: pre-wrap;
       }
+
+      .public-nav {
+        margin-top: 2rem;
+        font-size: 0.95rem;
+      }
     </style>
   </head>
   <body>
@@ -52,6 +57,9 @@
       <h1>投票結果</h1>
       <section id="public-notices" aria-label="修正公告" hidden></section>
       <div id="result-display" aria-live="polite">載入中</div>
+      <nav class="public-nav" aria-label="網站導覽">
+        <a href="/polls/new">建立新問卷</a>
+      </nav>
     </main>
     <script type="module" src="/frontend/result-page.js"></script>
   </body>

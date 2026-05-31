@@ -42,6 +42,16 @@
         border: 1px solid #b6ccb8;
         background: #f4faf4;
       }
+
+      #success-panel a {
+        display: block;
+        margin-top: 0.5rem;
+      }
+
+      .public-nav {
+        margin-top: 2rem;
+        font-size: 0.95rem;
+      }
     </style>
   </head>
   <body>
@@ -57,6 +67,9 @@
       </form>
       <p id="form-message" role="status" aria-live="polite"></p>
       <section id="success-panel" aria-live="polite" hidden></section>
+      <nav class="public-nav" aria-label="網站導覽">
+        <a href="/polls/new">建立新問卷</a>
+      </nav>
     </main>
     <script type="module" src="/frontend/vote-page.js"></script>
   </body>

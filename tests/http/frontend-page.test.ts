@@ -45,6 +45,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('/frontend/result-page.js');
+      expect(pageBody).toContain('/polls/new');
       expect(pageBody).not.toContain('ignored-user-id');
       expect(resultScript.status).toBe(200);
       expect(privacyScript.status).toBe(200);
@@ -82,6 +83,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('建立問卷');
       expect(pageBody).toContain('/frontend/create-poll-page.js');
+      expect(pageBody).not.toContain('option_id');
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
     });
@@ -102,6 +104,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('參與投票');
+      expect(pageBody).toContain('/polls/new');
       expect(pageBody).toContain('/frontend/vote-page.js');
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');

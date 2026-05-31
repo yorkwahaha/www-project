@@ -77,6 +77,13 @@ Minimal public poll creation UI: `GET /polls/new`. It submits to the existing `P
 
 Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits the selected public `option_index` to `POST /polls/:id/vote-by-index`, and links to the identity-neutral result page without exposing internal option IDs.
 
+**Minimal public flow (Phase 23):**
+
+1. `GET /polls/new` — create a poll
+2. Success shows shareable `GET /vote/:pollId` and `GET /results/:pollId` links
+3. `GET /vote/:pollId` — vote; success links to results
+4. `GET /results/:pollId` — display-safe results (optional link back to `/polls/new`)
+
 Polls in `suspended` or `correction_pending` are hidden from public GET/feed/vote/result/reference-answer.
 
 ### `GET /polls/feed` (Phase 5B–5C)

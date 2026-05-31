@@ -10,6 +10,30 @@ async function loadCreatePollPageModule() {
   return import(/* @vite-ignore */ url);
 }
 
+function createDomRoot() {
+  let documentObject: {
+    createElement(tagName: string): ReturnType<typeof createElement>;
+  };
+  function createElement(tagName: string) {
+    return {
+      tagName,
+      ownerDocument: documentObject,
+      textContent: '',
+      href: '',
+      hidden: false,
+      children: [] as ReturnType<typeof createElement>[],
+      append(child: ReturnType<typeof createElement>) {
+        this.children.push(child);
+      },
+      replaceChildren() {
+        this.children = [];
+      },
+    };
+  }
+  documentObject = { createElement };
+  return createElement('div');
+}
+
 describe('public poll creation page', () => {
   it('submits a normalized published poll to the existing POST /polls API', async () => {
     const { submitCreatePoll } = await loadCreatePollPageModule();
@@ -60,6 +84,26 @@ describe('public poll creation page', () => {
     ).toThrow('請填寫問卷標題。');
   });
 
+  it('renders vote and result links after successful creation', async () => {
+    const { renderCreatePollSuccess } = await loadCreatePollPageModule();
+    const root = createDomRoot();
+
+    renderCreatePollSuccess(root, {
+      poll_id: '22222222-2222-4222-8222-222222222222',
+    });
+
+    const links = root.children.filter((child) => child.tagName === 'a');
+    expect(links).toHaveLength(2);
+    expect(links[0]!.href).toBe(
+      '/vote/22222222-2222-4222-8222-222222222222',
+    );
+    expect(links[1]!.href).toBe(
+      '/results/22222222-2222-4222-8222-222222222222',
+    );
+    expect(links[0]!.textContent).toBe('前往投票頁（可分享）');
+    expect(links[1]!.textContent).toBe('查看公開結果頁');
+  });
+
   it('requires at least two non-empty options', async () => {
     const { normalizeCreatePollForm } = await loadCreatePollPageModule();
 
@@ -97,7 +141,7 @@ describe('public poll creation page', () => {
       /localStorage|sessionStorage|indexedDB|document\.cookie|analytics|console\./,
     );
     expect(source).not.toMatch(
-      /reference-answer|\/vote|\/polls\/feed|\/polls\/.*\/results|ranking|spread_score|option_id/,
+      /reference-answer|vote-by-index|loadPollDetail|\/polls\/feed|\/polls\/.*\/results|ranking|spread_score|option_id/,
     );
   });
 });

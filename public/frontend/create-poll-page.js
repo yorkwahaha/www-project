@@ -69,10 +69,19 @@ export function renderCreatePollSuccess(root, created) {
   message.textContent = `問卷已建立：${created.poll_id}`;
   root.append(message);
 
-  const link = root.ownerDocument.createElement('a');
-  link.href = `/results/${encodeURIComponent(created.poll_id)}`;
-  link.textContent = '查看公開結果頁';
-  root.append(link);
+  const shareHint = root.ownerDocument.createElement('p');
+  shareHint.textContent = '請分享下方投票頁連結給參與者：';
+  root.append(shareHint);
+
+  const voteLink = root.ownerDocument.createElement('a');
+  voteLink.href = `/vote/${encodeURIComponent(created.poll_id)}`;
+  voteLink.textContent = '前往投票頁（可分享）';
+  root.append(voteLink);
+
+  const resultLink = root.ownerDocument.createElement('a');
+  resultLink.href = `/results/${encodeURIComponent(created.poll_id)}`;
+  resultLink.textContent = '查看公開結果頁';
+  root.append(resultLink);
 }
 
 export function bootstrapCreatePollPage({

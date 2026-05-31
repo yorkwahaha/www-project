@@ -24,7 +24,7 @@
 
 ## B. Demo 腳本（約 5–10 分鐘）
 
-**事前準備：** 本機已 `npm install`，設定 `DATABASE_URL`，執行 `npm run migrate`、`npm run build`、`npm start`。建議用一般瀏覽器＋一個無痕視窗模擬「另一位投票者」。
+**事前準備：** 依 [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 完成本機啟動（Docker `www_test`、shell 內 `DATABASE_URL`、`migrate`、`npm run build`、`npm start`）。建議用一般瀏覽器＋一個無痕視窗模擬「另一位投票者」。
 
 1. **打開首頁** — 瀏覽 `http://localhost:<port>/`，確認有「建立問卷」與「探索（尚未開放）」連結。
 2. **前往建立問卷** — 點「建立問卷」或開啟 `/polls/new`。
@@ -104,6 +104,7 @@ npm run test:integration:local
 
 | 文件 | 用途 |
 |------|------|
+| `docs/www-project-local-demo-startup-v1.md` | 本機啟動 demo（Docker、`DATABASE_URL`、`npm start`） |
 | `docs/www-project-public-mvp-manual-qa-v1.md` | 逐步手動 QA 檢查（繁中） |
 | `README.md` | 指令、API 表、Public MVP 現況摘要 |
 | `AGENTS.md` | 隱私與治理紅線 |

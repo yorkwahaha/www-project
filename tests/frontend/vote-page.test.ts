@@ -144,6 +144,7 @@ describe('public voting page', () => {
     const { submitVoteByIndex } = await loadVotePageModule();
     const fetchImpl = vi.fn(async () => ({
       ok: false,
+      status: 500,
       json: async () => ({ message: 'private database detail' }),
     }));
 
@@ -157,6 +158,40 @@ describe('public voting page', () => {
     ).rejects.toThrow('目前無法送出投票，請稍後再試。');
   });
 
+  it('maps poll-not-found load failures to a friendly message', async () => {
+    const { loadPollDetail } = await loadVotePageModule();
+    const fetchImpl = vi.fn(async () => ({
+      ok: false,
+      status: 404,
+      json: async () => ({ error: 'POLL_NOT_FOUND', message: 'Poll not found' }),
+    }));
+
+    await expect(loadPollDetail({ pollId: 'public-poll-id', fetchImpl })).rejects.toThrow(
+      '找不到此問卷',
+    );
+  });
+
+  it('maps duplicate vote responses to a result-page hint', async () => {
+    const { submitVoteByIndex } = await loadVotePageModule();
+    const fetchImpl = vi.fn(async () => ({
+      ok: false,
+      status: 409,
+      json: async () => ({
+        error: 'OFFICIAL_VOTE_DUPLICATE',
+        message: 'Official Vote already recorded for this poll',
+      }),
+    }));
+
+    await expect(
+      submitVoteByIndex({
+        pollId: 'public-poll-id',
+        optionIndex: 0,
+        userId: 'runtime-user-id',
+        fetchImpl,
+      }),
+    ).rejects.toThrow('您已在此問卷投過票');
+  });
+
   it('renders a safe public result link after success', async () => {
     const { renderVoteSuccess } = await loadVotePageModule();
     const root = createRoot();
@@ -164,8 +199,13 @@ describe('public voting page', () => {
     renderVoteSuccess(root, 'public-poll-id');
 
     expect(root.hidden).toBe(false);
-    expect(collectText(root)).toEqual(['投票已送出。', '查看公開結果頁']);
-    expect(root.children[1]!.href).toBe('/results/public-poll-id');
+    expect(collectText(root)).toEqual([
+      '投票已送出，感謝參與。',
+      '可前往結果頁查看公開統計：',
+      '查看公開結果頁',
+    ]);
+    const resultLink = root.children.find((child) => child.tagName === 'a');
+    expect(resultLink?.href).toBe('/results/public-poll-id');
   });
 
   it('clears page-local selection state after submit, pagehide, and BFCache restore', async () => {

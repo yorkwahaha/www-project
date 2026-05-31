@@ -43,9 +43,31 @@
         background: #f4faf4;
       }
 
-      #success-panel a {
+      #success-panel a,
+      #error-panel a {
         display: block;
         margin-top: 0.5rem;
+      }
+
+      #error-panel {
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid #e0c9c9;
+        background: #fdf6f6;
+      }
+
+      .panel-heading {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      .panel-message {
+        margin: 0 0 0.75rem;
+      }
+
+      button:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
       }
 
       .public-nav {
@@ -70,6 +92,7 @@
         <button id="vote-submit" type="submit">送出投票</button>
       </form>
       <p id="form-message" role="status" aria-live="polite"></p>
+      <section id="error-panel" aria-live="polite" hidden></section>
       <section id="success-panel" aria-live="polite" hidden></section>
       <nav class="public-nav" aria-label="網站導覽">
         <a href="/">首頁</a>

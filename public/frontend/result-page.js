@@ -1,3 +1,12 @@
+import {
+  POLL_ID_PATTERN,
+  buildPublicVotePath,
+  messageForPollLoadFailure,
+  parsePollApiError,
+  renderPublicErrorPanel,
+  renderPublicNav,
+} from './public-mvp-ui.js';
+
 function appendText(parent, tagName, text, className) {
   const element = parent.ownerDocument.createElement(tagName);
   element.className = className;
@@ -6,6 +15,7 @@ function appendText(parent, tagName, text, className) {
 }
 
 const PUBLIC_NOTICE_TYPE = 'suspended_typo_correction_applied';
+const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
 
 export function getPollIdFromResultPath(pathname) {
   const match = pathname.match(/^\/results\/([^/]+)$/);
@@ -19,9 +29,14 @@ export async function loadResultDisplay({ pollId, fetchImpl = globalThis.fetch }
     cache: 'no-store',
   });
   if (!response.ok) {
-    throw new Error('Unable to load results');
+    const apiError = await parsePollApiError(response);
+    throw new Error(messageForPollLoadFailure(apiError));
   }
-  return response.json();
+  try {
+    return await response.json();
+  } catch {
+    throw new Error(SAFE_LOAD_FAILURE_MESSAGE);
+  }
 }
 
 export async function loadPublicNotices({ pollId, fetchImpl = globalThis.fetch }) {
@@ -76,23 +91,88 @@ export function renderPublicNotices(root, noticeList) {
   }
 }
 
+export function renderResultPageNav(root, pollId) {
+  root.replaceChildren();
+  renderPublicNav(root);
+
+  if (pollId) {
+    const voteLink = root.ownerDocument.createElement('a');
+    voteLink.href = buildPublicVotePath(pollId);
+    voteLink.textContent = '前往投票頁';
+    root.append(voteLink);
+  }
+}
+
 export async function bootstrapResultPage({
   windowObject = globalThis.window,
   documentObject = globalThis.document,
   fetchImpl = globalThis.fetch,
-  } = {}) {
+} = {}) {
   const pollId = getPollIdFromResultPath(windowObject.location.pathname);
   const root = documentObject.getElementById('result-display');
   const publicNoticesRoot = documentObject.getElementById('public-notices');
-  if (!pollId || !root) {
+  const pageTitle = documentObject.getElementById('page-title');
+  const errorPanel = documentObject.getElementById('error-panel');
+  const bottomNav = documentObject.getElementById('bottom-nav');
+  if (!root) {
     return;
   }
 
+  const showRouteError = (heading, body) => {
+    if (pageTitle) {
+      pageTitle.textContent = heading;
+    }
+    if (errorPanel) {
+      renderPublicErrorPanel(errorPanel, {
+        title: heading,
+        message: body,
+        showNav: false,
+      });
+      errorPanel.hidden = false;
+    }
+    root.replaceChildren();
+    const fallback = root.ownerDocument.createElement('p');
+    fallback.textContent = body;
+    root.append(fallback);
+    if (bottomNav) {
+      renderResultPageNav(bottomNav, null);
+    }
+  };
+
+  if (!pollId) {
+    showRouteError(
+      '無法開啟結果頁',
+      '網址缺少問卷識別碼，請從建立問卷頁或投票頁取得正確連結。',
+    );
+    return;
+  }
+
+  if (!POLL_ID_PATTERN.test(pollId)) {
+    showRouteError(
+      '無法開啟結果頁',
+      '網址中的問卷識別碼格式不正確，請確認連結是否完整。',
+    );
+    return;
+  }
+
+  if (pageTitle) {
+    pageTitle.textContent = '載入結果中…';
+  }
+  root.textContent = '載入中…';
+
   try {
     const result = await loadResultDisplay({ pollId, fetchImpl });
+    if (errorPanel) {
+      errorPanel.hidden = true;
+      errorPanel.replaceChildren();
+    }
+    if (pageTitle) {
+      pageTitle.textContent = '投票結果';
+    }
     renderResultDisplay(root, result);
-  } catch {
-    root.textContent = '無法載入結果';
+  } catch (error) {
+    const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;
+    showRouteError('無法載入結果', body);
     return;
   }
 
@@ -103,6 +183,10 @@ export async function bootstrapResultPage({
     } catch {
       renderPublicNotices(publicNoticesRoot, { notices: [] });
     }
+  }
+
+  if (bottomNav) {
+    renderResultPageNav(bottomNav, pollId);
   }
 }
 

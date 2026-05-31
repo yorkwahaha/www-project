@@ -130,8 +130,30 @@ try {
   }
 
   {
-    const { response } = await requestText(baseUrl, '/polls/new');
+    const { response, body } = await requestText(baseUrl, '/polls/new');
     expectStatus('GET /polls/new create page', response, 200);
+    if (!body.includes('create-poll-page.js')) {
+      throw new Error('Create poll page missing create-poll-page.js script');
+    }
+    pass('GET /polls/new serves create poll page');
+  }
+
+  {
+    const { response, body } = await requestText(baseUrl, '/frontend/create-poll-page.js');
+    expectStatus('GET /frontend/create-poll-page.js', response, 200);
+    if (!body.includes('renderPollSharePanel')) {
+      throw new Error('Create poll frontend missing share panel helper');
+    }
+    pass('Create poll JS wires share panel after creation');
+  }
+
+  {
+    const { response, body } = await requestText(baseUrl, '/frontend/public-mvp-ui.js');
+    expectStatus('GET /frontend/public-mvp-ui.js', response, 200);
+    if (!body.includes('複製投票連結') || !body.includes('複製結果連結')) {
+      throw new Error('Public MVP UI missing copy-link actions');
+    }
+    pass('Public MVP UI includes vote/results copy actions');
   }
 
   let pollId;

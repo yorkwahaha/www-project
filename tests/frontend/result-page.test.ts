@@ -196,6 +196,19 @@ describe('public result page', () => {
     );
   });
 
+  it('maps poll-not-found result failures to a friendly message', async () => {
+    const { loadResultDisplay } = await loadResultPageModule();
+    const fetchImpl = vi.fn(async () => ({
+      ok: false,
+      status: 404,
+      json: async () => ({ error: 'POLL_NOT_FOUND', message: 'Poll not found' }),
+    }));
+
+    await expect(
+      loadResultDisplay({ pollId: displaySafeResult.poll_id, fetchImpl }),
+    ).rejects.toThrow('找不到此問卷');
+  });
+
   it('keeps result content visible when public notice loading fails', async () => {
     const { bootstrapResultPage } = await loadResultPageModule();
     const resultRoot = createRoot();
@@ -215,7 +228,13 @@ describe('public result page', () => {
       },
       documentObject: {
         getElementById(id: string) {
-          return id === 'result-display' ? resultRoot : publicNoticesRoot;
+          if (id === 'result-display') {
+            return resultRoot;
+          }
+          if (id === 'public-notices') {
+            return publicNoticesRoot;
+          }
+          return null;
         },
       },
       fetchImpl,

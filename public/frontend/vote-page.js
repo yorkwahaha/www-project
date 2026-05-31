@@ -1,3 +1,13 @@
+import {
+  POLL_ID_PATTERN,
+  buildPublicResultPath,
+  messageForPollLoadFailure,
+  messageForVoteSubmitFailure,
+  parsePollApiError,
+  renderPublicErrorPanel,
+  renderPublicNav,
+} from './public-mvp-ui.js';
+
 const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入問卷，請稍後再試。';
 const SAFE_SUBMIT_FAILURE_MESSAGE = '目前無法送出投票，請稍後再試。';
 const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
@@ -14,7 +24,8 @@ export async function loadPollDetail({ pollId, fetchImpl = globalThis.fetch }) {
     cache: 'no-store',
   });
   if (!response.ok) {
-    throw new Error(SAFE_LOAD_FAILURE_MESSAGE);
+    const apiError = await parsePollApiError(response);
+    throw new Error(messageForPollLoadFailure(apiError));
   }
   try {
     return await response.json();
@@ -50,7 +61,8 @@ export async function submitVoteByIndex({
     throw new Error(SAFE_SUBMIT_FAILURE_MESSAGE);
   }
   if (!response.ok) {
-    throw new Error(SAFE_SUBMIT_FAILURE_MESSAGE);
+    const apiError = await parsePollApiError(response);
+    throw new Error(messageForVoteSubmitFailure(apiError));
   }
   return response;
 }
@@ -81,11 +93,16 @@ export function renderVoteSuccess(root, pollId) {
   root.hidden = false;
 
   const message = root.ownerDocument.createElement('p');
-  message.textContent = '投票已送出。';
+  message.className = 'panel-message';
+  message.textContent = '投票已送出，感謝參與。';
   root.append(message);
 
+  const hint = root.ownerDocument.createElement('p');
+  hint.textContent = '可前往結果頁查看公開統計：';
+  root.append(hint);
+
   const link = root.ownerDocument.createElement('a');
-  link.href = `/results/${encodeURIComponent(pollId)}`;
+  link.href = buildPublicResultPath(pollId);
   link.textContent = '查看公開結果頁';
   root.append(link);
 }
@@ -150,8 +167,8 @@ export async function bootstrapVotePage({
   const message = documentObject.getElementById('form-message');
   const submitButton = documentObject.getElementById('vote-submit');
   const success = documentObject.getElementById('success-panel');
+  const errorPanel = documentObject.getElementById('error-panel');
   if (
-    !pollId ||
     !title ||
     !description ||
     !options ||
@@ -162,6 +179,44 @@ export async function bootstrapVotePage({
   ) {
     return;
   }
+
+  const showRouteError = (heading, body) => {
+    title.textContent = heading;
+    description.textContent = '';
+    form.hidden = true;
+    success.hidden = true;
+    message.textContent = '';
+    if (errorPanel) {
+      renderPublicErrorPanel(errorPanel, {
+        title: heading,
+        message: body,
+        showNav: false,
+      });
+      errorPanel.hidden = false;
+    } else {
+      message.textContent = body;
+      renderPublicNav(title.parentElement ?? title);
+    }
+  };
+
+  if (!pollId) {
+    showRouteError(
+      '無法開啟投票頁',
+      '網址缺少問卷識別碼，請從建立問卷頁取得正確的投票連結。',
+    );
+    return;
+  }
+
+  if (!POLL_ID_PATTERN.test(pollId)) {
+    showRouteError(
+      '無法開啟投票頁',
+      '網址中的問卷識別碼格式不正確，請確認連結是否完整。',
+    );
+    return;
+  }
+
+  title.textContent = '載入問卷中…';
+  message.textContent = '';
 
   const controller = createVotePageController({
     pollId,
@@ -177,31 +232,41 @@ export async function bootstrapVotePage({
 
   try {
     const detail = await loadPollDetail({ pollId, fetchImpl });
+    if (errorPanel) {
+      errorPanel.hidden = true;
+      errorPanel.replaceChildren();
+    }
     title.textContent = detail.title;
-    description.textContent = detail.description;
+    description.textContent = detail.description ?? '';
     renderPollOptions(options, detail.options, controller.selectOption);
     form.hidden = false;
-  } catch {
-    title.textContent = '無法載入問卷';
-    message.textContent = SAFE_LOAD_FAILURE_MESSAGE;
+  } catch (error) {
+    const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;
+    showRouteError('無法載入問卷', body);
     return;
   }
 
+  let voteCompleted = false;
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (voteCompleted || submitButton.disabled) {
+      return;
+    }
     submitButton.disabled = true;
-    message.textContent = '送出中...';
+    message.textContent = '送出中…';
     success.hidden = true;
     success.replaceChildren();
     try {
       await controller.submit();
+      voteCompleted = true;
       message.textContent = '';
+      form.hidden = true;
       renderVoteSuccess(success, pollId);
     } catch (error) {
       message.textContent = error instanceof Error
         ? error.message
         : SAFE_SUBMIT_FAILURE_MESSAGE;
-    } finally {
       submitButton.disabled = false;
     }
   });

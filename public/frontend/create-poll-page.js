@@ -1,3 +1,7 @@
+import {
+  renderPollSharePanel,
+} from './public-mvp-ui.js';
+
 const MAX_OPTIONS = 6;
 const PUBLISH_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const SAFE_FAILURE_MESSAGE = '目前無法建立問卷，請稍後再試。';
@@ -61,27 +65,8 @@ export async function submitCreatePoll({
   }
 }
 
-export function renderCreatePollSuccess(root, created) {
-  root.replaceChildren();
-  root.hidden = false;
-
-  const message = root.ownerDocument.createElement('p');
-  message.textContent = `問卷已建立：${created.poll_id}`;
-  root.append(message);
-
-  const shareHint = root.ownerDocument.createElement('p');
-  shareHint.textContent = '請分享下方投票頁連結給參與者：';
-  root.append(shareHint);
-
-  const voteLink = root.ownerDocument.createElement('a');
-  voteLink.href = `/vote/${encodeURIComponent(created.poll_id)}`;
-  voteLink.textContent = '前往投票頁（可分享）';
-  root.append(voteLink);
-
-  const resultLink = root.ownerDocument.createElement('a');
-  resultLink.href = `/results/${encodeURIComponent(created.poll_id)}`;
-  resultLink.textContent = '查看公開結果頁';
-  root.append(resultLink);
+export function renderCreatePollSuccess(root, created, options = {}) {
+  renderPollSharePanel(root, created.poll_id, options);
 }
 
 export function bootstrapCreatePollPage({
@@ -100,6 +85,9 @@ export function bootstrapCreatePollPage({
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (submitButton.disabled) {
+      return;
+    }
     submitButton.disabled = true;
     message.textContent = '建立中...';
     success.hidden = true;
@@ -120,11 +108,11 @@ export function bootstrapCreatePollPage({
       message.textContent = '';
       renderCreatePollSuccess(success, created);
       form.reset();
+      form.hidden = true;
     } catch (error) {
       message.textContent = error instanceof Error
         ? error.message
         : SAFE_FAILURE_MESSAGE;
-    } finally {
       submitButton.disabled = false;
     }
   });

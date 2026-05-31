@@ -22,6 +22,11 @@ function createDomRoot() {
       href: '',
       hidden: false,
       children: [] as ReturnType<typeof createElement>[],
+      attributes: new Map<string, string>(),
+      setAttribute(name: string, value: string) {
+        this.attributes.set(name, value);
+      },
+      addEventListener() {},
       append(child: ReturnType<typeof createElement>) {
         this.children.push(child);
       },
@@ -88,9 +93,11 @@ describe('public poll creation page', () => {
     const { renderCreatePollSuccess } = await loadCreatePollPageModule();
     const root = createDomRoot();
 
-    renderCreatePollSuccess(root, {
-      poll_id: '22222222-2222-4222-8222-222222222222',
-    });
+    renderCreatePollSuccess(
+      root,
+      { poll_id: '22222222-2222-4222-8222-222222222222' },
+      { locationObject: { origin: 'https://example.test' } },
+    );
 
     const links = root.children.filter((child) => child.tagName === 'a');
     expect(links).toHaveLength(2);
@@ -102,6 +109,11 @@ describe('public poll creation page', () => {
     );
     expect(links[0]!.textContent).toBe('前往投票頁（可分享）');
     expect(links[1]!.textContent).toBe('查看公開結果頁');
+    const buttons = root.children.filter((child) => child.tagName === 'button');
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      '複製投票連結',
+      '複製結果連結',
+    ]);
   });
 
   it('requires at least two non-empty options', async () => {

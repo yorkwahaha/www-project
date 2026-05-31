@@ -73,6 +73,15 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/public-mvp-ui.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-mvp-ui.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   if (method === 'GET' && path === '/frontend/result-page.js') {
     await sendPublicFile(res, 'frontend/result-page.js', 'text/javascript; charset=utf-8');
     return;

@@ -394,7 +394,7 @@ export async function bootstrapResultPage({
         uiMockState != null
           ? isCollectingUiMockState(uiMockState)
           : isCollectingResult(result);
-      if (uiMockState && uiMockState !== 'collecting') {
+      if (uiMockState) {
         renderUiMockStatePanel(root, uiMockState);
       }
       renderResultPagePolicyExtras(root, {

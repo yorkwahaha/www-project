@@ -650,7 +650,8 @@ button:disabled {
   margin: 0;
 }
 
-.ui-mock-preview-banner {
+.ui-mock-preview-banner,
+.mvp-mock-banner {
   margin: 0 0 1rem;
   padding: 0.75rem 0.9rem;
   border: 1px dashed var(--mvp-notice-border);
@@ -1069,11 +1070,66 @@ button:disabled {
   border-color: #d8cff0;
 }
 
+.mvp-policy-panel-mascot {
+  flex-shrink: 0;
+}
+
+.mvp-policy-panel-mascot .mvp-mascot {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.mvp-policy-panel-title-wrap {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.35rem;
+  min-width: 0;
+}
+
+.mvp-demo-nav-banner {
+  margin: 0 0 1rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-amber-soft);
+  border: 1px dashed #e8c89a;
+  font-size: 0.88rem;
+  color: #7a4e12;
+}
+
+.mvp-demo-nav-switch {
+  margin: 0 0 1rem;
+  padding: 0;
+  font-size: 0.88rem;
+  color: var(--mvp-muted);
+}
+
+.mvp-demo-nav-switch a {
+  color: var(--mvp-accent);
+  font-weight: 600;
+}
+
+.mvp-quota-card--mock .mvp-quota-stat strong {
+  color: var(--mvp-muted);
+}
+
+.mvp-quota-card--mock .mvp-quota-stat span::after {
+  content: ' · 示意';
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
 .mvp-help {
   position: relative;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   vertical-align: middle;
   margin-left: 0.15rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  border-radius: 999px;
+  cursor: help;
 }
 
 .mvp-help-icon {
@@ -1114,11 +1170,18 @@ button:disabled {
   transition: opacity 0.12s ease;
 }
 
-.mvp-help:hover .mvp-help-tip,
 .mvp-help:focus-visible .mvp-help-tip,
-.mvp-help:focus-within .mvp-help-tip {
+.mvp-help:focus-within .mvp-help-tip,
+.mvp-help:active .mvp-help-tip {
   opacity: 1;
   visibility: visible;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mvp-help:hover .mvp-help-tip {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .mvp-mascot {

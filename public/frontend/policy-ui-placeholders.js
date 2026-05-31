@@ -1,6 +1,8 @@
 /**
- * Phase 41A — policy-aligned copy and mock UI placeholders (no API/persistence).
+ * Phase 41A / 42B — policy-aligned copy and mock UI placeholders (no API/persistence).
  */
+
+import { createHelpIcon, createMascot, HELP_COPY } from './public-mvp-layout.js';
 
 export const POLICY_UI_COPY = {
   collectingBadge: '收集中',
@@ -41,35 +43,76 @@ function appendParagraph(parent, text, className = 'policy-panel-text') {
   return p;
 }
 
-function appendBadge(parent, text) {
+function appendParagraphWithHelp(parent, text, help, className = 'policy-panel-text') {
+  const doc = parent.ownerDocument;
+  const p = doc.createElement('p');
+  p.className = className;
+  p.append(doc.createTextNode(text));
+  p.append(createHelpIcon(doc, help));
+  parent.append(p);
+  return p;
+}
+
+function appendPanelClass(element, className) {
+  const existing = typeof element.className === 'string' ? element.className : '';
+  if (!existing.split(/\s+/).includes(className)) {
+    element.className = existing ? `${existing} ${className}` : className;
+  }
+}
+
+function appendBadge(parent, text, badgeClass = 'mvp-status-badge') {
   const span = parent.ownerDocument.createElement('span');
-  span.className = 'mvp-status-badge';
+  span.className = badgeClass;
   span.textContent = text;
   parent.append(span);
   return span;
 }
 
-export function createPolicyPanel(documentObject, { title, badge }) {
+/**
+ * @param {Document} documentObject
+ * @param {{ title: string, badge?: string, badgeClass?: string, mascotVariant?: string, titleHelp?: { label: string, text: string } }} opts
+ */
+export function createPolicyPanel(documentObject, {
+  title,
+  badge,
+  badgeClass,
+  mascotVariant,
+  titleHelp,
+}) {
   const section = documentObject.createElement('section');
   section.className = 'mvp-policy-panel';
 
   const header = documentObject.createElement('div');
   header.className = 'mvp-policy-panel-header';
 
+  if (mascotVariant) {
+    const mascotWrap = documentObject.createElement('div');
+    mascotWrap.className = 'mvp-policy-panel-mascot';
+    mascotWrap.append(createMascot(documentObject, mascotVariant));
+    header.append(mascotWrap);
+  }
+
+  const titleWrap = documentObject.createElement('div');
+  titleWrap.className = 'mvp-policy-panel-title-wrap';
+
   const heading = documentObject.createElement('h2');
   const headingId = `policy-heading-${title.replace(/[^\w\u4e00-\u9fff]+/g, '-').replace(/^-|-$/g, '') || 'panel'}`;
   heading.id = headingId;
   heading.className = 'mvp-policy-panel-title';
   heading.textContent = title;
-  header.append(heading);
+  titleWrap.append(heading);
+  if (titleHelp) {
+    titleWrap.append(createHelpIcon(documentObject, titleHelp));
+  }
+  header.append(titleWrap);
   section.setAttribute('aria-labelledby', headingId);
 
   if (badge) {
-    appendBadge(header, badge);
+    appendBadge(header, badge, badgeClass ?? 'mvp-status-badge');
   }
 
   section.append(header);
-  return { section, heading, body: section };
+  return { section, heading, header, body: section };
 }
 
 export function renderMockFollowButton(parent, { compact = false } = {}) {
@@ -97,13 +140,32 @@ export function renderLifecyclePolicyPanel(parent) {
   const { section } = createPolicyPanel(doc, {
     title: '統計期間與結果公開',
     badge: POLICY_UI_COPY.collectingBadge,
+    badgeClass: 'mvp-badge mvp-badge-collecting',
+    mascotVariant: 'collecting',
+    titleHelp: {
+      label: '收集中為何不顯示票數',
+      text: HELP_COPY.collectingHidden,
+    },
   });
 
   appendParagraph(section, POLICY_UI_COPY.collectingBlindLead);
   appendParagraph(section, POLICY_UI_COPY.collectingRevealHint);
-  appendParagraph(section, POLICY_UI_COPY.closeVsLock, 'policy-panel-text policy-panel-emphasis');
-  appendParagraph(section, POLICY_UI_COPY.cancelVsUnpublish);
-  appendParagraph(section, `下架範例用語：${POLICY_UI_COPY.unpublishAfterLock}`, 'policy-panel-text policy-panel-muted');
+  appendParagraphWithHelp(
+    section,
+    '結果公開後進入約 5 天公開鎖定期。',
+    { label: '公開鎖定期說明', text: HELP_COPY.lockPeriod },
+    'policy-panel-text policy-panel-emphasis',
+  );
+  appendParagraphWithHelp(
+    section,
+    POLICY_UI_COPY.cancelVsUnpublish,
+    { label: '取消與下架', text: HELP_COPY.cancelVsUnpublish },
+  );
+  appendParagraph(
+    section,
+    `下架範例：${POLICY_UI_COPY.unpublishAfterLock}`,
+    'policy-panel-text policy-panel-muted',
+  );
 
   parent.append(section);
   return section;
@@ -114,6 +176,12 @@ export function renderEligibilityPlaceholderPanel(parent) {
   const { section } = createPolicyPanel(doc, {
     title: '投票資格（示範）',
     badge: '尚未啟用',
+    badgeClass: 'mvp-badge mvp-badge-muted',
+    mascotVariant: 'idle',
+    titleHelp: {
+      label: '資格如何判斷',
+      text: HELP_COPY.eligibility,
+    },
   });
 
   const list = doc.createElement('ul');
@@ -152,23 +220,26 @@ export function renderResultPagePolicyExtras(
   wrap.setAttribute('aria-label', '政策說明');
 
   if (collecting && !skipFollowPanel) {
-    const followPanel = doc.createElement('section');
-    followPanel.className = 'mvp-policy-panel';
-    const h2 = doc.createElement('h2');
-    h2.className = 'mvp-policy-panel-title';
-    h2.textContent = '收集中 — 可關注結果';
-    followPanel.append(h2);
+    const { section: followPanel } = createPolicyPanel(doc, {
+      title: '收集中 — 可關注結果',
+      badge: '站內通知（示意）',
+      badgeClass: 'mvp-badge mvp-badge-followed',
+      mascotVariant: 'followed',
+      titleHelp: {
+        label: '關注結果說明',
+        text: HELP_COPY.followNotify,
+      },
+    });
     appendParagraph(followPanel, POLICY_UI_COPY.followWhileCollecting);
     renderMockFollowButton(followPanel, { compact: false });
     wrap.append(followPanel);
   }
 
-  const glossary = doc.createElement('section');
-  glossary.className = 'mvp-policy-panel mvp-policy-panel-compact';
-  const h2g = doc.createElement('h2');
-  h2g.className = 'mvp-policy-panel-title';
-  h2g.textContent = '名詞對照';
-  glossary.append(h2g);
+  const { section: glossary } = createPolicyPanel(doc, {
+    title: '名詞對照',
+    mascotVariant: 'locked',
+  });
+  appendPanelClass(glossary, 'mvp-policy-panel-compact');
   appendParagraph(glossary, POLICY_UI_COPY.closeVsLock);
   appendParagraph(glossary, POLICY_UI_COPY.cancelVsUnpublish);
   wrap.append(glossary);
@@ -201,6 +272,45 @@ const UI_MOCK_STATE_LABELS = {
   unpublished: '已下架（預覽）',
   ineligible: '不符合資格（預覽）',
   followed: '已關注結果（預覽）',
+};
+
+const UI_MOCK_STATE_PANEL_CONFIG = {
+  collecting: {
+    title: '收集中',
+    badge: '收集中',
+    badgeClass: 'mvp-badge mvp-badge-collecting',
+    mascot: 'collecting',
+  },
+  revealed: {
+    title: '結果已公開',
+    badge: '已公開',
+    badgeClass: 'mvp-badge mvp-badge-revealed',
+    mascot: 'idle',
+  },
+  locked: {
+    title: '公開鎖定期進行中',
+    badge: '鎖定期',
+    badgeClass: 'mvp-badge mvp-badge-locked',
+    mascot: 'locked',
+  },
+  post_lock: {
+    title: '公開鎖定期已結束',
+    badge: '可下架',
+    badgeClass: 'mvp-badge mvp-badge-muted',
+    mascot: 'idle',
+  },
+  ineligible: {
+    title: '不符合投票資格',
+    badge: '無法投票',
+    badgeClass: 'mvp-badge mvp-badge-muted',
+    mascot: 'idle',
+  },
+  followed: {
+    title: '已關注結果（示範）',
+    badge: '已關注',
+    badgeClass: 'mvp-badge mvp-badge-followed',
+    mascot: 'followed',
+  },
 };
 
 export function parseUiMockState(search = '') {
@@ -294,19 +404,19 @@ export function renderUiMockPreviewBanner(parent, mockState) {
   }
   const doc = parent.ownerDocument;
   const banner = doc.createElement('div');
-  banner.className = 'ui-mock-preview-banner';
+  banner.className = 'ui-mock-preview-banner mvp-mock-banner';
   banner.setAttribute('role', 'status');
   banner.setAttribute('aria-live', 'polite');
 
   const badge = doc.createElement('span');
-  badge.className = 'mvp-status-badge ui-mock-preview-badge';
+  badge.className = 'mvp-badge mvp-badge-muted ui-mock-preview-badge';
   badge.textContent = UI_MOCK_STATE_LABELS[mockState] ?? mockState;
   banner.append(badge);
 
   const text = doc.createElement('p');
   text.className = 'ui-mock-preview-text';
   text.textContent =
-    '此頁以網址參數 ui_state 顯示政策文案預覽，不代表後端真實狀態，也不會寫入任何資料。';
+    '以 ?ui_state 預覽政策文案；不代表後端狀態，也不會寫入資料。';
   banner.append(text);
 
   parent.prepend(banner);
@@ -334,118 +444,108 @@ export function renderUiMockStatePanel(parent, mockState) {
   if (!parent || !mockState) {
     return null;
   }
+  const config = UI_MOCK_STATE_PANEL_CONFIG[mockState];
+  if (!config) {
+    return null;
+  }
   const doc = parent.ownerDocument;
-  const panel = doc.createElement('section');
-  panel.className = 'mvp-policy-panel ui-mock-state-panel';
-
-  const title = doc.createElement('h2');
-  title.className = 'mvp-policy-panel-title';
-  panel.append(title);
+  const { section: panel } = createPolicyPanel(doc, {
+    title: config.title,
+    badge: config.badge,
+    badgeClass: config.badgeClass,
+    mascotVariant: config.mascot,
+    titleHelp:
+      mockState === 'collecting'
+        ? { label: '收集中說明', text: HELP_COPY.collectingHidden }
+        : mockState === 'locked'
+          ? { label: '鎖定期說明', text: HELP_COPY.lockPeriod }
+          : undefined,
+  });
+  appendPanelClass(panel, 'ui-mock-state-panel');
 
   if (mockState === 'collecting') {
-    title.textContent = '收集中';
     appendParagraph(panel, POLICY_UI_COPY.collectingBlindLead);
     appendParagraph(panel, POLICY_UI_COPY.collectingRevealHint);
-    parent.append(panel);
-    return panel;
-  }
-
-  if (mockState === 'revealed') {
-    title.textContent = '結果已公開';
+  } else if (mockState === 'revealed') {
     appendParagraph(
       panel,
-      '統計期間已結束，彙總結果開始對外公開。此為 UI 預覽；實際頁面仍以 API 回傳為準。',
+      '統計已結束，彙總結果開始公開。此為 UI 預覽；實際仍以 API 為準。',
     );
-    parent.append(panel);
-    return panel;
-  }
-
-  if (mockState === 'locked') {
-    title.textContent = '公開鎖定期進行中';
+  } else if (mockState === 'locked') {
     appendParagraph(
       panel,
-      '結果公開後約 5 天內為公開鎖定期。鎖定期內發起者不可下架、刪除、修改內容、重新開放投票或隱藏結果（以下按鈕僅示範，未連線後端）。',
+      '結果公開後約 5 天為公開鎖定期；期間不可下架、刪除、修改或隱藏結果（按鈕僅示意）。',
     );
     renderDisabledMockActions(panel, [
       '下架（鎖定期內不可用）',
       '刪除（鎖定期內不可用）',
       '修改問卷（鎖定期內不可用）',
     ]);
-    parent.append(panel);
-    return panel;
-  }
-
-  if (mockState === 'post_lock') {
-    title.textContent = '公開鎖定期已結束';
+  } else if (mockState === 'post_lock') {
     appendParagraph(
       panel,
-      '鎖定期結束後，發起者可選擇維持公開或下架問卷。以下「下架」僅為 UI 示範，不會執行真實操作。',
+      '鎖定期結束後，發起者可維持公開或下架；以下按鈕不會執行真實操作。',
     );
     renderDisabledMockActions(panel, ['下架問卷（示範，未啟用）']);
     appendParagraph(
       panel,
-      `下架用語範例：${POLICY_UI_COPY.unpublishAfterLock}`,
+      POLICY_UI_COPY.unpublishAfterLock,
       'policy-panel-text policy-panel-muted',
     );
-    parent.append(panel);
-    return panel;
-  }
-
-  if (mockState === 'ineligible') {
-    title.textContent = '不符合投票資格';
+  } else if (mockState === 'ineligible') {
     appendParagraph(panel, POLICY_UI_COPY.eligibilityIneligible);
     renderMockFollowButton(panel, { compact: false });
-    parent.append(panel);
-    return panel;
-  }
-
-  if (mockState === 'followed') {
-    title.textContent = '已關注結果（示範）';
+  } else if (mockState === 'followed') {
     appendParagraph(
       panel,
-      '你正以示範模式標記為「已關注結果」。結果公開時的站內通知尚未連線後端，不會真的發送通知。',
+      '示範：已標記關注結果；站內通知尚未連線，不會真的發送。',
     );
     const chip = doc.createElement('p');
     chip.className = 'ui-mock-followed-chip';
     chip.textContent = '已關注結果 · 站內通知（示範）';
     panel.append(chip);
-    parent.append(panel);
-    return panel;
   }
 
-  return null;
+  parent.append(panel);
+  return panel;
 }
 
 export function renderMockTerminalResultState(root, mockState) {
   root.replaceChildren();
   const doc = root.ownerDocument;
-  const panel = doc.createElement('section');
-  panel.className = 'mvp-policy-panel ui-mock-terminal-state';
+  const isCancelled = mockState === 'cancelled';
+  const { section: panel } = createPolicyPanel(doc, {
+    title: isCancelled ? '問卷已取消' : '問卷已下架',
+    badge: isCancelled ? '已取消' : '已下架',
+    badgeClass: isCancelled
+      ? 'mvp-badge mvp-badge-danger'
+      : 'mvp-badge mvp-badge-muted',
+    mascotVariant: isCancelled ? 'cancelled' : 'idle',
+    titleHelp: isCancelled
+      ? { label: '取消與下架', text: HELP_COPY.cancelVsUnpublish }
+      : undefined,
+  });
+  appendPanelClass(panel, 'ui-mock-terminal-state');
   panel.setAttribute('role', 'status');
 
-  const title = doc.createElement('h2');
-  title.className = 'mvp-policy-panel-title';
-  if (mockState === 'cancelled') {
-    title.textContent = '問卷已取消';
+  if (isCancelled) {
     appendParagraph(
       panel,
-      '此問卷已由發起者在結果形成前取消。不會產生公開彙總結果，也不顯示收集中票數或百分比。',
+      '發起者於結果形成前取消。不會產生公開彙總結果，也不顯示票數或百分比。',
     );
     appendParagraph(
       panel,
-      '請注意：取消不同於下架；請勿在統計期間內使用「下架」描述停止中的問卷。',
+      '收票中停止請稱「取消」，不是「下架」。',
       'policy-panel-text policy-panel-emphasis',
     );
   } else {
-    title.textContent = '問卷已下架';
     appendParagraph(panel, POLICY_UI_COPY.unpublishAfterLock);
     appendParagraph(
       panel,
-      '此為 UI 預覽。真實下架行為尚未在此 MVP 實作，也不會改變後端資料。',
+      'UI 預覽；真實下架尚未實作，不會改變後端資料。',
       'policy-panel-text policy-panel-muted',
     );
   }
-  panel.prepend(title);
   root.append(panel);
 }
 
@@ -471,6 +571,9 @@ export function renderVotePagePolicyPanels(parent, options = {}) {
     const { section } = createPolicyPanel(doc, {
       title: '投票資格',
       badge: '不符合（預覽）',
+      badgeClass: 'mvp-badge mvp-badge-muted',
+      mascotVariant: 'idle',
+      titleHelp: { label: '資格說明', text: HELP_COPY.eligibility },
     });
     appendParagraph(section, POLICY_UI_COPY.eligibilitySelfReport);
     appendParagraph(section, POLICY_UI_COPY.eligibilityIneligible);
@@ -479,26 +582,31 @@ export function renderVotePagePolicyPanels(parent, options = {}) {
     renderEligibilityPlaceholderPanel(parent);
   }
 
-  const followSection = parent.ownerDocument.createElement('section');
-  followSection.className = 'mvp-policy-panel';
-  const h2 = parent.ownerDocument.createElement('h2');
-  h2.className = 'mvp-policy-panel-title';
-  h2.textContent = mockState === 'followed' ? '已關注結果（預覽）' : '關注結果';
-  followSection.append(h2);
+  const doc = parent.ownerDocument;
+  const { section: followSection } = createPolicyPanel(doc, {
+    title: mockState === 'followed' ? '已關注結果（預覽）' : '關注結果',
+    badge: mockState === 'followed' ? '已關注' : '站內通知（示意）',
+    badgeClass:
+      mockState === 'followed'
+        ? 'mvp-badge mvp-badge-followed'
+        : 'mvp-badge mvp-badge-muted',
+    mascotVariant: 'followed',
+    titleHelp: { label: '關注結果', text: HELP_COPY.followNotify },
+  });
 
   if (mockState === 'followed') {
     appendParagraph(
       followSection,
-      '示範狀態：已關注此問卷的結果公開通知（站內通知，尚未連線後端）。你仍可返回投票，除非處於不符合資格預覽。',
+      '示範：已關注結果公開通知（站內）。不符合資格預覽時仍無法投票。',
     );
-    const chip = followSection.ownerDocument.createElement('p');
+    const chip = doc.createElement('p');
     chip.className = 'ui-mock-followed-chip';
     chip.textContent = '已關注結果 · 站內通知（示範）';
     followSection.append(chip);
   } else {
     appendParagraph(
       followSection,
-      '不符合資格或暫不投票的參與者，可在結果公開後查看彙總統計；MVP 僅規劃站內通知，不含 Email／推播。',
+      '可於結果公開後查看彙總；MVP 僅站內通知示意，不含 Email／推播。',
     );
     renderMockFollowButton(followSection);
   }

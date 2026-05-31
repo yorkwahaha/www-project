@@ -65,11 +65,45 @@ export function createMascot(documentObject, variant = 'idle') {
   return root;
 }
 
+/** Phase 42B — `?nav=` demo switch only (not authentication). */
+export const VALID_DEMO_NAV_MODES = ['guest', 'logged-in-mock'];
+
 const NAV_LINKS = [
   { href: '/', key: 'home', label: '首頁' },
   { href: '/explore', key: 'explore', label: '探索' },
   { href: '/polls/new', key: 'create', label: '發起提問' },
 ];
+
+export function parseDemoNavMode(search = '') {
+  const rawSearch =
+    typeof search === 'string' && search.length > 0
+      ? search.startsWith('?')
+        ? search
+        : `?${search}`
+      : '';
+  const value = new URLSearchParams(rawSearch).get('nav')?.trim().toLowerCase();
+  if (!value || !VALID_DEMO_NAV_MODES.includes(value)) {
+    return null;
+  }
+  return value;
+}
+
+/**
+ * URL `?nav=` overrides header `data-nav` when valid; otherwise falls back to data-nav or guest.
+ * @param {HTMLElement | null | undefined} headerEl
+ * @param {string} [search]
+ */
+export function resolveDemoNavMode(headerEl, search = '') {
+  const fromUrl = parseDemoNavMode(search);
+  if (fromUrl) {
+    return fromUrl;
+  }
+  const fromData = headerEl?.dataset?.nav?.trim().toLowerCase();
+  if (fromData && VALID_DEMO_NAV_MODES.includes(fromData)) {
+    return fromData;
+  }
+  return 'guest';
+}
 
 /**
  * @param {HTMLElement} mount
@@ -77,7 +111,11 @@ const NAV_LINKS = [
  */
 export function renderSiteHeader(mount, options = {}) {
   const doc = mount.ownerDocument;
-  const navMode = options.nav ?? mount.dataset.nav ?? 'guest';
+  const navMode =
+    options.nav && VALID_DEMO_NAV_MODES.includes(options.nav)
+      ? options.nav
+      : resolveDemoNavMode(mount, options.search ?? '');
+  mount.dataset.nav = navMode;
   const active = options.active ?? mount.dataset.active ?? '';
 
   mount.replaceChildren();
@@ -145,13 +183,43 @@ export function renderSiteHeader(mount, options = {}) {
   mount.append(inner);
 }
 
+export function renderDemoNavBanner(parent, navMode) {
+  if (!parent || navMode !== 'logged-in-mock') {
+    return null;
+  }
+  const doc = parent.ownerDocument;
+  if (parent.querySelector('.mvp-demo-nav-banner')) {
+    return null;
+  }
+  const banner = doc.createElement('p');
+  banner.className = 'mvp-demo-nav-banner';
+  banner.setAttribute('role', 'note');
+  banner.textContent =
+    '目前為登入後導覽列示意（?nav=logged-in-mock），並非真實登入或帳號狀態。';
+  parent.prepend(banner);
+  return banner;
+}
+
 export function mountSiteChrome(documentObject) {
+  const search =
+    typeof documentObject.defaultView?.location?.search === 'string'
+      ? documentObject.defaultView.location.search
+      : '';
   const header = documentObject.getElementById('site-header');
   if (header) {
     renderSiteHeader(header, {
-      nav: header.dataset.nav,
+      search,
       active: header.dataset.active,
     });
+    if (parseDemoNavMode(search)) {
+      header.setAttribute('data-nav-demo', 'true');
+    } else {
+      header.removeAttribute('data-nav-demo');
+    }
+  }
+  const main = documentObject.getElementById('main-content');
+  if (main && parseDemoNavMode(search) === 'logged-in-mock') {
+    renderDemoNavBanner(main, 'logged-in-mock');
   }
 }
 

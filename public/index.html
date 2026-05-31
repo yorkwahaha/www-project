@@ -10,6 +10,12 @@
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <header id="site-header" data-nav="guest" data-active="home"></header>
     <div id="main-content" class="mvp-page">
+      <p class="mvp-demo-nav-switch" role="note">
+        導覽示範（非登入）：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
       <section class="mvp-hero" aria-labelledby="home-heading">
         <div class="mvp-hero-copy">
           <p class="mvp-brand">What We Wonder · 公開 MVP</p>
@@ -32,9 +38,9 @@
         </div>
       </section>
 
-      <h2 class="mvp-section-title">公開問卷（示意列表）</h2>
+      <h2 class="mvp-section-title">公開問卷（示意）</h2>
       <p class="mvp-meta" style="margin-top:-0.5rem;margin-bottom:0.75rem">
-        以下為靜態示意卡片；正式列表尚未連線 API。收票中卡片不顯示票數或排名。
+        靜態卡片，尚未連線 API。收票中不顯示票數。
       </p>
 
       <div class="mvp-card-grid">
@@ -43,12 +49,12 @@
             <h3>你平常通勤主要使用哪種交通工具？</h3>
             <span class="mvp-badge mvp-badge-collecting">收票中</span>
           </div>
-          <p class="mvp-poll-card-meta">生活 · 結果 06/15 23:59 公開</p>
+          <p class="mvp-poll-card-meta">生活 · 06/15 公開結果</p>
           <p class="mvp-poll-card-hint">
-            收票中不顯示票數
-            <span class="mvp-help" tabindex="0" role="button" aria-label="說明：收票中隱藏結果">
+            盲測收票
+            <span class="mvp-help" tabindex="0" role="button" aria-label="收票中隱藏結果">
               <span class="mvp-help-icon" aria-hidden="true">?</span>
-              <span class="mvp-help-tip" role="tooltip">收票中不顯示票數、百分比、排名或趨勢。</span>
+              <span class="mvp-help-tip" role="tooltip">不顯示票數、百分比、排名或趨勢。</span>
             </span>
           </p>
           <div class="mvp-poll-card-footer">
@@ -61,9 +67,9 @@
             <h3>遠端工作一週幾天最適合？</h3>
             <span class="mvp-badge mvp-badge-revealed">結果已公開</span>
           </div>
-          <p class="mvp-poll-card-meta">職場 · 已於 05/28 公開</p>
-          <div class="mvp-result-preview">
-            選項 A · 約 42%
+          <p class="mvp-poll-card-meta">職場 · 05/28 已公開</p>
+          <div class="mvp-result-preview" aria-label="結果摘要示意">
+            領先選項約 42%（區間示意）
             <div class="mvp-result-preview-bar" aria-hidden="true"><span style="width:42%"></span></div>
           </div>
           <div class="mvp-poll-card-footer">
@@ -76,7 +82,7 @@
             <h3>今年最期待的科技產品類別？</h3>
             <span class="mvp-badge mvp-badge-muted">鎖定期已結束</span>
           </div>
-          <p class="mvp-poll-card-meta">科技 · 持續公開</p>
+          <p class="mvp-poll-card-meta">科技 · 鎖定期已過</p>
           <div class="mvp-poll-card-footer">
             <a class="mvp-btn mvp-btn-secondary" href="/results/00000000-0000-4000-8000-000000000003">查看結果</a>
           </div>
@@ -84,16 +90,8 @@
       </div>
 
       <p class="note mvp-meta">
-        開發預覽：投票／結果頁網址可加 <code>?ui_state=collecting</code>、<code>?ui_state=cancelled</code> 等參數預覽政策文案（僅前端，不影響後端）。
+        預覽：投票／結果頁可加 <code>?ui_state=</code>（如 collecting、cancelled）；僅前端示意。
       </p>
-
-      <details class="mvp-nav-mock-note">
-        <summary>登入後導覽列示意（非真實登入）</summary>
-        <p style="margin:0.5rem 0 0">
-          登入後可能顯示：<strong>發起提問</strong>、<strong>我的問卷</strong>、使用者頭像選單。
-          請見 <a href="/my-polls?nav=logged-in-mock">我的問卷（示意）</a>。
-        </p>
-      </details>
     </div>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>
   </body>

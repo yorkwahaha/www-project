@@ -11,23 +11,23 @@
     <header id="site-header" data-nav="logged-in-mock" data-active=""></header>
     <main id="main-content" class="mvp-page">
       <p class="mvp-mock-banner" role="note">
-        發起者儀表板為靜態示意；額度與品質點數尚未連線後端。
+        以下為靜態示意畫面：發起額度、等級與品質點數均未連線後端，不代表你的真實帳號或分數。
       </p>
       <h1>我的問卷</h1>
-      <p class="mvp-lead">收票中看不到即時票數；鎖定期內無法下架或編輯。</p>
+      <p class="mvp-lead">收票中看不到票數；鎖定期內無法下架或編輯。</p>
 
-      <div class="mvp-quota-card" aria-label="發起額度（概念示意）">
+      <div class="mvp-quota-card mvp-quota-card--mock" aria-label="發起額度與品質點數（靜態示意，未實作）">
         <div class="mvp-quota-stat">
-          <strong>Lv.1</strong>
-          <span>發起者等級（示意）</span>
+          <strong>—</strong>
+          <span>發起者等級</span>
         </div>
         <div class="mvp-quota-stat">
-          <strong>2 / 5</strong>
-          <span>今日剩餘發起額度</span>
+          <strong>— / —</strong>
+          <span>今日發起額度</span>
         </div>
         <div class="mvp-quota-stat">
-          <strong>120</strong>
-          <span>品質點數（概念／未實作）</span>
+          <strong>—</strong>
+          <span>品質點數</span>
         </div>
       </div>
 
@@ -80,14 +80,6 @@
         <p class="mvp-meta" style="margin:0">目前票數、參與人數、選項分布、排名或趨勢。</p>
       </aside>
     </main>
-    <script type="module">
-      import { mountSiteChrome, renderSiteHeader } from '/frontend/public-mvp-layout.js';
-      const params = new URLSearchParams(location.search);
-      const header = document.getElementById('site-header');
-      if (header && params.get('nav') === 'logged-in-mock') {
-        header.dataset.nav = 'logged-in-mock';
-      }
-      mountSiteChrome(document);
-    </script>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
   </body>
 </html>

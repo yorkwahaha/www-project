@@ -145,7 +145,7 @@ describe('policy ui mock state', () => {
 
     const text = collectText(root).join(' ');
     expect(text).toMatch(/ui_state/);
-    expect(text).toMatch(/不代表後端真實狀態/);
+    expect(text).toMatch(/不代表後端狀態/);
     expect(text).toMatch(/不符合資格/);
   });
 });

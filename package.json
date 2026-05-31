@@ -15,6 +15,7 @@
     "test:integration": "vitest run --config vitest.integration.ts",
     "test:integration:local": "node scripts/test-pg-integration-local.mjs",
     "smoke:admin:local": "node scripts/smoke-admin-local.mjs",
+    "smoke:public:local": "node scripts/smoke-public-local.mjs",
     "test:watch": "vitest",
     "migrate": "node scripts/migrate.mjs",
     "migrate:check": "node scripts/migrate.mjs --check"

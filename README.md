@@ -41,9 +41,10 @@ npm run migrate:check
 ```bash
 npm run test:integration:local
 npm run smoke:admin:local
+npm run smoke:public:local
 ```
 
-The integration quick command starts the local Docker test service if needed, waits for health, runs migration validation and apply, then runs the integration suite. The admin smoke command uses the same isolated `www_test` database with fake local-only admin credentials and synthetic fixture rows. Both commands intentionally leave the test container running for fast reruns. If `DATABASE_URL` is unset, the lower-level `npm run test:integration` exits immediately with setup instructions (environment not ready — not a unit-test regression). See Phase 15 doc §8 and Phase 14 doc §8.
+The integration quick command starts the local Docker test service if needed, waits for health, runs migration validation and apply, then runs the integration suite. The admin smoke command uses the same isolated `www_test` database with fake local-only admin credentials and synthetic fixture rows. The public flow smoke command validates `GET /` → `/polls/new` → create poll → `/vote/:pollId` → vote-by-index → `/results/:pollId` without a browser, and checks that public JSON responses do not expose `option_id`, vote tokens, or shard internals. All local smoke commands intentionally leave the test container running for fast reruns. If `DATABASE_URL` is unset, the lower-level `npm run test:integration` exits immediately with setup instructions (environment not ready — not a unit-test regression). See Phase 15 doc §8 and Phase 14 doc §8.
 
 ## Layout
 

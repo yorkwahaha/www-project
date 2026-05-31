@@ -48,10 +48,23 @@
         display: block;
         margin-top: 0.5rem;
       }
+
+      .public-nav {
+        margin-top: 2rem;
+        font-size: 0.95rem;
+      }
+
+      .public-nav a + a {
+        margin-left: 0.75rem;
+      }
     </style>
   </head>
   <body>
     <main>
+      <nav class="public-nav" aria-label="網站導覽">
+        <a href="/">首頁</a>
+        <a href="/polls/new" aria-current="page">建立問卷</a>
+      </nav>
       <h1>建立問卷</h1>
       <p>建立後即可公開分享。發布後如需修正，請刪除並重新建立。</p>
       <form id="create-poll-form">

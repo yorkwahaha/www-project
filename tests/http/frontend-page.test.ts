@@ -25,6 +25,24 @@ async function withServer<T>(
 }
 
 describe('frontend static routes', () => {
+  it('serves the public landing page with a link to create a poll', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const page = await fetch(`${baseUrl}/`);
+      const pageBody = await page.text();
+
+      expect(page.status).toBe(200);
+      expect(page.headers.get('content-type')).toContain('text/html');
+      expect(page.headers.get('cache-control')).toBe('no-store');
+      expect(pageBody).toContain('What We Wonder');
+      expect(pageBody).toContain('href="/polls/new"');
+      expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
+    });
+  });
+
   it('serves a public result page and named frontend assets only', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),
@@ -45,6 +63,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('/frontend/result-page.js');
+      expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/polls/new');
       expect(pageBody).not.toContain('ignored-user-id');
       expect(resultScript.status).toBe(200);
@@ -82,6 +101,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('建立問卷');
+      expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/frontend/create-poll-page.js');
       expect(pageBody).not.toContain('option_id');
       expect(script.status).toBe(200);
@@ -104,6 +124,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('參與投票');
+      expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/polls/new');
       expect(pageBody).toContain('/frontend/vote-page.js');
       expect(script.status).toBe(200);

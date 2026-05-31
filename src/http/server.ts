@@ -68,6 +68,11 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/') {
+    await sendPublicFile(res, 'index.html', 'text/html; charset=utf-8');
+    return;
+  }
+
   if (method === 'GET' && path === '/frontend/result-page.js') {
     await sendPublicFile(res, 'frontend/result-page.js', 'text/javascript; charset=utf-8');
     return;

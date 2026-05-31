@@ -9,6 +9,7 @@ import {
   parsePollApiError,
   renderPublicErrorPanel,
   renderPublicNav,
+  resolvePublicMvpUserId,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 
@@ -234,7 +235,7 @@ export async function bootstrapVotePage({
 
   const controller = createVotePageController({
     pollId,
-    userId: uuidFactory(),
+    userId: resolvePublicMvpUserId(uuidFactory),
     fetchImpl,
     windowObject,
     resetSelectionUi: () => {

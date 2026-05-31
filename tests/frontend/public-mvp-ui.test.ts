@@ -134,4 +134,42 @@ describe('public MVP UI helpers', () => {
     expect(result.ok).toBe(false);
     expect(prompt).toHaveBeenCalled();
   });
+
+  it('uses seeded demo voter id on localhost only', async () => {
+    const {
+      LOCAL_DEMO_VOTER_B_USER_ID,
+      LOCAL_DEMO_VOTER_USER_ID,
+      resolvePublicMvpUserId,
+    } = await loadPublicMvpUiModule();
+
+    const originalLocation = globalThis.location;
+    Object.defineProperty(globalThis, 'location', {
+      configurable: true,
+      value: {
+        hostname: '127.0.0.1',
+        search: '',
+      },
+    });
+    try {
+      expect(resolvePublicMvpUserId(() => 'random-id')).toBe(LOCAL_DEMO_VOTER_USER_ID);
+      Object.defineProperty(globalThis, 'location', {
+        configurable: true,
+        value: {
+          hostname: '127.0.0.1',
+          search: '?demoVoter=b',
+        },
+      });
+      expect(resolvePublicMvpUserId(() => 'random-id')).toBe(LOCAL_DEMO_VOTER_B_USER_ID);
+      Object.defineProperty(globalThis, 'location', {
+        configurable: true,
+        value: { hostname: 'example.com', search: '' },
+      });
+      expect(resolvePublicMvpUserId(() => 'random-id')).toBe('random-id');
+    } finally {
+      Object.defineProperty(globalThis, 'location', {
+        configurable: true,
+        value: originalLocation,
+      });
+    }
+  });
 });

@@ -1,6 +1,6 @@
 # WWW Project — 公開 MVP 手動測試交接（v1）
 
-適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`；探索邊界 `GET /explore`（公開 MVP 文件鏈 Phase 23–32）。
+適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`；探索邊界 `GET /explore`（公開 MVP 文件鏈 Phase 23–37）。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
@@ -15,8 +15,10 @@
 ## 1. 本機啟動前提
 
 - **Node.js** 20+、已 `npm install`
-- 已完成 Phase 32 啟動流程（Postgres `www_test`、migrate、`npm start`；預設 `http://127.0.0.1:3000/`）
+- **建議：** `npm run demo:public:local`（種子本機假 official 投票者 + 啟動伺服器；見 Phase 37 啟動文件）
+- 或 Phase 32 手動流程（Postgres `www_test`、migrate、**種子 demo 使用者**、`npm start`；預設 `http://127.0.0.1:3000/`）
 - 勿將真實 `DATABASE_URL`、admin token 寫入版本庫
+- **樣式：** 應載入 `/frontend/public-mvp.css`（淺色骨架 UI）；若像純 HTML，先確認 Network 中 CSS 為 200（Phase 37 CSP 修正）
 
 ---
 
@@ -66,7 +68,7 @@ npm run test:integration:local
 
 ### 3.4 投票
 
-1. 以無痕或另一瀏覽器開啟投票連結。
+1. 以無痕或另一瀏覽器開啟投票連結（模擬第二人時，在本機可加 `?demoVoter=b`，見啟動文件 §F）。
 2. 用滑鼠或鍵盤（Tab + 空白／方向鍵）選取一個選項。
 3. 送出投票；送出中按鈕應忙碌且不可重複送出。
 4. 成功後應看到前往結果頁的連結。

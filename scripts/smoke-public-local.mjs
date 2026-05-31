@@ -1,6 +1,11 @@
 import { createHash } from 'node:crypto';
 import pg from 'pg';
 import {
+  LOCAL_DEMO_READ_ADMIN_ID as readAdminId,
+  LOCAL_DEMO_READ_TOKEN as readToken,
+  LOCAL_DEMO_VOTER_ID as voterId,
+} from './local-public-demo-fixtures.mjs';
+import {
   LOCAL_TEST_DATABASE_URL,
   localTestEnv,
   runLocalMigrations,
@@ -11,9 +16,6 @@ import {
 const { Client } = pg;
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
-const voterId = '44444444-4444-4444-8444-444444444444';
-const readAdminId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-const readToken = 'FAKE-LOCAL-READ-TOKEN-DO-NOT-USE';
 
 const BUSINESS_TABLES = [
   'admin_decision_logs',

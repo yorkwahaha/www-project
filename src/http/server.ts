@@ -363,7 +363,7 @@ async function sendPublicFile(
     'Content-Length': Buffer.byteLength(body),
     'Cache-Control': 'no-store',
     'Content-Security-Policy':
-      "default-src 'self'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'",
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'",
   });
   res.end(body);
 }

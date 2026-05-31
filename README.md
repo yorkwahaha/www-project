@@ -20,6 +20,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 32 (docs):** Local public MVP demo startup (Docker `www_test`, session `DATABASE_URL`, migrate, `npm start`, troubleshooting) — `docs/www-project-local-demo-startup-v1.md`.
 
+**Phase 37:** Local public MVP demo helper — `npm run demo:public:local` (seeds fake official demo voters on `www_test`, starts server); CSP fix so `public-mvp.css` loads. See `docs/www-project-local-demo-startup-v1.md`.
+
 **Phase 33 (docs):** Public MVP manual QA checklist pass — doc cross-links and smoke-aligned route checks; see `docs/www-project-public-mvp-manual-qa-v1.md` (read order: startup → demo handoff → manual QA).
 
 **Phase 34 (docs):** Cross-browser / device manual QA result log template — `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` (fill when testing real browsers; smoke does not replace this).
@@ -58,7 +60,10 @@ npm run migrate:check
 npm run test:integration:local
 npm run smoke:admin:local
 npm run smoke:public:local
+npm run demo:public:local
 ```
+
+`npm run demo:public:local` starts Docker `www_test` if needed, applies migrations, seeds **local-only** fake official demo voters (for reliable manual voting on `127.0.0.1`), sets fake `ADMIN_AUTH_CREDENTIALS_JSON` in the process only, then listens on port 3000 until Ctrl+C. Refuses non-`www_test` URLs. Does not commit secrets.
 
 The integration quick command starts the local Docker test service if needed, waits for health, runs migration validation and apply, then runs the integration suite. The admin smoke command uses the same isolated `www_test` database with fake local-only admin credentials and synthetic fixture rows. The public flow smoke command validates `GET /` → `/polls/new` → create poll → `/vote/:pollId` → vote-by-index → `/results/:pollId` without a browser, and checks that public JSON responses do not expose `option_id`, vote tokens, or shard internals. All local smoke commands intentionally leave the test container running for fast reruns. If `DATABASE_URL` is unset, the lower-level `npm run test:integration` exits immediately with setup instructions (environment not ready — not a unit-test regression). See Phase 15 doc §8 and Phase 14 doc §8.
 
@@ -115,7 +120,7 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 **Production readiness boundary (Traditional Chinese, demo vs production gates; not a deploy completion proof):** **`docs/www-project-production-readiness-boundary-v1.md`**.
 
-**Local demo startup (Traditional Chinese):** set `DATABASE_URL` to isolated `www_test` in your shell only, then migrate → build → optional smokes → `npm start` → open `http://127.0.0.1:3000/`. Step-by-step: **`docs/www-project-local-demo-startup-v1.md`** (not for production deploy).
+**Local demo startup (Traditional Chinese):** preferred: `npm run demo:public:local` → open `http://127.0.0.1:3000/`. Manual path: session `DATABASE_URL` on `www_test`, seed demo users, migrate, build, `npm start`. Step-by-step: **`docs/www-project-local-demo-startup-v1.md`** (not for production deploy). Public MVP UI is a functional CSS skeleton; full visual redesign is a later UI Phase.
 
 ### Public MVP current status (Phase 31)
 

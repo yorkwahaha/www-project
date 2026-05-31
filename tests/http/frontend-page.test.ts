@@ -37,12 +37,18 @@ describe('frontend static routes', () => {
       expect(page.status).toBe(200);
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
+      expect(page.headers.get('content-security-policy')).toContain("style-src 'self'");
       expect(pageBody).toContain('What We Wonder');
       expect(pageBody).toContain('href="/polls/new"');
       expect(pageBody).toContain('href="/explore"');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('class="mvp-body"');
       expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
+
+      const stylesheet = await fetch(`${baseUrl}/frontend/public-mvp.css`);
+      expect(stylesheet.status).toBe(200);
+      expect(stylesheet.headers.get('content-type')).toContain('text/css');
+      expect(await stylesheet.text()).toContain('.mvp-shell');
     });
   });
 

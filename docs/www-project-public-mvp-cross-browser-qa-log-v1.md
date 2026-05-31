@@ -67,7 +67,7 @@
 | 11 | 鍵盤 **Tab** 順序簡測 — 可從 skip link 走到送出 | ☐ | ☐ | ☐ | **待測**（本 Phase 未做完整 Tab 走查） |
 | 12 | copy 失敗時可**手動選取**成功區塊內完整 URL，頁不崩潰 | ☐ | ☑ | ☐ | 未模擬剪貼簿拒絕；建立成功區塊有可見連結文字 |
 
-**本機 demo 投票 UI 提示（給人工補測）：** 若僅 `npm start` 而未在 `www_test` 為投票者建立 `users.trust_level = 'official'`，瀏覽器隨機 `X-User-Id` 會無法官方投票。`smoke:public:local` 會種子測試使用者；人工 Chrome/Edge 補測時可參考 Phase 15／smoke 腳本中的 voter UUID，或先跑 smoke 再手動 demo。
+**本機 demo 投票 UI 提示（Phase 37 更新）：** 請用 **`npm run demo:public:local`**（或手動執行 `seedLocalPublicDemoData`）再在 `127.0.0.1` 投票。`127.0.0.1` 投票頁使用固定本機 demo `X-User-Id`（見啟動文件 §D）；第二人可加 `?demoVoter=b`。若頁面像沒 CSS，確認 `public-mvp.css` 為 200（CSP 已允許 `style-src 'self'`）。
 
 ---
 

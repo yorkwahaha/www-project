@@ -292,3 +292,29 @@ export function renderPollSharePanel(root, pollId, {
     });
   }
 }
+
+/** Fake local-only voter UUID; must exist in DB with trust_level=official when using demo:public:local. */
+export const LOCAL_DEMO_VOTER_USER_ID = '44444444-4444-4444-8444-444444444444';
+
+/** Second local demo voter for a second browser session (still localhost-only header). */
+export const LOCAL_DEMO_VOTER_B_USER_ID = '55555555-5555-5555-8555-555555555555';
+
+export function isLocalDemoHostname(hostname) {
+  return hostname === '127.0.0.1' || hostname === 'localhost';
+}
+
+/**
+ * On 127.0.0.1 / localhost only, use seeded demo voter id so manual npm/demo voting works.
+ * Production hosts keep random runtime UUID (no durable storage).
+ */
+export function resolvePublicMvpUserId(uuidFactory = () => globalThis.crypto.randomUUID()) {
+  const hostname = globalThis.location?.hostname;
+  if (hostname && isLocalDemoHostname(hostname)) {
+    const params = new URLSearchParams(globalThis.location?.search ?? '');
+    if (params.get('demoVoter') === 'b') {
+      return LOCAL_DEMO_VOTER_B_USER_ID;
+    }
+    return LOCAL_DEMO_VOTER_USER_ID;
+  }
+  return uuidFactory();
+}

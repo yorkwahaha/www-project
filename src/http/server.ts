@@ -166,6 +166,20 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/create-poll-page.js') {
+    await sendPublicFile(
+      res,
+      'frontend/create-poll-page.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/polls/new') {
+    await sendPublicFile(res, 'create-poll.html', 'text/html; charset=utf-8');
+    return;
+  }
+
   const pollMatch = path.match(/^\/polls\/([^/]+)$/);
   if (pollMatch) {
     const pollId = pollMatch[1]!;

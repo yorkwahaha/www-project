@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>建立問卷 | What We Wonder</title>
+    <style>
+      body {
+        max-width: 44rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+
+      label {
+        display: block;
+        margin-top: 1rem;
+        font-weight: 600;
+      }
+
+      input,
+      textarea,
+      button {
+        box-sizing: border-box;
+        width: 100%;
+        margin-top: 0.35rem;
+        padding: 0.75rem;
+        font: inherit;
+      }
+
+      .option-label {
+        font-weight: 400;
+      }
+
+      #form-message {
+        margin-top: 1rem;
+      }
+
+      #success-panel {
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid #b6ccb8;
+        background: #f4faf4;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>建立問卷</h1>
+      <p>建立後即可公開分享。發布後如需修正，請刪除並重新建立。</p>
+      <form id="create-poll-form">
+        <label for="poll-title">問卷標題</label>
+        <input id="poll-title" name="title" maxlength="200" required>
+
+        <label for="poll-description">補充說明（選填）</label>
+        <textarea id="poll-description" name="description" rows="4"></textarea>
+
+        <fieldset>
+          <legend>選項（至少填寫 2 項，最多 6 項）</legend>
+          <label class="option-label" for="poll-option-1">選項 1</label>
+          <input id="poll-option-1" name="option" required>
+          <label class="option-label" for="poll-option-2">選項 2</label>
+          <input id="poll-option-2" name="option" required>
+          <label class="option-label" for="poll-option-3">選項 3（選填）</label>
+          <input id="poll-option-3" name="option">
+          <label class="option-label" for="poll-option-4">選項 4（選填）</label>
+          <input id="poll-option-4" name="option">
+          <label class="option-label" for="poll-option-5">選項 5（選填）</label>
+          <input id="poll-option-5" name="option">
+          <label class="option-label" for="poll-option-6">選項 6（選填）</label>
+          <input id="poll-option-6" name="option">
+        </fieldset>
+
+        <button id="create-poll-submit" type="submit">建立問卷</button>
+      </form>
+      <p id="form-message" role="status" aria-live="polite"></p>
+      <section id="success-panel" aria-live="polite" hidden></section>
+    </main>
+    <script type="module" src="/frontend/create-poll-page.js"></script>
+  </body>
+</html>

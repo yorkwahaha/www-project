@@ -72,6 +72,8 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 
+Minimal public poll creation UI: `GET /polls/new`. It submits to the existing `POST /polls` contract with general MVP defaults and does not add login, session, ranking, or edit behavior.
+
 Polls in `suspended` or `correction_pending` are hidden from public GET/feed/vote/result/reference-answer.
 
 ### `GET /polls/feed` (Phase 5B–5C)

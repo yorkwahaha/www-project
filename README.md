@@ -36,6 +36,10 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 41 (docs, planning only — not implemented):** Public MVP UI policy implementation plan — maps Phase 39 lifecycle and Phase 40 eligibility/follow policies onto current pages (`/`, `/polls/new`, `/vote/:id`, `/results/:id`, `/explore`); classifies UI-only vs schema/API work — `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md`.
 
+**Public FAQ draft (docs, copy only — not implemented):** User-facing FAQ / Q&A in Traditional Chinese (lifecycle, eligibility, follow, privacy wording) for help pages and Public MVP UI — `docs/www-project-public-faq-draft-v1.md`. Align with Phase 39–41.
+
+**Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
+
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).

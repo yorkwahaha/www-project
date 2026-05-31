@@ -1,4 +1,4 @@
-/* WWW Project — public MVP shared presentation (Phase 28) */
+/* WWW Project — public MVP shared presentation (Phase 29) */
 
 :root {
   --mvp-bg: #f5f7f4;
@@ -298,6 +298,59 @@ button:disabled {
   margin: 0.35rem 0 0.5rem;
   font-size: 0.9rem;
   color: #355e37;
+}
+
+.share-url-row {
+  margin: 0.75rem 0 0.25rem;
+}
+
+.share-url-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--mvp-muted);
+}
+
+.share-url {
+  display: block;
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px dashed var(--mvp-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-surface);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  user-select: all;
+}
+
+.results-intro {
+  margin: 0 0 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-surface);
+}
+
+.results-intro-lead {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.results-intro-scope {
+  margin: 0 0 0.65rem;
+}
+
+.results-intro-vote-hint {
+  margin: 0 0 0.35rem;
+}
+
+.result-empty {
+  color: var(--mvp-muted);
+  font-style: italic;
+}
+
+.vote-cta-link {
+  font-weight: 600;
 }
 
 .panel-heading {

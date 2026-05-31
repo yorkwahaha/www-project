@@ -68,6 +68,8 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/polls/new');
+      expect(pageBody).toContain('results-intro');
+      expect(pageBody).toContain('公開結果（唯讀）');
       expect(pageBody).not.toContain('ignored-user-id');
       expect(resultScript.status).toBe(200);
       expect(privacyScript.status).toBe(200);

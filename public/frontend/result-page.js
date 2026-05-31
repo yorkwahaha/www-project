@@ -55,12 +55,78 @@ export async function loadPublicNotices({ pollId, fetchImpl = globalThis.fetch }
   return response.json();
 }
 
+export function normalizeDisplaySafeResult(result) {
+  if (!result || typeof result !== 'object') {
+    return null;
+  }
+  const options = Array.isArray(result.options)
+    ? result.options.filter(
+        (option) =>
+          option &&
+          typeof option === 'object' &&
+          typeof option.display_label === 'string',
+      )
+    : [];
+  return {
+    total_votes_display:
+      typeof result.total_votes_display === 'string'
+        ? result.total_votes_display
+        : '目前尚無可顯示的總票數區間。',
+    updated_display:
+      typeof result.updated_display === 'string' ? result.updated_display : '',
+    options,
+  };
+}
+
+export function renderResultsReadOnlyIntro(root, pollId) {
+  root.replaceChildren();
+  root.hidden = false;
+
+  const lead = root.ownerDocument.createElement('p');
+  lead.className = 'results-intro-lead';
+  lead.textContent =
+    '此為公開結果頁（唯讀）：可查看目前顯示安全的統計摘要，無法在此投票或編輯問卷。';
+  root.append(lead);
+
+  const scope = root.ownerDocument.createElement('p');
+  scope.className = 'mvp-meta results-intro-scope';
+  scope.textContent =
+    '本頁不含登入、個人化推薦、排行榜或 feed 列表；統計為區間化呈現，非即時原始票數。';
+  root.append(scope);
+
+  if (pollId) {
+    const voteHint = root.ownerDocument.createElement('p');
+    voteHint.className = 'results-intro-vote-hint';
+    voteHint.textContent = '若要參與投票，請前往投票頁：';
+    root.append(voteHint);
+
+    const voteLink = root.ownerDocument.createElement('a');
+    voteLink.className = 'mvp-action-link vote-cta-link';
+    voteLink.href = buildPublicVotePath(pollId);
+    voteLink.textContent = '前往投票頁';
+    root.append(voteLink);
+  }
+}
+
 export function renderResultDisplay(root, result) {
   root.replaceChildren();
-  appendText(root, 'p', result.total_votes_display, 'result-total');
-  appendText(root, 'p', result.updated_display, 'result-updated');
+  const normalized = normalizeDisplaySafeResult(result);
+  if (!normalized) {
+    appendText(root, 'p', '目前無法顯示統計，請稍後再試。', 'result-empty');
+    return;
+  }
 
-  for (const option of result.options) {
+  appendText(root, 'p', normalized.total_votes_display, 'result-total');
+  if (normalized.updated_display) {
+    appendText(root, 'p', normalized.updated_display, 'result-updated');
+  }
+
+  if (normalized.options.length === 0) {
+    appendText(root, 'p', '目前尚無可顯示的選項統計。', 'result-empty');
+    return;
+  }
+
+  for (const option of normalized.options) {
     const optionElement = root.ownerDocument.createElement('section');
     optionElement.className = 'result-option';
     appendText(optionElement, 'h2', option.display_label, 'result-label');
@@ -98,6 +164,7 @@ export function renderResultPageNav(root, pollId) {
 
   if (pollId) {
     const voteLink = root.ownerDocument.createElement('a');
+    voteLink.className = 'vote-cta-link';
     voteLink.href = buildPublicVotePath(pollId);
     voteLink.textContent = '前往投票頁';
     root.append(voteLink);
@@ -111,6 +178,7 @@ export async function bootstrapResultPage({
 } = {}) {
   const pollId = getPollIdFromResultPath(windowObject.location.pathname);
   const root = documentObject.getElementById('result-display');
+  const introRoot = documentObject.getElementById('results-intro');
   const publicNoticesRoot = documentObject.getElementById('public-notices');
   const pageTitle = documentObject.getElementById('page-title');
   const errorPanel = documentObject.getElementById('error-panel');
@@ -123,11 +191,15 @@ export async function bootstrapResultPage({
     if (pageTitle) {
       pageTitle.textContent = heading;
     }
+    if (introRoot) {
+      introRoot.hidden = true;
+      introRoot.replaceChildren();
+    }
     if (errorPanel) {
       renderPublicErrorPanel(errorPanel, {
         title: heading,
         message: body,
-        showNav: false,
+        showNav: true,
       });
       errorPanel.hidden = false;
     }
@@ -173,8 +245,11 @@ export async function bootstrapResultPage({
       errorPanel.replaceChildren();
     }
     if (pageTitle) {
-      pageTitle.textContent = '投票結果';
+      pageTitle.textContent = '公開結果（唯讀）';
       pageTitle.removeAttribute('aria-busy');
+    }
+    if (introRoot) {
+      renderResultsReadOnlyIntro(introRoot, pollId);
     }
     markRegionBusy(root, false);
     renderResultDisplay(root, result);

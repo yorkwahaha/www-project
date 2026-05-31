@@ -66,6 +66,53 @@ describe('public MVP UI helpers', () => {
     expect(writeText).toHaveBeenCalledWith('https://example.test/vote/x');
   });
 
+  it('renders absolute share URLs without sensitive query parameters', async () => {
+    const { renderPollSharePanel } = await loadPublicMvpUiModule();
+    let documentObject: {
+      createElement(tagName: string): ReturnType<typeof createElement>;
+    };
+    function createElement(tagName: string) {
+      return {
+        tagName,
+        ownerDocument: documentObject,
+        className: '',
+        textContent: '',
+        hidden: false,
+        children: [] as ReturnType<typeof createElement>[],
+        attributes: new Map<string, string>(),
+        setAttribute(name: string, value: string) {
+          this.attributes.set(name, value);
+        },
+        addEventListener() {},
+        append(child: ReturnType<typeof createElement>) {
+          this.children.push(child);
+        },
+        replaceChildren() {
+          this.children = [];
+        },
+      };
+    }
+    documentObject = { createElement };
+    const root = createElement('section');
+    const pollId = '33333333-3333-4333-8333-333333333333';
+
+    renderPollSharePanel(root, pollId, {
+      locationObject: { origin: 'https://share.example' },
+    });
+
+    const urls = root.children
+      .flatMap((child) => child.children ?? [])
+      .filter((child) => child.className === 'share-url')
+      .map((child) => child.textContent);
+    expect(urls).toEqual([
+      `https://share.example/vote/${pollId}`,
+      `https://share.example/results/${pollId}`,
+    ]);
+    expect(urls.join(' ')).not.toMatch(
+      /option_id|token|shard|user_id|session|device|admin/i,
+    );
+  });
+
   it('falls back gracefully when clipboard is unavailable', async () => {
     const { copyTextToClipboard } = await loadPublicMvpUiModule();
     const prompt = vi.fn();

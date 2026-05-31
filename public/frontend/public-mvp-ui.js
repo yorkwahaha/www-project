@@ -187,6 +187,24 @@ export async function copyTextToClipboard(text, {
   return { ok: false, method: 'none' };
 }
 
+function appendShareUrlDisplay(parent, { label, url }) {
+  const row = parent.ownerDocument.createElement('div');
+  row.className = 'share-url-row';
+
+  const rowLabel = parent.ownerDocument.createElement('p');
+  rowLabel.className = 'share-url-label';
+  rowLabel.textContent = label;
+  row.append(rowLabel);
+
+  const code = parent.ownerDocument.createElement('code');
+  code.className = 'share-url';
+  code.textContent = url;
+  row.append(code);
+
+  parent.append(row);
+  return code;
+}
+
 function appendCopyButton(parent, { label, url, statusTarget, ariaLabel }) {
   const button = parent.ownerDocument.createElement('button');
   button.type = 'button';
@@ -196,9 +214,14 @@ function appendCopyButton(parent, { label, url, statusTarget, ariaLabel }) {
   button.addEventListener('click', async () => {
     const result = await copyTextToClipboard(url);
     if (statusTarget) {
-      statusTarget.textContent = result.ok
-        ? '已複製連結。'
-        : '無法自動複製，請手動選取上方連結。';
+      if (result.ok) {
+        statusTarget.textContent = '已複製連結。';
+      } else if (result.method === 'prompt') {
+        statusTarget.textContent =
+          '瀏覽器無法自動複製，已顯示手動複製提示；亦可選取上方完整網址。';
+      } else {
+        statusTarget.textContent = '無法自動複製，請手動選取上方完整網址。';
+      }
     }
   });
   parent.append(button);
@@ -220,7 +243,8 @@ export function renderPollSharePanel(root, pollId, {
 
   const hint = root.ownerDocument.createElement('p');
   hint.className = 'panel-message';
-  hint.textContent = '問卷已建立。請分享投票連結給參與者，或自行查看結果頁。';
+  hint.textContent =
+    '問卷已建立。下方為可分享的完整網址（僅含問卷識別碼，不含登入或個人資訊）。請將投票連結傳給參與者；結果連結為公開唯讀統計頁。';
   root.append(hint);
 
   const copyStatus = root.ownerDocument.createElement('p');
@@ -229,10 +253,12 @@ export function renderPollSharePanel(root, pollId, {
   copyStatus.setAttribute('aria-live', 'polite');
   root.append(copyStatus);
 
+  appendShareUrlDisplay(root, { label: '投票連結（分享給參與者）', url: voteUrl });
+
   const voteLink = root.ownerDocument.createElement('a');
   voteLink.className = 'mvp-action-link';
   voteLink.href = votePath;
-  voteLink.textContent = '前往投票頁（可分享）';
+  voteLink.textContent = '開啟投票頁';
   root.append(voteLink);
 
   if (includeCopyButtons) {
@@ -240,14 +266,16 @@ export function renderPollSharePanel(root, pollId, {
       label: '複製投票連結',
       url: voteUrl,
       statusTarget: copyStatus,
-      ariaLabel: '複製投票頁連結到剪貼簿',
+      ariaLabel: '複製投票頁完整網址到剪貼簿',
     });
   }
+
+  appendShareUrlDisplay(root, { label: '結果連結（公開唯讀統計）', url: resultUrl });
 
   const resultLink = root.ownerDocument.createElement('a');
   resultLink.className = 'mvp-action-link';
   resultLink.href = resultPath;
-  resultLink.textContent = '查看公開結果頁';
+  resultLink.textContent = '開啟公開結果頁';
   root.append(resultLink);
 
   if (includeCopyButtons) {
@@ -255,7 +283,7 @@ export function renderPollSharePanel(root, pollId, {
       label: '複製結果連結',
       url: resultUrl,
       statusTarget: copyStatus,
-      ariaLabel: '複製結果頁連結到剪貼簿',
+      ariaLabel: '複製結果頁完整網址到剪貼簿',
     });
   }
 }

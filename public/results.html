@@ -14,8 +14,16 @@
         <a href="/polls/new">建立問卷</a>
       </nav>
       <p class="mvp-brand">What We Wonder · 公開 MVP</p>
-      <h1 id="page-title" aria-live="polite">投票結果</h1>
-      <p class="mvp-meta">以下為顯示安全的統計摘要，非即時原始票數，亦不含個人投票紀錄。</p>
+      <h1 id="page-title" aria-live="polite">公開結果（唯讀）</h1>
+      <section
+        id="results-intro"
+        class="results-intro"
+        aria-label="公開結果頁說明"
+        hidden
+      ></section>
+      <p class="mvp-meta">
+        以下為顯示安全的統計摘要（區間化呈現），非即時原始票數，亦不含個人投票紀錄、登入或排行榜。
+      </p>
       <section id="error-panel" role="alert" aria-live="assertive" hidden></section>
       <section id="public-notices" aria-label="修正公告" hidden></section>
       <div

@@ -107,8 +107,24 @@ describe('public poll creation page', () => {
     expect(links[1]!.href).toBe(
       '/results/22222222-2222-4222-8222-222222222222',
     );
-    expect(links[0]!.textContent).toBe('前往投票頁（可分享）');
-    expect(links[1]!.textContent).toBe('查看公開結果頁');
+    expect(links[0]!.textContent).toBe('開啟投票頁');
+    expect(links[1]!.textContent).toBe('開啟公開結果頁');
+    const codes = root.children.flatMap((child) =>
+      child.children?.filter((nested) => nested.className === 'share-url') ?? [],
+    );
+    expect(codes).toHaveLength(2);
+    expect(codes[0]!.textContent).toBe(
+      'https://example.test/vote/22222222-2222-4222-8222-222222222222',
+    );
+    expect(codes[1]!.textContent).toBe(
+      'https://example.test/results/22222222-2222-4222-8222-222222222222',
+    );
+    const serialized = JSON.stringify(
+      codes.map((code) => code.textContent).join(' '),
+    );
+    expect(serialized).not.toMatch(
+      /option_id|shard|vote_token|user_id|session|device/i,
+    );
     const buttons = root.children.filter((child) => child.tagName === 'button');
     expect(buttons.map((button) => button.textContent)).toEqual([
       '複製投票連結',

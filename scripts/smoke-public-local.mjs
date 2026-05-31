@@ -171,7 +171,17 @@ try {
     if (!body.includes('複製投票連結') || !body.includes('複製結果連結')) {
       throw new Error('Public MVP UI missing copy-link actions');
     }
-    pass('Public MVP UI includes vote/results copy actions');
+    if (!body.includes('buildAbsoluteUrl') || !body.includes('share-url')) {
+      throw new Error('Public MVP UI missing absolute share URL helpers');
+    }
+    const shareSnippet = body.slice(
+      body.indexOf('renderPollSharePanel'),
+      body.indexOf('renderPollSharePanel') + 1200,
+    );
+    if (PUBLIC_JSON_DENYLIST.test(shareSnippet)) {
+      throw new Error('Share panel helper references forbidden public fields');
+    }
+    pass('Public MVP UI includes share/copy helpers with safe URLs');
   }
 
   let pollId;
@@ -264,6 +274,9 @@ try {
     expectStatus('GET /results/:pollId result page', response, 200);
     if (!body.includes('/frontend/public-mvp.css')) {
       throw new Error('Results page missing shared public MVP stylesheet');
+    }
+    if (!body.includes('results-intro') || !body.includes('公開結果（唯讀）')) {
+      throw new Error('Results page missing read-only result semantics');
     }
     pass('GET /results/:pollId links shared stylesheet');
   }

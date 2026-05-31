@@ -89,9 +89,9 @@ Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits 
 
 1. `GET /` — landing page with link to create a poll
 2. `GET /polls/new` — create a poll
-3. Success shows shareable `GET /vote/:pollId` and `GET /results/:pollId` links
+3. Success shows shareable full URLs for `GET /vote/:pollId` and `GET /results/:pollId` (copy buttons + visible links; poll id only, no tokens)
 4. `GET /vote/:pollId` — vote; success links to results
-5. `GET /results/:pollId` — display-safe results (links back to `/` and `/polls/new`)
+5. `GET /results/:pollId` — **read-only** display-safe results with vote-page navigation; no login, feed UI, ranking, or admin UI (Phase 29)
 
 Manual browser checklist (Traditional Chinese): **`docs/www-project-public-mvp-manual-qa-v1.md`**.
 

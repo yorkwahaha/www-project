@@ -26,6 +26,7 @@ function createRoot() {
       tagName,
       ownerDocument: documentObject,
       className: '',
+      href: '',
       textContent: '',
       hidden: false,
       attributes: new Map<string, string>(),
@@ -129,6 +130,16 @@ describe('public result page', () => {
     );
   });
 
+  it('normalizes malformed result payloads without throwing', async () => {
+    const { renderResultDisplay } = await loadResultPageModule();
+    const root = createRoot();
+
+    renderResultDisplay(root, { options: null });
+
+    expect(collectText(root)).toContain('目前尚無可顯示的總票數區間。');
+    expect(collectText(root)).toContain('目前尚無可顯示的選項統計。');
+  });
+
   it('renders backend-provided display strings without deriving precision', async () => {
     const { renderResultDisplay } = await loadResultPageModule();
     const root = createRoot();
@@ -217,7 +228,9 @@ describe('public result page', () => {
   it('keeps result content visible when public notice loading fails', async () => {
     const { bootstrapResultPage } = await loadResultPageModule();
     const resultRoot = createRoot();
+    const introRoot = createRoot();
     const publicNoticesRoot = createRoot();
+    const bottomNav = createRoot();
     publicNoticesRoot.hidden = true;
     const fetchImpl = vi
       .fn()
@@ -236,8 +249,14 @@ describe('public result page', () => {
           if (id === 'result-display') {
             return resultRoot;
           }
+          if (id === 'results-intro') {
+            return introRoot;
+          }
           if (id === 'public-notices') {
             return publicNoticesRoot;
+          }
+          if (id === 'bottom-nav') {
+            return bottomNav;
           }
           return null;
         },
@@ -246,8 +265,30 @@ describe('public result page', () => {
     });
 
     expect(collectText(resultRoot)).toContain(displaySafeResult.total_votes_display);
+    expect(collectText(introRoot).join(' ')).toMatch(/前往投票頁/);
+    expect(
+      bottomNav.children.some(
+        (child) =>
+          child.tagName === 'a' &&
+          child.className === 'vote-cta-link' &&
+          child.textContent === '前往投票頁',
+      ),
+    ).toBe(true);
     expect(publicNoticesRoot.hidden).toBe(true);
     expect(collectText(publicNoticesRoot)).toEqual([]);
+  });
+
+  it('exposes a vote-page link from the read-only intro', async () => {
+    const { renderResultsReadOnlyIntro } = await loadResultPageModule();
+    const root = createRoot();
+
+    renderResultsReadOnlyIntro(root, displaySafeResult.poll_id);
+
+    const voteLink = root.children.find(
+      (child) =>
+        child.tagName === 'a' && String(child.className).includes('vote-cta-link'),
+    );
+    expect(voteLink?.href).toBe(`/vote/${displaySafeResult.poll_id}`);
   });
 
   it('contains no auto-refresh, precision reconstruction, or debug output', async () => {

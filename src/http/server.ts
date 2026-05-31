@@ -219,6 +219,11 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/explore') {
+    await sendPublicFile(res, 'explore.html', 'text/html; charset=utf-8');
+    return;
+  }
+
   const votePageMatch = path.match(/^\/vote\/([^/]+)$/);
   if (votePageMatch && method === 'GET') {
     const pollId = votePageMatch[1]!;

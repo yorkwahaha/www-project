@@ -74,6 +74,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `GET` | `/polls/:id/public-notices` | Read visible public correction notices (Phase 8) |
 | `GET` | `/results/:id` | Public identity-neutral result page |
 | `GET` | `/` | Public landing page (entry to create poll flow) |
+| `GET` | `/explore` | Read-only placeholder explaining no public poll list yet (not a feed UI) |
 | `GET` | `/polls/new` | Minimal public poll creation UI |
 | `GET` | `/vote/:id` | Minimal public voting UI |
 | `GET` | `/health` | Health check |
@@ -87,11 +88,12 @@ Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits 
 
 **Minimal public flow (Phase 23–24):**
 
-1. `GET /` — landing page with link to create a poll
-2. `GET /polls/new` — create a poll
-3. Success shows shareable full URLs for `GET /vote/:pollId` and `GET /results/:pollId` (copy buttons + visible links; poll id only, no tokens)
-4. `GET /vote/:pollId` — vote; success links to results
-5. `GET /results/:pollId` — **read-only** display-safe results with vote-page navigation; no login, feed UI, ranking, or admin UI (Phase 29)
+1. `GET /` — landing page; primary circulation is **share links** (vote/results URLs)
+2. `GET /explore` — placeholder only: explains list/explore is not open; does not query or list polls (Phase 30)
+3. `GET /polls/new` — create a poll
+4. Success shows shareable full URLs for `GET /vote/:pollId` and `GET /results/:pollId` (copy buttons + visible links; poll id only, no tokens)
+5. `GET /vote/:pollId` — vote; success links to results
+6. `GET /results/:pollId` — **read-only** display-safe results with vote-page navigation; no login, real feed UI, ranking, or admin UI (Phase 29–30)
 
 Manual browser checklist (Traditional Chinese): **`docs/www-project-public-mvp-manual-qa-v1.md`**.
 

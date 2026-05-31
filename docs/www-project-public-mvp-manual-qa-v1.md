@@ -1,6 +1,6 @@
 # WWW Project — 公開 MVP 手動測試交接（v1）
 
-適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`（Phase 23–29 基準）。
+適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`；探索邊界 `GET /explore`（Phase 23–30 基準）。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
@@ -48,7 +48,15 @@ npm run test:integration:local
 ### 3.1 打開首頁
 
 1. 瀏覽器開啟 `GET /`。
-2. 確認有「建立問卷」入口，且頁面**未**出現登入、問卷列表、熱門排行。
+2. 確認有「建立問卷」入口，導覽可進入「探索（尚未開放）」(`GET /explore`)。
+3. 確認**未**出現登入、可點擊的問卷列表、或已完成的榜單／推薦介面。
+
+### 3.1a 探索 placeholder（Phase 30）
+
+1. 開啟 `GET /explore`。
+2. 應說明目前 MVP 以**分享連結**為主（建立 → 複製投票連結 → 分享 → 查看結果）。
+3. 應明確標示**沒有**公開列表、榜單排序、個人化推薦；頁面**不應**載入或列出任何問卷。
+4. 導覽可回到 `/` 與 `/polls/new`。
 
 ### 3.2 建立問卷
 
@@ -96,7 +104,7 @@ npm run test:integration:local
    - 結果頁選項標籤與百分比不溢出。
 3. 桌機寬度（≥1024px）內容仍置中、不過寬；無需 dark mode 或動畫。
 
-**Phase 28–29 仍不包含：** feed 列表 UI、ranking／推薦、登入、admin UI、分類選擇、發布後編輯。
+**Phase 28–30 仍不包含：** 真實 feed 列表 UI、ranking／推薦演算法、登入、admin UI、分類選擇、發布後編輯。`/explore` 僅為邊界說明頁，不是 `GET /polls/feed` 的前台實作。
 
 ### 3.8 輔助工具（選做）
 
@@ -112,7 +120,7 @@ npm run test:integration:local
 | 項目 | 說明 |
 |------|------|
 | 登入／註冊／Session／JWT／OAuth | 公開流程無使用者登入 |
-| Feed／探索列表 UI | 僅 API 層 freshness feed；首頁不提供列表 |
+| Feed／探索列表 UI | `GET /explore` 為 placeholder；`GET /polls/feed` 僅 API，前台不列出問卷 |
 | Ranking／Wonder Flow／個人化推薦 | 禁止以答案方向訊號排序 |
 | Admin UI | 管理流程僅 API + 煙霧，無公開管理介面 |
 | 發布後編輯問卷 | 創作者零編輯；需刪除重發或走 Admin Typo Correction |

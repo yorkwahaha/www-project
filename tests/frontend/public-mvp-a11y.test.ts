@@ -40,7 +40,12 @@ describe('public MVP accessibility', () => {
     const createPage = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
     const votePage = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
     const resultsPage = await readFile(join(process.cwd(), 'public/results.html'), 'utf8');
+    const explorePage = await readFile(join(process.cwd(), 'public/explore.html'), 'utf8');
 
+    expect(explorePage).toContain('skip-link');
+    expect(explorePage).toContain('id="main-content"');
+    expect(explorePage).toContain('explore-placeholder');
+    expect(explorePage).toContain('/frontend/public-mvp.css');
     expect(createPage).toContain('role="status"');
     expect(createPage).toContain('aria-live="polite"');
     expect(createPage).toContain('/frontend/public-mvp.css');

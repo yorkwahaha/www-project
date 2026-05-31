@@ -126,10 +126,28 @@ try {
     if (!body.includes('href="/polls/new"')) {
       throw new Error('Landing page missing link to /polls/new');
     }
+    if (!body.includes('href="/explore"')) {
+      throw new Error('Landing page missing link to /explore placeholder');
+    }
     if (!body.includes('/frontend/public-mvp.css')) {
       throw new Error('Landing page missing shared public MVP stylesheet');
     }
-    pass('GET / links /polls/new');
+    pass('GET / links /polls/new and /explore');
+  }
+
+  {
+    const { response, body } = await requestText(baseUrl, '/explore');
+    expectStatus('GET /explore placeholder page', response, 200);
+    if (!body.includes('explore-placeholder') || !body.includes('/frontend/public-mvp.css')) {
+      throw new Error('Explore placeholder missing layout marker or shared stylesheet');
+    }
+    if (!body.includes('href="/polls/new"') || !body.includes('href="/"')) {
+      throw new Error('Explore placeholder missing navigation links');
+    }
+    if (/option_id|shard_id|vote_token|personalization/i.test(body)) {
+      throw new Error('Explore placeholder page exposed forbidden technical fields');
+    }
+    pass('GET /explore serves read-only boundary page');
   }
 
   {

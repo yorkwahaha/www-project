@@ -460,6 +460,10 @@ button:disabled {
   margin: 0.35rem 0.75rem 0 0;
 }
 
+.explore-not-available {
+  list-style: disc;
+}
+
 @media (max-width: 430px) {
   .mvp-shell {
     padding: 1rem 0.85rem 2rem;

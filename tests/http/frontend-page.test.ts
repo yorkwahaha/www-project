@@ -39,6 +39,7 @@ describe('frontend static routes', () => {
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(pageBody).toContain('What We Wonder');
       expect(pageBody).toContain('href="/polls/new"');
+      expect(pageBody).toContain('href="/explore"');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('class="mvp-body"');
       expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
@@ -138,6 +139,26 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('role="alert"');
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
+    });
+  });
+
+  it('serves the public explore placeholder without listing polls', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const page = await fetch(`${baseUrl}/explore`);
+      const pageBody = await page.text();
+
+      expect(page.status).toBe(200);
+      expect(page.headers.get('content-type')).toContain('text/html');
+      expect(page.headers.get('cache-control')).toBe('no-store');
+      expect(pageBody).toContain('explore-placeholder');
+      expect(pageBody).toContain('/frontend/public-mvp.css');
+      expect(pageBody).toContain('href="/"');
+      expect(pageBody).toContain('href="/polls/new"');
+      expect(pageBody).not.toMatch(/option_id|shard_id|vote_token|personalization/i);
     });
   });
 

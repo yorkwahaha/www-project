@@ -5,6 +5,8 @@ import { getHealthStatus, type HealthStatus } from './milestone.js';
 import { createPgPollRepository } from './polls/repository.js';
 import { createPollService } from './polls/service.js';
 import type { PollService } from './polls/service.js';
+import { createPgPublicNoticeRepository } from './public-notices/repository.js';
+import { createPublicNoticeService } from './public-notices/service.js';
 
 export type WwwApp = {
   health(): HealthStatus;
@@ -19,9 +21,13 @@ export function createApp(): WwwApp {
     startHttpServer(port = Number(process.env.PORT ?? 3000)) {
       const pool = getPool();
       const pollService = createPollService(createPgPollRepository(pool));
+      const publicNoticeService = createPublicNoticeService(
+        createPgPublicNoticeRepository(pool),
+      );
       const server = createHttpServer({
         pollService,
         adminCorrection: createAdminCorrectionServices(pool),
+        publicNoticeService,
       });
       server.listen(port);
       return server;

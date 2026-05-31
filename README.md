@@ -1,8 +1,8 @@
-# WWW Project — Phase 0–7.5
+# WWW Project — Phase 0–8
 
 **What We Wonder／大家想知道** — privacy-preserving public poll platform.
 
-This repository implements delivery milestones **Phase 0 through Phase 7.5**: Poll Core, Reference Answer Design B, Official Vote, Result Display, frontend privacy closure (5A), the public freshness-only discovery feed (5B–5C), poll visibility/archive (6A), **admin typo correction governance (6B/6C)**, and **admin correction audit read + review-context hardening (7.3B–7.5)**.
+This repository implements delivery milestones **Phase 0 through Phase 8**: Poll Core, Reference Answer Design B, Official Vote, Result Display, frontend privacy closure (5A), the public freshness-only discovery feed (5B–5C), poll visibility/archive (6A), **admin typo correction governance (6B/6C)**, **admin correction audit read + review-context hardening (7.3B–7.5)**, and the poll-scoped **public notice read API (8)**.
 
 Normative rules: `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md`.
 
@@ -10,7 +10,7 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
 
-**Admin / governance (Phase 6B–7.5 on current `master`):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, and blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields) are **implemented**. Spread Score (real calculation), semantic typo detection, real admin session auth, public notice **read**, and optional global `GET /admin/correction-audit` are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-7-handoff-v1.md`.
+**Admin / governance (Phase 6B–8):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields), and poll-scoped public notice **read** are **implemented**. Spread Score (real calculation), semantic typo detection, real admin session auth, and optional global `GET /admin/correction-audit` are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-8-handoff-v1.md`.
 
 ## Prerequisites
 
@@ -62,6 +62,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
 | `GET` | `/polls/:id/results` | Read display-safe aggregate Official Vote results |
 | `GET` | `/polls/feed` | Public freshness-only discovery feed (5B–5C; see below) |
+| `GET` | `/polls/:id/public-notices` | Read visible public correction notices (Phase 8) |
 | `GET` | `/results/:id` | Public identity-neutral result page |
 | `GET` | `/health` | Health check |
 | `GET` | `/frontend/*` | Static frontend assets (Phase 5A) |
@@ -109,7 +110,7 @@ Full route table, DTO allowlist, status machines, public notice behavior, and st
 | `POST` | `/admin/suspended-correction-requests` | Suspended poll → `correction_pending` |
 | `POST` | `/admin/suspended-correction-requests/:id/apply` | Apply + reactivate + write public notice |
 
-There is **no** public API to read `public_notices` yet.
+Public correction notices are read through `GET /polls/:id/public-notices`; see `docs/admin-correction-http.md`.
 
 ## Current scope
 
@@ -125,6 +126,7 @@ There is **no** public API to read `public_notices` yet.
 - Admin typo correction foundation (6B): schema, requests, Dual-Admin decisions, apply, suspended path, admin HTTP routes (6C)
 - Admin correction audit read API (7.4): `audit-record`, per-poll `correction-audit`
 - Review-context decision leak fix (7.5): anonymous `decision_summary` only on workflow read
+- Poll-scoped public notice read API (8): visible fixed-template notices only
 
 **Not implemented (see spec and `docs/admin-correction-http.md`):**
 
@@ -132,7 +134,6 @@ There is **no** public API to read `public_notices` yet.
 - Feed discovery UI, filters, personalization, `total_count`
 - Real Spread Score, 24h pre-apply recompute, semantic typo guard; Spread Score used for ranking
 - Production admin session authentication middleware (JWT / OAuth / RBAC)
-- Public notice read/display API
 - Optional global `GET /admin/correction-audit` queue
 - Phase 9 high-sensitivity category guardrails (and other post-7.5 spec phases)
 

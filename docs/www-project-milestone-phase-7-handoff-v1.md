@@ -48,7 +48,7 @@ Audit read routes use the same masking rules for `decision_summary`.
 
 - Vote, result, feed, Reference Answer, and public poll visibility behavior — **unchanged**.
 - No durable user–option linkage introduced.
-- Public notice **write** on suspended apply only; **no** public notice read/display API.
+- Public notice **write** on suspended apply only; public notice **read** added in Phase 8 (`GET /polls/:pollId/public-notices`).
 - Real admin session auth (JWT / OAuth / RBAC) — still header stub (`X-Admin-User-Id`).
 - Real Spread Score calculation, 24h pre-apply recompute, semantic typo guard — still stubbed.
 - No ranking / Wonder Flow / answer-direction signals from governance APIs.
@@ -77,3 +77,5 @@ Audit read routes use the same masking rules for `decision_summary`.
 ---
 
 *End of Phase 7 handoff v1.*
+
+Phase 8 supersedes the public notice read/display limitation with the poll-scoped public-only route documented in `docs/www-project-milestone-phase-8-handoff-v1.md`.

@@ -5,6 +5,8 @@ import { createAdminCorrectionServices } from '../../src/admin/create-admin-corr
 import { createHttpServer } from '../../src/http/server.js';
 import { createPgPollRepository } from '../../src/polls/repository.js';
 import { createPollService } from '../../src/polls/service.js';
+import { createPgPublicNoticeRepository } from '../../src/public-notices/repository.js';
+import { createPublicNoticeService } from '../../src/public-notices/service.js';
 import {
   applyMigrations,
   createIntegrationPool,
@@ -135,6 +137,9 @@ async function createFixture(pool: Pool, status: 'active' | 'suspended' = 'activ
       adminCorrection: createAdminCorrectionServices(pool, {
         now: () => submittedAt,
       }),
+      publicNoticeService: createPublicNoticeService(
+        createPgPublicNoticeRepository(pool),
+      ),
     }),
   };
 }
@@ -300,6 +305,29 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
         `SELECT COUNT(*)::text AS count FROM public_notices`,
       );
       expect(notices.rows[0]?.count).toBe('1');
+
+      const publicNotices = await jsonRequest(
+        baseUrl,
+        'GET',
+        `/polls/${fixture.pollId}/public-notices`,
+        adminAId,
+      );
+      expect(publicNotices.status).toBe(200);
+      expect(publicNotices.body.notices).toEqual([
+        {
+          notice_id: applied.body.public_notice_id,
+          poll_id: fixture.pollId,
+          notice_type: 'suspended_typo_correction_applied',
+          title: 'Poll typo correction applied',
+          body: [
+            'Poll was previously suspended.',
+            'Admin typo correction was applied.',
+            'Correction did not change semantic direction.',
+            'Correction apply time: 2026-06-15T10:00:00.000Z.',
+          ].join('\n'),
+          created_at: '2026-06-15T10:00:00.000Z',
+        },
+      ]);
     });
   });
 });

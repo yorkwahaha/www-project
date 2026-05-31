@@ -22,7 +22,7 @@ This document defines **admin-only, read-only** HTTP surfaces for typo-correctio
 
 - **Optional** global `GET /admin/correction-audit` (§2.3) — not implemented on `master` @ `dd8c4bb`.
 - Real session auth, JWT, OAuth, or RBAC (continue `X-Admin-User-Id` stub until a dedicated auth phase).
-- Public notice **read** or **display** API; notice **body** in JSON responses.
+- Public notice **read** in admin audit DTOs; notice **body** in audit responses. *(Poll-scoped public read is Phase 8 — `GET /polls/:pollId/public-notices` — not this API family.)*
 - Spread Score numeric fields, lock timestamps, recompute diagnostics, or score-based queue ordering.
 - Ranking / Wonder Flow / answer-direction signals; changes to vote, result, feed, Reference Answer, or public poll visibility.
 - Durable user–option linkage; vote tokens; sharded counters; raw counter exposure.
@@ -176,6 +176,8 @@ Must **never** appear in audit read responses or query parameters:
 
 ## 7. Rules for not exposing public notice body / read API
 
+**Phase 8 supersession note:** These rules remain binding for admin audit DTOs. Phase 8 separately adds the approved public-only `GET /polls/:pollId/public-notices` surface with an allowlisted notice type and a minimal public-safe DTO.
+
 1. No `GET` route for `public_notices` in this API family.
 2. Audit DTOs use `has_public_notice: boolean` only (derived from `poll_correction_logs.public_notice_id`).
 3. Do not return `public_notice_id` if it enables fetching notice content elsewhere without an approved read API; if an opaque id is needed for support, restrict to internal tools **outside** this REST surface.
@@ -221,7 +223,7 @@ Confirm no new logs/metrics/APM payloads combine option choice with user/session
 - Any implementation in `src/`, `tests/`, `migrations/`, or `README` in the design-only delivery.
 - Ranking, Wonder Flow, heat, trending, homepage placement, answer-direction features.
 - Changes to Official Vote, Reference Answer, result tiers, sharded counters, or `public-visibility` behavior.
-- Public notice read/display API or caching of notice body for end users.
+- Public notice read/display API or caching of notice body for end users. *(Read API superseded by the separately approved Phase 8 poll-scoped route; caching remains out of scope.)*
 - Real admin authentication and role-based authorization.
 - Exposing `admin_id`, `requester_admin_id`, peer decisions, or decision reasons in audit read responses.
 - Spread Score numeric exposure or score-based ordering.

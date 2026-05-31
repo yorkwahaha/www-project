@@ -50,6 +50,7 @@ Admin routes are mounted only when the HTTP server is wired with admin correctio
 | `POST` | `/admin/correction-requests/:requestId/apply` | Apply **approved** request (active/closed path) |
 | `POST` | `/admin/suspended-correction-requests` | Create request for **suspended** poll; poll → `correction_pending` |
 | `POST` | `/admin/suspended-correction-requests/:requestId/apply` | Apply **approved** suspended request; poll → `active` + public notice |
+| `GET` | `/polls/:pollId/public-notices` | Public read of visible correction notices for one poll |
 
 Invalid `:requestId` (non-UUID) → `400 INVALID_REQUEST_ID`.
 
@@ -203,10 +204,10 @@ While `correction_pending`, the poll is **hidden** from public GET/feed/vote/res
 | Topic | Current behavior |
 |-------|------------------|
 | Write | **Suspended apply only** — one `public_notices` row per successful suspended apply (fixed template in `buildSuspendedCorrectionPublicNotice`) |
-| Read / display API | **Not implemented** — no `GET` route for notices; public poll APIs do not embed notice text |
+| Read / display API | `GET /polls/:pollId/public-notices` returns visible allowlisted notices for public-readable polls; unknown, hidden, or notice-free polls return `{ "notices": [] }` |
 | Active/closed apply | Does **not** insert `public_notices` (`public_notice_id` is null on correction log) |
 
-Any future public notice read API is **high-risk** (governance narrative, caching, feed boundaries) and requires a separate threat model before implementation.
+Public notice response fields are limited to `notice_id`, `poll_id`, `notice_type`, `title`, `body`, and `created_at`. The endpoint does not expose admin identity, correction workflow rows, decision details, reason fields, Spread Score, public notice write internals, or vote/result/feed data.
 
 ---
 
@@ -237,6 +238,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 - Admin-only safe audit snapshot and per-poll paginated audit list
 - PostgreSQL + in-memory repositories; integration tests under `tests/integration/`
 - Review-context hardened (Phase 7.5): `decision_summary` only — no `peer_decisions`, `final_decisions`, `admin_id`, or reason fields in responses
+- Public notice read (Phase 8): `GET /polls/:pollId/public-notices` — allowlisted notice types only; empty list for unknown/hidden/no-notice polls
 
 ### Stubs / not yet implemented
 
@@ -247,7 +249,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 | **Semantic typo guard** | Only normalization + non-empty / must-differ checks |
 | **Real admin auth** | No session middleware; header trust model only |
 | **Cross-poll admin audit queue** | Optional global `GET /admin/correction-audit` is not implemented |
-| **Public notice read/display** | Write-side only; threat model and API design outstanding |
+| **Public notice UI / global feed** | No embedded poll UI or cross-poll notice listing beyond `GET /polls/:pollId/public-notices` |
 | **Passive expiry job** | Expiry enforced when an admin hits decision/apply, not by background scheduler |
 
 ### Explicit non-goals (do not add via this API family)
@@ -263,6 +265,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 
 - HTTP contracts: `tests/http/admin-correction-routes.test.ts`
 - Audit HTTP contracts: `tests/http/admin-audit-routes.test.ts`
+- Public notice HTTP contracts: `tests/http/public-notice-routes.test.ts`
 - Domain: `tests/admin/correction-*.test.ts`, `tests/admin/suspended-correction-service.test.ts`
 - PostgreSQL: `tests/integration/admin-correction-http.pg.test.ts`, `correction-*.pg.test.ts`, `suspended-correction.pg.test.ts`
 - Audit PostgreSQL: `tests/integration/admin-audit-http.pg.test.ts`

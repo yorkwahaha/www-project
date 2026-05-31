@@ -3,9 +3,11 @@ import { readFile } from 'node:fs/promises';
 import { getHealthStatus } from '../milestone.js';
 import type { PollService } from '../polls/service.js';
 import type { PublicFeedQuery } from '../polls/types.js';
+import type { PublicNoticeService } from '../public-notices/service.js';
 import { sendJson } from './json.js';
 import { createAdminRouteHandlers, type AdminCorrectionServices } from './admin-routes.js';
 import { createPollRouteHandlers } from './poll-routes.js';
+import { createPublicNoticeRouteHandlers } from './public-notice-routes.js';
 
 export type { AdminCorrectionServices } from './admin-routes.js';
 
@@ -15,6 +17,7 @@ const POLL_ID_PATTERN =
 export type HttpServerOptions = {
   pollService: PollService;
   adminCorrection?: AdminCorrectionServices;
+  publicNoticeService?: PublicNoticeService;
 };
 
 export function createHttpServer(options: HttpServerOptions) {
@@ -22,10 +25,13 @@ export function createHttpServer(options: HttpServerOptions) {
   const adminRoutes = options.adminCorrection
     ? createAdminRouteHandlers(options.adminCorrection)
     : null;
+  const publicNoticeRoutes = options.publicNoticeService
+    ? createPublicNoticeRouteHandlers(options.publicNoticeService)
+    : null;
 
   return createServer(async (req, res) => {
     try {
-      await routeRequest(req, res, pollRoutes, adminRoutes);
+      await routeRequest(req, res, pollRoutes, adminRoutes, publicNoticeRoutes);
     } catch {
       sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'Internal server error' });
     }
@@ -37,6 +43,7 @@ async function routeRequest(
   res: ServerResponse,
   pollRoutes: ReturnType<typeof createPollRouteHandlers>,
   adminRoutes: ReturnType<typeof createAdminRouteHandlers> | null,
+  publicNoticeRoutes: ReturnType<typeof createPublicNoticeRouteHandlers> | null,
 ): Promise<void> {
   const method = req.method ?? 'GET';
   const url = new URL(req.url ?? '/', 'http://localhost');
@@ -127,6 +134,21 @@ async function routeRequest(
       return;
     }
     await pollRoutes.handleGetPollResults(req, res, pollId);
+    return;
+  }
+
+  const publicNoticesMatch = path.match(/^\/polls\/([^/]+)\/public-notices$/);
+  if (publicNoticesMatch && method === 'GET') {
+    const pollId = publicNoticesMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    if (!publicNoticeRoutes) {
+      sendJson(res, 200, { notices: [] });
+      return;
+    }
+    await publicNoticeRoutes.handleGetPollPublicNotices(req, res, pollId);
     return;
   }
 

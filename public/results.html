@@ -19,11 +19,38 @@
         border: 1px solid #d0d0d0;
         border-radius: 0.5rem;
       }
+
+      #public-notices {
+        margin: 1rem 0;
+      }
+
+      .public-notice {
+        margin: 0.75rem 0;
+        padding: 0.875rem 1rem;
+        border-left: 0.25rem solid #8a7b52;
+        background: #faf8f2;
+      }
+
+      .public-notice-label,
+      .public-notice-created-at {
+        color: #625b4b;
+        font-size: 0.875rem;
+      }
+
+      .public-notice-title {
+        margin: 0.25rem 0;
+        font-size: 1rem;
+      }
+
+      .public-notice-body {
+        white-space: pre-wrap;
+      }
     </style>
   </head>
   <body>
     <main>
       <h1>投票結果</h1>
+      <section id="public-notices" aria-label="修正公告" hidden></section>
       <div id="result-display" aria-live="polite">載入中</div>
     </main>
     <script type="module" src="/frontend/result-page.js"></script>

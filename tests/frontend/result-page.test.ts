@@ -27,6 +27,7 @@ function createRoot() {
       ownerDocument: documentObject,
       className: '',
       textContent: '',
+      hidden: false,
       children: [] as ReturnType<typeof createElement>[],
       append(child: ReturnType<typeof createElement>) {
         this.children.push(child);
@@ -63,6 +64,21 @@ const displaySafeResult = {
   updated_display: '最近更新',
 };
 
+const publicNotice = {
+  notice_id: '22222222-2222-4222-8222-222222222222',
+  poll_id: displaySafeResult.poll_id,
+  notice_type: 'suspended_typo_correction_applied',
+  title: 'Poll typo correction applied',
+  body: 'Correction did not change semantic direction.',
+  created_at: '2026-06-15T10:00:00.000Z',
+  correction_request_id: 'private-request-id',
+  admin_id: 'private-admin-id',
+  reason_text: 'private reason',
+  review_context: { peer_decisions: ['private decision'] },
+  vote_token: 'private-vote-token',
+  option_id: 'private-option-id',
+};
+
 describe('public result page', () => {
   it('calls only the public display-safe result endpoint once', async () => {
     const { loadResultDisplay } = await loadResultPageModule();
@@ -78,6 +94,28 @@ describe('public result page', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
     expect(fetchImpl).toHaveBeenCalledWith(
       `/polls/${displaySafeResult.poll_id}/results`,
+      {
+        method: 'GET',
+        credentials: 'omit',
+        cache: 'no-store',
+      },
+    );
+  });
+
+  it('loads public notices from the poll-scoped public endpoint', async () => {
+    const { loadPublicNotices } = await loadResultPageModule();
+    const noticeList = { notices: [publicNotice] };
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      json: async () => noticeList,
+    }));
+
+    await expect(
+      loadPublicNotices({ pollId: displaySafeResult.poll_id, fetchImpl }),
+    ).resolves.toEqual(noticeList);
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      `/polls/${displaySafeResult.poll_id}/public-notices`,
       {
         method: 'GET',
         credentials: 'omit',
@@ -118,6 +156,74 @@ describe('public result page', () => {
     expect(directPollId).toBe(displaySafeResult.poll_id);
     expect(redirectPollId).toBe(displaySafeResult.poll_id);
     expect(collectText(redirectRoot)).toEqual(collectText(directRoot));
+  });
+
+  it('hides the public notice region when the API returns no notices', async () => {
+    const { renderPublicNotices } = await loadResultPageModule();
+    const root = createRoot();
+
+    renderPublicNotices(root, { notices: [] });
+
+    expect(root.hidden).toBe(true);
+    expect(collectText(root)).toEqual([]);
+  });
+
+  it('renders only allowlisted public notice fields near the result display', async () => {
+    const { renderPublicNotices } = await loadResultPageModule();
+    const root = createRoot();
+
+    renderPublicNotices(root, {
+      notices: [
+        publicNotice,
+        {
+          ...publicNotice,
+          notice_type: 'internal_admin_note',
+          title: 'Internal only',
+          body: 'Private workflow context',
+        },
+      ],
+    });
+
+    expect(root.hidden).toBe(false);
+    expect(collectText(root)).toEqual([
+      '修正公告',
+      publicNotice.title,
+      publicNotice.body,
+      publicNotice.created_at,
+    ]);
+    expect(collectText(root).join(' ')).not.toMatch(
+      /private-request-id|private-admin-id|private reason|private decision|private-vote-token|private-option-id|Internal only|Private workflow context/,
+    );
+  });
+
+  it('keeps result content visible when public notice loading fails', async () => {
+    const { bootstrapResultPage } = await loadResultPageModule();
+    const resultRoot = createRoot();
+    const publicNoticesRoot = createRoot();
+    publicNoticesRoot.hidden = true;
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => displaySafeResult,
+      })
+      .mockResolvedValueOnce({ ok: false });
+
+    await bootstrapResultPage({
+      windowObject: {
+        location: { pathname: `/results/${displaySafeResult.poll_id}` },
+      },
+      documentObject: {
+        getElementById(id: string) {
+          return id === 'result-display' ? resultRoot : publicNoticesRoot;
+        },
+      },
+      fetchImpl,
+    });
+
+    expect(collectText(resultRoot)).toContain(displaySafeResult.total_votes_display);
+    expect(publicNoticesRoot.hidden).toBe(true);
+    expect(collectText(publicNoticesRoot)).toEqual([]);
   });
 
   it('contains no auto-refresh, precision reconstruction, or debug output', async () => {

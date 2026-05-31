@@ -246,6 +246,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 - PostgreSQL + in-memory repositories; integration tests under `tests/integration/`
 - Review-context hardened (Phase 7.5): `decision_summary` only — no `peer_decisions`, `final_decisions`, `admin_id`, or reason fields in responses
 - Public notice read (Phase 8): `GET /polls/:pollId/public-notices` — allowlisted notice types only; empty list for unknown/hidden/no-notice polls
+- Public notice display (Phase 11): `/results/:pollId` loads the poll-scoped public notice endpoint; empty or failed notice reads remain hidden and do not block result display
 
 ### Stubs / not yet implemented
 
@@ -256,7 +257,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 | **Semantic typo guard** | Only normalization + non-empty / must-differ checks |
 | **Real admin auth** | No session middleware; header trust model only |
 | **Cross-poll admin audit queue** | Implemented in Phase 9: bounded global list with safe status / validity filters |
-| **Public notice UI / global feed** | No embedded poll UI or cross-poll notice listing beyond `GET /polls/:pollId/public-notices` |
+| **Public notice global feed** | No notification center, unread state, personalization, or cross-poll notice listing |
 | **Passive expiry job** | Expiry enforced when an admin hits decision/apply, not by background scheduler |
 
 ### Explicit non-goals (do not add via this API family)

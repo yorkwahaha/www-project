@@ -3,6 +3,10 @@ import { createHttpServer } from '../../src/http/server.js';
 import { createPollService } from '../../src/polls/service.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import {
+  assertNoAdminReviewDeniedKeys,
+  expectOnlyKeys,
+} from '../helpers/admin-review-payload.js';
+import {
   adminBId,
   adminCId,
   adminAuthHeaders,
@@ -21,8 +25,24 @@ import {
   nonAdminCredentialId,
   readOnlyAdminId,
   revokedAdminId,
+  writeOnlyAdminId,
   withServer,
 } from './helpers/admin-http-fixture.js';
+
+const REVIEW_CONTEXT_ALLOWED_KEYS = [
+  'request_id',
+  'poll_id',
+  'request_status',
+  'poll_status',
+  'correction_target_field',
+  'correction_target_id',
+  'original_text',
+  'proposed_text',
+  'requires_dual_admin',
+  'valid_until',
+  'viewer_has_submitted',
+  'decision_summary',
+] as const;
 
 function assertSafeApplyResponse(body: Record<string, unknown>): void {
   expect(body.status).toBe('applied');
@@ -38,13 +58,9 @@ function assertSafeApplyResponse(body: Record<string, unknown>): void {
 }
 
 function assertBlindReviewContext(body: Record<string, unknown>): void {
+  expectOnlyKeys(body, REVIEW_CONTEXT_ALLOWED_KEYS);
   expect(body.decision_summary).toEqual({ state: 'pending_blind' });
-  expect(body).not.toHaveProperty('peer_decisions');
-  expect(body).not.toHaveProperty('final_decisions');
-  expect(body).not.toHaveProperty('requester_admin_id');
-  expect(body).not.toHaveProperty('spread_score_at_submit');
-  expect(body).not.toHaveProperty('spread_score_locked_until');
-  expect(body).not.toHaveProperty('admin_decision_logs');
+  assertNoAdminReviewDeniedKeys(body);
 }
 
 function titleCorrectionBody(pollId: string = defaultPollId) {
@@ -237,19 +253,39 @@ describe('POST /admin/correction-requests', () => {
 });
 
 describe('GET /admin/correction-requests/:requestId/review-context', () => {
-  it('returns 401 when Authorization is missing', async () => {
+  it('requires correction:read and rejects legacy identity fallback', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
 
     await withServer(server, async (baseUrl) => {
       const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
-      const response = await adminRequest(
+      const path = `/admin/correction-requests/${requestId}/review-context`;
+
+      const missing = await adminRequest(
         baseUrl,
         'GET',
-        `/admin/correction-requests/${requestId}/review-context`,
+        path,
       );
-      expect(response.status).toBe(401);
-      expect(response.body.error).toBe('ADMIN_AUTH_REQUIRED');
+      expect(missing.status).toBe(401);
+      expect(missing.body.error).toBe('ADMIN_AUTH_REQUIRED');
+
+      const legacy = await adminRequest(baseUrl, 'GET', path, {
+        headers: { 'X-Admin-User-Id': adminBId },
+      });
+      expect(legacy.status).toBe(401);
+      expect(legacy.body.error).toBe('ADMIN_AUTH_REQUIRED');
+
+      const writeOnly = await adminRequest(baseUrl, 'GET', path, {
+        headers: adminAuthHeaders(writeOnlyAdminId),
+      });
+      expect(writeOnly.status).toBe(403);
+      expect(writeOnly.body.error).toBe('ADMIN_FORBIDDEN');
+
+      const readOnly = await adminRequest(baseUrl, 'GET', path, {
+        headers: adminAuthHeaders(readOnlyAdminId),
+      });
+      expect(readOnly.status).toBe(200);
+      assertBlindReviewContext(readOnly.body);
     });
   });
 
@@ -291,6 +327,36 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
       expect(response.status).toBe(200);
       expect(response.body.request_status).toBe('pending');
       expect(response.body.viewer_has_submitted).toBe(false);
+      assertBlindReviewContext(response.body);
+    });
+  });
+
+  it('allows correction_target_id only as admin poll structure metadata', async () => {
+    const fixture = createAdminHttpFixture();
+    const server = createAdminHttpServer(fixture);
+
+    await withServer(server, async (baseUrl) => {
+      const created = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
+        headers: adminAuthHeaders(defaultAdminId),
+        body: {
+          poll_id: fixture.pollId,
+          correction_target_field: 'option_text',
+          correction_target_id: defaultOptionId,
+          proposed_text: 'Option A lable',
+          reason: 'Typo',
+        },
+      });
+      expect(created.status).toBe(201);
+
+      const response = await adminRequest(
+        baseUrl,
+        'GET',
+        `/admin/correction-requests/${created.body.request_id as string}/review-context`,
+        { headers: adminAuthHeaders(readOnlyAdminId) },
+      );
+      expect(response.status).toBe(200);
+      expect(response.body.correction_target_field).toBe('option_text');
+      expect(response.body.correction_target_id).toBe(defaultOptionId);
       assertBlindReviewContext(response.body);
     });
   });
@@ -343,11 +409,8 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
         quorum_met: true,
         is_finalized: true,
       });
-      expect(response.body).not.toHaveProperty('peer_decisions');
-      expect(response.body).not.toHaveProperty('final_decisions');
-      expect(response.body).not.toHaveProperty('admin_id');
-      expect(response.body).not.toHaveProperty('reason_code');
-      expect(response.body).not.toHaveProperty('reason_text');
+      expectOnlyKeys(response.body, REVIEW_CONTEXT_ALLOWED_KEYS);
+      assertNoAdminReviewDeniedKeys(response.body);
     });
   });
 });

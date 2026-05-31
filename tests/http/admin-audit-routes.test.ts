@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  assertNoAdminReviewDeniedKeys,
+  expectOnlyKeys,
+} from '../helpers/admin-review-payload.js';
+import {
   adminBId,
   adminCId,
   adminAuthHeaders,
@@ -13,45 +17,53 @@ import {
   defaultAdminId,
   nonAdminCredentialId,
   readOnlyAdminId,
+  writeOnlyAdminId,
   withServer,
 } from './helpers/admin-http-fixture.js';
 
-const DENIED_KEYS = [
-  'admin_id',
-  'requester_admin_id',
-  'applied_by_admin_id',
-  'created_by_admin_id',
-  'peer_decisions',
-  'final_decisions',
-  'reason',
-  'reason_code',
-  'reason_text',
-  'spread_score',
-  'spread_score_at_submit',
-  'spread_score_locked_until',
-  'public_notice_id',
-  'vote_token',
-  'poll_vote_tokens',
-  'option_vote_counters',
-  'user_id',
-  'review_context',
-  'title',
-  'body',
+const AUDIT_RECORD_ALLOWED_KEYS = [
+  'request_id',
+  'poll_id',
+  'request_status',
+  'poll_status',
+  'correction_target_field',
+  'correction_target_id',
+  'original_text',
+  'proposed_text',
+  'requires_dual_admin',
+  'submitted_at',
+  'valid_until',
+  'updated_at',
+  'correction_log_id',
+  'applied_text',
+  'applied_at',
+  'has_public_notice',
+  'decision_summary',
+  'timeline',
 ] as const;
 
-function assertNoDeniedKeys(value: unknown): void {
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      assertNoDeniedKeys(item);
-    }
-    return;
-  }
-  if (typeof value !== 'object' || value === null) {
-    return;
-  }
-  for (const [key, item] of Object.entries(value)) {
-    expect(DENIED_KEYS).not.toContain(key);
-    assertNoDeniedKeys(item);
+const AUDIT_LIST_ITEM_ALLOWED_KEYS = [
+  'request_id',
+  'request_status',
+  'correction_target_field',
+  'submitted_at',
+  'valid_until',
+  'has_public_notice',
+] as const;
+
+function expectAuditListPayload(
+  body: Record<string, unknown>,
+  includePollId: boolean = false,
+): void {
+  expectOnlyKeys(body, ['items', 'next_cursor']);
+  expect(Array.isArray(body.items)).toBe(true);
+  for (const item of body.items as Record<string, unknown>[]) {
+    const allowedKeys = [
+      ...AUDIT_LIST_ITEM_ALLOWED_KEYS,
+      ...(includePollId ? ['poll_id'] : []),
+      ...(item.correction_log_id === undefined ? [] : ['correction_log_id']),
+    ];
+    expectOnlyKeys(item, allowedKeys);
   }
 }
 
@@ -141,7 +153,8 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         { event: 'submitted', at: '2026-06-15T10:00:00.000Z' },
       ]);
       expect(response.body.has_public_notice).toBe(false);
-      assertNoDeniedKeys(response.body);
+      expectOnlyKeys(response.body, AUDIT_RECORD_ALLOWED_KEYS);
+      assertNoAdminReviewDeniedKeys(response.body);
     });
   });
 
@@ -181,7 +194,8 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         { event: 'decision_quorum_met', at: '2026-06-15T10:00:00.000Z' },
         { event: 'applied', at: '2026-06-15T10:00:00.000Z' },
       ]);
-      assertNoDeniedKeys(response.body);
+      expectOnlyKeys(response.body, AUDIT_RECORD_ALLOWED_KEYS);
+      assertNoAdminReviewDeniedKeys(response.body);
     });
   });
 
@@ -209,7 +223,40 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.has_public_notice).toBe(true);
-      assertNoDeniedKeys(response.body);
+      expectOnlyKeys(response.body, AUDIT_RECORD_ALLOWED_KEYS);
+      assertNoAdminReviewDeniedKeys(response.body);
+    });
+  });
+});
+
+describe('Admin audit read permission boundary', () => {
+  it('requires correction:read and rejects legacy identity fallback on every audit read path', async () => {
+    const fixture = createAdminHttpFixture();
+    const server = createAdminHttpServer(fixture);
+
+    await withServer(server, async (baseUrl) => {
+      const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
+      for (const path of [
+        `/admin/correction-requests/${requestId}/audit-record`,
+        `/admin/polls/${fixture.pollId}/correction-audit`,
+        '/admin/correction-audit',
+      ]) {
+        const missing = await adminRequest(baseUrl, 'GET', path);
+        expect(missing.status).toBe(401);
+        expect(missing.body.error).toBe('ADMIN_AUTH_REQUIRED');
+
+        const legacy = await adminRequest(baseUrl, 'GET', path, {
+          headers: { 'X-Admin-User-Id': defaultAdminId },
+        });
+        expect(legacy.status).toBe(401);
+        expect(legacy.body.error).toBe('ADMIN_AUTH_REQUIRED');
+
+        const writeOnly = await adminRequest(baseUrl, 'GET', path, {
+          headers: adminAuthHeaders(writeOnlyAdminId),
+        });
+        expect(writeOnly.status).toBe(403);
+        expect(writeOnly.body.error).toBe('ADMIN_FORBIDDEN');
+      }
     });
   });
 });
@@ -273,8 +320,10 @@ describe('GET /admin/polls/:pollId/correction-audit', () => {
         )),
       ];
       expect(new Set(returnedIds)).toEqual(new Set(createdIds));
-      assertNoDeniedKeys(first.body);
-      assertNoDeniedKeys(second.body);
+      expectAuditListPayload(first.body);
+      expectAuditListPayload(second.body);
+      assertNoAdminReviewDeniedKeys(first.body);
+      assertNoAdminReviewDeniedKeys(second.body);
     });
   });
 
@@ -384,8 +433,10 @@ describe('GET /admin/correction-audit', () => {
       expect(new Set(items.map((item) => item.poll_id))).toEqual(
         new Set([fixture.pollId, secondPollId]),
       );
-      assertNoDeniedKeys(first.body);
-      assertNoDeniedKeys(second.body);
+      expectAuditListPayload(first.body, true);
+      expectAuditListPayload(second.body, true);
+      assertNoAdminReviewDeniedKeys(first.body);
+      assertNoAdminReviewDeniedKeys(second.body);
     });
   });
 
@@ -401,7 +452,8 @@ describe('GET /admin/correction-audit', () => {
       });
       expect(response.status).toBe(200);
       expect((response.body.items as unknown[]).length).toBeGreaterThanOrEqual(1);
-      assertNoDeniedKeys(response.body);
+      expectAuditListPayload(response.body, true);
+      assertNoAdminReviewDeniedKeys(response.body);
     });
   });
 
@@ -449,7 +501,8 @@ describe('GET /admin/correction-audit', () => {
       );
       expect(afterWindow.status).toBe(200);
       expect(afterWindow.body).toEqual({ items: [], next_cursor: null });
-      assertNoDeniedKeys(byStatus.body);
+      expectAuditListPayload(byStatus.body, true);
+      assertNoAdminReviewDeniedKeys(byStatus.body);
     });
   });
 

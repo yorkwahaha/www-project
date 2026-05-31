@@ -16,6 +16,10 @@ import {
   adminAuthHeaders,
   createTestAdminAuth,
 } from '../helpers/admin-auth.js';
+import {
+  ADMIN_REVIEW_DENIED_KEYS,
+  assertNoAdminReviewDeniedKeys,
+} from '../helpers/admin-review-payload.js';
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
 const adminAId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -24,60 +28,13 @@ const adminCId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const nonAdminCredentialId = '99999999-9999-4999-8999-999999999999';
 const submittedAt = new Date('2026-06-15T10:00:00.000Z');
 
-const DENIED_KEYS = [
-  'admin_id',
-  'requester_admin_id',
-  'applied_by_admin_id',
-  'created_by_admin_id',
-  'peer_decisions',
-  'final_decisions',
-  'reason',
-  'reason_code',
-  'reason_text',
-  'spread_score',
-  'spread_score_at_submit',
-  'spread_score_locked_until',
-  'public_notice_id',
-  'review_context',
-  'option_id',
-  'user_id',
-  'session_id',
-  'device_id',
-  'vote_token',
-  'reference_answer_token',
-  'poll_vote_tokens',
-  'poll_option_vote_counters',
-  'public_user_identity',
-  'title',
-  'body',
-] as const;
-
 const PUBLIC_NOTICE_DENIED_KEYS = [
   'correction_request_id',
   'correction_log_id',
   'correction_target_field',
   'correction_target_id',
-  ...DENIED_KEYS.filter((key) => key !== 'title' && key !== 'body'),
+  ...ADMIN_REVIEW_DENIED_KEYS.filter((key) => key !== 'title' && key !== 'body'),
 ] as const;
-
-function assertNoDeniedKeys(
-  value: unknown,
-  deniedKeys: readonly string[] = DENIED_KEYS,
-): void {
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      assertNoDeniedKeys(item, deniedKeys);
-    }
-    return;
-  }
-  if (typeof value !== 'object' || value === null) {
-    return;
-  }
-  for (const [key, item] of Object.entries(value)) {
-    expect(deniedKeys).not.toContain(key);
-    assertNoDeniedKeys(item, deniedKeys);
-  }
-}
 
 function assertGlobalAuditSafeItems(value: unknown): void {
   expect(Array.isArray(value)).toBe(true);
@@ -285,7 +242,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
       );
       expect(pending.status).toBe(200);
       expect(pending.body.decision_summary).toEqual({ state: 'pending_blind' });
-      assertNoDeniedKeys(pending.body);
+      assertNoAdminReviewDeniedKeys(pending.body);
 
       const secondApprove = await jsonRequest(
         baseUrl,
@@ -318,7 +275,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
         is_finalized: true,
       });
       expect(audit.body.has_public_notice).toBe(false);
-      assertNoDeniedKeys(audit.body);
+      assertNoAdminReviewDeniedKeys(audit.body);
 
       const list = await jsonRequest(
         baseUrl,
@@ -328,7 +285,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
       );
       expect(list.status).toBe(200);
       expect(list.body.items).toHaveLength(1);
-      assertNoDeniedKeys(list.body);
+      assertNoAdminReviewDeniedKeys(list.body);
 
       const globalList = await jsonRequest(
         baseUrl,
@@ -349,7 +306,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
           correction_log_id: applied.body.correction_log_id,
         },
       ]);
-      assertNoDeniedKeys(globalList.body);
+      assertNoAdminReviewDeniedKeys(globalList.body);
     });
   });
 
@@ -389,7 +346,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
       );
       expect(audit.status).toBe(200);
       expect(audit.body.has_public_notice).toBe(true);
-      assertNoDeniedKeys(audit.body);
+      assertNoAdminReviewDeniedKeys(audit.body);
 
       const notices = await pool.query<{ count: string }>(
         `SELECT COUNT(*)::text AS count FROM public_notices`,
@@ -418,7 +375,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
           created_at: '2026-06-15T10:00:00.000Z',
         },
       ]);
-      assertNoDeniedKeys(publicNotices.body, PUBLIC_NOTICE_DENIED_KEYS);
+      assertNoAdminReviewDeniedKeys(publicNotices.body, PUBLIC_NOTICE_DENIED_KEYS);
     });
   });
 
@@ -483,7 +440,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
           },
         ],
       });
-      assertNoDeniedKeys(visible.body, PUBLIC_NOTICE_DENIED_KEYS);
+      assertNoAdminReviewDeniedKeys(visible.body, PUBLIC_NOTICE_DENIED_KEYS);
 
       await pool.query(`UPDATE polls SET status = 'suspended' WHERE id = $1`, [
         fixture.pollId,
@@ -562,8 +519,8 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
           (first.body.items as Array<Record<string, unknown>>).map((item) => item.poll_id),
         ),
       ).toEqual(new Set([fixture.pollId, secondPoll.poll_id]));
-      assertNoDeniedKeys(first.body);
-      assertNoDeniedKeys(second.body);
+      assertNoAdminReviewDeniedKeys(first.body);
+      assertNoAdminReviewDeniedKeys(second.body);
       assertGlobalAuditSafeItems(first.body.items);
       assertGlobalAuditSafeItems(second.body.items);
 
@@ -607,7 +564,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
         );
         expect(response.status).toBe(200);
         expect(response.body.items).toHaveLength(1);
-        assertNoDeniedKeys(response.body);
+        assertNoAdminReviewDeniedKeys(response.body);
         assertGlobalAuditSafeItems(response.body.items);
       }
 

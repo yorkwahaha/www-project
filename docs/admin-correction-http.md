@@ -197,7 +197,8 @@ Each item uses the poll audit list fields plus `poll_id`. Ordering is fixed: `su
 | Spread Score internals | `spread_score_at_submit`, `spread_score_locked_until` |
 | Requester identity | `requester_admin_id` |
 | Peer / per-admin decisions | `peer_decisions`, `final_decisions`, raw decision rows |
-| Vote / result / feed linkage | Raw counters, tokens, shard ids, option-level vote aggregates |
+| Vote / result / feed linkage | Raw counters, vote/reference tokens, shard ids, option-level vote aggregates |
+| Auth / actor traces | Bearer token, token digest, auth registry, production secret, or user/session/device/request/trace identifiers linked to selected options |
 | Recovery helpers | Internal poll-restore utilities (not exposed as routes) |
 
 Errors use `{ "error": "<CODE>", "message": "<text>" }` (e.g. `CORRECTION_EXPIRED`, `CORRECTION_STALE_TARGET`, `PROPOSER_CANNOT_APPROVE`).

@@ -94,7 +94,7 @@ npm run test:integration:local
 ### 4.3 產品與品質
 
 - [ ] **隱私檢視**：確認公開 API／頁面仍不暴露 `option_id`、vote token、shard；無新增 ranking／personalization 訊號。
-- [ ] **手動跨瀏覽器 QA 完成**：使用 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md) 填寫實機結果；`smoke:public:local` **不能**取代瀏覽器矩陣測試。
+- [ ] **手動跨瀏覽器 QA 完成**：使用 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md) 填寫實機結果；`smoke:public:local` **不能**取代瀏覽器矩陣測試。（Phase 36 已更新基線與有限 Chromium 列；**Windows Chrome／Edge、Safari、手機仍待測**。）
 - [ ] **對外試用範圍說明**：參與者知道這是試用、資料可能重置、無登入與無完整 moderation。
 
 ---

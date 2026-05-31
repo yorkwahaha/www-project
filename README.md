@@ -24,6 +24,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 34 (docs):** Cross-browser / device manual QA result log template — `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` (fill when testing real browsers; smoke does not replace this).
 
+**Phase 36 (docs):** Cross-browser QA log baseline updated — `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` (limited Chromium automation + BLOCKED/SKIP for Chrome/Edge/Safari/mobile; Windows Chrome/Edge still need human fill-in).
+
 **Phase 35 (docs):** Production readiness boundary — `docs/www-project-production-readiness-boundary-v1.md` (public MVP is demo-ready, not production-ready; gates and checklist before external trial).
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

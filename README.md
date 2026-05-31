@@ -1,16 +1,16 @@
-# WWW Project — Phase 0–9
+# WWW Project — Phase 0–10
 
 **What We Wonder／大家想知道** — privacy-preserving public poll platform.
 
-This repository implements delivery milestones **Phase 0 through Phase 9**: Poll Core, Reference Answer Design B, Official Vote, Result Display, frontend privacy closure (5A), the public freshness-only discovery feed (5B–5C), poll visibility/archive (6A), **admin typo correction governance (6B/6C)**, **admin correction audit read + review-context hardening (7.3B–7.5)**, the poll-scoped **public notice read API (8)**, and the safe global **admin correction audit queue (9)**.
+This repository implements delivery milestones **Phase 0 through Phase 10**: Poll Core, Reference Answer Design B, Official Vote, Result Display, frontend privacy closure (5A), the public freshness-only discovery feed (5B–5C), poll visibility/archive (6A), **admin typo correction governance (6B/6C)**, **admin correction audit read + review-context hardening (7.3B–7.5)**, the poll-scoped **public notice read API (8)**, the safe global **admin correction audit queue (9)**, and DB-backed integration coverage synchronization for the Phase 8/9 read surfaces (10).
 
 Normative rules: `/AGENTS.md` and `docs/www-project-agent-spec-v0.1.md`.
 
-Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (through 5B), `docs/www-project-milestone-phase-0-5c-handoff-v1.md` (5C feed pagination).
+Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (through 5B), `docs/www-project-milestone-phase-0-5c-handoff-v1.md` (5C feed pagination), and `docs/www-project-milestone-phase-10-handoff-v1.md` (Phase 8/9 PG integration synchronization).
 
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
 
-**Admin / governance (Phase 6B–9):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields), poll-scoped public notice **read**, and the safe global `GET /admin/correction-audit` queue are **implemented**. Spread Score (real calculation), semantic typo detection, and real admin session auth are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-9-handoff-v1.md`.
+**Admin / governance (Phase 6B–10):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields), poll-scoped public notice **read**, and the safe global `GET /admin/correction-audit` queue are **implemented**. Spread Score (real calculation), semantic typo detection, and real admin session auth are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-10-handoff-v1.md`.
 
 ## Prerequisites
 
@@ -40,7 +40,7 @@ npm run migrate
 npm run test:integration
 ```
 
-**Validation gap (Phase 7.6):** `npm run test:integration` (including admin audit PG suites) is **pending** until `DATABASE_URL` points at an isolated test database. Non-PG checks (`typecheck`, `build`, `npm test`) pass on `master` @ `dd8c4bb`.
+**Validation gap (Phase 10):** PG integration coverage now includes the Phase 8 public notice read API and Phase 9 global admin correction audit queue. `npm run test:integration` remains **pending** in environments where `DATABASE_URL` is missing; run it when `DATABASE_URL` points at an isolated `www_test` database.
 
 ## Layout
 
@@ -134,8 +134,10 @@ Public correction notices are read through `GET /polls/:id/public-notices`; see 
 
 - Full spec §32 Phase 5 Wonder Flow / ranking beyond the 5B–5C feed slice
 - Feed discovery UI, filters, personalization, `total_count`
-- Real Spread Score, 24h pre-apply recompute, semantic typo guard; Spread Score used for ranking
+- Real Spread Score calculation, 24h pre-apply recompute, semantic typo guard
+- Spread Score ranking / priority
 - Production admin session authentication middleware (JWT / OAuth / RBAC)
+- Public notice display UI and other frontend admin UI
 - Future high-sensitivity category guardrails and other deferred spec phases
 
 Run `npm run migrate:check` for the current migration count. Run `npm test` on any branch; run `npm run test:integration` only when `DATABASE_URL` is set to an isolated test DB (currently **pending** in environments without it).

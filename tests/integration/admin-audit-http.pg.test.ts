@@ -33,14 +33,36 @@ const DENIED_KEYS = [
   'spread_score_at_submit',
   'spread_score_locked_until',
   'public_notice_id',
+  'correction_target_id',
+  'review_context',
+  'option_id',
+  'user_id',
+  'session_id',
+  'device_id',
+  'vote_token',
+  'reference_answer_token',
+  'poll_vote_tokens',
+  'poll_option_vote_counters',
+  'public_user_identity',
   'title',
   'body',
 ] as const;
 
-function assertNoDeniedKeys(value: unknown): void {
+const PUBLIC_NOTICE_DENIED_KEYS = [
+  'correction_request_id',
+  'correction_log_id',
+  'correction_target_field',
+  'correction_target_id',
+  ...DENIED_KEYS.filter((key) => key !== 'title' && key !== 'body'),
+] as const;
+
+function assertNoDeniedKeys(
+  value: unknown,
+  deniedKeys: readonly string[] = DENIED_KEYS,
+): void {
   if (Array.isArray(value)) {
     for (const item of value) {
-      assertNoDeniedKeys(item);
+      assertNoDeniedKeys(item, deniedKeys);
     }
     return;
   }
@@ -48,8 +70,23 @@ function assertNoDeniedKeys(value: unknown): void {
     return;
   }
   for (const [key, item] of Object.entries(value)) {
-    expect(DENIED_KEYS).not.toContain(key);
-    assertNoDeniedKeys(item);
+    expect(deniedKeys).not.toContain(key);
+    assertNoDeniedKeys(item, deniedKeys);
+  }
+}
+
+function assertGlobalAuditSafeItems(value: unknown): void {
+  expect(Array.isArray(value)).toBe(true);
+  for (const item of value as Array<Record<string, unknown>>) {
+    expect(Object.keys(item).sort()).toEqual([
+      'correction_target_field',
+      'has_public_notice',
+      'poll_id',
+      'request_id',
+      'request_status',
+      'submitted_at',
+      'valid_until',
+    ]);
   }
 }
 
@@ -77,14 +114,14 @@ async function jsonRequest(
   baseUrl: string,
   method: string,
   path: string,
-  adminId: string,
+  adminId?: string,
   body?: unknown,
 ): Promise<{ status: number; body: Record<string, unknown> }> {
   const response = await fetch(`${baseUrl}${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      'X-Admin-User-Id': adminId,
+      ...(adminId ? { 'X-Admin-User-Id': adminId } : {}),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -132,6 +169,7 @@ async function createFixture(pool: Pool, status: 'active' | 'suspended' = 'activ
 
   return {
     pollId: created.poll_id,
+    pollService,
     server: createHttpServer({
       pollService,
       adminCorrection: createAdminCorrectionServices(pool, {
@@ -142,6 +180,27 @@ async function createFixture(pool: Pool, status: 'active' | 'suspended' = 'activ
       ),
     }),
   };
+}
+
+async function createPendingCorrectionRequest(
+  baseUrl: string,
+  pollId: string,
+  proposedText: string,
+): Promise<string> {
+  const created = await jsonRequest(
+    baseUrl,
+    'POST',
+    '/admin/correction-requests',
+    adminAId,
+    {
+      poll_id: pollId,
+      correction_target_field: 'title',
+      proposed_text: proposedText,
+      reason: 'Private request reason',
+    },
+  );
+  expect(created.status).toBe(201);
+  return created.body.request_id as string;
 }
 
 async function approve(baseUrl: string, requestId: string): Promise<void> {
@@ -349,6 +408,236 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
           created_at: '2026-06-15T10:00:00.000Z',
         },
       ]);
+      assertNoDeniedKeys(publicNotices.body, PUBLIC_NOTICE_DENIED_KEYS);
+    });
+  });
+
+  it('keeps unknown, hidden, notice-free, and non-allowlisted public notice rows private', async () => {
+    const fixture = await createFixture(pool);
+    const noticeId = crypto.randomUUID();
+
+    await withBoundServer(fixture.server, async (baseUrl) => {
+      const unknown = await jsonRequest(
+        baseUrl,
+        'GET',
+        `/polls/${crypto.randomUUID()}/public-notices`,
+      );
+      expect(unknown.status).toBe(200);
+      expect(unknown.body).toEqual({ notices: [] });
+
+      const noticeFree = await jsonRequest(
+        baseUrl,
+        'GET',
+        `/polls/${fixture.pollId}/public-notices`,
+      );
+      expect(noticeFree.status).toBe(200);
+      expect(noticeFree.body).toEqual({ notices: [] });
+
+      await pool.query(
+        `INSERT INTO public_notices (
+           id, poll_id, notice_type, title, body, created_by_admin_id, created_at
+         )
+         VALUES ($1, $2, 'internal_admin_note', 'Internal title', 'Internal body', $3, $4)`,
+        [crypto.randomUUID(), fixture.pollId, adminAId, submittedAt],
+      );
+      const internalOnly = await jsonRequest(
+        baseUrl,
+        'GET',
+        `/polls/${fixture.pollId}/public-notices`,
+      );
+      expect(internalOnly.status).toBe(200);
+      expect(internalOnly.body).toEqual({ notices: [] });
+
+      await pool.query(
+        `INSERT INTO public_notices (
+           id, poll_id, notice_type, title, body, created_by_admin_id, created_at
+         )
+         VALUES ($1, $2, 'suspended_typo_correction_applied', $3, $4, $5, $6)`,
+        [noticeId, fixture.pollId, 'Public title', 'Public body', adminAId, submittedAt],
+      );
+      const visible = await jsonRequest(
+        baseUrl,
+        'GET',
+        `/polls/${fixture.pollId}/public-notices`,
+      );
+      expect(visible.status).toBe(200);
+      expect(visible.body).toEqual({
+        notices: [
+          {
+            notice_id: noticeId,
+            poll_id: fixture.pollId,
+            notice_type: 'suspended_typo_correction_applied',
+            title: 'Public title',
+            body: 'Public body',
+            created_at: submittedAt.toISOString(),
+          },
+        ],
+      });
+      assertNoDeniedKeys(visible.body, PUBLIC_NOTICE_DENIED_KEYS);
+
+      await pool.query(`UPDATE polls SET status = 'suspended' WHERE id = $1`, [
+        fixture.pollId,
+      ]);
+      const hidden = await jsonRequest(
+        baseUrl,
+        'GET',
+        `/polls/${fixture.pollId}/public-notices`,
+      );
+      expect(hidden.status).toBe(200);
+      expect(hidden.body).toEqual({ notices: [] });
+    });
+  });
+
+  it('paginates the global audit queue with fixed safe ordering and default limit', async () => {
+    const fixture = await createFixture(pool);
+    const secondPoll = await fixture.pollService.createPoll(
+      {
+        creatorId,
+        title: 'PG Audit Second Poll',
+        description: 'PG audit second poll description',
+        category: 'general',
+        options: ['Alpha', 'Beta'],
+        eligibleRuleId: null,
+        closesAt: new Date('2026-12-31T12:00:00.000Z'),
+        publish: true,
+      },
+      'Creator',
+    );
+
+    await withBoundServer(fixture.server, async (baseUrl) => {
+      const requestIds: string[] = [];
+      for (let index = 0; index < 21; index += 1) {
+        requestIds.push(
+          await createPendingCorrectionRequest(
+            baseUrl,
+            index % 2 === 0 ? fixture.pollId : secondPoll.poll_id,
+            `PG Audit Titel ${index}`,
+          ),
+        );
+      }
+      const rowCountBefore = await pool.query<{ count: string }>(
+        `SELECT COUNT(*)::text AS count FROM poll_correction_requests`,
+      );
+
+      const first = await jsonRequest(baseUrl, 'GET', '/admin/correction-audit', adminAId);
+      expect(first.status).toBe(200);
+      expect(first.body.items).toHaveLength(20);
+      expect(first.body.next_cursor).toEqual(expect.stringMatching(/^v1\./));
+      expect(first.body.next_cursor).not.toContain(requestIds[0]!);
+
+      const second = await jsonRequest(
+        baseUrl,
+        'GET',
+        `/admin/correction-audit?cursor=${encodeURIComponent(first.body.next_cursor as string)}`,
+        adminAId,
+      );
+      expect(second.status).toBe(200);
+      expect(second.body.items).toHaveLength(1);
+      expect(second.body.next_cursor).toBeNull();
+
+      const returnedIds = [
+        ...(first.body.items as Array<Record<string, unknown>>),
+        ...(second.body.items as Array<Record<string, unknown>>),
+      ].map((item) => item.request_id);
+      expect(returnedIds).toEqual([...requestIds].sort().reverse());
+      expect(
+        new Set(
+          (first.body.items as Array<Record<string, unknown>>).map((item) => item.poll_id),
+        ),
+      ).toEqual(new Set([fixture.pollId, secondPoll.poll_id]));
+      assertNoDeniedKeys(first.body);
+      assertNoDeniedKeys(second.body);
+      assertGlobalAuditSafeItems(first.body.items);
+      assertGlobalAuditSafeItems(second.body.items);
+
+      const rowCountAfter = await pool.query<{ count: string }>(
+        `SELECT COUNT(*)::text AS count FROM poll_correction_requests`,
+      );
+      expect(rowCountAfter.rows[0]?.count).toBe(rowCountBefore.rows[0]?.count);
+    });
+  });
+
+  it('applies safe global audit filters and rejects unsafe query shapes', async () => {
+    const fixture = await createFixture(pool);
+
+    await withBoundServer(fixture.server, async (baseUrl) => {
+      const requestId = await createPendingCorrectionRequest(
+        baseUrl,
+        fixture.pollId,
+        'PG Audit Filter Titel',
+      );
+      const rejected = await jsonRequest(
+        baseUrl,
+        'POST',
+        `/admin/correction-requests/${requestId}/decisions`,
+        adminBId,
+        { decision: 'reject', reason_code: 'PRIVATE_CODE', reason_text: 'Private reason' },
+      );
+      expect(rejected.status).toBe(200);
+
+      for (const query of [
+        'status=rejected',
+        'valid_before=2026-06-22T10:00:00.000Z',
+        'valid_after=2026-06-22T10:00:00.000Z',
+        'limit=1',
+        'limit=50',
+      ]) {
+        const response = await jsonRequest(
+          baseUrl,
+          'GET',
+          `/admin/correction-audit?${query}`,
+          adminAId,
+        );
+        expect(response.status).toBe(200);
+        expect(response.body.items).toHaveLength(1);
+        assertNoDeniedKeys(response.body);
+        assertGlobalAuditSafeItems(response.body.items);
+      }
+
+      for (const query of [
+        'valid_before=2026-06-22T09:59:59.999Z',
+        'valid_after=2026-06-22T10:00:00.001Z',
+      ]) {
+        const response = await jsonRequest(
+          baseUrl,
+          'GET',
+          `/admin/correction-audit?${query}`,
+          adminAId,
+        );
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ items: [], next_cursor: null });
+      }
+
+      for (const [query, error] of [
+        ['limit=0', 'INVALID_AUDIT_LIMIT'],
+        ['limit=51', 'INVALID_AUDIT_LIMIT'],
+        ['cursor=not-a-cursor', 'INVALID_AUDIT_CURSOR'],
+        ['status=unknown', 'INVALID_AUDIT_STATUS'],
+        ['valid_before=not-a-date', 'INVALID_AUDIT_TIMESTAMP'],
+        ['sort=spread_score', 'UNSUPPORTED_QUERY_PARAMS'],
+      ]) {
+        const response = await jsonRequest(
+          baseUrl,
+          'GET',
+          `/admin/correction-audit?${query}`,
+          adminAId,
+        );
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe(error);
+      }
+
+      const missing = await jsonRequest(baseUrl, 'GET', '/admin/correction-audit');
+      expect(missing.status).toBe(401);
+      expect(missing.body.error).toBe('ADMIN_AUTH_REQUIRED');
+
+      const forbidden = await jsonRequest(
+        baseUrl,
+        'GET',
+        '/admin/correction-audit',
+        '99999999-9999-4999-8999-999999999999',
+      );
+      expect(forbidden.status).toBe(403);
+      expect(forbidden.body.error).toBe('ADMIN_FORBIDDEN');
     });
   });
 });

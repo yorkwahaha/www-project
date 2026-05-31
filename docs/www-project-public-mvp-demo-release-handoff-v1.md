@@ -96,7 +96,7 @@ npm run test:integration:local
 2. **公開 feed 隱私設計** — 若未來要做探索列表，需先定 freshness-only 與禁止答案方向訊號。
 3. **Rate limit／濫用防護設計** — 投票與建立問卷的限流策略。
 4. **Admin 憑證輪替交接** — 見 Phase 14 admin auth 部署文件。
-5. **跨瀏覽器手動 QA** — Safari／Firefox／行動裝置實機走查。
+5. **跨瀏覽器手動 QA** — 使用 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md) 記錄 Chrome／Edge／Safari／手機結果（勿與 smoke 混淆）。
 
 ---
 
@@ -105,6 +105,7 @@ npm run test:integration:local
 | 文件 | 用途 |
 |------|------|
 | `docs/www-project-local-demo-startup-v1.md` | 本機啟動 demo（Docker、`DATABASE_URL`、`npm start`） |
+| `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` | 跨瀏覽器／實機 QA 結果記錄（模板） |
 | `docs/www-project-public-mvp-manual-qa-v1.md` | 逐步手動 QA 檢查（繁中） |
 | `README.md` | 指令、API 表、Public MVP 現況摘要 |
 | `AGENTS.md` | 隱私與治理紅線 |

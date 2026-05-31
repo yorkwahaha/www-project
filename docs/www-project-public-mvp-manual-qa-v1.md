@@ -4,7 +4,7 @@
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
-**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ③ 本文件逐步 QA。
+**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ③ 本文件逐步 QA → ④ 實機結果填寫 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
 **提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore` 是 **placeholder**（說明邊界），不是真實 feed 列表，也不會查詢或列出問卷。
 
@@ -96,7 +96,7 @@ npm run test:integration:local
    - 投票選項有足夠點擊區域，長文字自動換行。
    - 結果頁選項標籤與百分比不溢出。
 3. 桌機寬度（≥1024px）內容仍置中、不過寬；無需 dark mode 或動畫。
-4. **此為開發者工具簡測**，不等於 Safari／Firefox／實機行動裝置的完整跨瀏覽器認證（見 demo handoff 下一階段候選）。
+4. **此為開發者工具簡測**，不等於 Safari／Firefox／實機行動裝置的完整跨瀏覽器認證；實機結果請記錄於 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
 **Phase 28–32 仍不包含：** 真實 feed 列表 UI、ranking／推薦演算法、登入、admin UI、分類選擇、發布後編輯、production 一鍵部署。`/explore` 僅為邊界說明頁，不是 `GET /polls/feed` 的前台實作。
 
@@ -135,6 +135,7 @@ npm run test:integration:local
 
 - `README.md` — 指令與 API 總覽
 - `docs/www-project-local-demo-startup-v1.md` — 本機 demo 啟動（Phase 32）
+- `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` — 跨瀏覽器／實機 QA 結果記錄表（Phase 34）
 - `docs/www-project-public-mvp-demo-release-handoff-v1.md` — Demo／release 展示與邊界交接（Phase 31）
 - `docs/www-project-phase-15-pg-integration-test-setup-v1.md` — 本機 PostgreSQL 整合測試
 - `AGENTS.md` — 代理與隱私紅線

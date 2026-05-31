@@ -4,6 +4,7 @@ import { createInMemoryPublicNoticeRepository } from '../../src/public-notices/i
 import { createPublicNoticeService } from '../../src/public-notices/service.js';
 import {
   adminBId,
+  adminAuthHeaders,
   adminRequest,
   approveCorrectionRequest,
   createAdminHttpFixture,
@@ -37,6 +38,7 @@ function createServer(fixture: ReturnType<typeof createAdminHttpFixture>) {
   return createHttpServer({
     pollService: fixture.pollService,
     adminCorrection: fixture.adminCorrection,
+    adminAuth: fixture.adminAuth,
     publicNoticeService: createPublicNoticeService(
       createInMemoryPublicNoticeRepository(
         fixture.correctionRepo.polls,
@@ -74,7 +76,7 @@ describe('GET /polls/:pollId/public-notices', () => {
         baseUrl,
         'POST',
         `/admin/suspended-correction-requests/${requestId}/apply`,
-        { headers: { 'X-Admin-User-Id': adminBId } },
+        { headers: adminAuthHeaders(adminBId) },
       );
       expect(applied.status).toBe(200);
 

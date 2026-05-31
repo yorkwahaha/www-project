@@ -11,7 +11,7 @@ import {
   type CorrectionReviewContext,
   type CorrectionTargetField,
 } from '../admin/types.js';
-import { requireAdminUserId } from './admin-auth.js';
+import type { AdminAuth, AdminPrincipal } from './admin-auth.js';
 import { AdminRouteError, handleAdminRouteError } from './admin-error.js';
 import { readJsonBody, sendJson } from './json.js';
 
@@ -84,14 +84,18 @@ export type ApplyCorrectionRequestResponse = {
   correction_log_id: string;
 };
 
-export function createAdminRouteHandlers(services: AdminCorrectionServices) {
+export function createAdminRouteHandlers(
+  services: AdminCorrectionServices,
+  adminAuth: AdminAuth,
+) {
   return {
     async handlePostCorrectionRequests(
       req: IncomingMessage,
       res: ServerResponse,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:write');
         const body = await readJsonBody<CreateCorrectionRequestBody>(req);
         const input = parseCreateCorrectionRequestInput(body);
 
@@ -116,10 +120,11 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
       req: IncomingMessage,
       res: ServerResponse,
       requestId: string,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
         requireRequestId(requestId);
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:read');
         const context = await services.decisionService.getReviewContext(
           requestId,
           adminUserId,
@@ -134,10 +139,11 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
       req: IncomingMessage,
       res: ServerResponse,
       requestId: string,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
         requireRequestId(requestId);
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:read');
         const record = await services.auditReadService.getAuditRecord(
           requestId,
           adminUserId,
@@ -153,10 +159,11 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
       res: ServerResponse,
       pollId: string,
       searchParams: URLSearchParams,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
         requirePollId(pollId);
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:read');
         const query = parsePollCorrectionAuditQuery(searchParams);
         const result = await services.auditReadService.listPollCorrectionAudit(
           pollId,
@@ -173,9 +180,10 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
       req: IncomingMessage,
       res: ServerResponse,
       searchParams: URLSearchParams,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:read');
         const query = parseGlobalCorrectionAuditQuery(searchParams);
         const result = await services.auditReadService.listGlobalCorrectionAudit(
           adminUserId,
@@ -191,10 +199,11 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
       req: IncomingMessage,
       res: ServerResponse,
       requestId: string,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
         requireRequestId(requestId);
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:write');
         const body = await readJsonBody<SubmitCorrectionDecisionBody>(req);
         const decision = parseDecision(body.decision);
         const reasonCode = body.reason_code?.trim() ?? '';
@@ -227,10 +236,11 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
       req: IncomingMessage,
       res: ServerResponse,
       requestId: string,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
         requireRequestId(requestId);
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:write');
         const result = await services.applyService.applyCorrectionRequest(
           requestId,
           adminUserId,
@@ -250,9 +260,10 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
     async handlePostSuspendedCorrectionRequests(
       req: IncomingMessage,
       res: ServerResponse,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:write');
         const body = await readJsonBody<CreateCorrectionRequestBody>(req);
         const input = parseCreateCorrectionRequestInput(body);
 
@@ -279,10 +290,11 @@ export function createAdminRouteHandlers(services: AdminCorrectionServices) {
       req: IncomingMessage,
       res: ServerResponse,
       requestId: string,
+      principal: AdminPrincipal,
     ): Promise<void> {
       try {
         requireRequestId(requestId);
-        const adminUserId = requireAdminUserId(req);
+        const adminUserId = adminAuth.requirePermission(principal, 'correction:write');
         const result = await services.suspendedApplyService.applySuspendedCorrectionRequest(
           requestId,
           adminUserId,

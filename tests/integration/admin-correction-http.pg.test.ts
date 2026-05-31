@@ -9,6 +9,10 @@ import {
   createIntegrationPool,
   truncateBusinessTables,
 } from '../helpers/pg-integration.js';
+import {
+  adminAuthHeaders,
+  createTestAdminAuth,
+} from '../helpers/admin-auth.js';
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
 const adminId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -80,6 +84,7 @@ describe('Admin correction HTTP PostgreSQL smoke', () => {
       adminCorrection: createAdminCorrectionServices(pool, {
         now: () => submittedAt,
       }),
+      adminAuth: createTestAdminAuth([{ adminId }]),
     });
 
     await withBoundServer(server, async (baseUrl) => {
@@ -87,7 +92,7 @@ describe('Admin correction HTTP PostgreSQL smoke', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-User-Id': adminId,
+          ...adminAuthHeaders(adminId),
         },
         body: JSON.stringify({
           poll_id: created.poll_id,

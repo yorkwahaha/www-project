@@ -12,11 +12,16 @@ import {
   createIntegrationPool,
   truncateBusinessTables,
 } from '../helpers/pg-integration.js';
+import {
+  adminAuthHeaders,
+  createTestAdminAuth,
+} from '../helpers/admin-auth.js';
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
 const adminAId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const adminBId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const adminCId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+const nonAdminCredentialId = '99999999-9999-4999-8999-999999999999';
 const submittedAt = new Date('2026-06-15T10:00:00.000Z');
 
 const DENIED_KEYS = [
@@ -121,7 +126,7 @@ async function jsonRequest(
     method,
     headers: {
       'Content-Type': 'application/json',
-      ...(adminId ? { 'X-Admin-User-Id': adminId } : {}),
+      ...(adminId ? adminAuthHeaders(adminId) : {}),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -175,6 +180,12 @@ async function createFixture(pool: Pool, status: 'active' | 'suspended' = 'activ
       adminCorrection: createAdminCorrectionServices(pool, {
         now: () => submittedAt,
       }),
+      adminAuth: createTestAdminAuth([
+        { adminId: adminAId },
+        { adminId: adminBId },
+        { adminId: adminCId },
+        { adminId: nonAdminCredentialId },
+      ]),
       publicNoticeService: createPublicNoticeService(
         createPgPublicNoticeRepository(pool),
       ),
@@ -634,7 +645,7 @@ describe('Admin correction audit HTTP PostgreSQL', () => {
         baseUrl,
         'GET',
         '/admin/correction-audit',
-        '99999999-9999-4999-8999-999999999999',
+        nonAdminCredentialId,
       );
       expect(forbidden.status).toBe(403);
       expect(forbidden.body.error).toBe('ADMIN_FORBIDDEN');

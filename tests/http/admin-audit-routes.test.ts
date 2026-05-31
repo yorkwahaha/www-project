@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   adminBId,
   adminCId,
+  adminAuthHeaders,
   adminRequest,
   approveCorrectionRequest,
   createAdminHttpFixture,
@@ -10,6 +11,7 @@ import {
   createPendingSuspendedCorrectionRequest,
   createSuspendedAdminHttpFixture,
   defaultAdminId,
+  nonAdminCredentialId,
   withServer,
 } from './helpers/admin-http-fixture.js';
 
@@ -72,20 +74,16 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         baseUrl,
         'GET',
         `/admin/correction-requests/${requestId}/audit-record`,
-        { headers: { 'X-Admin-User-Id': 'not-a-uuid' } },
+        { headers: { Authorization: 'Bearer invalid-token' } },
       );
-      expect(invalid.status).toBe(400);
-      expect(invalid.body.error).toBe('INVALID_ADMIN_USER_ID');
+      expect(invalid.status).toBe(401);
+      expect(invalid.body.error).toBe('ADMIN_AUTH_INVALID');
 
       const forbidden = await adminRequest(
         baseUrl,
         'GET',
         `/admin/correction-requests/${requestId}/audit-record`,
-        {
-          headers: {
-            'X-Admin-User-Id': '99999999-9999-4999-8999-999999999999',
-          },
-        },
+        { headers: adminAuthHeaders(nonAdminCredentialId) },
       );
       expect(forbidden.status).toBe(403);
       expect(forbidden.body.error).toBe('ADMIN_FORBIDDEN');
@@ -101,7 +99,7 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         baseUrl,
         'GET',
         '/admin/correction-requests/not-a-uuid/audit-record',
-        { headers: { 'X-Admin-User-Id': defaultAdminId } },
+        { headers: adminAuthHeaders(defaultAdminId) },
       );
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('INVALID_REQUEST_ID');
@@ -119,7 +117,7 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': adminBId },
+          headers: adminAuthHeaders(adminBId),
           body: {
             decision: 'approve',
             reason_code: 'PRIVATE_CODE',
@@ -132,7 +130,7 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         baseUrl,
         'GET',
         `/admin/correction-requests/${requestId}/audit-record`,
-        { headers: { 'X-Admin-User-Id': adminCId } },
+        { headers: adminAuthHeaders(adminCId) },
       );
 
       expect(response.status).toBe(200);
@@ -157,7 +155,7 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         baseUrl,
         'POST',
         `/admin/correction-requests/${requestId}/apply`,
-        { headers: { 'X-Admin-User-Id': defaultAdminId } },
+        { headers: adminAuthHeaders(defaultAdminId) },
       );
       expect(applied.status).toBe(200);
 
@@ -165,7 +163,7 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         baseUrl,
         'GET',
         `/admin/correction-requests/${requestId}/audit-record`,
-        { headers: { 'X-Admin-User-Id': defaultAdminId } },
+        { headers: adminAuthHeaders(defaultAdminId) },
       );
 
       expect(response.status).toBe(200);
@@ -197,7 +195,7 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         baseUrl,
         'POST',
         `/admin/suspended-correction-requests/${requestId}/apply`,
-        { headers: { 'X-Admin-User-Id': defaultAdminId } },
+        { headers: adminAuthHeaders(defaultAdminId) },
       );
       expect(applied.status).toBe(200);
 
@@ -205,7 +203,7 @@ describe('GET /admin/correction-requests/:requestId/audit-record', () => {
         baseUrl,
         'GET',
         `/admin/correction-requests/${requestId}/audit-record`,
-        { headers: { 'X-Admin-User-Id': defaultAdminId } },
+        { headers: adminAuthHeaders(defaultAdminId) },
       );
 
       expect(response.status).toBe(200);
@@ -221,7 +219,7 @@ describe('GET /admin/polls/:pollId/correction-audit', () => {
     const server = createAdminHttpServer(fixture);
 
     await withServer(server, async (baseUrl) => {
-      const headers = { 'X-Admin-User-Id': defaultAdminId };
+      const headers = adminAuthHeaders(defaultAdminId);
       const createdIds: string[] = [];
       for (const body of [
         {
@@ -282,7 +280,7 @@ describe('GET /admin/polls/:pollId/correction-audit', () => {
   it('returns an empty list for an unknown poll and rejects unsafe query shapes', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
-    const headers = { 'X-Admin-User-Id': defaultAdminId };
+    const headers = adminAuthHeaders(defaultAdminId);
 
     await withServer(server, async (baseUrl) => {
       const empty = await adminRequest(
@@ -342,7 +340,7 @@ describe('GET /admin/correction-audit', () => {
       title: 'Second poll',
     });
     const server = createAdminHttpServer(fixture);
-    const headers = { 'X-Admin-User-Id': defaultAdminId };
+    const headers = adminAuthHeaders(defaultAdminId);
 
     await withServer(server, async (baseUrl) => {
       for (const pollId of [fixture.pollId, secondPollId]) {
@@ -393,7 +391,7 @@ describe('GET /admin/correction-audit', () => {
   it('supports safe status and validity filters', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
-    const headers = { 'X-Admin-User-Id': defaultAdminId };
+    const headers = adminAuthHeaders(defaultAdminId);
 
     await withServer(server, async (baseUrl) => {
       const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
@@ -402,7 +400,7 @@ describe('GET /admin/correction-audit', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': adminBId },
+          headers: adminAuthHeaders(adminBId),
           body: { decision: 'reject', reason_code: 'PRIVATE_CODE' },
         },
       );
@@ -441,7 +439,7 @@ describe('GET /admin/correction-audit', () => {
   it('uses existing admin guards and rejects unsafe query shapes', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
-    const headers = { 'X-Admin-User-Id': defaultAdminId };
+    const headers = adminAuthHeaders(defaultAdminId);
 
     await withServer(server, async (baseUrl) => {
       const empty = await adminRequest(baseUrl, 'GET', '/admin/correction-audit', {
@@ -455,9 +453,7 @@ describe('GET /admin/correction-audit', () => {
       expect(missing.body.error).toBe('ADMIN_AUTH_REQUIRED');
 
       const forbidden = await adminRequest(baseUrl, 'GET', '/admin/correction-audit', {
-        headers: {
-          'X-Admin-User-Id': '99999999-9999-4999-8999-999999999999',
-        },
+        headers: adminAuthHeaders(nonAdminCredentialId),
       });
       expect(forbidden.status).toBe(403);
       expect(forbidden.body.error).toBe('ADMIN_FORBIDDEN');

@@ -6,6 +6,8 @@ import type { PublicFeedQuery } from '../polls/types.js';
 import type { PublicNoticeService } from '../public-notices/service.js';
 import { sendJson } from './json.js';
 import { createAdminRouteHandlers, type AdminCorrectionServices } from './admin-routes.js';
+import type { AdminAuth } from './admin-auth.js';
+import { handleAdminRouteError } from './admin-error.js';
 import { createPollRouteHandlers } from './poll-routes.js';
 import { createPublicNoticeRouteHandlers } from './public-notice-routes.js';
 
@@ -17,13 +19,17 @@ const POLL_ID_PATTERN =
 export type HttpServerOptions = {
   pollService: PollService;
   adminCorrection?: AdminCorrectionServices;
+  adminAuth?: AdminAuth;
   publicNoticeService?: PublicNoticeService;
 };
 
 export function createHttpServer(options: HttpServerOptions) {
+  if ((options.adminCorrection === undefined) !== (options.adminAuth === undefined)) {
+    throw new Error('adminCorrection and adminAuth must be configured together');
+  }
   const pollRoutes = createPollRouteHandlers(options.pollService);
-  const adminRoutes = options.adminCorrection
-    ? createAdminRouteHandlers(options.adminCorrection)
+  const adminRoutes = options.adminCorrection && options.adminAuth
+    ? createAdminRouteHandlers(options.adminCorrection, options.adminAuth)
     : null;
   const publicNoticeRoutes = options.publicNoticeService
     ? createPublicNoticeRouteHandlers(options.publicNoticeService)
@@ -31,7 +37,14 @@ export function createHttpServer(options: HttpServerOptions) {
 
   return createServer(async (req, res) => {
     try {
-      await routeRequest(req, res, pollRoutes, adminRoutes, publicNoticeRoutes);
+      await routeRequest(
+        req,
+        res,
+        pollRoutes,
+        adminRoutes,
+        options.adminAuth ?? null,
+        publicNoticeRoutes,
+      );
     } catch {
       sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'Internal server error' });
     }
@@ -43,6 +56,7 @@ async function routeRequest(
   res: ServerResponse,
   pollRoutes: ReturnType<typeof createPollRouteHandlers>,
   adminRoutes: ReturnType<typeof createAdminRouteHandlers> | null,
+  adminAuth: AdminAuth | null,
   publicNoticeRoutes: ReturnType<typeof createPublicNoticeRouteHandlers> | null,
 ): Promise<void> {
   const method = req.method ?? 'GET';
@@ -170,22 +184,29 @@ async function routeRequest(
   }
 
   if (path.startsWith('/admin/')) {
-    if (!adminRoutes) {
+    if (!adminRoutes || !adminAuth) {
       sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
       return;
     }
+    let principal;
+    try {
+      principal = adminAuth.authenticate(req);
+    } catch (err) {
+      handleAdminRouteError(res, err);
+      return;
+    }
     if (path === '/admin/correction-requests' && method === 'POST') {
-      await adminRoutes.handlePostCorrectionRequests(req, res);
+      await adminRoutes.handlePostCorrectionRequests(req, res, principal);
       return;
     }
 
     if (path === '/admin/suspended-correction-requests' && method === 'POST') {
-      await adminRoutes.handlePostSuspendedCorrectionRequests(req, res);
+      await adminRoutes.handlePostSuspendedCorrectionRequests(req, res, principal);
       return;
     }
 
     if (path === '/admin/correction-audit' && method === 'GET') {
-      await adminRoutes.handleGetGlobalCorrectionAudit(req, res, url.searchParams);
+      await adminRoutes.handleGetGlobalCorrectionAudit(req, res, url.searchParams, principal);
       return;
     }
 
@@ -198,7 +219,13 @@ async function routeRequest(
         sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
         return;
       }
-      await adminRoutes.handleGetPollCorrectionAudit(req, res, pollId, url.searchParams);
+      await adminRoutes.handleGetPollCorrectionAudit(
+        req,
+        res,
+        pollId,
+        url.searchParams,
+        principal,
+      );
       return;
     }
 
@@ -214,7 +241,7 @@ async function routeRequest(
         });
         return;
       }
-      await adminRoutes.handlePostSuspendedCorrectionApply(req, res, requestId);
+      await adminRoutes.handlePostSuspendedCorrectionApply(req, res, requestId, principal);
       return;
     }
 
@@ -232,19 +259,19 @@ async function routeRequest(
         return;
       }
       if (subPath === 'review-context' && method === 'GET') {
-        await adminRoutes.handleGetReviewContext(req, res, requestId);
+        await adminRoutes.handleGetReviewContext(req, res, requestId, principal);
         return;
       }
       if (subPath === 'audit-record' && method === 'GET') {
-        await adminRoutes.handleGetAuditRecord(req, res, requestId);
+        await adminRoutes.handleGetAuditRecord(req, res, requestId, principal);
         return;
       }
       if (subPath === 'decisions' && method === 'POST') {
-        await adminRoutes.handlePostCorrectionDecision(req, res, requestId);
+        await adminRoutes.handlePostCorrectionDecision(req, res, requestId, principal);
         return;
       }
       if (subPath === 'apply' && method === 'POST') {
-        await adminRoutes.handlePostCorrectionApply(req, res, requestId);
+        await adminRoutes.handlePostCorrectionApply(req, res, requestId, principal);
         return;
       }
     }

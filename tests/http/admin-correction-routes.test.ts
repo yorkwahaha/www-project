@@ -5,6 +5,7 @@ import { createInMemoryPollRepository } from '../../src/polls/in-memory-reposito
 import {
   adminBId,
   adminCId,
+  adminAuthHeaders,
   adminRequest,
   approveCorrectionRequest,
   createAdminHttpFixture,
@@ -17,6 +18,8 @@ import {
   defaultOptionId,
   defaultPollId,
   defaultSubmittedAt,
+  nonAdminCredentialId,
+  readOnlyAdminId,
   withServer,
 } from './helpers/admin-http-fixture.js';
 
@@ -53,7 +56,7 @@ function titleCorrectionBody(pollId: string = defaultPollId) {
 }
 
 describe('POST /admin/correction-requests', () => {
-  it('returns 401 ADMIN_AUTH_REQUIRED when X-Admin-User-Id is missing', async () => {
+  it('returns 401 ADMIN_AUTH_REQUIRED when Authorization is missing', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
 
@@ -64,18 +67,21 @@ describe('POST /admin/correction-requests', () => {
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         error: 'ADMIN_AUTH_REQUIRED',
-        message: 'X-Admin-User-Id header is required',
+        message: 'Admin credentials are required',
       });
     });
   });
 
-  it('does not accept X-User-Id as admin fallback', async () => {
+  it('does not accept X-User-Id or legacy X-Admin-User-Id as admin fallback', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
 
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-User-Id': defaultAdminId },
+        headers: {
+          'X-User-Id': defaultAdminId,
+          'X-Admin-User-Id': defaultAdminId,
+        },
         body: titleCorrectionBody(),
       });
       expect(response.status).toBe(401);
@@ -83,19 +89,19 @@ describe('POST /admin/correction-requests', () => {
     });
   });
 
-  it('returns 400 INVALID_ADMIN_USER_ID for invalid admin header', async () => {
+  it('returns 401 ADMIN_AUTH_INVALID for an invalid bearer token', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
 
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-Admin-User-Id': 'not-a-uuid' },
+        headers: { Authorization: 'Bearer invalid-token' },
         body: titleCorrectionBody(),
       });
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
       expect(response.body).toEqual({
-        error: 'INVALID_ADMIN_USER_ID',
-        message: 'Invalid X-Admin-User-Id',
+        error: 'ADMIN_AUTH_INVALID',
+        message: 'Invalid admin credentials',
       });
     });
   });
@@ -103,11 +109,9 @@ describe('POST /admin/correction-requests', () => {
   it('returns 403 ADMIN_FORBIDDEN when header is valid but user is not active admin', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
-    const nonAdminId = '99999999-9999-4999-8999-999999999999';
-
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-Admin-User-Id': nonAdminId },
+        headers: adminAuthHeaders(nonAdminCredentialId),
         body: titleCorrectionBody(),
       });
       expect(response.status).toBe(403);
@@ -124,7 +128,7 @@ describe('POST /admin/correction-requests', () => {
 
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-Admin-User-Id': fixture.adminId },
+        headers: adminAuthHeaders(fixture.adminId),
         body: titleCorrectionBody(),
       });
 
@@ -146,7 +150,7 @@ describe('POST /admin/correction-requests', () => {
     const server = createAdminHttpServer(fixture);
 
     await withServer(server, async (baseUrl) => {
-      const headers = { 'X-Admin-User-Id': fixture.adminId };
+      const headers = adminAuthHeaders(fixture.adminId);
       const first = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
         headers,
         body: titleCorrectionBody(),
@@ -168,7 +172,7 @@ describe('POST /admin/correction-requests', () => {
 
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-Admin-User-Id': fixture.adminId },
+        headers: adminAuthHeaders(fixture.adminId),
         body: {
           poll_id: fixture.pollId,
           correction_target_field: 'option_text',
@@ -187,7 +191,7 @@ describe('POST /admin/correction-requests', () => {
 
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-Admin-User-Id': fixture.adminId },
+        headers: adminAuthHeaders(fixture.adminId),
         body: {
           ...titleCorrectionBody(),
           correction_target_field: 'category',
@@ -205,7 +209,7 @@ describe('POST /admin/correction-requests', () => {
 
     await withServer(server, async (baseUrl) => {
       const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-Admin-User-Id': defaultAdminId },
+        headers: adminAuthHeaders(defaultAdminId),
         body: titleCorrectionBody(),
       });
       expect(response.status).toBe(404);
@@ -215,7 +219,7 @@ describe('POST /admin/correction-requests', () => {
 });
 
 describe('GET /admin/correction-requests/:requestId/review-context', () => {
-  it('returns 401 when X-Admin-User-Id is missing', async () => {
+  it('returns 401 when Authorization is missing', async () => {
     const fixture = createAdminHttpFixture();
     const server = createAdminHttpServer(fixture);
 
@@ -240,7 +244,7 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
         baseUrl,
         'GET',
         '/admin/correction-requests/not-a-uuid/review-context',
-        { headers: { 'X-Admin-User-Id': adminBId } },
+        { headers: adminAuthHeaders(adminBId) },
       );
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('INVALID_REQUEST_ID');
@@ -255,7 +259,7 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
       const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
 
       await adminRequest(baseUrl, 'POST', `/admin/correction-requests/${requestId}/decisions`, {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
         body: { decision: 'approve', reason_code: 'OK' },
       });
 
@@ -263,13 +267,30 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
         baseUrl,
         'GET',
         `/admin/correction-requests/${requestId}/review-context`,
-        { headers: { 'X-Admin-User-Id': adminCId } },
+        { headers: adminAuthHeaders(adminCId) },
       );
 
       expect(response.status).toBe(200);
       expect(response.body.request_status).toBe('pending');
       expect(response.body.viewer_has_submitted).toBe(false);
       assertBlindReviewContext(response.body);
+    });
+  });
+
+  it('returns 403 ADMIN_FORBIDDEN when token lacks correction:write', async () => {
+    const fixture = createAdminHttpFixture();
+    const server = createAdminHttpServer(fixture);
+
+    await withServer(server, async (baseUrl) => {
+      const response = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
+        headers: adminAuthHeaders(readOnlyAdminId),
+        body: titleCorrectionBody(),
+      });
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        error: 'ADMIN_FORBIDDEN',
+        message: 'Admin permission is required',
+      });
     });
   });
 
@@ -281,11 +302,11 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
       const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
 
       await adminRequest(baseUrl, 'POST', `/admin/correction-requests/${requestId}/decisions`, {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
         body: { decision: 'approve', reason_code: 'OK' },
       });
       await adminRequest(baseUrl, 'POST', `/admin/correction-requests/${requestId}/decisions`, {
-        headers: { 'X-Admin-User-Id': adminCId },
+        headers: adminAuthHeaders(adminCId),
         body: { decision: 'approve', reason_code: 'OK' },
       });
 
@@ -293,7 +314,7 @@ describe('GET /admin/correction-requests/:requestId/review-context', () => {
         baseUrl,
         'GET',
         `/admin/correction-requests/${requestId}/review-context`,
-        { headers: { 'X-Admin-User-Id': adminBId } },
+        { headers: adminAuthHeaders(adminBId) },
       );
 
       expect(response.status).toBe(200);
@@ -345,7 +366,7 @@ describe('POST /admin/correction-requests/:requestId/decisions', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': fixture.adminId },
+          headers: adminAuthHeaders(fixture.adminId),
           body: { decision: 'approve', reason_code: 'SELF' },
         },
       );
@@ -365,7 +386,7 @@ describe('POST /admin/correction-requests/:requestId/decisions', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': fixture.adminId },
+          headers: adminAuthHeaders(fixture.adminId),
           body: { decision: 'reject', reason_code: 'WITHDRAW' },
         },
       );
@@ -386,7 +407,7 @@ describe('POST /admin/correction-requests/:requestId/decisions', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': adminBId },
+          headers: adminAuthHeaders(adminBId),
           body: { decision: 'approve', reason_code: 'OK' },
         },
       );
@@ -398,7 +419,7 @@ describe('POST /admin/correction-requests/:requestId/decisions', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': adminCId },
+          headers: adminAuthHeaders(adminCId),
           body: { decision: 'approve', reason_code: 'OK' },
         },
       );
@@ -418,7 +439,7 @@ describe('POST /admin/correction-requests/:requestId/decisions', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': adminBId },
+          headers: adminAuthHeaders(adminBId),
           body: { decision: 'reject', reason_code: 'NOT_TYPO' },
         },
       );
@@ -434,7 +455,7 @@ describe('POST /admin/correction-requests/:requestId/decisions', () => {
     await withServer(server, async (baseUrl) => {
       const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
       const path = `/admin/correction-requests/${requestId}/decisions`;
-      const headers = { 'X-Admin-User-Id': adminBId };
+      const headers = adminAuthHeaders(adminBId);
       const body = { decision: 'approve', reason_code: 'OK' };
 
       const first = await adminRequest(baseUrl, 'POST', path, { headers, body });
@@ -464,7 +485,7 @@ describe('POST /admin/correction-requests/:requestId/decisions', () => {
         'POST',
         `/admin/correction-requests/${requestId}/decisions`,
         {
-          headers: { 'X-Admin-User-Id': adminBId },
+          headers: adminAuthHeaders(adminBId),
           body: { decision: 'approve', reason_code: 'LATE' },
         },
       );
@@ -490,7 +511,7 @@ describe('POST /admin/correction-requests/:requestId/apply', () => {
       await approveCorrectionRequest(baseUrl, requestId);
 
       const response = await adminRequest(baseUrl, 'POST', applyPath(requestId), {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
       });
 
       expect(response.status).toBe(200);
@@ -506,7 +527,7 @@ describe('POST /admin/correction-requests/:requestId/apply', () => {
 
     await withServer(server, async (baseUrl) => {
       const created = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-        headers: { 'X-Admin-User-Id': fixture.adminId },
+        headers: adminAuthHeaders(fixture.adminId),
         body: {
           poll_id: fixture.pollId,
           correction_target_field: 'option_text',
@@ -520,7 +541,7 @@ describe('POST /admin/correction-requests/:requestId/apply', () => {
       await approveCorrectionRequest(baseUrl, requestId);
 
       const response = await adminRequest(baseUrl, 'POST', applyPath(requestId), {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
       });
 
       expect(response.status).toBe(200);
@@ -537,7 +558,7 @@ describe('POST /admin/correction-requests/:requestId/apply', () => {
     await withServer(server, async (baseUrl) => {
       const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
       const response = await adminRequest(baseUrl, 'POST', applyPath(requestId), {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
       });
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('CORRECTION_REQUEST_NOT_APPROVED');
@@ -554,7 +575,7 @@ describe('POST /admin/correction-requests/:requestId/apply', () => {
       fixture.correctionRepo.polls.get(fixture.pollId)!.title = 'Changed after approval';
 
       const response = await adminRequest(baseUrl, 'POST', applyPath(requestId), {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
       });
       expect(response.status).toBe(409);
       expect(response.body.error).toBe('CORRECTION_STALE_TARGET');
@@ -568,7 +589,7 @@ describe('POST /admin/correction-requests/:requestId/apply', () => {
     await withServer(server, async (baseUrl) => {
       const requestId = await createPendingCorrectionRequest(baseUrl, fixture);
       await approveCorrectionRequest(baseUrl, requestId);
-      const headers = { 'X-Admin-User-Id': adminBId };
+      const headers = adminAuthHeaders(adminBId);
 
       const first = await adminRequest(baseUrl, 'POST', applyPath(requestId), { headers });
       expect(first.status).toBe(200);
@@ -591,7 +612,7 @@ describe('POST /admin/suspended-correction-requests', () => {
         'POST',
         '/admin/suspended-correction-requests',
         {
-          headers: { 'X-Admin-User-Id': fixture.adminId },
+          headers: adminAuthHeaders(fixture.adminId),
           body: {
             poll_id: fixture.pollId,
             correction_target_field: 'title',
@@ -665,7 +686,7 @@ describe('POST /admin/suspended-correction-requests/:requestId/apply', () => {
       await approveCorrectionRequest(baseUrl, requestId);
 
       const response = await adminRequest(baseUrl, 'POST', suspendedApplyPath(requestId), {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
       });
 
       expect(response.status).toBe(200);
@@ -686,7 +707,7 @@ describe('POST /admin/suspended-correction-requests/:requestId/apply', () => {
     await withServer(server, async (baseUrl) => {
       const requestId = await createPendingSuspendedCorrectionRequest(baseUrl, fixture);
       const response = await adminRequest(baseUrl, 'POST', suspendedApplyPath(requestId), {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
       });
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('CORRECTION_REQUEST_NOT_APPROVED');
@@ -703,7 +724,7 @@ describe('POST /admin/suspended-correction-requests/:requestId/apply', () => {
       fixture.correctionRepo.polls.get(fixture.pollId)!.title = 'Changed after approval';
 
       const response = await adminRequest(baseUrl, 'POST', suspendedApplyPath(requestId), {
-        headers: { 'X-Admin-User-Id': adminBId },
+        headers: adminAuthHeaders(adminBId),
       });
       expect(response.status).toBe(409);
       expect(response.body.error).toBe('CORRECTION_STALE_TARGET');
@@ -717,7 +738,7 @@ describe('POST /admin/suspended-correction-requests/:requestId/apply', () => {
     await withServer(server, async (baseUrl) => {
       const requestId = await createPendingSuspendedCorrectionRequest(baseUrl, fixture);
       await approveCorrectionRequest(baseUrl, requestId);
-      const headers = { 'X-Admin-User-Id': adminBId };
+      const headers = adminAuthHeaders(adminBId);
 
       const first = await adminRequest(baseUrl, 'POST', suspendedApplyPath(requestId), {
         headers,

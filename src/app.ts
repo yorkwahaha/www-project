@@ -1,5 +1,6 @@
 import { createAdminCorrectionServices } from './admin/create-admin-correction-services.js';
 import { getPool } from './db/client.js';
+import { createAdminAuthFromEnv } from './http/admin-auth.js';
 import { createHttpServer } from './http/server.js';
 import { getHealthStatus, type HealthStatus } from './milestone.js';
 import { createPgPollRepository } from './polls/repository.js';
@@ -27,6 +28,7 @@ export function createApp(): WwwApp {
       const server = createHttpServer({
         pollService,
         adminCorrection: createAdminCorrectionServices(pool),
+        adminAuth: createAdminAuthFromEnv(),
         publicNoticeService,
       });
       server.listen(port);

@@ -1,4 +1,4 @@
-# Admin correction HTTP API (Phase 6B / 6C)
+# Admin correction HTTP API (Phase 6B–12)
 
 Operator-facing reference for **current** admin typo-correction routes on `master` (baseline `dd8c4bb` and later).
 
@@ -8,31 +8,55 @@ This document describes **implemented HTTP behavior**. It does not authorize new
 
 ---
 
-## Authentication contract (MVP)
+## Authentication contract (Admin Auth v1)
 
 All routes below require header:
 
 ```http
-X-Admin-User-Id: <uuid>
+Authorization: Bearer <opaque-token>
 ```
 
 | Condition | HTTP | `error` |
 |-----------|------|---------|
 | Header missing or empty | 401 | `ADMIN_AUTH_REQUIRED` |
-| Not a UUID | 400 | `INVALID_ADMIN_USER_ID` |
-| UUID not an **active** row in `admin_users` | 403 | `ADMIN_FORBIDDEN` |
+| Malformed or unknown Bearer token | 401 | `ADMIN_AUTH_INVALID` |
+| Authenticated credential lacks required permission | 403 | `ADMIN_FORBIDDEN` |
+| Credential admin ID is not an **active** row in `admin_users` | 403 | `ADMIN_FORBIDDEN` |
 
-### Not production session auth
+### Server-side credential registry
 
-- There is **no** session cookie, JWT, or OAuth middleware for admin routes today.
-- The server **trusts** `X-Admin-User-Id` when it matches `admin_users.user_id` with `status = 'active'`.
-- Suitable for **local/dev/integration** and controlled staging only until real admin auth ships.
+Production startup requires `ADMIN_AUTH_CREDENTIALS_JSON`. It is a JSON array:
 
-### `X-User-Id` is not admin identity
+```json
+[
+  {
+    "token_sha256": "<64 lowercase hex SHA-256 digest>",
+    "admin_user_id": "<uuid>",
+    "role": "admin",
+    "permissions": ["correction:read", "correction:write"]
+  }
+]
+```
 
-- **`X-User-Id` must not** be used as a substitute for `X-Admin-User-Id` on admin routes.
+- Generate opaque high-entropy tokens outside the app. Store only their SHA-256 digests in the env registry.
+- The server resolves token → admin ID and permissions. It does not accept client-provided admin identity.
+- Missing, empty, malformed, ambiguous, or duplicate credential config fails closed at startup.
+- The registry is static process config in v1. There is no login page, session cookie, JWT, OAuth flow, or rotation UI yet.
+
+### RBAC boundary
+
+| Permission | Routes |
+|------------|--------|
+| `correction:read` | `GET` review-context, audit-record, per-poll audit, global audit queue |
+| `correction:write` | Create correction requests, submit decisions, apply corrections |
+
+The credential registry role must be `admin`. Domain services also require the resolved admin ID to be an active `admin_users` row.
+
+### Public identity headers are not admin identity
+
+- **`X-User-Id` and legacy `X-Admin-User-Id` must not** be used as substitutes for `Authorization`.
 - Admin permission is stored in `admin_users`, separate from `users.trust_level` (official vote eligibility).
-- Sending only `X-User-Id` on admin routes returns `401 ADMIN_AUTH_REQUIRED`.
+- Sending only public or legacy identity headers on admin routes returns `401 ADMIN_AUTH_REQUIRED`.
 
 ---
 
@@ -247,6 +271,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 - Review-context hardened (Phase 7.5): `decision_summary` only — no `peer_decisions`, `final_decisions`, `admin_id`, or reason fields in responses
 - Public notice read (Phase 8): `GET /polls/:pollId/public-notices` — allowlisted notice types only; empty list for unknown/hidden/no-notice polls
 - Public notice display (Phase 11): `/results/:pollId` loads the poll-scoped public notice endpoint; empty or failed notice reads remain hidden and do not block result display
+- Admin Auth / RBAC v1 (Phase 12): opaque Bearer token registry, SHA-256 digests only in config, centralized `/admin/*` authentication, and read/write permission checks
 
 ### Stubs / not yet implemented
 
@@ -255,7 +280,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 | **Spread Score** | Stub: score `0`, `requires_dual_admin` always true; no risk-based dual-admin bypass |
 | **24h pre-apply guard** | No recompute of Spread Score at apply when request age > 24h |
 | **Semantic typo guard** | Only normalization + non-empty / must-differ checks |
-| **Real admin auth** | No session middleware; header trust model only |
+| **Admin auth remainder** | No login page, session lifecycle, JWT/OAuth flow, rotation UI, or automated secret distribution |
 | **Cross-poll admin audit queue** | Implemented in Phase 9: bounded global list with safe status / validity filters |
 | **Public notice global feed** | No notification center, unread state, personalization, or cross-poll notice listing |
 | **Passive expiry job** | Expiry enforced when an admin hits decision/apply, not by background scheduler |
@@ -272,6 +297,7 @@ No durable **user ↔ selected option** linkage is created by these flows. `corr
 ## Related tests
 
 - HTTP contracts: `tests/http/admin-correction-routes.test.ts`
+- Admin Auth v1: `tests/http/admin-auth.test.ts`
 - Audit HTTP contracts: `tests/http/admin-audit-routes.test.ts`
 - Public notice HTTP contracts: `tests/http/public-notice-routes.test.ts`
 - Domain: `tests/admin/correction-*.test.ts`, `tests/admin/suspended-correction-service.test.ts`

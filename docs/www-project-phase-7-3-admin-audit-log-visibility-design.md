@@ -7,6 +7,8 @@
 
 This document defines **admin-only, read-only** HTTP surfaces for typo-correction governance visibility. Normative DTO rules below match shipped behavior unless noted as deferred.
 
+**Phase 12 supersession note:** the historical `X-Admin-User-Id` stub references below are superseded by `Authorization: Bearer <opaque-token>` and the server-side Admin Auth / RBAC v1 boundary documented in `docs/admin-correction-http.md`.
+
 ---
 
 ## 1. Purpose and non-goals

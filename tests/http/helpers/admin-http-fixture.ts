@@ -21,14 +21,23 @@ import { createSuspendedCorrectionService } from '../../../src/admin/suspended-c
 import type { SuspendedCorrectionService } from '../../../src/admin/suspended-correction-service.js';
 import { createHttpServer } from '../../../src/http/server.js';
 import type { AdminCorrectionServices } from '../../../src/http/admin-routes.js';
+import type { AdminAuth } from '../../../src/http/admin-auth.js';
 import type { PollOptionRow, PollRow } from '../../../src/polls/types.js';
 import { createPollService } from '../../../src/polls/service.js';
 import type { PollService } from '../../../src/polls/service.js';
 import { createInMemoryPollRepository } from '../../../src/polls/in-memory-repository.js';
+import {
+  adminAuthHeaders,
+  createTestAdminAuth,
+} from '../../helpers/admin-auth.js';
+
+export { adminAuthHeaders } from '../../helpers/admin-auth.js';
 
 export const defaultAdminId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 export const adminBId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 export const adminCId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+export const nonAdminCredentialId = '99999999-9999-4999-8999-999999999999';
+export const readOnlyAdminId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 export const defaultPollId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 export const defaultOptionId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 export const defaultSubmittedAt = new Date('2026-06-15T10:00:00.000Z');
@@ -87,6 +96,7 @@ export type AdminHttpFixture = {
   auditReadService: CorrectionAuditReadService;
   correctionRepo: InMemoryCorrectionRepository;
   adminCorrection: AdminCorrectionServices;
+  adminAuth: AdminAuth;
   pollId: string;
   adminId: string;
 };
@@ -103,6 +113,7 @@ export function createAdminHttpFixture(
   const pollId = poll.id;
   const correctionRepo = createInMemoryCorrectionRepository();
   correctionRepo.ensureAdmin(adminId);
+  correctionRepo.ensureAdmin(readOnlyAdminId);
   for (const extraAdminId of options.extraAdminIds ?? [adminBId, adminCId]) {
     correctionRepo.ensureAdmin(extraAdminId);
   }
@@ -138,6 +149,13 @@ export function createAdminHttpFixture(
     suspendedCorrectionService,
     suspendedApplyService,
   };
+  const adminAuth = createTestAdminAuth([
+    { adminId: defaultAdminId },
+    { adminId: adminBId },
+    { adminId: adminCId },
+    { adminId: nonAdminCredentialId },
+    { adminId: readOnlyAdminId, permissions: ['correction:read'] },
+  ]);
 
   const pollRepo = createInMemoryPollRepository();
   void pollRepo.ensureUser(poll.creator_id, 'Creator');
@@ -155,6 +173,7 @@ export function createAdminHttpFixture(
     auditReadService,
     correctionRepo,
     adminCorrection,
+    adminAuth,
     pollId,
     adminId,
   };
@@ -204,7 +223,7 @@ export async function createPendingSuspendedCorrectionRequest(
     'POST',
     '/admin/suspended-correction-requests',
     {
-      headers: { 'X-Admin-User-Id': proposerId },
+      headers: adminAuthHeaders(proposerId),
       body: suspendedTitleCorrectionBody(fixture.pollId),
     },
   );
@@ -221,7 +240,7 @@ export async function createPendingCorrectionRequest(
   proposerId: string = fixture.adminId,
 ): Promise<string> {
   const created = await adminRequest(baseUrl, 'POST', '/admin/correction-requests', {
-    headers: { 'X-Admin-User-Id': proposerId },
+    headers: adminAuthHeaders(proposerId),
     body: {
       poll_id: fixture.pollId,
       correction_target_field: 'title',
@@ -245,7 +264,7 @@ export async function approveCorrectionRequest(
       'POST',
       `/admin/correction-requests/${requestId}/decisions`,
       {
-        headers: { 'X-Admin-User-Id': reviewerId },
+        headers: adminAuthHeaders(reviewerId),
         body: { decision: 'approve', reason_code: 'OK' },
       },
     );
@@ -259,6 +278,7 @@ export function createAdminHttpServer(fixture: AdminHttpFixture): Server {
   return createHttpServer({
     pollService: fixture.pollService,
     adminCorrection: fixture.adminCorrection,
+    adminAuth: fixture.adminAuth,
   });
 }
 

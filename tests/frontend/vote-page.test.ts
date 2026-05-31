@@ -37,9 +37,19 @@ function createRoot() {
       textContent: '',
       hidden: false,
       href: '',
+      id: '',
+      htmlFor: '',
       type: '',
       name: '',
       value: '',
+      attributes: new Map<string, string>(),
+      setAttribute(name: string, value: string) {
+        this.attributes.set(name, value);
+        if (name === 'id') {
+          this.id = value;
+        }
+      },
+      removeAttribute() {},
       children: [] as ReturnType<typeof createElement>[],
       listeners: new Map<string, () => void>(),
       addEventListener(type: string, listener: () => void) {

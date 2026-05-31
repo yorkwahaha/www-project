@@ -28,6 +28,11 @@ function createRoot() {
       className: '',
       textContent: '',
       hidden: false,
+      attributes: new Map<string, string>(),
+      setAttribute(name: string, value: string) {
+        this.attributes.set(name, value);
+      },
+      removeAttribute() {},
       children: [] as ReturnType<typeof createElement>[],
       append(child: ReturnType<typeof createElement>) {
         this.children.push(child);

@@ -1,16 +1,22 @@
 import {
   POLL_ID_PATTERN,
+  announceToStatusRegion,
   buildPublicResultPath,
+  focusFirstFocusable,
+  markRegionBusy,
   messageForPollLoadFailure,
   messageForVoteSubmitFailure,
   parsePollApiError,
   renderPublicErrorPanel,
   renderPublicNav,
+  setBusySubmitButton,
 } from './public-mvp-ui.js';
 
 const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入問卷，請稍後再試。';
 const SAFE_SUBMIT_FAILURE_MESSAGE = '目前無法送出投票，請稍後再試。';
 const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
+const SUBMIT_IDLE_LABEL = '送出投票';
+const SUBMIT_BUSY_LABEL = '送出中…';
 
 export function getPollIdFromVotePath(pathname) {
   const match = pathname.match(/^\/vote\/([^/]+)$/);
@@ -70,13 +76,17 @@ export async function submitVoteByIndex({
 export function renderPollOptions(root, options, onSelect) {
   root.replaceChildren();
   for (const option of options) {
+    const inputId = `vote-option-${option.option_index}`;
     const label = root.ownerDocument.createElement('label');
     label.className = 'vote-option';
+    label.htmlFor = inputId;
 
     const input = root.ownerDocument.createElement('input');
     input.type = 'radio';
+    input.id = inputId;
     input.name = 'poll-option';
     input.value = String(option.option_index);
+    input.setAttribute('aria-label', option.label);
     input.addEventListener('change', () => onSelect(option.option_index));
     label.append(input);
 
@@ -91,6 +101,8 @@ export function renderPollOptions(root, options, onSelect) {
 export function renderVoteSuccess(root, pollId) {
   root.replaceChildren();
   root.hidden = false;
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', '投票成功');
 
   const message = root.ownerDocument.createElement('p');
   message.className = 'panel-message';
@@ -216,7 +228,8 @@ export async function bootstrapVotePage({
   }
 
   title.textContent = '載入問卷中…';
-  message.textContent = '';
+  title.setAttribute('aria-busy', 'true');
+  announceToStatusRegion(message, '');
 
   const controller = createVotePageController({
     pollId,
@@ -237,9 +250,11 @@ export async function bootstrapVotePage({
       errorPanel.replaceChildren();
     }
     title.textContent = detail.title;
+    title.removeAttribute('aria-busy');
     description.textContent = detail.description ?? '';
     renderPollOptions(options, detail.options, controller.selectOption);
     form.hidden = false;
+    markRegionBusy(form, false);
   } catch (error) {
     const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;
     showRouteError('無法載入問卷', body);
@@ -253,21 +268,31 @@ export async function bootstrapVotePage({
     if (voteCompleted || submitButton.disabled) {
       return;
     }
-    submitButton.disabled = true;
-    message.textContent = '送出中…';
+    setBusySubmitButton(submitButton, {
+      busy: true,
+      idleLabel: SUBMIT_IDLE_LABEL,
+      busyLabel: SUBMIT_BUSY_LABEL,
+    });
+    announceToStatusRegion(message, '送出中…');
     success.hidden = true;
     success.replaceChildren();
     try {
       await controller.submit();
       voteCompleted = true;
-      message.textContent = '';
+      announceToStatusRegion(message, '投票已送出。');
       form.hidden = true;
       renderVoteSuccess(success, pollId);
+      focusFirstFocusable(success);
     } catch (error) {
-      message.textContent = error instanceof Error
-        ? error.message
-        : SAFE_SUBMIT_FAILURE_MESSAGE;
-      submitButton.disabled = false;
+      announceToStatusRegion(
+        message,
+        error instanceof Error ? error.message : SAFE_SUBMIT_FAILURE_MESSAGE,
+      );
+      setBusySubmitButton(submitButton, {
+        busy: false,
+        idleLabel: SUBMIT_IDLE_LABEL,
+        busyLabel: SUBMIT_BUSY_LABEL,
+      });
     }
   });
 }

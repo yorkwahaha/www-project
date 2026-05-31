@@ -1,0 +1,176 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { describe, expect, it, vi } from 'vitest';
+
+async function loadPublicMvpUiModule() {
+  const url = pathToFileURL(
+    join(process.cwd(), 'public/frontend/public-mvp-ui.js'),
+  ).href;
+  return import(/* @vite-ignore */ url);
+}
+
+async function loadCreatePollPageModule() {
+  const url = pathToFileURL(
+    join(process.cwd(), 'public/frontend/create-poll-page.js'),
+  ).href;
+  return import(/* @vite-ignore */ url);
+}
+
+async function loadVotePageModule() {
+  const url = pathToFileURL(
+    join(process.cwd(), 'public/frontend/vote-page.js'),
+  ).href;
+  return import(/* @vite-ignore */ url);
+}
+
+function createSubmitButton() {
+  return {
+    disabled: false,
+    textContent: '建立問卷',
+    attributes: new Map<string, string>(),
+    setAttribute(name: string, value: string) {
+      this.attributes.set(name, value);
+    },
+  };
+}
+
+describe('public MVP accessibility', () => {
+  it('exposes live status regions on public HTML shells', async () => {
+    const createPage = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
+    const votePage = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
+    const resultsPage = await readFile(join(process.cwd(), 'public/results.html'), 'utf8');
+
+    expect(createPage).toContain('role="status"');
+    expect(createPage).toContain('aria-live="polite"');
+    expect(votePage).toContain('id="form-message"');
+    expect(votePage).toContain('role="alert"');
+    expect(resultsPage).toContain('aria-label="投票結果統計"');
+  });
+
+  it('updates submit button busy state for assistive tech', async () => {
+    const { setBusySubmitButton } = await loadPublicMvpUiModule();
+    const button = createSubmitButton();
+
+    setBusySubmitButton(button, {
+      busy: true,
+      idleLabel: '建立問卷',
+      busyLabel: '建立中…',
+    });
+
+    expect(button.disabled).toBe(true);
+    expect(button.textContent).toBe('建立中…');
+    expect(button.attributes.get('aria-busy')).toBe('true');
+
+    setBusySubmitButton(button, {
+      busy: false,
+      idleLabel: '建立問卷',
+      busyLabel: '建立中…',
+    });
+
+    expect(button.disabled).toBe(false);
+    expect(button.attributes.get('aria-busy')).toBe('false');
+  });
+
+  it('keeps share links and copy actions after create success', async () => {
+    const { renderCreatePollSuccess } = await loadCreatePollPageModule();
+    let documentObject: {
+      createElement(tagName: string): ReturnType<typeof createElement>;
+    };
+    function createElement(tagName: string) {
+      return {
+        tagName,
+        ownerDocument: documentObject,
+        textContent: '',
+        href: '',
+        hidden: false,
+        children: [] as ReturnType<typeof createElement>[],
+        attributes: new Map<string, string>(),
+        setAttribute(name: string, value: string) {
+          this.attributes.set(name, value);
+        },
+        addEventListener() {},
+        append(child: ReturnType<typeof createElement>) {
+          this.children.push(child);
+        },
+        replaceChildren() {
+          this.children = [];
+        },
+        querySelector() {
+          return this.children.find((child) => child.tagName === 'a') ?? null;
+        },
+        focus: vi.fn(),
+      };
+    }
+    documentObject = { createElement };
+    const root = createElement('section');
+
+    renderCreatePollSuccess(
+      root,
+      { poll_id: '22222222-2222-4222-8222-222222222222' },
+      { locationObject: { origin: 'https://example.test' } },
+    );
+
+    const links = root.children.filter((child) => child.tagName === 'a');
+    const buttons = root.children.filter((child) => child.tagName === 'button');
+    expect(links.length).toBeGreaterThanOrEqual(2);
+    expect(buttons.length).toBe(2);
+    expect(root.attributes.get('role')).toBe('region');
+  });
+
+  it('labels vote options for keyboard and screen reader use', async () => {
+    const { renderPollOptions } = await loadVotePageModule();
+    let documentObject: {
+      createElement(tagName: string): ReturnType<typeof createElement>;
+    };
+    function createElement(tagName: string) {
+      return {
+        tagName,
+        ownerDocument: documentObject,
+        id: '',
+        htmlFor: '',
+        className: '',
+        type: '',
+        name: '',
+        value: '',
+        attributes: new Map<string, string>(),
+        setAttribute(name: string, value: string) {
+          this.attributes.set(name, value);
+        },
+        addEventListener() {},
+        append(child: ReturnType<typeof createElement>) {
+          this.children.push(child);
+        },
+        replaceChildren() {
+          this.children = [];
+        },
+        children: [] as ReturnType<typeof createElement>[],
+      };
+    }
+    documentObject = { createElement };
+    const root = {
+      ownerDocument: documentObject,
+      replaceChildren() {
+        this.children = [];
+      },
+      append(child: ReturnType<typeof createElement>) {
+        this.children.push(child);
+      },
+      children: [] as ReturnType<typeof createElement>[],
+    };
+
+    renderPollOptions(
+      root,
+      [
+        { option_index: 0, label: 'Rice' },
+        { option_index: 1, label: 'Noodles' },
+      ],
+      () => {},
+    );
+
+    const radio = root.children[0]!.children[0]!;
+    expect(radio.id).toBe('vote-option-0');
+    expect(radio.attributes.get('aria-label')).toBe('Rice');
+    expect(root.children[0]!.htmlFor).toBe('vote-option-0');
+  });
+});

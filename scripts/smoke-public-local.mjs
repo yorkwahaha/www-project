@@ -135,6 +135,9 @@ try {
     if (!body.includes('create-poll-page.js')) {
       throw new Error('Create poll page missing create-poll-page.js script');
     }
+    if (!body.includes('aria-live') || !body.includes('role="status"')) {
+      throw new Error('Create poll page missing accessible status regions');
+    }
     pass('GET /polls/new serves create poll page');
   }
 

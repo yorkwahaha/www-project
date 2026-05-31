@@ -10,6 +10,38 @@ async function loadPublicMvpUiModule() {
 }
 
 describe('public MVP UI helpers', () => {
+  it('marks error panels as alerts', async () => {
+    const { renderPublicErrorPanel } = await loadPublicMvpUiModule();
+    let documentObject: {
+      createElement(tagName: string): ReturnType<typeof createElement>;
+    };
+    function createElement(tagName: string) {
+      return {
+        tagName,
+        ownerDocument: documentObject,
+        hidden: false,
+        textContent: '',
+        className: '',
+        attributes: new Map<string, string>(),
+        setAttribute(name: string, value: string) {
+          this.attributes.set(name, value);
+        },
+        append() {},
+        replaceChildren() {},
+      };
+    }
+    documentObject = { createElement };
+    const root = createElement('section');
+
+    renderPublicErrorPanel(root, {
+      title: '無法載入',
+      message: '找不到此問卷。',
+      showNav: false,
+    });
+
+    expect(root.attributes.get('role')).toBe('alert');
+  });
+
   it('maps poll-not-found API errors without echoing backend English', async () => {
     const { messageForPollLoadFailure } = await loadPublicMvpUiModule();
 

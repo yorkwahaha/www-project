@@ -1,6 +1,7 @@
 import {
   POLL_ID_PATTERN,
   buildPublicVotePath,
+  markRegionBusy,
   messageForPollLoadFailure,
   parsePollApiError,
   renderPublicErrorPanel,
@@ -157,8 +158,13 @@ export async function bootstrapResultPage({
 
   if (pageTitle) {
     pageTitle.textContent = '載入結果中…';
+    pageTitle.setAttribute('aria-busy', 'true');
   }
-  root.textContent = '載入中…';
+  root.replaceChildren();
+  const loading = root.ownerDocument.createElement('p');
+  loading.textContent = '載入中…';
+  root.append(loading);
+  markRegionBusy(root, true);
 
   try {
     const result = await loadResultDisplay({ pollId, fetchImpl });
@@ -168,7 +174,9 @@ export async function bootstrapResultPage({
     }
     if (pageTitle) {
       pageTitle.textContent = '投票結果';
+      pageTitle.removeAttribute('aria-busy');
     }
+    markRegionBusy(root, false);
     renderResultDisplay(root, result);
   } catch (error) {
     const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;

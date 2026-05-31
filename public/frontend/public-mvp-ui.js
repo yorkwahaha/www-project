@@ -5,6 +5,37 @@ export const POLL_ID_PATTERN =
 
 const GENERIC_LOAD_FAILURE = '目前無法載入，請稍後再試。';
 
+export function setBusySubmitButton(
+  button,
+  { busy, idleLabel, busyLabel },
+) {
+  button.disabled = busy;
+  button.setAttribute('aria-busy', busy ? 'true' : 'false');
+  button.textContent = busy ? busyLabel : idleLabel;
+}
+
+export function announceToStatusRegion(element, text) {
+  if (element) {
+    element.textContent = text;
+  }
+}
+
+export function markRegionBusy(element, busy) {
+  if (!element) {
+    return;
+  }
+  if (busy) {
+    element.setAttribute('aria-busy', 'true');
+  } else {
+    element.removeAttribute('aria-busy');
+  }
+}
+
+export function focusFirstFocusable(root) {
+  const target = root.querySelector('a[href], button:not([disabled])');
+  target?.focus?.();
+}
+
 export function buildPublicVotePath(pollId) {
   return `/vote/${encodeURIComponent(pollId)}`;
 }
@@ -100,6 +131,7 @@ export function renderPublicErrorPanel(
 ) {
   root.replaceChildren();
   root.hidden = false;
+  root.setAttribute('role', 'alert');
 
   const heading = root.ownerDocument.createElement('h2');
   heading.className = 'panel-heading';
@@ -155,11 +187,12 @@ export async function copyTextToClipboard(text, {
   return { ok: false, method: 'none' };
 }
 
-function appendCopyButton(parent, { label, url, statusTarget }) {
+function appendCopyButton(parent, { label, url, statusTarget, ariaLabel }) {
   const button = parent.ownerDocument.createElement('button');
   button.type = 'button';
   button.className = 'copy-link-button';
   button.textContent = label;
+  button.setAttribute('aria-label', ariaLabel ?? label);
   button.addEventListener('click', async () => {
     const result = await copyTextToClipboard(url);
     if (statusTarget) {
@@ -177,6 +210,8 @@ export function renderPollSharePanel(root, pollId, {
 } = {}) {
   root.replaceChildren();
   root.hidden = false;
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', '問卷建立成功');
 
   const votePath = buildPublicVotePath(pollId);
   const resultPath = buildPublicResultPath(pollId);
@@ -204,6 +239,7 @@ export function renderPollSharePanel(root, pollId, {
       label: '複製投票連結',
       url: voteUrl,
       statusTarget: copyStatus,
+      ariaLabel: '複製投票頁連結到剪貼簿',
     });
   }
 
@@ -217,6 +253,7 @@ export function renderPollSharePanel(root, pollId, {
       label: '複製結果連結',
       url: resultUrl,
       statusTarget: copyStatus,
+      ariaLabel: '複製結果頁連結到剪貼簿',
     });
   }
 }

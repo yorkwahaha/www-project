@@ -1,10 +1,15 @@
 import {
+  announceToStatusRegion,
+  focusFirstFocusable,
   renderPollSharePanel,
+  setBusySubmitButton,
 } from './public-mvp-ui.js';
 
 const MAX_OPTIONS = 6;
 const PUBLISH_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const SAFE_FAILURE_MESSAGE = '目前無法建立問卷，請稍後再試。';
+const SUBMIT_IDLE_LABEL = '建立問卷';
+const SUBMIT_BUSY_LABEL = '建立中…';
 
 export function normalizeCreatePollForm({ title, description = '', options }) {
   const normalizedTitle = title.trim();
@@ -88,8 +93,12 @@ export function bootstrapCreatePollPage({
     if (submitButton.disabled) {
       return;
     }
-    submitButton.disabled = true;
-    message.textContent = '建立中...';
+    setBusySubmitButton(submitButton, {
+      busy: true,
+      idleLabel: SUBMIT_IDLE_LABEL,
+      busyLabel: SUBMIT_BUSY_LABEL,
+    });
+    announceToStatusRegion(message, '建立中…');
     success.hidden = true;
     success.replaceChildren();
 
@@ -105,15 +114,21 @@ export function bootstrapCreatePollPage({
         uuidFactory,
         now,
       });
-      message.textContent = '';
+      announceToStatusRegion(message, '問卷已建立。');
       renderCreatePollSuccess(success, created);
       form.reset();
       form.hidden = true;
+      focusFirstFocusable(success);
     } catch (error) {
-      message.textContent = error instanceof Error
-        ? error.message
-        : SAFE_FAILURE_MESSAGE;
-      submitButton.disabled = false;
+      announceToStatusRegion(
+        message,
+        error instanceof Error ? error.message : SAFE_FAILURE_MESSAGE,
+      );
+      setBusySubmitButton(submitButton, {
+        busy: false,
+        idleLabel: SUBMIT_IDLE_LABEL,
+        busyLabel: SUBMIT_BUSY_LABEL,
+      });
     }
   });
 }

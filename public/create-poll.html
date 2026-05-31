@@ -70,10 +70,36 @@
       .public-nav a + a {
         margin-left: 0.75rem;
       }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        padding: 0.5rem 0.75rem;
+        background: #fff;
+        color: #1a5f2a;
+        z-index: 1;
+      }
+
+      .skip-link:focus {
+        left: 1rem;
+        top: 1rem;
+      }
+
+      :focus-visible {
+        outline: 2px solid #1a5f2a;
+        outline-offset: 2px;
+      }
+
+      button:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
     </style>
   </head>
   <body>
-    <main>
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <main id="main-content">
       <nav class="public-nav" aria-label="網站導覽">
         <a href="/">首頁</a>
         <a href="/polls/new" aria-current="page">建立問卷</a>
@@ -103,10 +129,20 @@
           <input id="poll-option-6" name="option">
         </fieldset>
 
-        <button id="create-poll-submit" type="submit">建立問卷</button>
+        <button
+          id="create-poll-submit"
+          type="submit"
+          aria-describedby="form-message"
+        >建立問卷</button>
       </form>
       <p id="form-message" role="status" aria-live="polite"></p>
-      <section id="success-panel" aria-live="polite" hidden></section>
+      <section
+        id="success-panel"
+        role="region"
+        aria-label="問卷建立成功"
+        aria-live="polite"
+        hidden
+      ></section>
     </main>
     <script type="module" src="/frontend/create-poll-page.js"></script>
   </body>

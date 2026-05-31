@@ -103,6 +103,7 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('建立問卷');
       expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/frontend/create-poll-page.js');
+      expect(pageBody).toContain('aria-live');
       expect(pageBody).not.toContain('option_id');
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
@@ -127,6 +128,7 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('href="/"');
       expect(pageBody).toContain('/polls/new');
       expect(pageBody).toContain('/frontend/vote-page.js');
+      expect(pageBody).toContain('role="alert"');
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
     });

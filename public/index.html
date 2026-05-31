@@ -42,10 +42,31 @@
         font-size: 0.95rem;
         color: #555;
       }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        padding: 0.5rem 0.75rem;
+        background: #fff;
+        color: #1a5f2a;
+        z-index: 1;
+      }
+
+      .skip-link:focus {
+        left: 1rem;
+        top: 1rem;
+      }
+
+      :focus-visible {
+        outline: 2px solid #1a5f2a;
+        outline-offset: 2px;
+      }
     </style>
   </head>
   <body>
-    <main>
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <main id="main-content">
       <h1>What We Wonder</h1>
       <p class="tagline">大家想知道 — 隱私優先的公開問卷平台</p>
       <p>建立問卷、分享投票連結、查看公開結果。無需登入，也無問卷列表或排行。</p>

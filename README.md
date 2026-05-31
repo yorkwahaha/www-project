@@ -14,6 +14,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 20 (docs):** Correction / admin governance handoff index (Phase 8–19 baseline, validation commands, privacy boundaries, TODOs) — `docs/www-project-phase-20-correction-admin-governance-handoff-v1.md`.
 
+**Phase 27 (docs):** Public MVP manual QA handoff (local setup, validation commands, browser checklist for `/` → create → vote → results) — `docs/www-project-public-mvp-manual-qa-v1.md`.
+
 **Spec note:** Agent spec **§32 Phase 5 (Wonder Flow / Ranking) is not fully complete.** Phases 5B–5C deliver only `GET /polls/feed` (public, non-personalized, freshness-only; no answer-direction signals).
 
 **Admin / governance (Phase 6B–12):** Typo correction workflow, Dual-Admin decisions, apply, suspended correction with public notice **write**, safe **audit read** routes, blind `review-context` (`decision_summary` only; no `peer_decisions` / `final_decisions` / admin IDs / reason fields), poll-scoped public notice **read + display**, the safe global `GET /admin/correction-audit` queue, and a server-side opaque Bearer token + RBAC v1 boundary are **implemented**. Full login/session/JWT/OAuth management, real Spread Score calculation, and semantic typo detection are **not** implemented — see `docs/admin-correction-http.md` and `docs/www-project-milestone-phase-12-handoff-v1.md`.
@@ -88,6 +90,8 @@ Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits 
 3. Success shows shareable `GET /vote/:pollId` and `GET /results/:pollId` links
 4. `GET /vote/:pollId` — vote; success links to results
 5. `GET /results/:pollId` — display-safe results (links back to `/` and `/polls/new`)
+
+Manual browser checklist (Traditional Chinese): **`docs/www-project-public-mvp-manual-qa-v1.md`**.
 
 Polls in `suspended` or `correction_pending` are hidden from public GET/feed/vote/result/reference-answer.
 

@@ -11,27 +11,27 @@
     <header id="site-header" data-nav="logged-in-mock" data-active=""></header>
     <main id="main-content" class="mvp-page">
       <p class="mvp-demo-nav-switch" role="note">
-        導覽預覽：
+        切換瀏覽身分（展示用）：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
       <p class="mvp-mock-banner" role="note">
-        <strong>預覽模式</strong>：發起者儀表板為產品預覽；額度與品質點數為政策示意，非真實帳號數值。
+        <strong>目前為公開展示版</strong>：發起者儀表板以範例資料展示；額度與品質點數非真實帳號數值。
       </p>
       <h1>我的問卷</h1>
       <p class="mvp-lead">收票中看不到票數；公開鎖定期內無法下架或編輯。</p>
 
-      <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="發起者政策預覽" style="margin-bottom:0.75rem">
-        <h2 class="mvp-policy-panel-title" style="font-size:0.95rem;margin:0 0 0.35rem">額度與操作（政策預覽）</h2>
+      <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="額度與操作說明" style="margin-bottom:0.75rem">
+        <h2 class="mvp-policy-panel-title" style="font-size:0.95rem;margin:0 0 0.35rem">額度與操作說明</h2>
         <p class="policy-panel-text policy-panel-muted" style="margin:0;font-size:0.9rem">
-          今日發起額度、品質點數依信任等級（Lv.1–Lv.3）規劃，尚未實作計數。
+          今日發起額度、品質點數依信任等級（Lv.1–Lv.3）規劃，正式上線後計算。
           優質題目累積有助提升信任；看的是投票後品質回饋等多種訊號，不是單純按讚。
-          公開鎖定期內的下架、刪除、修改等操作將受限制；下方按鈕僅展示流程。
+          公開鎖定期內無法下架、刪除或修改；下方按鈕展示未來流程（<a href="/faq">常見問題</a>）。
         </p>
       </aside>
 
-      <div class="mvp-quota-card mvp-quota-card--mock" aria-label="發起額度（政策預覽，未實作）">
+      <div class="mvp-quota-card mvp-quota-card--mock" aria-label="發起額度（範例資料）">
         <div class="mvp-quota-stat">
           <strong>—</strong>
           <span>發起者等級</span>
@@ -63,7 +63,7 @@
               <td>06/20 公開結果</td>
               <td>
                 <a class="mvp-btn mvp-btn-ghost mvp-btn-sm" href="#">分享</a>
-                <button type="button" class="mvp-btn mvp-btn-sm mvp-btn-accent-outline" disabled title="預覽">取消問卷</button>
+                <button type="button" class="mvp-btn mvp-btn-sm mvp-btn-accent-outline" disabled title="展示用，尚未開放">取消問卷</button>
               </td>
             </tr>
             <tr>
@@ -79,7 +79,7 @@
               <td><span class="mvp-badge mvp-badge-muted">鎖定期已結束</span></td>
               <td>可下架</td>
               <td>
-                <button type="button" class="mvp-btn mvp-btn-secondary mvp-btn-sm" disabled title="預覽">下架問卷</button>
+                <button type="button" class="mvp-btn mvp-btn-secondary mvp-btn-sm" disabled title="展示用，尚未開放">下架問卷</button>
               </td>
             </tr>
             <tr>

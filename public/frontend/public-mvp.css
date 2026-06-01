@@ -1275,7 +1275,7 @@ button:disabled {
 }
 
 .mvp-quota-card--mock .mvp-quota-stat span::after {
-  content: ' · 預覽';
+  content: ' · 範例';
   font-size: 0.72rem;
   opacity: 0.85;
 }

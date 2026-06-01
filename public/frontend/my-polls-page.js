@@ -7,10 +7,10 @@ import { mountSiteChrome } from './public-mvp-layout.js';
 import { copyTextToClipboard, buildAbsoluteUrl } from './public-mvp-ui.js';
 
 const MOCK_CANCEL_MSG =
-  '此操作目前僅展示流程；取消問卷尚未開放，狀態不會變更。';
+  '此流程展示未來的使用方式；取消問卷尚未開放，狀態不會變更。';
 const MOCK_UNPUBLISH_MSG =
-  '此操作目前僅展示流程；下架問卷尚未開放，公開狀態不會變更。';
-const MOCK_SHARE_MSG = '請將下方投票頁連結分享給參與者（預覽連結）。';
+  '此流程展示未來的使用方式；下架問卷尚未開放，公開狀態不會變更。';
+const MOCK_SHARE_MSG = '已複製範例投票連結，可分享給他人體驗流程。';
 
 export function wireMyPollsDemoPage(documentObject = globalThis.document) {
   mountSiteChrome(documentObject);
@@ -54,7 +54,7 @@ function wireCollectingRow(row, documentObject) {
     const result = await copyTextToClipboard(url);
     showDemoOnlyFeedback(
       share,
-      result.ok ? `已複製示範投票連結。${MOCK_SHARE_MSG}` : MOCK_SHARE_MSG,
+      result.ok ? MOCK_SHARE_MSG : '無法複製連結，請手動複製投票頁網址。',
     );
   });
 

@@ -11,14 +11,14 @@
     <header id="site-header" data-nav="guest" data-active="home"></header>
     <div id="main-content" class="mvp-page">
       <p class="mvp-demo-nav-switch" role="note">
-        導覽預覽：
+        切換瀏覽身分（展示用）：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
       <section class="mvp-hero" aria-labelledby="home-heading">
         <div class="mvp-hero-copy">
-          <p class="mvp-brand">What We Wonder · 公開 MVP</p>
+          <p class="mvp-brand">What We Wonder · 公開展示版</p>
           <h1 id="home-heading">匿名問卷，公平揭曉</h1>
           <p class="mvp-hero-lead">
             收集中不公開票數；統計結束後才顯示彙總結果，並進入約 5 天公開鎖定期。
@@ -54,13 +54,13 @@
         </article>
         <article class="mvp-value-card">
           <h3>投票後回饋題目品質</h3>
-          <p>優質題目看的是多種品質訊號，不是單純按讚；投票後可複選回饋（政策預覽，尚未計分）。</p>
+          <p>優質題目看的是多種品質訊號，不是單純按讚；投票後可複選回饋（登入與計分完成後開放）。</p>
         </article>
       </div>
 
-      <h2 class="mvp-section-title">問卷預覽</h2>
+      <h2 class="mvp-section-title">範例問卷</h2>
       <p class="mvp-meta" style="margin-top:-0.5rem;margin-bottom:0.75rem">
-        產品預覽卡片；完整探索列表尚未開放。
+        目前先以範例資料展示；完整探索列表將在正式上線後開放。
       </p>
 
       <div class="mvp-card-grid">
@@ -85,11 +85,11 @@
         <article class="mvp-poll-card">
           <div class="mvp-poll-card-top">
             <h3>遠端工作一週幾天最適合？</h3>
-            <span class="mvp-badge mvp-badge-revealed">結果已公開</span>
+            <span class="mvp-badge mvp-badge-revealed">已截止／結果公開</span>
           </div>
           <p class="mvp-poll-card-meta">職場 · 05/28 已公開</p>
-          <div class="mvp-result-preview" aria-label="聚合結果預覽">
-            約 42%（區間摘要 · 範例）
+          <div class="mvp-result-preview" aria-label="聚合結果範例">
+            約 42%（區間摘要 · 範例資料）
             <div class="mvp-result-preview-bar" aria-hidden="true"><span style="width:42%"></span></div>
           </div>
           <div class="mvp-poll-card-footer">
@@ -110,7 +110,7 @@
       </div>
 
       <p class="note mvp-meta">
-        狀態預覽：<code>?ui_state=</code>（collecting、locked、cancelled 等）僅供體驗文案，不代表真實後端狀態。
+        想認識各種問卷狀態？可在<a href="/results/demo">結果頁</a>切換「收集中」「公開鎖定期」「已取消」等範例，或查看<a href="/faq">常見問題</a>。
       </p>
     </div>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>

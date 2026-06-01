@@ -209,7 +209,7 @@ describe('public voting page', () => {
     renderVoteSuccess(root, 'demo', { demoOnly: true });
 
     const text = collectText(root);
-    expect(text[0]).toMatch(/預覽完成/);
+    expect(text[0]).toMatch(/展示未來的使用方式/);
     expect(text.join(' ')).toMatch(/不會儲存/);
     expect(text.join(' ')).toMatch(/票數或百分比/);
     expect(text.join(' ')).toMatch(/投票後可協助回饋題目品質/);

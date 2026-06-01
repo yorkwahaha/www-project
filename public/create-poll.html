@@ -11,7 +11,7 @@
     <header id="site-header" data-nav="guest" data-active="create"></header>
     <main id="main-content" class="mvp-page mvp-shell">
       <p class="mvp-demo-nav-switch" role="note">
-        導覽預覽：
+        切換瀏覽身分（展示用）：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
@@ -20,17 +20,16 @@
       <p class="mvp-lead">發布後無法在此修改題目或選項；收票中看不到期中結果。</p>
 
       <p class="mvp-mock-banner" role="note">
-        <strong>預覽模式</strong>：目前為產品預覽，送出僅做欄位檢查，資料不會儲存。
-        本地開發可加 <code>?live=1</code> 測試真實建立流程。
+        <strong>目前為公開展示版</strong>：此流程展示未來的使用方式，送出僅做欄位檢查，資料不會儲存。
       </p>
 
-      <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="發起權限預覽">
-        <h2 class="mvp-policy-panel-title" style="font-size:0.95rem;margin:0 0 0.5rem">發起權限（政策預覽）</h2>
+      <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="發起須知">
+        <h2 class="mvp-policy-panel-title" style="font-size:0.95rem;margin:0 0 0.5rem">發起須知</h2>
         <ul class="mvp-form-hint-list" style="margin:0">
-          <li><strong>Lv.1 註冊用戶</strong>可發起一般問卷（每日額度較低，尚未實作計數）</li>
-          <li><strong>政治／高風險</strong>類別需更高信任並經事前審核，無法以一般流程發布</li>
-          <li>本頁送出不會寫入資料庫；僅供體驗建立流程</li>
-          <li>累積<strong>優質題目</strong>有助信任提升；依投票後品質回饋判定，非單純按讚（尚未計分）</li>
+          <li><strong>Lv.1 註冊用戶</strong>可發起一般問卷（每日額度較低，正式上線後計算）</li>
+          <li><strong>政治／高風險</strong>類別需更高信任並經事前審核，無法以一般流程發布（<a href="/trust-levels">說明</a>）</li>
+          <li>收票中看不到期中票數；詳見<a href="/faq">常見問題</a></li>
+          <li>累積<strong>優質題目</strong>有助信任提升；依投票後品質回饋判定，非單純按讚</li>
         </ul>
       </aside>
 
@@ -55,7 +54,7 @@
           <label for="poll-description">補充說明（選填）</label>
           <textarea id="poll-description" name="description" rows="3" autocomplete="off" placeholder="補充背景，不影響選項"></textarea>
 
-          <label for="poll-category">分類（尚未開放）</label>
+          <label for="poll-category">分類（正式上線後開放）</label>
           <select id="poll-category" class="mvp-form-demo-fields" disabled aria-disabled="true">
             <option>生活</option>
             <option>職場</option>
@@ -76,25 +75,25 @@
           </fieldset>
 
           <fieldset class="mvp-form-demo-fields">
-            <legend>統計截止與結果公開（尚未開放）</legend>
+            <legend>統計截止與結果公開（正式上線後開放）</legend>
             <p class="policy-panel-text policy-panel-muted" style="margin:0 0 0.5rem">
               MVP：截止時間即結果公開時間；截止不等於鎖定期結束。
             </p>
-            <label for="poll-close-at">截止／結果公開時間（尚未開放）</label>
+            <label for="poll-close-at">截止／結果公開時間（正式上線後開放）</label>
             <input id="poll-close-at" type="datetime-local" disabled aria-disabled="true">
           </fieldset>
 
           <fieldset class="mvp-form-demo-fields">
-            <legend>投票資格設定（尚未開放）</legend>
+            <legend>投票資格設定（正式上線後開放）</legend>
             <p class="policy-panel-text policy-panel-muted" style="margin:0 0 0.5rem">
               年齡依參與者自行填寫的出生年／月判斷，非官方驗證。
             </p>
-            <label for="poll-eligibility-age">年齡區間（尚未開放）</label>
+            <label for="poll-eligibility-age">年齡區間（正式上線後開放）</label>
             <input id="poll-eligibility-age" type="text" disabled placeholder="例如 18–30">
-            <label for="poll-eligibility-region">地區（尚未開放）</label>
+            <label for="poll-eligibility-region">地區（正式上線後開放）</label>
             <input id="poll-eligibility-region" type="text" disabled placeholder="例如 高雄市">
-            <p class="mvp-meta" style="margin:0.75rem 0 0.35rem">參與者性別（個人檔案預覽）</p>
-            <div class="mvp-radio-row" role="group" aria-label="性別（尚未開放）">
+            <p class="mvp-meta" style="margin:0.75rem 0 0.35rem">參與者性別（個人檔案，正式上線後開放）</p>
+            <div class="mvp-radio-row" role="group" aria-label="性別（正式上線後開放）">
               <label><input type="radio" name="demo-gender" disabled> 女性</label>
               <label><input type="radio" name="demo-gender" disabled> 男性</label>
               <label><input type="radio" name="demo-gender" disabled checked> 不透露</label>
@@ -102,7 +101,7 @@
           </fieldset>
 
           <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="送出前檢查">
-            <h2 class="mvp-policy-panel-title" style="font-size:0.95rem">送出前檢查（預覽）</h2>
+            <h2 class="mvp-policy-panel-title" style="font-size:0.95rem">送出前檢查</h2>
             <ul class="mvp-form-hint-list">
               <li>標題不可空白</li>
               <li>至少兩個非空白選項</li>
@@ -115,7 +114,7 @@
             type="submit"
             class="mvp-btn-primary"
             aria-describedby="form-message"
-          >建立問卷（預覽，不儲存）</button>
+          >建立問卷（展示用，不儲存）</button>
         </form>
       </div>
 

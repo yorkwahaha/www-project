@@ -47,31 +47,30 @@ describe('trust level preview copy (phase 45)', () => {
 
   it('create poll page shows trust policy and honest preview boundaries', async () => {
     const html = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
-    expect(html).toMatch(/發起權限（政策預覽）/);
+    expect(html).toMatch(/發起須知/);
     expect(html).toMatch(/Lv\.1 註冊用戶/);
     expect(html).toMatch(/政治／高風險/);
-    expect(html).toMatch(/預覽模式/);
-    expect(html).toMatch(/資料不會儲存/);
+    expect(html).toMatch(/公開展示版/);
+    expect(html).toMatch(/不會儲存/);
     expect(html).not.toMatch(/尚未連線 API|demo only|靜態示意/i);
   });
 
   it('vote page shows trust policy and collecting privacy', async () => {
     const html = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
-    expect(html).toMatch(/投票與結果（政策預覽）/);
+    expect(html).toMatch(/投票須知/);
     expect(html).toMatch(/Lv\.1 註冊/);
     expect(html).toMatch(/不顯示.*票數、百分比、排名或趨勢/s);
     expect(html).toMatch(/關注結果/);
-    expect(html).toMatch(/投票後可協助回饋/);
     expect(html).toMatch(/非單純按讚|不是單純按讚/);
-    expect(html).toMatch(/預覽模式/);
+    expect(html).toMatch(/公開展示版/);
     expect(html).not.toMatch(/尚未連線|不呼叫 API/i);
   });
 
   it('my polls page marks quota as policy preview not real values', async () => {
     const html = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
-    expect(html).toMatch(/額度與操作（政策預覽）/);
-    expect(html).toMatch(/尚未實作計數/);
-    expect(html).toMatch(/額度與品質點數為政策示意/);
+    expect(html).toMatch(/額度與操作說明/);
+    expect(html).toMatch(/正式上線後計算/);
+    expect(html).toMatch(/範例資料展示/);
     expect(html).toMatch(/公開鎖定期/);
     expect(html).not.toMatch(/未連線後端/);
   });
@@ -83,7 +82,7 @@ describe('trust level preview copy (phase 45)', () => {
       'utf8',
     );
     expect(voteHtml).toMatch(/收票中.*不顯示/s);
-    expect(resultsHtml).toMatch(/收票中不顯示票數或百分比/);
+    expect(resultsHtml).toMatch(/收集中不顯示票數或百分比/);
     expect(voteHtml).not.toMatch(/總票數|0\s*%|排名第/);
   });
 });

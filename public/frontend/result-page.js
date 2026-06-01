@@ -381,9 +381,9 @@ export async function bootstrapResultPage({
     }
     if (pageTitle) {
       if (uiMockState === 'cancelled') {
-        pageTitle.textContent = '問卷已取消（預覽）';
+        pageTitle.textContent = '問卷已取消';
       } else if (uiMockState === 'unpublished') {
-        pageTitle.textContent = '問卷已下架（預覽）';
+        pageTitle.textContent = '問卷已下架';
       } else if (demoOnly) {
         pageTitle.textContent = '示範結果頁（唯讀）';
       } else {

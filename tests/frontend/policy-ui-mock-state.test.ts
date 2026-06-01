@@ -99,8 +99,8 @@ describe('policy ui mock state', () => {
     const payload = toRevealedPreviewPayload(apiCollecting);
 
     expect(payload.collecting).toBe(false);
-    expect(payload.total_votes_display).toMatch(/預覽示範/);
-    expect(payload.options[0].display_percentage).toMatch(/預覽/);
+    expect(payload.total_votes_display).toMatch(/範例/);
+    expect(payload.options[0].display_percentage).toMatch(/範例/);
   });
 
   it('renders cancelled terminal state without vote aggregates', async () => {
@@ -134,7 +134,7 @@ describe('policy ui mock state', () => {
     const text = collectText(root).join(' ');
     expect(text).toMatch(/已關注結果/);
     expect(text).toMatch(/站內通知/);
-    expect(text).toMatch(/預覽|尚未開放/);
+    expect(text).toMatch(/範例|尚未開放|登入與通知/);
   });
 
   it('skips glossary aside when skipGlossary is true', async () => {
@@ -158,8 +158,7 @@ describe('policy ui mock state', () => {
     renderUiMockPreviewBanner(root, 'ineligible');
 
     const text = collectText(root).join(' ');
-    expect(text).toMatch(/ui_state/);
-    expect(text).toMatch(/不代表真實問卷狀態/);
+    expect(text).toMatch(/範例資料|不代表真實問卷/);
     expect(text).toMatch(/不符合資格/);
   });
 });

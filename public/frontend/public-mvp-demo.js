@@ -12,7 +12,7 @@ export const DEMO_MOCK_POLL_ID = DEMO_POLL_SLUG;
 
 const DEMO_POLL_TITLE = '你平常通勤主要使用哪種交通工具？';
 const DEMO_POLL_DESCRIPTION =
-  '此為示範問卷，用於手機上測試投票與結果頁流程；未連線後端資料。';
+  '此為範例問卷，用來展示投票與結果頁的使用方式；目前先以範例資料展示。';
 
 const DEMO_POLL_OPTION_LABELS = [
   '大眾運輸（捷運、公車等）',
@@ -126,14 +126,12 @@ export function showDemoOnlyFeedback(target, message) {
 }
 
 export const RESULT_UI_STATE_PREVIEW_LINKS = [
-  { uiState: 'collecting', label: '收集中（無票數）' },
-  { uiState: 'revealed', label: '結果已公開' },
+  { uiState: 'collecting', label: '收集中' },
+  { uiState: 'revealed', label: '已截止／結果公開' },
   { uiState: 'locked', label: '公開鎖定期' },
   { uiState: 'post_lock', label: '鎖定期已結束' },
   { uiState: 'cancelled', label: '已取消' },
   { uiState: 'unpublished', label: '已下架' },
-  { uiState: 'ineligible', label: '不符合資格' },
-  { uiState: 'followed', label: '已關注' },
 ];
 
 export function renderResultUiStatePreviewLinks(root, pollId) {
@@ -142,11 +140,11 @@ export function renderResultUiStatePreviewLinks(root, pollId) {
   const wrap = doc.createElement('div');
   wrap.className = 'mvp-preview-links-block';
   wrap.setAttribute('role', 'navigation');
-  wrap.setAttribute('aria-label', '結果頁狀態預覽');
+  wrap.setAttribute('aria-label', '問卷狀態範例');
 
   const lead = doc.createElement('p');
   lead.className = 'mvp-meta';
-  lead.textContent = '狀態預覽（產品文案，不代表真實後端狀態）：';
+  lead.textContent = '切換不同狀態範例（不代表真實問卷）：';
   wrap.append(lead);
 
   const list = doc.createElement('ul');

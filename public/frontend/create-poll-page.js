@@ -20,7 +20,7 @@ import {
 const MAX_OPTIONS = 6;
 const PUBLISH_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const SAFE_FAILURE_MESSAGE = '目前無法建立問卷，請稍後再試。';
-const SUBMIT_IDLE_LABEL = '建立問卷（預覽，不儲存）';
+const SUBMIT_IDLE_LABEL = '建立問卷（展示用，不儲存）';
 const SUBMIT_IDLE_LABEL_LIVE = '建立問卷';
 const SUBMIT_BUSY_LABEL = '處理中…';
 
@@ -110,13 +110,13 @@ export function renderCreatePollDemoSuccess(root) {
   const hint = root.ownerDocument.createElement('p');
   hint.className = 'panel-message';
   hint.textContent =
-    '此操作目前僅展示流程：表單已通過檢查，資料不會儲存。可繼續瀏覽下列預覽頁面：';
+    '此流程展示未來的使用方式：表單已通過檢查，資料不會儲存。可繼續體驗下列頁面：';
   root.append(hint);
 
   const voteLink = root.ownerDocument.createElement('a');
   voteLink.className = 'mvp-action-link';
   voteLink.href = buildDemoVotePath();
-  voteLink.textContent = '前往投票頁預覽';
+  voteLink.textContent = '前往投票頁';
   root.append(voteLink);
 
   const myPollsLink = root.ownerDocument.createElement('a');
@@ -128,7 +128,7 @@ export function renderCreatePollDemoSuccess(root) {
   const resultLink = root.ownerDocument.createElement('a');
   resultLink.className = 'mvp-action-link mvp-action-link-muted';
   resultLink.href = buildDemoResultPath('collecting');
-  resultLink.textContent = '查看收集中結果頁（預覽）';
+  resultLink.textContent = '查看收集中結果頁';
   root.append(resultLink);
 }
 
@@ -197,7 +197,7 @@ export function bootstrapCreatePollPage({
         : submitCreatePollDemo({ formValues });
       announceToStatusRegion(
         message,
-        useLiveApi ? '問卷已建立。' : '預覽完成：表單通過檢查，資料不會儲存。',
+        useLiveApi ? '問卷已建立。' : '表單通過檢查（展示用），資料不會儲存。',
       );
       renderCreatePollSuccess(success, created, { demoStatic: !useLiveApi });
       form.reset();

@@ -11,7 +11,7 @@
     <header id="site-header" data-nav="guest" data-active=""></header>
     <main id="main-content" class="mvp-page mvp-shell">
       <p class="mvp-demo-nav-switch" role="note">
-        導覽預覽：
+        切換瀏覽身分（展示用）：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
@@ -23,17 +23,16 @@
           <p id="poll-description"></p>
 
           <p class="mvp-mock-banner" role="note">
-            <strong>預覽模式</strong>：<code>/vote/demo</code> 為範例問卷，投票不會儲存。
-            可加 <code>?ui_state=ineligible</code>、<code>followed</code> 等預覽不同狀態。
+            <strong>目前為公開展示版</strong>：此為範例問卷，投票不會儲存。此流程展示未來的使用方式。
           </p>
 
-          <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="投票權限預覽">
-            <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0 0 0.35rem">投票與結果（政策預覽）</h2>
+          <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="投票須知">
+            <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0 0 0.35rem">投票須知</h2>
             <ul class="mvp-form-hint-list" style="margin:0">
-              <li><strong>Lv.1 註冊</strong>且符合資格者可投票；訪客請先註冊／登入（尚未開放）</li>
-              <li>收票中<strong>不顯示</strong>票數、百分比、排名或趨勢</li>
+              <li><strong>Lv.1 註冊</strong>且符合資格者可投票；訪客請先註冊／登入（<a href="/trust-levels">說明</a>）</li>
+              <li>收集中<strong>不顯示</strong>票數、百分比、排名或趨勢（<a href="/faq">常見問題</a>）</li>
               <li>不符合資格或暫不投票者，可<strong>關注結果</strong>，於公開後查看彙總</li>
-              <li>投票後可協助回饋題目品質；優質題目非單純按讚（政策預覽，尚未計分）</li>
+              <li>投票後可協助回饋題目品質；優質題目非單純按讚，亦非正式檢舉</li>
             </ul>
           </aside>
 
@@ -81,14 +80,15 @@
           <p class="mvp-meta" style="margin:0 0 0.5rem">
             不符合資格或暫不投票時，可關注結果公開通知（不含 Email／推播）。
           </p>
-          <button type="button" class="mvp-btn-mock" disabled aria-disabled="true">關注結果（尚未開放）</button>
+          <button type="button" class="mvp-btn-mock" disabled aria-disabled="true" title="這項功能會在登入與通知系統完成後開放">關注結果</button>
           <p class="mvp-follow-mock-note" style="margin:0.35rem 0 0;font-size:0.82rem;color:var(--mvp-muted);font-style:italic">
-            預覽模式下不會儲存關注或發送通知。
+            站內通知將在登入與通知系統完成後開放；目前不會儲存關注。
           </p>
+          <p class="mvp-meta" style="margin:0.5rem 0 0.25rem">其他狀態範例：</p>
           <ul class="mvp-preview-links">
-            <li><a href="?ui_state=ineligible">預覽：不符合資格</a></li>
-            <li><a href="?ui_state=followed">預覽：已關注</a></li>
-            <li><a href="?ui_state=cancelled">預覽：已取消</a></li>
+            <li><a href="?ui_state=ineligible">不符合資格</a></li>
+            <li><a href="?ui_state=followed">已關注結果</a></li>
+            <li><a href="?ui_state=cancelled">已取消</a></li>
           </ul>
         </aside>
       </div>

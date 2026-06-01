@@ -12,7 +12,8 @@ export const HELP_COPY = {
     '結果公開後約 5 天為公開鎖定期；期間發起者無法編輯、下架、刪除或隱藏結果。',
   eligibility:
     '年齡依個人檔案自行填寫的出生年／月判斷，非政府驗證。',
-  followNotify: '站內通知尚未開放；預覽模式下不會儲存追蹤狀態。',
+  followNotify:
+    '站內通知將在登入與通知系統完成後開放；目前不會儲存追蹤狀態。',
   cancelVsUnpublish:
     '收票中停止請用「取消」，不產生公開結果；鎖定期結束後的「下架」另當別論。',
 };
@@ -162,7 +163,7 @@ export function renderSiteHeader(mount, options = {}) {
 
     const avatar = doc.createElement('span');
     avatar.className = 'mvp-avatar';
-    avatar.title = '使用者選單（預覽）';
+    avatar.title = '使用者選單（展示用）';
     avatar.setAttribute('aria-hidden', 'true');
     avatar.textContent = 'Y';
 
@@ -195,7 +196,7 @@ function wireMockAuthLink(link) {
     event.preventDefault();
     showDemoOnlyFeedback(
       link,
-      '登入與註冊尚未開放。請使用頁面上方「登入後」切換，預覽登入後的導覽與流程。',
+      '登入與註冊尚未開放。請使用頁面上方「登入後」切換，查看登入後的導覽與流程展示。',
     );
   });
 }
@@ -212,7 +213,7 @@ export function renderDemoNavBanner(parent, navMode) {
   banner.className = 'mvp-demo-nav-banner';
   banner.setAttribute('role', 'note');
   banner.textContent =
-    '預覽模式：目前為登入後導覽列（?nav=logged-in-mock），並非真實登入或帳號狀態。';
+    '目前為公開展示版：上方「登入後」僅切換導覽列外觀，並非真實登入或帳號狀態。';
   parent.prepend(banner);
   return banner;
 }
@@ -251,7 +252,7 @@ export function renderSiteFooter(mount) {
   const note = doc.createElement('p');
   note.className = 'mvp-site-footer-note';
   note.textContent =
-    '公開 MVP 政策說明；部分功能為預覽，尚未實作帳號、通知或計分。';
+    '公開展示版政策說明；帳號、通知與計分等功能將陸續開放。';
 
   inner.append(nav, note);
   mount.append(inner);

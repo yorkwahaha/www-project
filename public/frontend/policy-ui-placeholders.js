@@ -9,7 +9,7 @@ export const TRUST_LEVEL_PREVIEW_COPY = {
   createLead:
     'Lv.1 註冊用戶可發起一般問卷；政治／高風險類別需更高信任並經事前審核。目前為公開展示版，送出僅檢查欄位，不會儲存資料。',
   voteLead:
-    'Lv.1 註冊且符合資格者可投票；收票中不顯示期中結果。投票後可協助回饋題目品質（登入與計分完成後開放）。',
+    'Lv.1 註冊且符合資格者可投票；收集中不顯示期中結果。投票後可協助回饋題目品質（登入與計分完成後開放）。',
   myPollsLead:
     '發起額度與品質點數目前以範例資料展示，非真實帳號數值；優質題目看的是多種品質訊號，不是單純按讚。',
 };
@@ -616,7 +616,7 @@ export function renderMockTerminalResultState(root, mockState) {
     );
     appendParagraph(
       panel,
-      '收票中停止請稱「取消」，不是「下架」。',
+      '收集中停止請稱「取消」，不是「下架」。',
       'policy-panel-text policy-panel-emphasis',
     );
   } else {

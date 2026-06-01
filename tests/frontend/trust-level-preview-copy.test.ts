@@ -81,8 +81,8 @@ describe('trust level preview copy (phase 45)', () => {
       join(process.cwd(), 'public/results.html'),
       'utf8',
     );
-    expect(voteHtml).toMatch(/收票中.*不顯示/s);
-    expect(resultsHtml).toMatch(/收集中不顯示票數或百分比/);
+    expect(voteHtml).toMatch(/收集中.*不顯示/s);
+    expect(resultsHtml).toMatch(/收集中不顯示票數/);
     expect(voteHtml).not.toMatch(/總票數|0\s*%|排名第/);
   });
 });

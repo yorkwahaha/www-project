@@ -6,7 +6,7 @@ import { showDemoOnlyFeedback } from './public-mvp-demo.js';
 
 export const HELP_COPY = {
   collectingHidden:
-    '收票中不顯示票數、百分比、排名或趨勢，避免影響後續投票者。',
+    '收集中不顯示票數、百分比、排名或趨勢，避免影響後續投票者。',
   revealTime: 'MVP：截止時間即結果公開時間；公開後才可查看聚合結果。',
   lockPeriod:
     '結果公開後約 5 天為公開鎖定期；期間發起者無法編輯、下架、刪除或隱藏結果。',
@@ -15,7 +15,7 @@ export const HELP_COPY = {
   followNotify:
     '站內通知將在登入與通知系統完成後開放；目前不會儲存追蹤狀態。',
   cancelVsUnpublish:
-    '收票中停止請用「取消」，不產生公開結果；鎖定期結束後的「下架」另當別論。',
+    '收集中停止請用「取消」，不產生公開結果；鎖定期結束後的「下架」另當別論。',
 };
 
 /**

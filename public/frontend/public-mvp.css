@@ -1609,22 +1609,82 @@ button:disabled {
 
 @media (max-width: 640px) {
   .mvp-page {
-    padding-top: 0.85rem;
+    padding: 0.85rem 0.85rem 2rem;
+  }
+
+  .mvp-lead {
+    font-size: 0.96rem;
+    line-height: 1.5;
   }
 
   .mvp-hero {
     grid-template-columns: 1fr;
-    padding: 1.1rem 1rem;
+    padding: 1rem 0.9rem;
     margin-bottom: 1rem;
   }
 
+  .mvp-hero .mvp-mascot {
+    width: 3.25rem;
+    height: 3.25rem;
+    justify-self: start;
+  }
+
+  .mvp-hero-cta .mvp-btn {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-height: 2.75rem;
+  }
+
+  .mvp-value-card {
+    padding: 0.7rem 0.85rem;
+  }
+
+  .mvp-value-card h3 {
+    font-size: 0.9rem;
+  }
+
+  .mvp-value-card p {
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
   .mvp-card-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
     overflow-x: hidden;
+  }
+
+  .mvp-poll-card {
+    padding: 0.85rem;
+  }
+
+  .mvp-poll-card-top {
+    flex-wrap: wrap;
+  }
+
+  .mvp-poll-card-top .mvp-badge {
+    margin-left: auto;
+  }
+
+  .mvp-poll-card-footer .mvp-btn {
+    min-height: 2.75rem;
+  }
+
+  .mvp-filter-chip {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
   }
 
   .mvp-site-nav {
     order: 3;
     width: 100%;
+  }
+
+  .mvp-site-header-inner {
+    padding: 0.55rem 0.85rem;
+  }
+
+  .mvp-btn {
+    min-height: 2.65rem;
   }
 
   .mvp-help-tip {
@@ -1635,6 +1695,85 @@ button:disabled {
 
   .mvp-demo-nav-banner {
     margin-bottom: 0.65rem;
+  }
+
+  .mvp-mock-banner,
+  .ui-mock-preview-banner {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.88rem;
+  }
+
+  .mvp-demo-nav-switch {
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
+  .mvp-faq-question {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.94rem;
+  }
+
+  .mvp-faq-answer {
+    padding: 0 0.85rem 0.75rem;
+    font-size: 0.86rem;
+  }
+
+  .mvp-info-page--matrix {
+    max-width: 100%;
+  }
+
+  .mvp-table-wrap--matrix::after {
+    content: "← 橫向滑動查看完整表格 →";
+    display: block;
+    padding: 0.35rem 0.15rem 0.15rem;
+    font-size: 0.75rem;
+    color: var(--mvp-muted);
+    text-align: center;
+  }
+
+  .mvp-perm-legend {
+    font-size: 0.8rem;
+    gap: 0.25rem 0.55rem;
+  }
+
+  .mvp-perm-notes {
+    font-size: 0.84rem;
+  }
+
+  .mvp-dash-table th,
+  .mvp-dash-table td {
+    padding: 0.55rem 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  .mvp-dash-table td:last-child .mvp-btn {
+    min-height: 2.5rem;
+  }
+
+  .mvp-form-card {
+    padding: 1rem 0.9rem;
+  }
+
+  .mvp-founder-callout {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.88rem;
+  }
+
+  .mvp-preview-links-block {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.84rem;
+  }
+
+  .mvp-preview-links a {
+    display: inline-block;
+    padding: 0.15rem 0;
+    min-height: 2.25rem;
+    line-height: 2;
+  }
+
+  .ui-mock-actions .mvp-btn-mock {
+    flex: 1 1 100%;
+    min-height: 2.75rem;
   }
 
   .mvp-trust-cols {

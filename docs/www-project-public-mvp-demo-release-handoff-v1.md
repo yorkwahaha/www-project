@@ -1,40 +1,85 @@
 # WWW Project — 公開 MVP Demo／Release 交接（v1）
 
-適用基準：公開 MVP 文件鏈 Phase 23–32（分享連結、結果唯讀頁、`/explore` placeholder、本機啟動交接）；以目前 `origin/master` 為準，勿綁定特定 commit hash。
+適用基準：公開 MVP 文件鏈 Phase 23–49（分享連結、政策靜態頁、demo 生命週期預覽、本機啟動交接）。
+
+**目前 `origin/master` 基準（Phase 48 後）：** commit **`630baea`**（`fix: improve public mvp mobile readability`）。Phase 47 為 **`704aeee`**（FAQ／信任矩陣精煉）。Phase 49 僅同步本文件與 `README.md` 狀態說明。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
 **本文件用途：** 給同事、評審或自己「照著展示」用的交接說明。不是產品規格全文；細部手動步驟見 `docs/www-project-public-mvp-manual-qa-v1.md`。
 
+**實作性質：** Public MVP 前台仍為 **靜態／展示導向**（HTML + 共用 CSS/JS）。真實登入、DB 生命週期、通知持久化、信任分持久化、回饋持久化、正式榜單／個人化 feed **尚未實作**（見 §H）。
+
 ---
 
 ## A. 目前可展示功能
 
+### A.1 核心流程（需本機 DB + `npm start` 或 `npm run demo:public:local`）
+
 | 路由 | 說明 |
 |------|------|
-| `GET /` | 首頁：說明以分享連結流通，可進入建立問卷與探索說明 |
-| `GET /polls/new` | 建立問卷（2–6 個選項），成功後顯示投票／結果完整網址與複製按鈕 |
-| `GET /vote/:pollId` | 投票頁：載入問卷、選一項、送出官方投票 |
-| `GET /results/:pollId` | 公開結果頁（唯讀）：顯示安全的區間化統計，可前往投票頁 |
-| `GET /explore` | **Placeholder**：說明探索／公開列表尚未開放，**不是**真實 feed，也不查資料庫 |
+| `GET /` | 首頁：分享連結流通、政策連結、範例卡片 |
+| `GET /polls/new` | 建立問卷（2–6 選項），成功後顯示投票／結果完整網址 |
+| `GET /vote/:pollId` | 真實投票頁（`POST /polls/:id/vote-by-index`） |
+| `GET /results/:pollId` | 真實結果頁（display-safe JSON；依後端狀態顯示） |
+| `GET /explore` | Placeholder：範例卡片連到 demo 路由；**不是** `GET /polls/feed` UI |
+
+### A.2 政策說明頁（靜態 HTML，無需真實 poll id）
+
+| 路由 | 說明 |
+|------|------|
+| `GET /faq` | 常見問題（繁中）：生命週期、資格、鎖定期、取消 vs 下架等 |
+| `GET /trust-levels` | 信任等級 Lv.0–Lv.4 權限對照矩陣（草案展示） |
+| `GET /my-polls` | 發起者後台 **mock**（按鈕不執行真實操作） |
+
+### A.3 Demo 預覽路由（靜態殼，用 query 切換文案）
+
+| 路由 | 說明 |
+|------|------|
+| `GET /vote/demo` | 投票頁政策殼；可搭配 `?ui_state=` |
+| `GET /results/demo` | 結果頁政策殼；**必須**用 `ui_state` 看各狀態 |
+
+建議一次展示的 `ui_state` 範例（皆可加在同一頁網址）：
+
+- `/results/demo?ui_state=collecting` — 收集中（不顯示票數／排名／趨勢）
+- `/results/demo?ui_state=revealed` — 已公開結果
+- `/results/demo?ui_state=locked` — 公開鎖定期
+- `/results/demo?ui_state=post_lock` — 鎖定期已結束
+- `/results/demo?ui_state=cancelled` — 已取消（收集中停止）
+- `/results/demo?ui_state=unpublished` — 已下架（含下架文案）
+
+### A.4 導覽展示用 query（非真實登入）
+
+任一支援頁（如 `/`、`/faq`、`/trust-levels`）可切換：
+
+- `?nav=guest` — 訪客導覽
+- `?nav=logged-in-mock` — 登入後導覽 mock
 
 後端另有 JSON API（例如 `POST /polls`、`GET /polls/:id/results`），前台不直接暴露內部 `option_id`、vote token、shard 等欄位。
 
 ---
 
-## B. Demo 腳本（約 5–10 分鐘）
+## B. Demo 腳本（約 10–15 分鐘）
 
-**事前準備：** 依 [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 完成本機啟動（Docker `www_test`、shell 內 `DATABASE_URL`、`migrate`、`npm run build`、`npm start`）。建議用一般瀏覽器＋一個無痕視窗模擬「另一位投票者」。
+**事前準備：** 依 [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 啟動（建議 `npm run demo:public:local` → `http://127.0.0.1:3000/`）。政策頁（§A.2–A.3）可不依賴 DB；真實建立／投票需 DB。
 
-1. **打開首頁** — 瀏覽 `http://127.0.0.1:3000/`（或你設定的 `PORT`），確認有「建立問卷」與「探索（尚未開放）」連結。
-2. **前往建立問卷** — 點「建立問卷」或開啟 `/polls/new`。
-3. **建立一個 2–4 選項問卷** — 填標題與至少兩個選項，按「建立問卷」，等待成功區塊出現。
-4. **複製投票連結** — 在成功區塊按「複製投票連結」，或手動選取顯示的完整網址（應為 `/vote/<pollId>`，僅含問卷 id）。
-5. **用投票連結投票** — 在無痕視窗貼上並開啟，選一個選項後送出；應顯示投票成功與前往結果的連結。
-6. **查看公開結果** — 開啟 `/results/<pollId>`（或從投票成功頁進入），確認為唯讀統計文字（區間／約略），不是精確票數列表。
-7. **打開 /explore** — 說明目前 MVP **沒有**可瀏覽的問卷列表、榜單或個人化推薦；真實 feed／排序屬未來設計，本頁不會列出任何問卷。
+### B.1 政策與信任（靜態，約 5 分鐘）
 
-**展示時可強調的一句話：** 問卷主要靠**分享連結**傳給朋友，不是靠首頁列表或熱門排行。
+1. **`/faq`** — 說明收集中不顯示票數、關閉 vs 鎖定期、取消 vs 下架、追蹤揭曉等。
+2. **`/trust-levels`** — 展示 Lv.0–Lv.4 矩陣；強調政治／高風險無法靠點數繞過審核。
+3. **`/results/demo?ui_state=collecting`** — 確認無票數、百分比、總計、排名、趨勢、進度條。
+4. **依序切換** `revealed` → `locked` → `post_lock` → `cancelled` → `unpublished`（下架文案應含：「此問卷已結束公開鎖定期，並由發起者下架。」）。
+5. **`?nav=guest` / `?nav=logged-in-mock`** — 在首頁或 FAQ 切換導覽 mock（非真實登入）。
+
+### B.2 真實流程（需 DB，約 5–10 分鐘）
+
+1. **首頁** `GET /` — 建立問卷、探索、FAQ、信任說明連結。
+2. **建立問卷** `/polls/new` — 2–4 選項，成功後複製 `/vote/<pollId>`。
+3. **投票** — 無痕視窗開啟投票連結並送出。
+4. **結果** `/results/<pollId>` — display-safe 區間化統計（非收集中洩漏場景時）。
+5. **`/explore`** — 說明無正式 feed／榜單；卡片僅連到 demo。
+
+**展示時可強調：** 問卷靠**分享連結**流通；收集中連發起者都看不到期中結果；關閉代表統計結束並揭曉，不等於鎖定期結束。
 
 ---
 
@@ -75,18 +120,54 @@ npm run test:integration:local
 
 ## E. 目前**不是**公開 MVP 範圍
 
-若展示或測試時出現下列功能，代表 scope 外或尚未交付，不應視為本 MVP 缺陷：
+若展示或測試時期待下列能力，代表 **尚未實作** 或僅有靜態/mock，不應視為本輪缺陷：
 
-- 登入／註冊
-- 前台 feed 列表（`GET /polls/feed` 僅 API 層，無瀏覽器列表 UI）
+- **DB 驅動的公開生命週期**（收集中／鎖定／下架等由後端狀態驅動前台，而非 `?ui_state=`）
+- **真實登入／註冊／session**（`?nav=logged-in-mock` 僅展示用）
+- **通知持久化**（追蹤揭曉 MVP 定義為站內通知；email/push 為未來）
+- **信任評分持久化**、**回饋持久化**
+- **正式榜單／個人化 feed**（`GET /polls/feed` 僅 API；無瀏覽器列表 UI）
 - ranking／Wonder Flow／依答案方向的推薦
-- personalization（個人化推薦）
 - admin UI
-- 建立問卷時的分類選擇 UI
-- 發布後編輯問卷（創作者零編輯）
+- 「略過投票直接看結果」
+- 建立問卷完整分類／審核流程 UI
+- 發布後編輯問卷（創作者零編輯；鎖定期內亦不可改）
 - rate limit／防濫用硬化
-- production deployment 一鍵腳本與正式環境設定
+- production 一鍵部署與正式環境設定
 - admin token 輪替／憑證管理 UI
+
+---
+
+## G. 重要產品規則（展示與驗收對照）
+
+| 主題 | 規則 |
+|------|------|
+| 收集中 | **不得**顯示票數、百分比、總計、排名、趨勢、進度；**發起者亦同** |
+| 關閉 | 投票／統計期結束並**揭曉彙總結果**；**不等於**公開鎖定期結束 |
+| 公開鎖定期 | MVP 草案約 **5 天**；期間不可下架、刪除、編輯、重開投票、隱藏結果 |
+| 鎖定期後 | 發起者可 **下架**；下架文案：「此問卷已結束公開鎖定期，並由發起者下架。」 |
+| 取消 | 收集中停止稱 **取消**，不是下架 |
+| 不符合資格 | 可看基本資訊、不可投票、不可看收集中結果；可 **追蹤揭曉**（站內通知 mock） |
+| 略過投票看結果 | **未來**功能 |
+
+---
+
+## H. 信任等級方向（靜態矩陣對照）
+
+| 等級 | 名稱 |
+|------|------|
+| Lv.0 | 訪客 |
+| Lv.1 | 註冊用戶 |
+| Lv.2 | 可信註冊用戶 |
+| Lv.3 | 高信任分用戶 |
+| Lv.4 | 高信任（尚未開放） |
+
+- 信任等級**不能**繞過政治／高風險審核。
+- **功能點數**：未來可能付費換功能／曝光，**不能購買信任**。
+- **信用點數**：來自品質與正向貢獻，**不能購買**。
+- 高風險題目**不能**用點數或付費繞過審核。
+
+草案全文：`docs/www-project-trust-level-policy-draft-v1.md`、`docs/www-project-public-faq-draft-v1.md`。
 
 ---
 
@@ -115,3 +196,5 @@ npm run test:integration:local
 | `docs/www-project-phase-39-poll-lifecycle-policy-v1.md` | 未來政策：問卷生命週期／收集中不顯示結果／關閉揭曉／鎖定期（僅文件） |
 | `docs/www-project-phase-40-user-profile-eligibility-follow-policy-v1.md` | 未來政策：資格／不符合資格 UX／追蹤揭曉通知（僅文件；與 Phase 39 併讀） |
 | `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md` | 規劃：Public MVP UI 如何落實 Phase 39／40（僅文件；UI-only vs API 分類） |
+| `docs/www-project-public-faq-draft-v1.md` | FAQ 草案全文（與 `/faq` 靜態頁對齊） |
+| `docs/www-project-trust-level-policy-draft-v1.md` | 信任等級草案（與 `/trust-levels` 對齊） |

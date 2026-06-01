@@ -36,7 +36,9 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 41 (docs, planning only — not implemented):** Public MVP UI policy implementation plan — maps Phase 39 lifecycle and Phase 40 eligibility/follow policies onto current pages (`/`, `/polls/new`, `/vote/:id`, `/results/:id`, `/explore`); classifies UI-only vs schema/API work — `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md`.
 
-**Public FAQ draft (docs, copy only — not implemented):** User-facing FAQ / Q&A in Traditional Chinese (lifecycle, eligibility, follow, privacy wording) for help pages and Public MVP UI — `docs/www-project-public-faq-draft-v1.md`. Align with Phase 39–41.
+**Phase 47–48 (Public MVP static UI):** FAQ page (`/faq`), trust-level permission matrix (`/trust-levels`), policy-aligned demo copy, mobile readability polish — commit **`630baea`** on `origin/master` after Phase 48 push. Browser surfaces are **static/demo-facing**; normative drafts remain `docs/www-project-public-faq-draft-v1.md` and `docs/www-project-trust-level-policy-draft-v1.md`. Align with Phase 39–41.
+
+**Phase 49 (docs):** Public MVP demo/status sync — this README section and `docs/www-project-public-mvp-demo-release-handoff-v1.md` (demo routes, product rules, not-yet-implemented list).
 
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
@@ -102,6 +104,11 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `GET` | `/results/:id` | Public identity-neutral result page |
 | `GET` | `/` | Public landing page (entry to create poll flow) |
 | `GET` | `/explore` | Read-only placeholder explaining no public poll list yet (not a feed UI) |
+| `GET` | `/faq` | Static FAQ (policy-aligned Traditional Chinese; demo-facing) |
+| `GET` | `/trust-levels` | Static trust-level permission matrix (demo-facing) |
+| `GET` | `/my-polls` | Creator dashboard mock (inert controls) |
+| `GET` | `/vote/demo` | Static vote policy shell (`?ui_state=`, `?nav=`) |
+| `GET` | `/results/demo` | Static results policy shell (`?ui_state=`, `?nav=`) |
 | `GET` | `/polls/new` | Minimal public poll creation UI |
 | `GET` | `/vote/:id` | Minimal public voting UI |
 | `GET` | `/health` | Health check |
@@ -132,19 +139,41 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 **Local demo startup (Traditional Chinese):** preferred: `npm run demo:public:local` → open `http://127.0.0.1:3000/`. Manual path: session `DATABASE_URL` on `www_test`, seed demo users, migrate, build, `npm start`. Step-by-step: **`docs/www-project-local-demo-startup-v1.md`** (not for production deploy). Public MVP UI is a functional CSS skeleton; full visual redesign is a later UI Phase.
 
-### Public MVP current status (Phase 31)
+### Public MVP current status (Phase 49 — demo handoff)
 
-The public browser surface is **share-link first**: create a poll, copy vote/results URLs, vote once per user header, read display-safe results. There is **no** login, poll list UI, ranking UI, or admin UI on these pages.
+**Baseline commit (Phase 48):** `630baea` — FAQ, trust-level matrix, mobile readability polish.
+
+The public browser surface remains **share-link first** and **static/demo-facing** for policy UX: create a poll, copy vote/results URLs, vote once per user header (`X-User-Id`), read display-safe results when the backend lifecycle allows. There is **no** real login/session, DB-backed public lifecycle UI, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization on these pages.
 
 | Page | Route | Notes |
 |------|-------|--------|
-| Landing | `/` | Entry; links to create and explore placeholder |
+| Landing | `/` | Entry; links to create, explore, FAQ, trust matrix |
+| FAQ | `/faq` | Static policy Q&A (Traditional Chinese); aligns with Phase 39–41 drafts |
+| Trust levels | `/trust-levels` | Static Lv.0–Lv.4 permission matrix (demo copy) |
 | Create poll | `/polls/new` | Posts to `POST /polls`; shows share URLs on success |
+| My polls (mock) | `/my-polls` | Creator dashboard **mock** only — buttons inert |
 | Vote | `/vote/:pollId` | Submits `option_index` via `vote-by-index` |
-| Results | `/results/:pollId` | Read-only display-safe stats |
-| Explore | `/explore` | **Placeholder only** — explains list/explore is not open; **not** `GET /polls/feed` UI and does not query the database |
+| Vote (demo) | `/vote/demo` | Static policy shell; optional `?ui_state=` for QA |
+| Results | `/results/:pollId` | Read-only display-safe stats when revealed |
+| Results (demo) | `/results/demo` | Static lifecycle shells via `?ui_state=` (see handoff doc) |
+| Explore | `/explore` | **Placeholder** — sample cards link to demo routes; **not** `GET /polls/feed` UI |
 
-Polls in `suspended` or `correction_pending` are hidden from public GET/feed/vote/result/reference-answer.
+**Demo query params (static pages only):**
+
+| Param | Values | Purpose |
+|-------|--------|---------|
+| `nav` | `guest`, `logged-in-mock` | Toggle header/nav mock (not real auth) |
+| `ui_state` | `collecting`, `revealed`, `locked`, `post_lock`, `cancelled`, `unpublished`, … | Preview lifecycle copy on `/vote/demo`, `/results/demo`, etc. |
+
+Full demo URL list and product rules: **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
+
+**Collecting-stage privacy (product rule, MVP UI + future API):** While a poll is **collecting**, do **not** show vote counts, percentages, totals, ranking, trends, or progress — including to the **creator**. **Close** ends the voting/statistical period and reveals aggregate results; it does **not** mean the public lock period ends (MVP may use close time as reveal time). **Public lock period (MVP draft):** ~5 days after reveal — during lock, creator cannot unpublish/delete/edit/reopen/hide results; after lock, creator may unpublish. **Cancel** stops collecting (not “unpublish”); unpublish copy: 「此問卷已結束公開鎖定期，並由發起者下架。」 Ineligible users may see basic info, cannot vote, cannot see collecting results, but may **follow results** (MVP = in-app notification placeholder; email/push future). **Skip voting, view results** remains future.
+
+**Trust levels (direction, static matrix):** Lv.0 訪客 · Lv.1 註冊用戶 · Lv.2 可信註冊用戶 · Lv.3 高信任分用戶 · Lv.4 高信任（尚未開放）. Trust level cannot bypass political/high-risk review. **功能點數** may be paid later for features/exposure but **cannot buy trust**. **信用點數** comes from quality and positive contribution and **cannot be purchased**. High-risk topics cannot bypass review by points or payment.
+
+**Not yet implemented (Public MVP product path):** DB-backed public flow; real auth; notification persistence; trust scoring persistence; feedback persistence; production ranking/feed personalization.
+
+Polls in `suspended` or `correction_pending` are hidden from public GET/feed/vote/result/reference-answer (backend behavior unchanged).
 
 ### `GET /polls/feed` (Phase 5B–5C)
 

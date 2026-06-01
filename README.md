@@ -48,6 +48,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 53 (docs, planning only — not implemented):** Public poll lifecycle API/spec plan — endpoints, state gates, collecting privacy responses, error model (no route implementation in this phase) — `docs/www-project-phase-53-public-lifecycle-api-spec-plan-v1.md`. Baseline @ `6d71358`.
 
+**Phase 54:** Real MVP public lifecycle schema foundation — `migrations/008_phase54_public_lifecycle_foundation.sql` adds server-controlled `polls.public_lifecycle_state`, reveal/lock/cancel/unpublish timestamps, scheduler-support indexes, and minimal `poll_eligibility_rules`. No public lifecycle routes, frontend behavior, auth/session logic, result snapshots, or counter exposure were added. Decisions and rollback notes: `docs/www-project-phase-54-public-lifecycle-schema-foundation-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -236,6 +238,7 @@ Public correction notices are read through `GET /polls/:id/public-notices`; see 
 - Frontend selection state in page-local runtime memory; cleared on submit, `pagehide`, and BFCache `pageshow`
 - `GET /polls/feed` — freshness-only public feed with optional cursor pagination (5C)
 - Poll visibility / archive (6A)
+- Real MVP public lifecycle schema foundation (54): server-controlled lifecycle fields and minimal `poll_eligibility_rules`; API behavior remains future work
 - Admin typo correction foundation (6B): schema, requests, Dual-Admin decisions, apply, suspended path, admin HTTP routes (6C)
 - Admin correction audit read API (7.4): `audit-record`, per-poll `correction-audit`
 - Review-context decision leak fix (7.5): anonymous `decision_summary` only on workflow read

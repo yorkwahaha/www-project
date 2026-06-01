@@ -314,3 +314,53 @@ describe('Phase 6B.1 admin correction schema guard', () => {
     expect(phase6b).toContain('on poll_correction_requests (status, valid_until)');
   });
 });
+
+describe('Phase 54 public lifecycle schema guard', () => {
+  async function readPhase54Migration(): Promise<string> {
+    return readFile(
+      join(MIGRATIONS_DIR, '008_phase54_public_lifecycle_foundation.sql'),
+      'utf8',
+    );
+  }
+
+  it('adds the minimal lifecycle columns, constraints, and eligibility table only', async () => {
+    const phase54 = (await readPhase54Migration()).toLowerCase();
+    const creates = [...phase54.matchAll(/create\s+table\s+(\w+)/g)].map(
+      (match) => match[1],
+    );
+
+    expect(creates).toEqual(['poll_eligibility_rules']);
+    for (const column of [
+      'public_lifecycle_state',
+      'revealed_at',
+      'public_lock_ends_at',
+      'cancelled_at',
+      'unpublished_at',
+    ]) {
+      expect(phase54).toContain(`add column ${column}`);
+    }
+    expect(phase54).toContain('polls_public_lifecycle_state_check');
+    expect(phase54).toContain('polls_public_lock_ends_at_check');
+    expect(phase54).toContain('polls_cancelled_at_state_check');
+    expect(phase54).toContain('polls_unpublished_at_state_check');
+  });
+
+  it('keeps deferred lifecycle features out of the Phase 54 migration', async () => {
+    const phase54 = (await readPhase54Migration()).toLowerCase();
+
+    for (const deferred of [
+      'poll_result_snapshots',
+      'poll_lifecycle_transitions',
+      'poll_result_follow_subscriptions',
+      'in_app_notifications',
+      'poll_quality_feedback',
+      'trust_credit_events',
+      'poll_sensitive_review_cases',
+    ]) {
+      expect(phase54).not.toMatch(new RegExp(`create\\s+table\\s+${deferred}\\b`));
+    }
+    expect(phase54).not.toContain('poll_option_vote_counters');
+    expect(phase54).not.toContain('option_id');
+    expect(phase54).not.toContain('user_id');
+  });
+});

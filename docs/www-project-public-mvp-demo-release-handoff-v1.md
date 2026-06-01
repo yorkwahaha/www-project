@@ -2,7 +2,7 @@
 
 適用基準：公開 MVP 文件鏈 Phase 23–49（分享連結、政策靜態頁、demo 生命週期預覽、本機啟動交接）。
 
-**目前 `origin/master` 基準（Phase 48 後）：** commit **`630baea`**（`fix: improve public mvp mobile readability`）。Phase 47 為 **`704aeee`**（FAQ／信任矩陣精煉）。Phase 49 僅同步本文件與 `README.md` 狀態說明。
+**目前 `origin/master` 基準（Public MVP Demo）：** commit **`023cf9b`**（`fix: polish public mvp demo consistency`）。Phase 48 UI 為 **`630baea`**；Phase 49 同步 demo 狀態文件；Phase 51 定義 Real MVP 實作邊界見 [`www-project-phase-51-real-mvp-implementation-boundary-v1.md`](./www-project-phase-51-real-mvp-implementation-boundary-v1.md)（**僅規劃，未實作**）。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
@@ -198,3 +198,4 @@ npm run test:integration:local
 | `docs/www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md` | 規劃：Public MVP UI 如何落實 Phase 39／40（僅文件；UI-only vs API 分類） |
 | `docs/www-project-public-faq-draft-v1.md` | FAQ 草案全文（與 `/faq` 靜態頁對齊） |
 | `docs/www-project-trust-level-policy-draft-v1.md` | 信任等級草案（與 `/trust-levels` 對齊） |
+| `docs/www-project-phase-51-real-mvp-implementation-boundary-v1.md` | Real MVP 實作邊界與 Phase 52–60 路線圖（僅規劃） |

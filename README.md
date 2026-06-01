@@ -40,6 +40,10 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 49 (docs):** Public MVP demo/status sync — this README section and `docs/www-project-public-mvp-demo-release-handoff-v1.md` (demo routes, product rules, not-yet-implemented list).
 
+**Phase 50:** Public MVP demo QA and copy consistency — commit **`023cf9b`** (`fix: polish public mvp demo consistency`).
+
+**Phase 51 (docs, planning only — not implemented):** Real MVP implementation boundary — baseline `023cf9b`, risk categories, product invariants, suggested Phase 52–60 roadmap from planning through lifecycle backend (no DB/auth/notification/scoring in this phase) — `docs/www-project-phase-51-real-mvp-implementation-boundary-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

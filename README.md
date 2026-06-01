@@ -46,6 +46,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 52 (docs, planning only — not implemented):** Real MVP data model plan — entities, lifecycle states, privacy-sensitive fields, Phase 54 migration prep (no schema/API in this phase) — `docs/www-project-phase-52-real-mvp-data-model-plan-v1.md`. Baseline planning chain: Phase 51 @ `eab9a91`.
 
+**Phase 53 (docs, planning only — not implemented):** Public poll lifecycle API/spec plan — endpoints, state gates, collecting privacy responses, error model (no route implementation in this phase) — `docs/www-project-phase-53-public-lifecycle-api-spec-plan-v1.md`. Baseline @ `6d71358`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

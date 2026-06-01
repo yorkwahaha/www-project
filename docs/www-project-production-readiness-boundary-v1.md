@@ -19,6 +19,7 @@
 | [`www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md`](./www-project-phase-41-public-mvp-ui-policy-implementation-plan-v1.md) | 規劃：將 Phase 39／40 對應到 Public MVP UI 頁面與實作順序（**僅文件，非實作**） |
 | [`www-project-phase-51-real-mvp-implementation-boundary-v1.md`](./www-project-phase-51-real-mvp-implementation-boundary-v1.md) | 規劃：Public MVP Demo → Real MVP 實作邊界、不變量、Phase 52–60 路線圖（**僅文件，非實作**；基準 `023cf9b`） |
 | [`www-project-phase-52-real-mvp-data-model-plan-v1.md`](./www-project-phase-52-real-mvp-data-model-plan-v1.md) | 規劃：Real MVP 邏輯實體、生命週期狀態、隱私欄位、Phase 54 migration 前置（**僅文件，非實作**；基準 `eab9a91`） |
+| [`www-project-phase-53-public-lifecycle-api-spec-plan-v1.md`](./www-project-phase-53-public-lifecycle-api-spec-plan-v1.md) | 規劃：公開生命週期 API 端點、收集中隱私回應、錯誤模型（**僅文件，非實作**；基準 `6d71358`） |
 
 ---
 

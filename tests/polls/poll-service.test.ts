@@ -37,6 +37,7 @@ describe('PollService', () => {
 
     const detail = await service.getPollById(result.poll_id);
     expect(detail.title).toBe('Favorite season?');
+    expect(detail.public_lifecycle_state).toBe('collecting');
     expect(detail.options).toHaveLength(3);
     expect(detail.options[0]).toEqual({ option_index: 0, label: 'Spring' });
     expect(detail).not.toHaveProperty('option_vote_count');

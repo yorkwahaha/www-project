@@ -55,6 +55,7 @@ describe('Public result lifecycle PostgreSQL integration', () => {
     const { service, pollId } = await seedPollWithThresholdCount();
 
     await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+      public_lifecycle_state: 'collecting',
       display_mode: 'collecting',
       total_votes_display: '收集中',
       collecting: true,
@@ -77,6 +78,7 @@ describe('Public result lifecycle PostgreSQL integration', () => {
       );
 
       await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+        public_lifecycle_state: publicLifecycleState,
         display_mode: 'bucketed_percentage',
         total_votes_display: '30–99',
         collecting: false,
@@ -96,6 +98,7 @@ describe('Public result lifecycle PostgreSQL integration', () => {
       );
 
       await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+        public_lifecycle_state: publicLifecycleState,
         display_mode: 'unavailable',
         total_votes_display: '結果不可用',
         collecting: false,
@@ -113,6 +116,7 @@ describe('Public result lifecycle PostgreSQL integration', () => {
     );
 
     await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+      public_lifecycle_state: 'draft',
       display_mode: 'unavailable',
       total_votes_display: '結果不可用',
     });

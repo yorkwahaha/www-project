@@ -69,6 +69,7 @@ describe('Result Display service', () => {
 
     expect(result).toEqual({
       poll_id: pollId,
+      public_lifecycle_state: 'revealed',
       display_mode: 'bucketed_percentage',
       total_votes_display: '30–99',
       collecting: false,
@@ -105,6 +106,7 @@ describe('Result Display service', () => {
 
     await expect(service.getPollResults(pollId)).resolves.toEqual({
       poll_id: pollId,
+      public_lifecycle_state: 'collecting',
       display_mode: 'collecting',
       total_votes_display: '收集中',
       collecting: true,
@@ -135,6 +137,7 @@ describe('Result Display service', () => {
       seedCounter(repository, pollId, options[0]!.id, 1, 30);
 
       await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+        public_lifecycle_state: publicLifecycleState,
         display_mode: 'bucketed_percentage',
         total_votes_display: '30–99',
         collecting: false,
@@ -151,9 +154,16 @@ describe('Result Display service', () => {
       };
 
       await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+        public_lifecycle_state: publicLifecycleState,
         display_mode: 'unavailable',
         total_votes_display: '結果不可用',
         collecting: false,
+        user_message:
+          publicLifecycleState === 'cancelled'
+            ? '問卷已取消，不會產生公開結果。'
+            : publicLifecycleState === 'unpublished'
+              ? '此問卷已結束公開鎖定期，並由發起者下架。'
+              : '此問卷目前沒有可公開顯示的結果。',
       });
     },
   );
@@ -167,6 +177,7 @@ describe('Result Display service', () => {
     };
 
     await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+      public_lifecycle_state: 'draft',
       display_mode: 'unavailable',
       total_votes_display: '結果不可用',
     });

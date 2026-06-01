@@ -86,6 +86,7 @@ describe('poll HTTP routes', () => {
       const detail = await request(baseUrl, 'GET', `/polls/${pollId}`, {});
       expect(detail.status).toBe(200);
       expect(detail.body.poll_id).toBe(pollId);
+      expect(detail.body.public_lifecycle_state).toBe('collecting');
       expect(detail.body).not.toHaveProperty('option_vote_count');
       expect(detail.body).not.toHaveProperty('manipulation_direction_signal');
     });

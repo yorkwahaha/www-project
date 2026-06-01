@@ -86,6 +86,7 @@ describe('Result Display HTTP route', () => {
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
         poll_id: created.poll_id,
+        public_lifecycle_state: 'revealed',
         display_mode: 'bucketed_percentage',
         total_votes_display: '30–99',
       });
@@ -136,6 +137,7 @@ describe('Result Display HTTP route', () => {
       expect(creator.status).toBe(200);
       expect(creator.body).toEqual(publicRead.body);
       expect(creator.body).toMatchObject({
+        public_lifecycle_state: 'collecting',
         display_mode: 'collecting',
         total_votes_display: '收集中',
         collecting: true,
@@ -147,6 +149,54 @@ describe('Result Display HTTP route', () => {
       expect(JSON.stringify(creator.body)).not.toContain('30–99');
     });
   });
+
+  it.each([
+    ['draft', '此問卷目前沒有可公開顯示的結果。'],
+    ['cancelled', '問卷已取消，不會產生公開結果。'],
+    ['unpublished', '此問卷已結束公開鎖定期，並由發起者下架。'],
+  ] as const)(
+    'returns a counter-free unavailable shell for %s lifecycle state',
+    async (publicLifecycleState, userMessage) => {
+      const repository = createInMemoryPollRepository();
+      const service = createPollService(repository);
+      const created = await service.createPoll(
+        {
+          creatorId,
+          title: 'Unavailable lifecycle shell',
+          description: '',
+          category: 'general',
+          options: ['One', 'Two'],
+          eligibleRuleId: null,
+          closesAt: new Date(Date.now() + 86_400_000),
+          publish: true,
+        },
+        'Creator',
+      );
+      repository.polls.get(created.poll_id)!.public_lifecycle_state =
+        publicLifecycleState;
+      repository.listVoteAggregatesByPollId = async () => {
+        throw new Error('unavailable HTTP path must not query aggregates');
+      };
+      const server = createHttpServer({ pollService: service });
+
+      await withServer(server, async (baseUrl) => {
+        const response = await request(baseUrl, `/polls/${created.poll_id}/results`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toMatchObject({
+          public_lifecycle_state: publicLifecycleState,
+          display_mode: 'unavailable',
+          total_votes_display: '結果不可用',
+          collecting: false,
+          user_message: userMessage,
+          options: [
+            { display_percentage: null, display_count: null },
+            { display_percentage: null, display_count: null },
+          ],
+        });
+      });
+    },
+  );
 
   it('returns 404 for hidden poll states without leaking moderation labels', async () => {
     const repository = createInMemoryPollRepository();

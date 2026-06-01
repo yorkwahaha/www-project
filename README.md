@@ -52,6 +52,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 55A:** Public result lifecycle guard — existing `GET /polls/:id/results` reads aggregate counters only when `public_lifecycle_state` is `revealed`, `locked`, or `post_lock`. Collecting and unavailable states return a counter-free shell; legacy `status='closed'` and vote-count thresholds do not reveal results by themselves. No new route, schema, frontend, auth/session, scheduler, or notification behavior was added.
 
+**Phase 55B:** Public read response alignment — existing `GET /polls/:id/results` responses now expose `public_lifecycle_state`; unavailable shells include lifecycle-safe copy without aggregate reads. Existing `GET /polls/:id` detail responses add the same safe lifecycle field. This remains a response-only alignment before public create/read expansion: no new route, schema, frontend behavior, auth/session, scheduler, or notification behavior was added.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

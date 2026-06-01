@@ -111,6 +111,7 @@ export type CreatePollInput = {
 
 export type PollDetail = {
   poll_id: string;
+  public_lifecycle_state: PublicLifecycleState;
   title: string;
   description: string;
   category: string;
@@ -149,6 +150,7 @@ export type OfficialVoteResult = {
 
 export type PollResultDisplay = {
   poll_id: string;
+  public_lifecycle_state: PublicLifecycleState;
   display_mode:
     | 'collecting'
     | 'unavailable'
@@ -164,6 +166,7 @@ export type PollResultDisplay = {
     display_count: string | null;
   }>;
   updated_display: '最近更新';
+  user_message?: string;
 };
 
 export type PublicFeedQuery = {

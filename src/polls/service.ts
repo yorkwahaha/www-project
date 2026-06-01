@@ -105,7 +105,7 @@ export function createPollService(
         return toPollResultShell(poll.id, poll.public_lifecycle_state, options);
       }
       const options = await repository.listVoteAggregatesByPollId(pollId);
-      return toPollResultDisplay(pollId, options);
+      return toPollResultDisplay(pollId, poll.public_lifecycle_state, options);
     },
 
     async getPublicFeed(query = {}) {
@@ -250,6 +250,7 @@ function toPollDetail(
     description: string;
     category: string;
     status: PollDetail['status'];
+    public_lifecycle_state: PollDetail['public_lifecycle_state'];
     closes_at: Date;
     created_at: Date;
     published_at: Date | null;
@@ -258,6 +259,7 @@ function toPollDetail(
 ): PollDetail {
   return {
     poll_id: poll.id,
+    public_lifecycle_state: poll.public_lifecycle_state,
     title: poll.title,
     description: poll.description,
     category: poll.category,
@@ -275,6 +277,7 @@ function toPollDetail(
 
 function toPollResultDisplay(
   pollId: string,
+  lifecycleState: PollRow['public_lifecycle_state'],
   options: PollOptionVoteAggregateRow[],
 ): PollResultDisplay {
   const counts = options.map((option) => BigInt(option.vote_count));
@@ -282,6 +285,7 @@ function toPollResultDisplay(
   const tier = getResultTier(total);
   return {
     poll_id: pollId,
+    public_lifecycle_state: lifecycleState,
     display_mode: tier.displayMode,
     total_votes_display: tier.totalVotesDisplay,
     collecting: total < 30n,
@@ -303,6 +307,7 @@ function toPollResultShell(
   const collecting = lifecycleState === 'collecting';
   return {
     poll_id: pollId,
+    public_lifecycle_state: lifecycleState,
     display_mode: collecting ? 'collecting' : 'unavailable',
     total_votes_display: collecting ? '收集中' : '結果不可用',
     collecting,
@@ -313,7 +318,20 @@ function toPollResultShell(
       display_count: null,
     })),
     updated_display: '最近更新',
+    ...(collecting ? {} : { user_message: unavailableResultMessage(lifecycleState) }),
   };
+}
+
+function unavailableResultMessage(
+  lifecycleState: PollRow['public_lifecycle_state'],
+): string {
+  if (lifecycleState === 'cancelled') {
+    return '問卷已取消，不會產生公開結果。';
+  }
+  if (lifecycleState === 'unpublished') {
+    return '此問卷已結束公開鎖定期，並由發起者下架。';
+  }
+  return '此問卷目前沒有可公開顯示的結果。';
 }
 
 function getResultTier(total: bigint): {

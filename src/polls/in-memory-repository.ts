@@ -94,6 +94,7 @@ export function createInMemoryPollRepository(): PollRepository & {
         description: input.description.trim(),
         category: input.category.trim(),
         status,
+        public_lifecycle_state: input.publish ? 'collecting' : 'draft',
         eligible_rule_id: input.eligibleRuleId,
         published_at: input.publish ? now : null,
         archived_at: null,

@@ -50,6 +50,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 54:** Real MVP public lifecycle schema foundation — `migrations/008_phase54_public_lifecycle_foundation.sql` adds server-controlled `polls.public_lifecycle_state`, reveal/lock/cancel/unpublish timestamps, scheduler-support indexes, and minimal `poll_eligibility_rules`. No public lifecycle routes, frontend behavior, auth/session logic, result snapshots, or counter exposure were added. Decisions and rollback notes: `docs/www-project-phase-54-public-lifecycle-schema-foundation-v1.md`.
 
+**Phase 55A:** Public result lifecycle guard — existing `GET /polls/:id/results` reads aggregate counters only when `public_lifecycle_state` is `revealed`, `locked`, or `post_lock`. Collecting and unavailable states return a counter-free shell; legacy `status='closed'` and vote-count thresholds do not reveal results by themselves. No new route, schema, frontend, auth/session, scheduler, or notification behavior was added.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

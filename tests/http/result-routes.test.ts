@@ -63,6 +63,7 @@ describe('Result Display HTTP route', () => {
       },
       'Creator',
     );
+    repository.polls.get(created.poll_id)!.public_lifecycle_state = 'revealed';
     const options = await repository.listOptionsByPollId(created.poll_id);
     repository.voteCounters.set('first-shard', {
       poll_id: created.poll_id,
@@ -94,6 +95,56 @@ describe('Result Display HTTP route', () => {
       expect(serialized).not.toMatch(
         /user_id|token|shard_id|voted_at_minute|answered_at|eligibility_snapshot|result_snapshot|vote_event/i,
       );
+    });
+  });
+
+  it('returns the same counter-free collecting shell for creator and public reads', async () => {
+    const repository = createInMemoryPollRepository();
+    const service = createPollService(repository);
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'Collecting shell',
+        description: '',
+        category: 'general',
+        options: ['One', 'Two'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+    const options = await repository.listOptionsByPollId(created.poll_id);
+    repository.voteCounters.set('threshold-crossing-shard', {
+      poll_id: created.poll_id,
+      option_id: options[0]!.id,
+      shard_id: 1,
+      vote_count: 30,
+    });
+    repository.listVoteAggregatesByPollId = async () => {
+      throw new Error('collecting HTTP path must not query aggregates');
+    };
+    const server = createHttpServer({ pollService: service });
+
+    await withServer(server, async (baseUrl) => {
+      const path = `/polls/${created.poll_id}/results`;
+      const creator = await request(baseUrl, path, {
+        headers: { 'X-User-Id': creatorId },
+      });
+      const publicRead = await request(baseUrl, path);
+
+      expect(creator.status).toBe(200);
+      expect(creator.body).toEqual(publicRead.body);
+      expect(creator.body).toMatchObject({
+        display_mode: 'collecting',
+        total_votes_display: '收集中',
+        collecting: true,
+        options: [
+          { display_percentage: null, display_count: null },
+          { display_percentage: null, display_count: null },
+        ],
+      });
+      expect(JSON.stringify(creator.body)).not.toContain('30–99');
     });
   });
 

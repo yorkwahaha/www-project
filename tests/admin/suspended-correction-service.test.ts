@@ -42,6 +42,7 @@ function basePoll(overrides: Partial<PollRow> = {}): PollRow {
     description: 'Suspended description',
     category: 'general',
     status: 'suspended',
+    public_lifecycle_state: 'collecting',
     eligible_rule_id: null,
     published_at: now,
     archived_at: null,

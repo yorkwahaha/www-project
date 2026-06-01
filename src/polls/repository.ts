@@ -187,7 +187,7 @@ async function findPollByIdWithClient(
   const result = await client.query<PollRow>(
     `SELECT
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at
      FROM polls
      WHERE id = $1`,
@@ -312,7 +312,7 @@ async function insertPoll(
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at`,
     [
       input.creatorId,
@@ -346,7 +346,7 @@ async function findPollById(pool: Pool, pollId: string): Promise<PollRow | null>
   const result = await pool.query<PollRow>(
     `SELECT
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at
      FROM polls
      WHERE id = $1`,
@@ -434,7 +434,7 @@ async function softDeletePoll(
      WHERE id = $1 AND creator_id = $2 AND status <> 'deleted'
      RETURNING
        id, creator_id, title, description, category, status,
-       eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
        created_at, updated_at`,
     [pollId, creatorId],
   );

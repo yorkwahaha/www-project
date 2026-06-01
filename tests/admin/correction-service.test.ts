@@ -25,6 +25,7 @@ function basePoll(overrides: Partial<PollRow> = {}): PollRow {
     description: 'Original description',
     category: 'general',
     status: 'active',
+    public_lifecycle_state: 'collecting',
     eligible_rule_id: null,
     published_at: now,
     archived_at: null,

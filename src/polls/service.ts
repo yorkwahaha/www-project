@@ -14,6 +14,7 @@ import type {
   DeletePollResult,
   PollDetail,
   PollOptionVoteAggregateRow,
+  PollRow,
   PollResultDisplay,
   PublicFeedQuery,
   PublicFeedResult,
@@ -29,6 +30,7 @@ import { SHARD_COUNT } from './vote-config.js';
 import { isLowTrustUser } from './trust.js';
 import {
   isParticipationAllowed,
+  isPublicAggregateResultsReadable,
   isPublicDirectReadable,
   isPublicHiddenPoll,
   isPublicResultsReadable,
@@ -97,6 +99,10 @@ export function createPollService(
       const poll = await repository.findPollById(pollId);
       if (!poll || !isPublicResultsReadable(poll)) {
         throw new PollNotFoundError();
+      }
+      if (!isPublicAggregateResultsReadable(poll)) {
+        const options = await repository.listOptionsByPollId(pollId);
+        return toPollResultShell(poll.id, poll.public_lifecycle_state, options);
       }
       const options = await repository.listVoteAggregatesByPollId(pollId);
       return toPollResultDisplay(pollId, options);
@@ -284,6 +290,27 @@ function toPollResultDisplay(
       display_label: option.option_text,
       display_percentage: formatPercentage(counts[index]!, total),
       display_count: formatCount(counts[index]!, total),
+    })),
+    updated_display: '最近更新',
+  };
+}
+
+function toPollResultShell(
+  pollId: string,
+  lifecycleState: PollRow['public_lifecycle_state'],
+  options: Array<{ option_order: number; option_text: string }>,
+): PollResultDisplay {
+  const collecting = lifecycleState === 'collecting';
+  return {
+    poll_id: pollId,
+    display_mode: collecting ? 'collecting' : 'unavailable',
+    total_votes_display: collecting ? '收集中' : '結果不可用',
+    collecting,
+    options: options.map((option) => ({
+      option_index: option.option_order,
+      display_label: option.option_text,
+      display_percentage: null,
+      display_count: null,
     })),
     updated_display: '最近更新',
   };

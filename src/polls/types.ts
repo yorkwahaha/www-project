@@ -11,6 +11,18 @@ export const POLL_STATUSES = [
 
 export type PollStatus = (typeof POLL_STATUSES)[number];
 
+export const PUBLIC_LIFECYCLE_STATES = [
+  'draft',
+  'collecting',
+  'cancelled',
+  'revealed',
+  'locked',
+  'post_lock',
+  'unpublished',
+] as const;
+
+export type PublicLifecycleState = (typeof PUBLIC_LIFECYCLE_STATES)[number];
+
 export type PollRow = {
   id: string;
   creator_id: string;
@@ -18,6 +30,7 @@ export type PollRow = {
   description: string;
   category: string;
   status: PollStatus;
+  public_lifecycle_state: PublicLifecycleState;
   eligible_rule_id: string | null;
   published_at: Date | null;
   archived_at: Date | null;
@@ -138,10 +151,11 @@ export type PollResultDisplay = {
   poll_id: string;
   display_mode:
     | 'collecting'
+    | 'unavailable'
     | 'bucketed_percentage'
     | 'rounded_with_bucketed_votes'
     | 'precise';
-  total_votes_display: '收集中' | '30–99' | '100–499' | '500+';
+  total_votes_display: '收集中' | '結果不可用' | '30–99' | '100–499' | '500+';
   collecting: boolean;
   options: Array<{
     option_index: number;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   isParticipationAllowed,
+  isPublicAggregateResultsReadable,
   isPublicDirectReadable,
   isPublicFeedEligible,
   isPublicHiddenPoll,
@@ -17,6 +18,7 @@ function poll(overrides: Partial<PollRow> = {}): PollRow {
     description: '',
     category: 'general',
     status: 'active',
+    public_lifecycle_state: 'collecting',
     eligible_rule_id: null,
     published_at: now,
     archived_at: null,
@@ -41,7 +43,7 @@ describe('public visibility helpers', () => {
     }
   });
 
-  it('allows direct and results read for active, closed, and archived active polls', () => {
+  it('allows direct and shell results read for active, closed, and archived active polls', () => {
     const active = poll({ status: 'active' });
     const closed = poll({ status: 'closed' });
     const archived = poll({
@@ -55,6 +57,33 @@ describe('public visibility helpers', () => {
     expect(isPublicResultsReadable(closed)).toBe(true);
     expect(isPublicDirectReadable(archived)).toBe(true);
     expect(isPublicResultsReadable(archived)).toBe(true);
+  });
+
+  it('allows aggregate results only for explicit revealed lifecycle states', () => {
+    for (const public_lifecycle_state of ['revealed', 'locked', 'post_lock'] as const) {
+      expect(isPublicAggregateResultsReadable(poll({ public_lifecycle_state }))).toBe(true);
+    }
+
+    for (const public_lifecycle_state of [
+      'draft',
+      'collecting',
+      'cancelled',
+      'unpublished',
+    ] as const) {
+      expect(isPublicAggregateResultsReadable(poll({ public_lifecycle_state }))).toBe(
+        false,
+      );
+    }
+    expect(
+      isPublicAggregateResultsReadable(
+        poll({ status: 'closed', public_lifecycle_state: 'draft' }),
+      ),
+    ).toBe(false);
+    expect(
+      isPublicAggregateResultsReadable(
+        poll({ status: 'suspended', public_lifecycle_state: 'revealed' }),
+      ),
+    ).toBe(false);
   });
 
   it('excludes archived polls from feed eligibility only', () => {

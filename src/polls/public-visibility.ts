@@ -39,6 +39,17 @@ export function isPublicResultsReadable(poll: PollRow): boolean {
   return isPublicDirectReadable(poll);
 }
 
+export function isPublicAggregateResultsReadable(poll: PollRow): boolean {
+  return (
+    isPublicResultsReadable(poll) &&
+    (
+      poll.public_lifecycle_state === 'revealed' ||
+      poll.public_lifecycle_state === 'locked' ||
+      poll.public_lifecycle_state === 'post_lock'
+    )
+  );
+}
+
 export function isParticipationAllowed(
   poll: PollRow,
   now: Date = new Date(),

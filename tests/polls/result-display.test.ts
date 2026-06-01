@@ -6,7 +6,9 @@ import { createPollService } from '../../src/polls/service.js';
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
 
-async function seedPoll() {
+async function seedPoll(
+  publicLifecycleState: 'draft' | 'collecting' | 'cancelled' | 'revealed' | 'locked' | 'post_lock' | 'unpublished' = 'revealed',
+) {
   const repository = createInMemoryPollRepository();
   const service = createPollService(repository);
   const created = await service.createPoll(
@@ -22,6 +24,7 @@ async function seedPoll() {
     },
     'Creator',
   );
+  repository.polls.get(created.poll_id)!.public_lifecycle_state = publicLifecycleState;
   const options = await repository.listOptionsByPollId(created.poll_id);
   return { repository, service, pollId: created.poll_id, options };
 }
@@ -91,6 +94,82 @@ describe('Result Display service', () => {
     expect(serialized).not.toMatch(
       /user_id|token|shard_id|voted_at_minute|answered_at|eligibility_snapshot|result_snapshot|vote_event/i,
     );
+  });
+
+  it('returns a collecting shell without reading counters even when total votes would exceed the old threshold', async () => {
+    const { repository, service, pollId, options } = await seedPoll('collecting');
+    seedCounter(repository, pollId, options[0]!.id, 1, 30);
+    repository.listVoteAggregatesByPollId = async () => {
+      throw new Error('collecting result path must not query aggregates');
+    };
+
+    await expect(service.getPollResults(pollId)).resolves.toEqual({
+      poll_id: pollId,
+      display_mode: 'collecting',
+      total_votes_display: '收集中',
+      collecting: true,
+      options: [
+        {
+          option_index: 0,
+          display_label: 'Option A',
+          display_percentage: null,
+          display_count: null,
+        },
+        {
+          option_index: 1,
+          display_label: 'Option B',
+          display_percentage: null,
+          display_count: null,
+        },
+      ],
+      updated_display: '最近更新',
+    });
+  });
+
+  it.each(['revealed', 'locked', 'post_lock'] as const)(
+    'returns display-safe aggregates only when lifecycle is %s',
+    async (publicLifecycleState) => {
+      const { repository, service, pollId, options } = await seedPoll(
+        publicLifecycleState,
+      );
+      seedCounter(repository, pollId, options[0]!.id, 1, 30);
+
+      await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+        display_mode: 'bucketed_percentage',
+        total_votes_display: '30–99',
+        collecting: false,
+      });
+    },
+  );
+
+  it.each(['draft', 'cancelled', 'unpublished'] as const)(
+    'returns an unavailable shell without reading counters when lifecycle is %s',
+    async (publicLifecycleState) => {
+      const { repository, service, pollId } = await seedPoll(publicLifecycleState);
+      repository.listVoteAggregatesByPollId = async () => {
+        throw new Error('unavailable result path must not query aggregates');
+      };
+
+      await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+        display_mode: 'unavailable',
+        total_votes_display: '結果不可用',
+        collecting: false,
+      });
+    },
+  );
+
+  it('does not reveal aggregates from legacy closed status alone', async () => {
+    const { repository, service, pollId, options } = await seedPoll('draft');
+    repository.polls.get(pollId)!.status = 'closed';
+    seedCounter(repository, pollId, options[0]!.id, 1, 30);
+    repository.listVoteAggregatesByPollId = async () => {
+      throw new Error('legacy closed result path must not query aggregates');
+    };
+
+    await expect(service.getPollResults(pollId)).resolves.toMatchObject({
+      display_mode: 'unavailable',
+      total_votes_display: '結果不可用',
+    });
   });
 
   it.each([
@@ -180,7 +259,7 @@ describe('Result Display service', () => {
   });
 
   it('does not count Reference Answer participation or reveal a user selection', async () => {
-    const { repository, service, pollId, options } = await seedPoll();
+    const { repository, service, pollId, options } = await seedPoll('collecting');
     await repository.createReferenceAnswerToken(
       creatorId,
       pollId,

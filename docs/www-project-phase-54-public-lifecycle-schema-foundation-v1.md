@@ -72,7 +72,8 @@ Migration 為 forward-only。若部署後需回退應用程式，新增欄位、
 
 ## 6. Future
 
-- Phase 55–57：公開 lifecycle service／API、collecting 結果 fail-closed、close/reveal/post-lock/unpublish 交易。
+- Phase 55A：已新增 public result lifecycle guard；只有 `revealed`／`locked`／`post_lock` 可讀 aggregate。collecting 與 unavailable 狀態回 counter-free shell；legacy `status='closed'` 與票數門檻不會自行揭曉結果。
+- Phase 55B–57：公開 lifecycle create/read 擴充、close/reveal/post-lock/unpublish 交易。
 - Phase 56：eligibility evaluation 與 collecting 隱私測試。
 - Phase 58+：follow-result subscription 與 in-app notification。
 - Phase 59+：feedback。

@@ -463,3 +463,5 @@
 *Phase 53 — API／規格規劃 v1。下一建議步驟：Phase 54 schema／migration 實作（高風險，嚴格審查）。*
 
 **Phase 54 實作註記：** schema foundation 已由 [`www-project-phase-54-public-lifecycle-schema-foundation-v1.md`](./www-project-phase-54-public-lifecycle-schema-foundation-v1.md) 交付。Phase 54 未實作本文件任何 public lifecycle 路由；後續 API 必須只對外暴露 `public_lifecycle_state`，且 collecting 路徑不得 JOIN 或讀取 `poll_option_vote_counters`。
+
+**Phase 55D 文件註記：** lifecycle write／transition 邊界已拆至 [`www-project-phase-55d-lifecycle-transition-api-boundary-plan-v1.md`](./www-project-phase-55d-lifecycle-transition-api-boundary-plan-v1.md)。沿用既有路線圖，Phase 56 保留 eligibility／collecting 隱私護欄，Phase 57 再實作 lifecycle transition service 與最小安全 route adapters。

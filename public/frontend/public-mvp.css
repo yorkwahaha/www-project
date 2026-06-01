@@ -1647,6 +1647,10 @@ button:disabled {
   max-width: 42rem;
 }
 
+.mvp-info-page--matrix {
+  max-width: 52rem;
+}
+
 .mvp-info-hero {
   margin-bottom: 1rem;
 }
@@ -1668,6 +1672,79 @@ button:disabled {
 
 .mvp-faq-section {
   margin-bottom: 0.75rem;
+}
+
+.mvp-faq-summary-grid {
+  margin-bottom: 1rem;
+}
+
+.mvp-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.mvp-faq-item {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.mvp-faq-question {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mvp-text);
+  cursor: pointer;
+  list-style: none;
+}
+
+.mvp-faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.mvp-faq-question::before {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--mvp-accent);
+  content: "▸";
+  transition: transform 0.15s ease;
+}
+
+.mvp-faq-item[open] > .mvp-faq-question::before {
+  transform: rotate(90deg);
+}
+
+.mvp-faq-question:hover {
+  color: var(--mvp-accent);
+}
+
+.mvp-faq-answer {
+  padding: 0 1rem 0.9rem;
+  font-size: 0.9rem;
+  color: var(--mvp-muted);
+}
+
+.mvp-faq-answer > :first-child {
+  margin-top: 0;
+}
+
+.mvp-faq-answer p {
+  margin: 0 0 0.55rem;
+}
+
+.mvp-faq-answer .mvp-dl-compact {
+  margin-bottom: 0.5rem;
+}
+
+.mvp-faq-answer .policy-field-list {
+  margin-top: 0;
 }
 
 .mvp-dl-compact {
@@ -1794,6 +1871,122 @@ button:disabled {
 .mvp-trust-table tbody th {
   font-weight: 600;
   white-space: nowrap;
+}
+
+.mvp-table-wrap--matrix {
+  margin-bottom: 0.85rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-surface-elevated);
+}
+
+.mvp-perm-legend {
+  margin: 0 0 0.65rem;
+  font-size: 0.85rem;
+  color: var(--mvp-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+}
+
+.mvp-perm-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mvp-permission-matrix {
+  min-width: 38rem;
+  font-size: 0.8rem;
+}
+
+.mvp-permission-matrix thead th {
+  text-align: center;
+  vertical-align: bottom;
+  line-height: 1.3;
+  min-width: 4.5rem;
+}
+
+.mvp-permission-matrix .mvp-perm-corner {
+  text-align: left;
+  min-width: 8.5rem;
+}
+
+.mvp-perm-lv-sub {
+  display: block;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--mvp-muted);
+}
+
+.mvp-permission-matrix tbody th[scope="row"] {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--mvp-surface-elevated);
+  text-align: left;
+  max-width: 9rem;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.mvp-permission-matrix td {
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.35;
+}
+
+.mvp-permission-matrix td {
+  min-width: 4.25rem;
+}
+
+.mvp-perm-symbol {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mvp-perm-text {
+  display: block;
+  font-size: 0.72rem;
+  margin-top: 0.15rem;
+}
+
+.mvp-perm-yes .mvp-perm-symbol {
+  color: var(--mvp-accent);
+}
+
+.mvp-perm-no {
+  background: color-mix(in srgb, var(--mvp-muted) 12%, transparent);
+}
+
+.mvp-perm-no .mvp-perm-symbol,
+.mvp-perm-no .mvp-perm-text {
+  color: var(--mvp-danger);
+}
+
+.mvp-perm-limit .mvp-perm-symbol {
+  color: var(--mvp-accent);
+}
+
+.mvp-perm-notes {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+}
+
+.mvp-perm-lv4 {
+  background: color-mix(in srgb, var(--mvp-muted) 8%, transparent);
+  color: var(--mvp-muted);
+}
+
+.mvp-perm-lv4 .mvp-perm-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.mvp-info-page--matrix .mvp-policy-panel {
+  margin-top: 1.25rem;
 }
 
 .mvp-sr-only {

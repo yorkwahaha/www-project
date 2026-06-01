@@ -231,15 +231,24 @@ describe('frontend static routes', () => {
       expect(faq.status).toBe(200);
       expect(faq.headers.get('content-type')).toContain('text/html');
       expect(faqBody).toContain('mvp-info-page');
-      expect(faqBody).toContain('收票中');
+      expect(faqBody).toContain('收集中');
       expect(faqBody).toContain('此問卷已結束公開鎖定期，並由發起者下架。');
       expect(faqBody).toContain('href="/trust-levels"');
       expect(faqBody).not.toMatch(/option_id|shard_id|vote_token/i);
 
       expect(trust.status).toBe(200);
+      expect(trustBody).toContain('mvp-permission-matrix');
       expect(trustBody).toContain('Lv.0');
       expect(trustBody).toContain('Lv.4');
+      expect(trustBody).toContain('高信任分用戶');
+      expect(trustBody).toContain('所有等級皆不得使用的功能');
+      expect(trustBody).toContain('查看計票期間數據');
+      expect(trustBody).not.toContain('優質用戶');
+      expect(trustBody).not.toContain('繞過投票資格限制');
+      expect(trustBody).toContain('每日 2 則');
       expect(trustBody).toContain('政治／高風險');
+      expect(trustBody).toContain('如何提升等級');
+      expect(trustBody).not.toContain('mvp-trust-level-stack');
       expect(trustBody).toContain('href="/faq"');
       expect(trustBody).not.toMatch(/option_id|shard_id|vote_token/i);
     });

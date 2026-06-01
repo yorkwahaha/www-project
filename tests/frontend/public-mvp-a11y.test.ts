@@ -47,7 +47,9 @@ describe('public MVP accessibility', () => {
     expect(faqPage).toContain('skip-link');
     expect(faqPage).toContain('id="main-content"');
     expect(trustPage).toContain('skip-link');
-    expect(trustPage).toContain('mvp-trust-table');
+    expect(trustPage).toContain('mvp-permission-matrix');
+    expect(trustPage).toContain('scope="row"');
+    expect(trustPage).toContain('scope="col"');
 
     expect(explorePage).toContain('skip-link');
     expect(explorePage).toContain('id="main-content"');

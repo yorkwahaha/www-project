@@ -9,7 +9,7 @@
   <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <header id="site-header" data-nav="guest" data-active=""></header>
-    <main id="main-content" class="mvp-page mvp-info-page" aria-labelledby="trust-heading">
+    <main id="main-content" class="mvp-page mvp-info-page mvp-info-page--matrix" aria-labelledby="trust-heading">
       <p class="mvp-demo-nav-switch" role="note">
         切換瀏覽身分（展示用）：
         <a href="?nav=guest">訪客</a>
@@ -18,234 +18,188 @@
       </p>
 
       <p class="mvp-mock-banner" role="note">
-        <strong>政策說明頁</strong>：以下為信任等級與權限的產品方向摘要。註冊、驗證、評分、額度與權限檢查尚未開放；本頁不會儲存或變更帳號狀態。
+        <strong>政策說明頁</strong>：下表為產品方向草案；註冊、驗證、額度與權限檢查尚未開放，數字正式上線後可能調整。
       </p>
 
       <header class="mvp-info-hero">
         <h1 id="trust-heading">權限與信任等級說明</h1>
         <p class="mvp-lead">
-          信任等級幫助大家理解「訪客、新用戶、可信用戶」各自能做什麼；等級提升<strong>不能</strong>取代政治／高風險問卷的事前審核。
+          橫向為信任等級、縱向為權限項目；一眼對照各等級能做什麼。
         </p>
         <p class="mvp-meta mvp-preview-links">
-          問卷何時公開結果、鎖定期與取消規則？請看
-          <a href="/faq">常見問題</a>。
+          問卷狀態與鎖定期規則見 <a href="/faq">常見問題</a>。
         </p>
       </header>
 
-      <section class="mvp-policy-panel mvp-trust-callout" aria-labelledby="trust-review">
-        <h2 id="trust-review" class="mvp-policy-panel-title">政治／高風險問卷：審核優先於等級</h2>
-        <ul class="policy-field-list">
-          <li>政治／高風險類別屬於<strong>受控區</strong>，需較高信任門檻並經<strong>事前審核</strong>後才可發布。</li>
-          <li><strong>任何信任等級</strong>（含未來的 Lv.4）都<strong>不能</strong>用等級或付費方式繞過此審核。</li>
-          <li>收票中不顯示期中結果的規則，對<strong>所有等級</strong>一樣適用，沒有「提前看票數」的特權。</li>
-        </ul>
-      </section>
-
-      <section class="mvp-policy-panel mvp-trust-callout" aria-labelledby="trust-paid">
-        <h2 id="trust-paid" class="mvp-policy-panel-title">付費、點數與信任</h2>
-        <p class="policy-panel-text">
-          未來若有付費功能或點數，可能用來取得更多<strong>工具或曝光機會</strong>（例如發起額度、推廣位置等，尚待產品定案）。
-        </p>
-        <ul class="policy-field-list">
-          <li><strong>不能</strong>用付費或點數「購買」信任等級。</li>
-          <li><strong>不能</strong>購買審核通過或繞過高風險規則。</li>
-          <li>信任與品質仍依行為與平台規則評估，與是否付費分開。</li>
-        </ul>
-      </section>
-
-      <h2 class="mvp-section-title">各等級可以做什麼？</h2>
-      <p class="mvp-meta" style="margin-top:-0.35rem;margin-bottom:0.85rem">
-        表格為使用者語言摘要；具體門檻與數字尚未上線。
+      <p class="mvp-perm-legend" id="perm-legend">
+        <strong>圖例：</strong>
+        <span class="mvp-perm-legend-item"><span class="mvp-perm-symbol" aria-hidden="true">✓</span> 允許</span>
+        <span class="mvp-perm-legend-item"><span class="mvp-perm-symbol" aria-hidden="true">✕</span> 不適用</span>
+        <span class="mvp-perm-legend-item"><span class="mvp-perm-symbol" aria-hidden="true">●</span> 尚未開放或有條件</span>
+        <span class="mvp-perm-legend-item">格內小字為條件或額度（草案）</span>
       </p>
 
-      <div class="mvp-trust-level-stack">
-        <article class="mvp-trust-level-card" aria-labelledby="trust-lv0">
-          <div class="mvp-trust-level-head">
-            <h3 id="trust-lv0"><span class="mvp-trust-lv">Lv.0</span> 訪客</h3>
-            <span class="mvp-badge mvp-badge-muted">未註冊</span>
-          </div>
-          <p class="mvp-trust-level-lead">瀏覽已公開內容，但無法參與投票或發起問卷。</p>
-          <div class="mvp-trust-cols">
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-can">可以做</h4>
-              <ul class="policy-field-list">
-                <li>瀏覽問卷基本資訊（標題、說明、狀態等）</li>
-                <li>查看<strong>已公開</strong>的彙總結果</li>
-              </ul>
-            </div>
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-cannot">不可以做</h4>
-              <ul class="policy-field-list">
-                <li>投票、發起問卷</li>
-                <li>關注結果通知（需註冊；站內通知尚未開放）</li>
-                <li>投票後品質回饋</li>
-                <li>查看收票中的票數或趨勢</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="mvp-trust-level-card" aria-labelledby="trust-lv1">
-          <div class="mvp-trust-level-head">
-            <h3 id="trust-lv1"><span class="mvp-trust-lv">Lv.1</span> 註冊用戶</h3>
-            <span class="mvp-badge mvp-badge-collecting">註冊後</span>
-          </div>
-          <p class="mvp-trust-level-lead">完成基本註冊欄位後，可投票、關注結果，並以較低額度發起一般問卷。</p>
-          <div class="mvp-trust-cols">
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-can">可以做</h4>
-              <ul class="policy-field-list">
-                <li>在符合資格的問卷投票</li>
-                <li>關注結果（站內通知；<strong>尚未開放</strong>）</li>
-                <li>發起<strong>一般</strong>問卷（每日額度較低；<strong>尚未實作</strong>計數）</li>
-                <li>投票後填寫品質回饋（<strong>尚未實作</strong>計分）</li>
-              </ul>
-            </div>
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-cannot">不可以做</h4>
-              <ul class="policy-field-list">
-                <li>發起政治／高風險問卷（需更高門檻與審核）</li>
-                <li>繞過問卷設定的投票資格</li>
-                <li>查看收票中的期中結果</li>
-              </ul>
-            </div>
-          </div>
-          <p class="policy-panel-text policy-panel-muted">
-            註冊欄位方向：Email、暱稱、出生年／月、居住縣市、性別（含「不願透露」）— 真實表單尚未開放。
-          </p>
-        </article>
-
-        <article class="mvp-trust-level-card" aria-labelledby="trust-lv2">
-          <div class="mvp-trust-level-head">
-            <h3 id="trust-lv2"><span class="mvp-trust-lv">Lv.2</span> 可信註冊用戶</h3>
-            <span class="mvp-badge mvp-badge-revealed">較高額度</span>
-          </div>
-          <p class="mvp-trust-level-lead">帳號與行為較穩定後，可發起更多一般問卷，並參與需較高信任的投票。</p>
-          <div class="mvp-trust-cols">
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-can">可以做</h4>
-              <ul class="policy-field-list">
-                <li>較高的每日發起額度（相對 Lv.1）</li>
-                <li>參與設有較高信任門檻的問卷</li>
-                <li>發起較敏感但<strong>非</strong>政治／高風險主題（仍可能觸發審核）</li>
-              </ul>
-            </div>
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-cannot">不可以做</h4>
-              <ul class="policy-field-list">
-                <li>未經審核即發布政治／高風險問卷</li>
-                <li>查看收票中的期中結果</li>
-              </ul>
-            </div>
-          </div>
-          <p class="policy-panel-text policy-panel-muted">
-            可能參考的訊號（尚未全部實作）：手機驗證、裝置綁定、帳齡、近期行為、檢舉風險等。
-          </p>
-        </article>
-
-        <article class="mvp-trust-level-card" aria-labelledby="trust-lv3">
-          <div class="mvp-trust-level-head">
-            <h3 id="trust-lv3"><span class="mvp-trust-lv">Lv.3</span> 優質用戶</h3>
-            <span class="mvp-badge mvp-badge-followed">限定期資格</span>
-          </div>
-          <p class="mvp-trust-level-lead">在 Lv.2 基礎上，因持續貢獻優質題目而取得限定期間的較高額度與能見度（草案：資格約 21 天，到期需重新評估）。</p>
-          <div class="mvp-trust-cols">
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-can">可以做</h4>
-              <ul class="policy-field-list">
-                <li>更高的每日發起額度</li>
-                <li>優質問卷可能獲較高能見度（探索／推薦；<strong>尚未實作</strong>）</li>
-                <li>參與品質回饋迴路，累積優質題目紀錄</li>
-              </ul>
-            </div>
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-cannot">不可以做</h4>
-              <ul class="policy-field-list">
-                <li>自由發布政治／高風險問卷或繞過審核</li>
-                <li>查看收票中的期中結果</li>
-              </ul>
-            </div>
-          </div>
-          <p class="policy-panel-text policy-panel-muted">
-            「優質題目」主要看投票後品質回饋等多種訊號，<strong>不是</strong>單純按讚；相關計分尚未上線。
-          </p>
-        </article>
-
-        <article class="mvp-trust-level-card mvp-trust-level-card--future" aria-labelledby="trust-lv4">
-          <div class="mvp-trust-level-head">
-            <h3 id="trust-lv4"><span class="mvp-trust-lv">Lv.4</span> 高信任</h3>
-            <span class="mvp-badge mvp-badge-muted">未來規劃</span>
-          </div>
-          <p class="mvp-trust-level-lead">
-            長期穩定貢獻與更強驗證後的最高信任草案；<strong>不在</strong>公開 MVP 實作範圍。
-          </p>
-          <div class="mvp-trust-cols">
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-can">規劃方向（尚未開放）</h4>
-              <ul class="policy-field-list">
-                <li>可能享有最高每日發起額度草案</li>
-                <li>更完整的身分／裝置驗證</li>
-              </ul>
-            </div>
-            <div>
-              <h4 class="mvp-trust-col-title mvp-trust-cannot">仍然不可以</h4>
-              <ul class="policy-field-list">
-                <li>未經審核發布政治／高風險問卷</li>
-                <li>以付費或等級繞過平台規則</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <div class="mvp-table-wrap" role="region" aria-label="信任等級對照表">
-        <table class="mvp-trust-table">
-          <caption class="mvp-sr-only">信任等級與發起能力對照（草案）</caption>
+      <div class="mvp-table-wrap mvp-table-wrap--matrix" role="region" aria-labelledby="perm-matrix-caption">
+        <table class="mvp-trust-table mvp-permission-matrix">
+          <caption id="perm-matrix-caption">
+            信任等級權限對照表（草案）；所有等級皆不得使用的項目見表下說明。
+          </caption>
           <thead>
             <tr>
-              <th scope="col">等級</th>
-              <th scope="col">發起問卷</th>
-              <th scope="col">投票</th>
-              <th scope="col">收票中看結果</th>
+              <th scope="col" class="mvp-perm-corner">權限項目</th>
+              <th scope="col">Lv.0<br><span class="mvp-perm-lv-sub">訪客</span></th>
+              <th scope="col">Lv.1<br><span class="mvp-perm-lv-sub">註冊用戶</span></th>
+              <th scope="col">Lv.2<br><span class="mvp-perm-lv-sub">可信註冊用戶</span></th>
+              <th scope="col">Lv.3<br><span class="mvp-perm-lv-sub">高信任分用戶</span></th>
+              <th scope="col">Lv.4<br><span class="mvp-perm-lv-sub">高信任（尚未開放）</span></th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th scope="row">Lv.0 訪客</th>
-              <td>不可</td>
-              <td>不可</td>
-              <td>不可</td>
+              <th scope="row">瀏覽問卷基本資訊</th>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
             </tr>
             <tr>
-              <th scope="row">Lv.1 註冊</th>
-              <td>一般／低額度</td>
-              <td>符合資格可投</td>
-              <td>不可</td>
+              <th scope="row">查看已公開結果</th>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
             </tr>
             <tr>
-              <th scope="row">Lv.2 可信</th>
-              <td>一般／中額度</td>
-              <td>可投較高門檻問卷</td>
-              <td>不可</td>
+              <th scope="row">投票</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">符合資格可投</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">含較高門檻問卷</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">同 Lv.2</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
             </tr>
             <tr>
-              <th scope="row">Lv.3 優質</th>
-              <td>一般／較高額度</td>
-              <td>同左</td>
-              <td>不可</td>
+              <th scope="row">關注結果</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span><span class="mvp-perm-text">需註冊</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">站內通知<br>尚未開放</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">站內通知<br>尚未開放</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">站內通知<br>尚未開放</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
             </tr>
             <tr>
-              <th scope="row">Lv.4 高信任</th>
-              <td>未來／最高草案</td>
-              <td>規劃中</td>
-              <td>不可</td>
+              <th scope="row">投票後品質回饋</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">尚未開放</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">尚未開放</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">尚未開放</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
+            </tr>
+            <tr>
+              <th scope="row">發起一般問卷</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">一般問卷<br>每日 2 則（草案）</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">一般問卷<br>每日 5 則（草案）</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">一般問卷<br>每日 10 則（草案）</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
+            </tr>
+            <tr>
+              <th scope="row">發起敏感但非高風險題</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">可能觸發審核</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">可能觸發審核</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
+            </tr>
+            <tr>
+              <th scope="row">額外點數功能</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">正式上線後開放（草案）<br>購買／使用功能點數</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">正式上線後開放（草案）<br>購買／使用功能點數</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">正式上線後開放（草案）<br>購買／使用功能點數</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
+            </tr>
+            <tr>
+              <th scope="row">信用點數累積</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">可累積訊號<br>尚未計分</span></td>
+              <td class="mvp-perm-limit"><span class="mvp-perm-symbol" aria-hidden="true">●</span><span class="mvp-perm-text">有助信任提升</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">達標有助維持 Lv.3</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
+            </tr>
+            <tr>
+              <th scope="row">高信任分資格</th>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-no"><span class="mvp-perm-symbol" aria-hidden="true">✕</span></td>
+              <td class="mvp-perm-yes"><span class="mvp-perm-symbol" aria-hidden="true">✓</span><span class="mvp-perm-text">限定期資格<br>約 21 天（草案）</span></td>
+              <td class="mvp-perm-lv4"><span class="mvp-perm-text">規劃中</span></td>
             </tr>
           </tbody>
         </table>
       </div>
 
+      <ul class="mvp-perm-notes policy-field-list">
+        <li><strong>功能點數</strong>：未來付費用戶可購買／使用，用於額外工具或曝光等草案功能；<strong>不能</strong>購買信任等級或審核通過。</li>
+        <li><strong>信用點數</strong>：依自己的提問品質與貢獻累積，<strong>不能</strong>付費購買；與功能點數分開計算。</li>
+      </ul>
+
+      <section class="mvp-policy-panel" aria-labelledby="perm-forbidden-heading">
+        <h2 id="perm-forbidden-heading" class="mvp-policy-panel-title">所有等級皆不得使用的功能</h2>
+        <ul class="policy-field-list">
+          <li>查看計票期間數據（收集中不顯示票數、百分比、排名或趨勢；發起者亦同）</li>
+          <li>未經審核發布政治／高風險題</li>
+          <li>於鎖定期內下架問卷</li>
+          <li>付費購買信任等級</li>
+          <li>使用功能點數或付費繞過審核</li>
+          <li>使用功能點數或付費繞過高風險規則</li>
+        </ul>
+      </section>
+
+      <section class="mvp-policy-panel" aria-labelledby="perm-topic-heading">
+        <h2 id="perm-topic-heading" class="mvp-policy-panel-title">敏感題與高風險題（草案）</h2>
+        <dl class="mvp-dl-compact">
+          <dt>敏感但非高風險題</dt>
+          <dd>
+            可能涉及個人價值觀、社會議題、金錢／生活選擇、輕度爭議，或容易意見分歧的題目。
+            不一定禁止，但可能需要更清楚措辭、較高信任等級，或觸發審核。
+          </dd>
+          <dt>政治／高風險題</dt>
+          <dd>
+            含選舉、政黨、公職人物、政策動員、身分對立、針對性攻擊、社會衝突，或可能操弄輿論的題目；
+            亦含間接／影射政治、諧音、顏色暗示、釣魚式提問。
+            須更嚴格把關與事前審核；<strong>信任等級不能繞過</strong>。
+          </dd>
+        </dl>
+      </section>
+
+      <section class="mvp-policy-panel" aria-labelledby="perm-levelup-heading">
+        <h2 id="perm-levelup-heading" class="mvp-policy-panel-title">如何提升等級？</h2>
+        <dl class="mvp-dl-compact">
+          <dt>Lv.1 註冊用戶</dt>
+          <dd>
+            完成基本註冊資料：Email、暱稱、出生年／月、居住縣市；性別可選不透露。
+          </dd>
+          <dt>Lv.2 可信註冊用戶</dt>
+          <dd>
+            可能需手機驗證、裝置綁定、帳號存在一段時間、近期行為穩定、低垃圾訊息／檢舉風險等（草案）。
+          </dd>
+          <dt>Lv.3 高信任分用戶</dt>
+          <dd>
+            須先為 Lv.2；累積足夠<strong>信用點數</strong>與高品質提問紀錄。
+            品質看題目是否清楚、低誤導、公開結果是否有參考價值、投票後回饋是否正面、檢舉／垃圾風險是否低。
+            資格為限定期（草案約 21 天），到期可能需重新評估。
+          </dd>
+          <dt>Lv.4 高信任（尚未開放）</dt>
+          <dd>
+            規劃中：長期穩定維持 Lv.3、更強驗證、持續高品質貢獻、低違規風險。
+            仍<strong>不能</strong>繞過政治／高風險題的事前審核。
+          </dd>
+        </dl>
+      </section>
+
       <p class="note mvp-meta">
-        登入、註冊、信任計算與額度扣減將陸續開放；請使用頁面上方「登入後」切換瀏覽導覽列外觀（展示用）。
+        登入、註冊與信任計算將陸續開放；上方「登入後」僅切換導覽列外觀（展示用）。
       </p>
     </main>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>

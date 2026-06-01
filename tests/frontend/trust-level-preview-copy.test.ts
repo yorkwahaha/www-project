@@ -59,7 +59,7 @@ describe('trust level preview copy (phase 45)', () => {
     const html = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
     expect(html).toMatch(/投票須知/);
     expect(html).toMatch(/Lv\.1 註冊/);
-    expect(html).toMatch(/不顯示.*票數、百分比、排名或趨勢/s);
+    expect(html).toMatch(/不顯示.*票數、百分比、總計、排名、趨勢或進度/s);
     expect(html).toMatch(/關注結果/);
     expect(html).toMatch(/非單純按讚|不是單純按讚/);
     expect(html).toMatch(/公開展示版/);

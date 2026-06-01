@@ -127,7 +127,7 @@ export function showDemoOnlyFeedback(target, message) {
 
 export const RESULT_UI_STATE_PREVIEW_LINKS = [
   { uiState: 'collecting', label: '收集中' },
-  { uiState: 'revealed', label: '已截止／結果公開' },
+  { uiState: 'revealed', label: '已公開' },
   { uiState: 'locked', label: '公開鎖定期' },
   { uiState: 'post_lock', label: '鎖定期已結束' },
   { uiState: 'cancelled', label: '已取消' },

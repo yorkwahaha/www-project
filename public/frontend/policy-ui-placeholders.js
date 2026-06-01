@@ -346,7 +346,7 @@ export const VALID_UI_MOCK_STATES = [
 
 const UI_MOCK_STATE_LABELS = {
   collecting: '收集中',
-  revealed: '已截止／結果公開',
+  revealed: '已公開',
   locked: '公開鎖定期',
   post_lock: '鎖定期已結束',
   cancelled: '已取消',
@@ -370,7 +370,7 @@ const UI_MOCK_STATE_PANEL_CONFIG = {
   },
   locked: {
     title: '公開鎖定期進行中',
-    badge: '鎖定期',
+    badge: '公開鎖定期',
     badgeClass: 'mvp-badge mvp-badge-locked',
     mascot: 'locked',
   },
@@ -497,7 +497,7 @@ export function renderUiMockPreviewBanner(parent, mockState) {
   const text = doc.createElement('p');
   text.className = 'ui-mock-preview-text';
   text.textContent =
-    '目前以範例資料展示此狀態；不代表真實問卷，也不會寫入資料。';
+    '展示用，不儲存：目前以範例資料展示此狀態，不代表真實問卷。';
   banner.append(text);
 
   parent.prepend(banner);

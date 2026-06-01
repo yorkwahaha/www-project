@@ -6,7 +6,7 @@ import { showDemoOnlyFeedback } from './public-mvp-demo.js';
 
 export const HELP_COPY = {
   collectingHidden:
-    '收集中不顯示票數、百分比、排名或趨勢，避免影響後續投票者。',
+    '收集中不顯示票數、百分比、總計、排名、趨勢或進度；發起者亦同，避免影響後續投票者。',
   revealTime: 'MVP：截止時間即結果公開時間；公開後才可查看聚合結果。',
   lockPeriod:
     '結果公開後約 5 天為公開鎖定期；期間發起者無法編輯、下架、刪除或隱藏結果。',

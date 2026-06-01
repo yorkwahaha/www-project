@@ -199,3 +199,4 @@ npm run test:integration:local
 | `docs/www-project-public-faq-draft-v1.md` | FAQ 草案全文（與 `/faq` 靜態頁對齊） |
 | `docs/www-project-trust-level-policy-draft-v1.md` | 信任等級草案（與 `/trust-levels` 對齊） |
 | `docs/www-project-phase-51-real-mvp-implementation-boundary-v1.md` | Real MVP 實作邊界與 Phase 52–60 路線圖（僅規劃） |
+| `docs/www-project-phase-52-real-mvp-data-model-plan-v1.md` | Real MVP 資料模型規劃（僅規劃；Phase 54 前置） |

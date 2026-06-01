@@ -11,7 +11,7 @@
     <header id="site-header" data-nav="guest" data-active="home"></header>
     <div id="main-content" class="mvp-page">
       <p class="mvp-demo-nav-switch" role="note">
-        導覽示範（非登入）：
+        導覽預覽：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
@@ -33,7 +33,7 @@
             <li>公開後鎖定 5 天</li>
           </ul>
         </div>
-        <div class="mvp-mascot mvp-mascot--collecting" aria-hidden="true" title="問問（示意）">
+        <div class="mvp-mascot mvp-mascot--collecting" aria-hidden="true" title="問問">
           <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
         </div>
       </section>
@@ -47,11 +47,15 @@
           <h3>公開後有鎖定期</h3>
           <p>結果公開後約 5 天內不可下架、修改或隱藏結果；鎖定期結束後發起者可下架。</p>
         </article>
+        <article class="mvp-value-card">
+          <h3>投票後回饋題目品質</h3>
+          <p>優質題目看的是多種品質訊號，不是單純按讚；投票後可複選回饋（政策預覽，尚未計分）。</p>
+        </article>
       </div>
 
-      <h2 class="mvp-section-title">問卷預覽（示意）</h2>
+      <h2 class="mvp-section-title">問卷預覽</h2>
       <p class="mvp-meta" style="margin-top:-0.5rem;margin-bottom:0.75rem">
-        靜態卡片，尚未連線列表 API。
+        產品預覽卡片；完整探索列表尚未開放。
       </p>
 
       <div class="mvp-card-grid">
@@ -79,8 +83,8 @@
             <span class="mvp-badge mvp-badge-revealed">結果已公開</span>
           </div>
           <p class="mvp-poll-card-meta">職場 · 05/28 已公開</p>
-          <div class="mvp-result-preview" aria-label="聚合結果示意">
-            約 42%（區間摘要）
+          <div class="mvp-result-preview" aria-label="聚合結果預覽">
+            約 42%（區間摘要 · 範例）
             <div class="mvp-result-preview-bar" aria-hidden="true"><span style="width:42%"></span></div>
           </div>
           <div class="mvp-poll-card-footer">
@@ -101,7 +105,7 @@
       </div>
 
       <p class="note mvp-meta">
-        狀態預覽：<code>?ui_state=</code>（collecting、locked、cancelled 等），僅前端示意。
+        狀態預覽：<code>?ui_state=</code>（collecting、locked、cancelled 等）僅供體驗文案，不代表真實後端狀態。
       </p>
     </div>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>

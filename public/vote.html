@@ -11,7 +11,7 @@
     <header id="site-header" data-nav="guest" data-active=""></header>
     <main id="main-content" class="mvp-page mvp-shell">
       <p class="mvp-demo-nav-switch" role="note">
-        導覽示範：
+        導覽預覽：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
@@ -23,9 +23,19 @@
           <p id="poll-description"></p>
 
           <p class="mvp-mock-banner" role="note">
-            網址 <code>/vote/demo</code> 為示範問卷（不呼叫 API）。
-            預覽狀態請加 <code>?ui_state=ineligible</code>、<code>followed</code>、<code>cancelled</code> 等。
+            <strong>預覽模式</strong>：<code>/vote/demo</code> 為範例問卷，投票不會儲存。
+            可加 <code>?ui_state=ineligible</code>、<code>followed</code> 等預覽不同狀態。
           </p>
+
+          <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="投票權限預覽">
+            <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0 0 0.35rem">投票與結果（政策預覽）</h2>
+            <ul class="mvp-form-hint-list" style="margin:0">
+              <li><strong>Lv.1 註冊</strong>且符合資格者可投票；訪客請先註冊／登入（尚未開放）</li>
+              <li>收票中<strong>不顯示</strong>票數、百分比、排名或趨勢</li>
+              <li>不符合資格或暫不投票者，可<strong>關注結果</strong>，於公開後查看彙總</li>
+              <li>投票後可協助回饋題目品質；優質題目非單純按讚（政策預覽，尚未計分）</li>
+            </ul>
+          </aside>
 
           <div id="vote-collecting-notice" class="mvp-policy-panel mvp-policy-panel-compact" aria-label="收票規則">
             <div class="mvp-policy-panel-header">
@@ -67,13 +77,13 @@
           <div class="mvp-mascot mvp-mascot--followed" style="width:3rem;height:3rem;margin-bottom:0.5rem" aria-hidden="true">
             <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
           </div>
-          <h2>關注結果（站內通知示意）</h2>
+          <h2>關注結果</h2>
           <p class="mvp-meta" style="margin:0 0 0.5rem">
             不符合資格或暫不投票時，可關注結果公開通知（不含 Email／推播）。
           </p>
-          <button type="button" class="mvp-btn-mock" disabled aria-disabled="true">關注結果（示意，未連線）</button>
+          <button type="button" class="mvp-btn-mock" disabled aria-disabled="true">關注結果（尚未開放）</button>
           <p class="mvp-follow-mock-note" style="margin:0.35rem 0 0;font-size:0.82rem;color:var(--mvp-muted);font-style:italic">
-            不會儲存關注或發送真實通知。
+            預覽模式下不會儲存關注或發送通知。
           </p>
           <ul class="mvp-preview-links">
             <li><a href="?ui_state=ineligible">預覽：不符合資格</a></li>

@@ -202,15 +202,19 @@ describe('public voting page', () => {
     ).rejects.toThrow('您已在此問卷投過票');
   });
 
-  it('renders demo-only success copy when demo mode', async () => {
+  it('renders preview-only success copy when demo mode', async () => {
     const { renderVoteSuccess } = await loadVotePageModule();
     const root = createRoot();
 
     renderVoteSuccess(root, 'demo', { demoOnly: true });
 
     const text = collectText(root);
-    expect(text[0]).toMatch(/示意/);
-    expect(text.join(' ')).toMatch(/未連線正式投票 API/);
+    expect(text[0]).toMatch(/預覽完成/);
+    expect(text.join(' ')).toMatch(/不會儲存/);
+    expect(text.join(' ')).toMatch(/票數或百分比/);
+    expect(text.join(' ')).toMatch(/投票後可協助回饋題目品質/);
+    expect(text.join(' ')).toMatch(/不是單純按讚/);
+    expect(text.join(' ')).toMatch(/有點無言／不知道該怎麼說/);
     const resultLink = root.children.find((child) => child.tagName === 'a');
     expect(resultLink?.href).toBe('/results/demo');
   });
@@ -226,6 +230,7 @@ describe('public voting page', () => {
     expect(text[0]).toBe('投票已送出，感謝參與。');
     expect(text.join(' ')).toMatch(/收集中結果頁不顯示票數或百分比/);
     expect(text.join(' ')).toMatch(/站內通知/);
+    expect(text.join(' ')).toMatch(/投票後可協助回饋題目品質/);
     expect(text).toContain('查看公開結果頁');
     const resultLink = root.children.find((child) => child.tagName === 'a');
     expect(resultLink?.href).toBe('/results/public-poll-id');

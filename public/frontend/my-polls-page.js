@@ -7,10 +7,10 @@ import { mountSiteChrome } from './public-mvp-layout.js';
 import { copyTextToClipboard, buildAbsoluteUrl } from './public-mvp-ui.js';
 
 const MOCK_CANCEL_MSG =
-  '（示意）已記錄「取消問卷」操作；未連線後端，問卷狀態不會真的變更。';
+  '此操作目前僅展示流程；取消問卷尚未開放，狀態不會變更。';
 const MOCK_UNPUBLISH_MSG =
-  '（示意）已記錄「下架問卷」操作；未連線後端，公開狀態不會真的變更。';
-const MOCK_SHARE_MSG = '（示意）請將下方投票頁連結分享給參與者。';
+  '此操作目前僅展示流程；下架問卷尚未開放，公開狀態不會變更。';
+const MOCK_SHARE_MSG = '請將下方投票頁連結分享給參與者（預覽連結）。';
 
 export function wireMyPollsDemoPage(documentObject = globalThis.document) {
   mountSiteChrome(documentObject);
@@ -61,7 +61,7 @@ function wireCollectingRow(row, documentObject) {
   const cancel = documentObject.createElement('button');
   cancel.type = 'button';
   cancel.className = 'mvp-btn mvp-btn-sm mvp-btn-accent-outline';
-  cancel.textContent = '取消問卷（示意）';
+  cancel.textContent = '取消問卷';
   cancel.addEventListener('click', () => {
     showDemoOnlyFeedback(cancel, MOCK_CANCEL_MSG);
   });
@@ -105,7 +105,7 @@ function wirePostLockRow(row, documentObject) {
   const unpublish = documentObject.createElement('button');
   unpublish.type = 'button';
   unpublish.className = 'mvp-btn mvp-btn-secondary mvp-btn-sm';
-  unpublish.textContent = '下架問卷（示意）';
+  unpublish.textContent = '下架問卷';
   unpublish.addEventListener('click', () => {
     showDemoOnlyFeedback(unpublish, MOCK_UNPUBLISH_MSG);
   });

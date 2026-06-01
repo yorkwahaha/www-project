@@ -23,6 +23,7 @@ import {
   mountUiMockPreviewChrome,
   parseUiMockState,
   renderVotePagePolicyPanels,
+  renderVoteQualityFeedbackPreview,
   renderVoteSuccessPolicyExtras,
 } from './policy-ui-placeholders.js';
 
@@ -129,7 +130,7 @@ export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
   const message = root.ownerDocument.createElement('p');
   message.className = 'panel-message';
   message.textContent = demoOnly
-    ? '（示意）投票已記錄於本頁，未連線正式投票 API。'
+    ? '預覽完成：此操作目前僅展示流程，投票不會儲存。'
     : '投票已送出，感謝參與。';
   root.append(message);
 
@@ -139,6 +140,7 @@ export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
     : '收集中結果頁不顯示票數或百分比。結果公開後可查看彙總統計：';
   root.append(hint);
 
+  renderVoteQualityFeedbackPreview(root);
   renderVoteSuccessPolicyExtras(root);
 
   const link = root.ownerDocument.createElement('a');
@@ -263,7 +265,7 @@ export async function bootstrapVotePage({
   }
 
   const demoOnly = isDemoPollRouteId(pollId);
-  title.textContent = demoOnly ? '示範問卷' : '載入問卷中…';
+  title.textContent = demoOnly ? '問卷預覽' : '載入問卷中…';
   title.setAttribute('aria-busy', 'true');
   announceToStatusRegion(message, '');
 
@@ -349,7 +351,7 @@ export async function bootstrapVotePage({
       voteCompleted = true;
       announceToStatusRegion(
         message,
-        demoOnly ? '（示意）投票流程完成。' : '投票已送出。',
+        demoOnly ? '預覽完成：投票流程已展示。' : '投票已送出。',
       );
       form.hidden = true;
       renderVoteSuccess(success, pollId, { demoOnly });

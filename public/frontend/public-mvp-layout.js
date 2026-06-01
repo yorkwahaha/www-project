@@ -12,7 +12,7 @@ export const HELP_COPY = {
     '結果公開後約 5 天為公開鎖定期；期間發起者無法編輯、下架、刪除或隱藏結果。',
   eligibility:
     '年齡依個人檔案自行填寫的出生年／月判斷，非政府驗證。',
-  followNotify: 'MVP 僅站內通知示意，尚未連線後端，不會儲存追蹤狀態。',
+  followNotify: '站內通知尚未開放；預覽模式下不會儲存追蹤狀態。',
   cancelVsUnpublish:
     '收票中停止請用「取消」，不產生公開結果；鎖定期結束後的「下架」另當別論。',
 };
@@ -51,7 +51,7 @@ export function createMascot(documentObject, variant = 'idle') {
   const root = documentObject.createElement('div');
   root.className = `mvp-mascot mvp-mascot--${variant}`;
   root.setAttribute('aria-hidden', 'true');
-  root.title = '問問（示意）';
+  root.title = '問問';
 
   const body = documentObject.createElement('span');
   body.className = 'mvp-mascot-body';
@@ -162,7 +162,7 @@ export function renderSiteHeader(mount, options = {}) {
 
     const avatar = doc.createElement('span');
     avatar.className = 'mvp-avatar';
-    avatar.title = '使用者選單（示意）';
+    avatar.title = '使用者選單（預覽）';
     avatar.setAttribute('aria-hidden', 'true');
     avatar.textContent = 'Y';
 
@@ -195,7 +195,7 @@ function wireMockAuthLink(link) {
     event.preventDefault();
     showDemoOnlyFeedback(
       link,
-      '（示意）尚未實作登入或註冊。請使用頁面上方「登入後」切換導覽列預覽。',
+      '登入與註冊尚未開放。請使用頁面上方「登入後」切換，預覽登入後的導覽與流程。',
     );
   });
 }
@@ -212,7 +212,7 @@ export function renderDemoNavBanner(parent, navMode) {
   banner.className = 'mvp-demo-nav-banner';
   banner.setAttribute('role', 'note');
   banner.textContent =
-    '目前為登入後導覽列示意（?nav=logged-in-mock），並非真實登入或帳號狀態。';
+    '預覽模式：目前為登入後導覽列（?nav=logged-in-mock），並非真實登入或帳號狀態。';
   parent.prepend(banner);
   return banner;
 }

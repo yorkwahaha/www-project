@@ -1210,8 +1210,56 @@ button:disabled {
   color: #7a4e12;
 }
 
+.mvp-quality-feedback-preview {
+  margin: 0.85rem 0 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px dashed var(--mvp-border);
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface-2, #faf8f5);
+}
+
+.mvp-quality-feedback-preview-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.mvp-quality-feedback-preview-prompt {
+  margin: 0 0 0.5rem;
+  font-size: 0.86rem;
+}
+
+.mvp-quality-feedback-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.45rem;
+}
+
+.mvp-quality-feedback-chip {
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: 999px;
+  background: var(--mvp-surface);
+  color: var(--mvp-text);
+  font-size: 0.78rem;
+  line-height: 1.25;
+  cursor: not-allowed;
+  opacity: 0.92;
+}
+
+.mvp-quality-feedback-chip--neutral {
+  border-style: dashed;
+  color: var(--mvp-muted);
+}
+
+.mvp-quality-feedback-preview-note {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
 .mvp-demo-nav-switch {
-  margin: 0 0 1rem;
+  margin: 0 0 0.65rem;
   padding: 0;
   font-size: 0.88rem;
   color: var(--mvp-muted);
@@ -1227,7 +1275,7 @@ button:disabled {
 }
 
 .mvp-quota-card--mock .mvp-quota-stat span::after {
-  content: ' · 示意';
+  content: ' · 預覽';
   font-size: 0.72rem;
   opacity: 0.85;
 }
@@ -1560,8 +1608,18 @@ button:disabled {
 }
 
 @media (max-width: 640px) {
+  .mvp-page {
+    padding-top: 0.85rem;
+  }
+
   .mvp-hero {
     grid-template-columns: 1fr;
+    padding: 1.1rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .mvp-card-grid {
+    overflow-x: hidden;
   }
 
   .mvp-site-nav {
@@ -1573,5 +1631,9 @@ button:disabled {
     left: auto;
     right: 0;
     transform: none;
+  }
+
+  .mvp-demo-nav-banner {
+    margin-bottom: 0.65rem;
   }
 }

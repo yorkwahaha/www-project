@@ -146,7 +146,7 @@ export function renderResultUiStatePreviewLinks(root, pollId) {
 
   const lead = doc.createElement('p');
   lead.className = 'mvp-meta';
-  lead.textContent = '狀態預覽（示意，僅前端文案）：';
+  lead.textContent = '狀態預覽（產品文案，不代表真實後端狀態）：';
   wrap.append(lead);
 
   const list = doc.createElement('ul');

@@ -4,6 +4,32 @@
 
 import { createHelpIcon, createMascot, HELP_COPY } from './public-mvp-layout.js';
 
+/** Phase 45 — trust level policy preview (documentation-aligned; not enforced). */
+export const TRUST_LEVEL_PREVIEW_COPY = {
+  createLead:
+    'Lv.1 註冊用戶可發起一般問卷；政治／高風險類別需更高信任並經事前審核。本頁為產品預覽，送出不會儲存資料。',
+  voteLead:
+    'Lv.1 註冊且符合資格者可投票；收票中不顯示期中結果。投票後可協助回饋題目品質（尚未開放計分）。',
+  myPollsLead:
+    '發起額度與品質點數為政策預覽，非真實帳號數值；優質題目看的是多種品質訊號，不是單純按讚。',
+};
+
+/** Phase 45 follow-up — post-vote quality feedback (policy preview only). */
+export const QUALITY_FEEDBACK_PREVIEW = {
+  prompt: '你覺得這個問題如何？可複選',
+  positiveTags: [
+    '題目清楚',
+    '無刻意誤導',
+    '有參考價值／值得省思',
+    '新奇有趣',
+    '中立客觀',
+    '我想看結果',
+  ],
+  softNeutralTag: '有點無言／不知道該怎麼說',
+  footnote:
+    '優質題目看的是多種品質訊號，不是單純按讚。目前為政策預覽，尚未計分。',
+};
+
 export const POLICY_UI_COPY = {
   collectingBadge: '收集中',
   collectingBlindLead:
@@ -25,12 +51,12 @@ export const POLICY_UI_COPY = {
   eligibilityIneligible:
     '你目前不符合此問卷的投票資格。你可以關注此問卷，並在結果公開後查看公開彙總統計。',
   followWhileCollecting:
-    '暫不投票或尚未投票時，可關注此問卷；結果公開後可查看彙總統計（站內通知目前為示範，尚未連線後端）。',
+    '暫不投票或尚未投票時，可關注此問卷；結果公開後可查看彙總統計（站內通知尚未開放，預覽不會儲存）。',
   followButton: '關注結果',
   followButtonLong: '結果公開時以站內通知提醒我',
   followMockNote:
-    '（示範按鈕：尚未連線後端，不會儲存關注或發送真實站內通知。）',
-  profileFutureTitle: '個人資料與資格（尚未啟用）',
+    '此功能尚未開放；預覽模式下不會儲存關注或發送通知。',
+  profileFutureTitle: '個人資料與資格（尚未開放）',
   profileFutureFields:
     '未來將需要：暱稱、出生年／月（不含日期）、居住縣市、性別（含「不願透露」）。性別可能用於個人檔案；以性別限制投票資格將另行規劃。',
 };
@@ -174,8 +200,8 @@ export function renderLifecyclePolicyPanel(parent) {
 export function renderEligibilityPlaceholderPanel(parent) {
   const doc = parent.ownerDocument;
   const { section } = createPolicyPanel(doc, {
-    title: '投票資格（示範）',
-    badge: '尚未啟用',
+    title: '投票資格（預覽）',
+    badge: '尚未開放',
     badgeClass: 'mvp-badge mvp-badge-muted',
     mascotVariant: 'idle',
     titleHelp: {
@@ -190,7 +216,7 @@ export function renderEligibilityPlaceholderPanel(parent) {
     '年齡：未設定（示範：12–15、18–30、65+ 等區間，依自行填寫的出生年／月判斷）',
     '地區：未設定（示範：可限制特定縣市）',
     '性別：不限制（MVP 不以性別作為投票資格）',
-    '你的狀態：示範用 — 尚未連線真實資格判斷',
+    '你的狀態：預覽用 — 真實資格判斷尚未開放',
   ]) {
     const li = doc.createElement('li');
     li.textContent = item;
@@ -222,7 +248,7 @@ export function renderResultPagePolicyExtras(
   if (collecting && !skipFollowPanel) {
     const { section: followPanel } = createPolicyPanel(doc, {
       title: '收集中 — 可關注結果',
-      badge: '站內通知（示意）',
+      badge: '站內通知（預覽）',
       badgeClass: 'mvp-badge mvp-badge-followed',
       mascotVariant: 'followed',
       titleHelp: {
@@ -253,6 +279,57 @@ export function renderResultPagePolicyExtras(
 
 export function renderVoteSuccessPolicyExtras(root) {
   renderMockFollowButton(root, { compact: false });
+}
+
+/** Disabled chip preview after vote success (no persistence or scoring). */
+export function renderVoteQualityFeedbackPreview(parent) {
+  const doc = parent.ownerDocument;
+  const wrap = doc.createElement('aside');
+  wrap.className = 'mvp-quality-feedback-preview';
+  wrap.setAttribute('aria-label', '投票後題目品質回饋（政策預覽）');
+
+  const heading = doc.createElement('h3');
+  heading.className = 'mvp-quality-feedback-preview-title';
+  heading.textContent = '投票後可協助回饋題目品質';
+  wrap.append(heading);
+
+  const prompt = doc.createElement('p');
+  prompt.className = 'mvp-meta mvp-quality-feedback-preview-prompt';
+  prompt.textContent = `${QUALITY_FEEDBACK_PREVIEW.prompt}（尚未開放，以下僅預覽）`;
+  wrap.append(prompt);
+
+  const chips = doc.createElement('div');
+  chips.className = 'mvp-quality-feedback-chips';
+  chips.setAttribute('role', 'group');
+  chips.setAttribute('aria-label', QUALITY_FEEDBACK_PREVIEW.prompt);
+
+  for (const label of QUALITY_FEEDBACK_PREVIEW.positiveTags) {
+    const chip = doc.createElement('button');
+    chip.type = 'button';
+    chip.className = 'mvp-quality-feedback-chip';
+    chip.disabled = true;
+    chip.setAttribute('aria-disabled', 'true');
+    chip.textContent = label;
+    chips.append(chip);
+  }
+
+  const neutral = doc.createElement('button');
+  neutral.type = 'button';
+  neutral.className = 'mvp-quality-feedback-chip mvp-quality-feedback-chip--neutral';
+  neutral.disabled = true;
+  neutral.setAttribute('aria-disabled', 'true');
+  neutral.textContent = QUALITY_FEEDBACK_PREVIEW.softNeutralTag;
+  chips.append(neutral);
+
+  wrap.append(chips);
+
+  const note = doc.createElement('p');
+  note.className = 'mvp-meta mvp-quality-feedback-preview-note';
+  note.textContent = QUALITY_FEEDBACK_PREVIEW.footnote;
+  wrap.append(note);
+
+  parent.append(wrap);
+  return wrap;
 }
 
 /** Phase 41B — querystring `ui_state` preview (no API/persistence). */
@@ -310,7 +387,7 @@ const UI_MOCK_STATE_PANEL_CONFIG = {
     mascot: 'idle',
   },
   followed: {
-    title: '已關注結果（示範）',
+    title: '已關注結果（預覽）',
     badge: '已關注',
     badgeClass: 'mvp-badge mvp-badge-followed',
     mascot: 'followed',
@@ -420,7 +497,7 @@ export function renderUiMockPreviewBanner(parent, mockState) {
   const text = doc.createElement('p');
   text.className = 'ui-mock-preview-text';
   text.textContent =
-    '以 ?ui_state 預覽政策文案；不代表後端狀態，也不會寫入資料。';
+    '以 ?ui_state 預覽政策文案；不代表真實問卷狀態，也不會寫入資料。';
   banner.append(text);
 
   parent.prepend(banner);
@@ -473,12 +550,12 @@ export function renderUiMockStatePanel(parent, mockState) {
   } else if (mockState === 'revealed') {
     appendParagraph(
       panel,
-      '統計已結束，彙總結果開始公開。此為 UI 預覽；實際仍以 API 為準。',
+      '統計已結束，彙總結果開始公開。此為產品預覽文案；正式上線後以系統狀態為準。',
     );
   } else if (mockState === 'locked') {
     appendParagraph(
       panel,
-      '結果公開後約 5 天為公開鎖定期；期間不可下架、刪除、修改或隱藏結果（按鈕僅示意）。',
+      '結果公開後約 5 天為公開鎖定期；期間不可下架、刪除、修改或隱藏結果（按鈕僅展示流程）。',
     );
     renderDisabledMockActions(panel, [
       '下架（鎖定期內不可用）',
@@ -490,7 +567,7 @@ export function renderUiMockStatePanel(parent, mockState) {
       panel,
       '鎖定期結束後，發起者可維持公開或下架；以下按鈕不會執行真實操作。',
     );
-    renderDisabledMockActions(panel, ['下架問卷（示範，未啟用）']);
+    renderDisabledMockActions(panel, ['下架問卷（尚未開放）']);
     appendParagraph(
       panel,
       POLICY_UI_COPY.unpublishAfterLock,
@@ -502,11 +579,11 @@ export function renderUiMockStatePanel(parent, mockState) {
   } else if (mockState === 'followed') {
     appendParagraph(
       panel,
-      '示範：已標記關注結果；站內通知尚未連線，不會真的發送。',
+      '預覽：已標記關注結果；站內通知尚未開放，不會真的發送。',
     );
     const chip = doc.createElement('p');
     chip.className = 'ui-mock-followed-chip';
-    chip.textContent = '已關注結果 · 站內通知（示範）';
+    chip.textContent = '已關注結果 · 站內通知（預覽）';
     panel.append(chip);
   }
 
@@ -546,7 +623,7 @@ export function renderMockTerminalResultState(root, mockState) {
     appendParagraph(panel, POLICY_UI_COPY.unpublishAfterLock);
     appendParagraph(
       panel,
-      'UI 預覽；真實下架尚未實作，不會改變後端資料。',
+      '產品預覽；下架功能尚未開放，不會變更任何資料。',
       'policy-panel-text policy-panel-muted',
     );
   }
@@ -589,7 +666,7 @@ export function renderVotePagePolicyPanels(parent, options = {}) {
   const doc = parent.ownerDocument;
   const { section: followSection } = createPolicyPanel(doc, {
     title: mockState === 'followed' ? '已關注結果（預覽）' : '關注結果',
-    badge: mockState === 'followed' ? '已關注' : '站內通知（示意）',
+    badge: mockState === 'followed' ? '已關注' : '站內通知（預覽）',
     badgeClass:
       mockState === 'followed'
         ? 'mvp-badge mvp-badge-followed'
@@ -601,16 +678,16 @@ export function renderVotePagePolicyPanels(parent, options = {}) {
   if (mockState === 'followed') {
     appendParagraph(
       followSection,
-      '示範：已關注結果公開通知（站內）。不符合資格預覽時仍無法投票。',
+      '預覽：已關注結果公開通知（站內）。不符合資格預覽時仍無法投票。',
     );
     const chip = doc.createElement('p');
     chip.className = 'ui-mock-followed-chip';
-    chip.textContent = '已關注結果 · 站內通知（示範）';
+    chip.textContent = '已關注結果 · 站內通知（預覽）';
     followSection.append(chip);
   } else {
     appendParagraph(
       followSection,
-      '可於結果公開後查看彙總；MVP 僅站內通知示意，不含 Email／推播。',
+      '可於結果公開後查看彙總；站內通知尚未開放，不含 Email／推播。',
     );
     renderMockFollowButton(followSection);
   }

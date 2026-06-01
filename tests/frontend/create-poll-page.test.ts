@@ -114,9 +114,9 @@ describe('public poll creation page', () => {
 
     const links = root.children.filter((child) => child.tagName === 'a');
     expect(links.map((link) => link.textContent)).toEqual([
-      '查看示範投票頁',
+      '前往投票頁預覽',
       '前往我的問卷',
-      '查看收集中結果頁（示意）',
+      '查看收集中結果頁（預覽）',
     ]);
     expect(links[0]!.href).toBe('/vote/demo');
     expect(links[1]!.href).toBe('/my-polls?nav=logged-in-mock');
@@ -207,9 +207,11 @@ describe('public poll creation page', () => {
     );
   });
 
-  it('create poll page copy marks default submit as demo static', async () => {
+  it('create poll page copy marks default submit as preview without persisting', async () => {
     const html = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
-    expect(html).toMatch(/示意，不儲存/);
+    expect(html).toMatch(/預覽，不儲存/);
+    expect(html).toMatch(/預覽模式/);
+    expect(html).toMatch(/Lv\.1 註冊用戶/);
     expect(html).toMatch(/\?live=1/);
     expect(html).toMatch(/不透露/);
   });

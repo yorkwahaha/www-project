@@ -11,14 +11,14 @@
     <header id="site-header" data-nav="guest" data-active="explore"></header>
     <main id="main-content" class="mvp-page explore-placeholder explore-page" aria-labelledby="explore-heading">
       <p class="mvp-demo-nav-switch" role="note">
-        導覽示範：
+        導覽預覽：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
       <h1 id="explore-heading">探索問卷</h1>
       <p class="mvp-lead">
-        靜態探索頁；不依收票中票數排序。
+        產品預覽；列表不依收票中票數排序。
         <a href="/">返回首頁</a>
       </p>
 
@@ -27,13 +27,13 @@
           class="mvp-search-input"
           type="search"
           disabled
-          placeholder="搜尋問卷標題（示意，尚未啟用）"
+          placeholder="搜尋問卷標題（尚未開放）"
           aria-label="搜尋問卷"
         >
         <button type="button" class="mvp-btn mvp-btn-secondary mvp-btn-sm" disabled>搜尋</button>
       </div>
 
-      <div class="mvp-filter-row" aria-label="篩選（示意）">
+      <div class="mvp-filter-row" aria-label="篩選（預覽）">
         <span class="mvp-filter-chip is-active">全部</span>
         <span class="mvp-filter-chip">收票中</span>
         <span class="mvp-filter-chip">已公開</span>
@@ -61,7 +61,7 @@
             <span class="mvp-badge mvp-badge-revealed">結果已公開</span>
           </div>
           <p class="mvp-poll-card-meta">職場</p>
-          <div class="mvp-result-preview">約 38%（區間示意）
+          <div class="mvp-result-preview">約 38%（區間摘要 · 範例）
             <div class="mvp-result-preview-bar" aria-hidden="true"><span style="width:38%"></span></div>
           </div>
           <div class="mvp-poll-card-footer">
@@ -107,7 +107,7 @@
             <h3>夜間運動習慣</h3>
             <span class="mvp-badge mvp-badge-followed">已關注</span>
           </div>
-          <p class="mvp-poll-card-meta">收票中 · 站內通知（示意）</p>
+          <p class="mvp-poll-card-meta">收票中 · 站內通知（預覽）</p>
           <div class="mvp-poll-card-footer">
             <a class="mvp-btn mvp-btn-secondary" href="/vote/demo?ui_state=followed">查看</a>
           </div>
@@ -118,7 +118,7 @@
         <div class="mvp-mascot mvp-mascot--idle" aria-hidden="true">
           <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
         </div>
-        <p>正式列表 API 就緒後會顯示更多問卷。</p>
+        <p>完整探索列表尚未開放；上線後會顯示更多問卷。</p>
         <a class="mvp-btn mvp-btn-secondary" href="/polls/new" style="margin-top:0.75rem">發起提問</a>
       </div>
     </main>

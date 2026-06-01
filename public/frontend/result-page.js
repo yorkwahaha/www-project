@@ -444,7 +444,7 @@ export async function bootstrapResultPage({
     const myPolls = bottomNav.ownerDocument.createElement('a');
     myPolls.className = 'mvp-action-link';
     myPolls.href = '/my-polls?nav=logged-in-mock';
-    myPolls.textContent = '我的問卷（示意）';
+    myPolls.textContent = '我的問卷';
     bottomNav.append(myPolls);
   }
 }

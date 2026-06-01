@@ -134,7 +134,7 @@ describe('policy ui mock state', () => {
     const text = collectText(root).join(' ');
     expect(text).toMatch(/已關注結果/);
     expect(text).toMatch(/站內通知/);
-    expect(text).toMatch(/示範/);
+    expect(text).toMatch(/預覽|尚未開放/);
   });
 
   it('skips glossary aside when skipGlossary is true', async () => {
@@ -159,7 +159,7 @@ describe('policy ui mock state', () => {
 
     const text = collectText(root).join(' ');
     expect(text).toMatch(/ui_state/);
-    expect(text).toMatch(/不代表後端狀態/);
+    expect(text).toMatch(/不代表真實問卷狀態/);
     expect(text).toMatch(/不符合資格/);
   });
 });

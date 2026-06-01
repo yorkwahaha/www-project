@@ -76,6 +76,24 @@ describe('Official Vote service', () => {
     expect(repository.voteCounters.size).toBe(0);
   });
 
+  it.each(['cancelled', 'revealed', 'locked', 'post_lock', 'unpublished'] as const)(
+    'rejects Official Vote when lifecycle is %s',
+    async (publicLifecycleState) => {
+      const { repository, service, pollId, optionId } = await seedOfficialVote();
+      await addOfficialUser(repository, creatorId);
+      repository.polls.get(pollId)!.public_lifecycle_state = publicLifecycleState;
+
+      await expect(
+        service.castOfficialVote(pollId, creatorId, optionId),
+      ).rejects.toMatchObject({
+        code: 'POLL_VALIDATION',
+        message: 'Poll is not collecting responses',
+      });
+      expect(repository.voteTokens.size).toBe(0);
+      expect(repository.voteCounters.size).toBe(0);
+    },
+  );
+
   it('rolls back when token insert or counter increment fails', async () => {
     const first = await seedOfficialVote();
     await addOfficialUser(first.repository, creatorId);

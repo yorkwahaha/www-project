@@ -109,7 +109,7 @@ describe('public visibility helpers', () => {
     expect(isPublicResultsReadable(expired)).toBe(true);
   });
 
-  it('allows participation only for unarchived active polls before closes_at', () => {
+  it('allows participation only for collecting, unarchived active polls before closes_at', () => {
     const open = poll();
     const archived = poll({
       archived_at: new Date('2026-06-02T00:00:00.000Z'),
@@ -125,5 +125,15 @@ describe('public visibility helpers', () => {
     expect(
       isParticipationAllowed(expired, new Date('2026-06-01T12:00:00.000Z')),
     ).toBe(false);
+    for (const public_lifecycle_state of [
+      'draft',
+      'cancelled',
+      'revealed',
+      'locked',
+      'post_lock',
+      'unpublished',
+    ] as const) {
+      expect(isParticipationAllowed(poll({ public_lifecycle_state }))).toBe(false);
+    }
   });
 });

@@ -166,4 +166,54 @@ describe('Official Vote PostgreSQL integration', () => {
       },
     ]);
   });
+
+  it('rejects Official Vote outside collecting lifecycle without writing token or counter', async () => {
+    const repository = createPgPollRepository(pool);
+    const service = createPollService(repository, {
+      selectShardId: () => FIXED_SHARD_ID,
+    });
+
+    await repository.ensureUser(creatorId, 'Creator');
+    await repository.ensureUser(officialUserId, 'Official voter');
+    await setUserTrustLevel(pool, officialUserId, 'official');
+
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'PG Official Vote Lifecycle Guard',
+        description: '',
+        category: 'general',
+        options: ['A', 'B'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+    const [option] = await repository.listOptionsByPollId(created.poll_id);
+    await pool.query(
+      `UPDATE polls
+       SET public_lifecycle_state = 'revealed'
+       WHERE id = $1`,
+      [created.poll_id],
+    );
+
+    await expect(
+      service.castOfficialVote(created.poll_id, officialUserId, option!.id),
+    ).rejects.toMatchObject({
+      code: 'POLL_VALIDATION',
+      message: 'Poll is not collecting responses',
+    });
+
+    const tokens = await pool.query(
+      `SELECT 1 FROM poll_vote_tokens WHERE poll_id = $1`,
+      [created.poll_id],
+    );
+    const counters = await pool.query(
+      `SELECT 1 FROM poll_option_vote_counters WHERE poll_id = $1`,
+      [created.poll_id],
+    );
+    expect(tokens.rows).toHaveLength(0);
+    expect(counters.rows).toHaveLength(0);
+  });
 });

@@ -76,7 +76,7 @@ Migration 為 forward-only。若部署後需回退應用程式，新增欄位、
 - Phase 55B：既有 `GET /polls/:id/results` 與 `GET /polls/:id` 安全公開回應已補上 `public_lifecycle_state`；unavailable 結果殼新增 lifecycle-safe 文案，仍不讀 aggregate。
 - Phase 55C：公開結果頁前端已依 `public_lifecycle_state`／`user_message` 渲染 collecting／unavailable／aggregate 三種唯讀殼；`?ui_state=` demo 預覽維持。
 - Phase 55D：已新增 [`www-project-phase-55d-lifecycle-transition-api-boundary-plan-v1.md`](./www-project-phase-55d-lifecycle-transition-api-boundary-plan-v1.md)；先文件化 cancel／reveal／lock／post-lock／unpublish 交易邊界，不實作 API。
-- Phase 56：eligibility evaluation 與 collecting 隱私測試。
+- Phase 56：已新增 [`www-project-phase-56-eligibility-collecting-privacy-guardrails-v1.md`](./www-project-phase-56-eligibility-collecting-privacy-guardrails-v1.md)；participation guard 明確要求 collecting，並補齊 viewer-neutral collecting 隱私測試。完整 age／region eligibility evaluator 仍延後。
 - Phase 57：實作 lifecycle transition service 與最小安全 route adapters；server-side scheduler 部署另行處理。
 - Phase 58+：follow-result subscription 與 in-app notification。
 - Phase 59+：feedback。

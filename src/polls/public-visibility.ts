@@ -57,6 +57,9 @@ export function isParticipationAllowed(
   if (poll.status !== 'active') {
     return false;
   }
+  if (poll.public_lifecycle_state !== 'collecting') {
+    return false;
+  }
   if (poll.archived_at !== null) {
     return false;
   }
@@ -72,6 +75,9 @@ export function participationRejectionMessage(
 ): string {
   if (poll.status === 'closed') {
     return 'Poll is closed';
+  }
+  if (poll.public_lifecycle_state !== 'collecting') {
+    return 'Poll is not collecting responses';
   }
   if (poll.archived_at !== null) {
     return 'Poll is archived';

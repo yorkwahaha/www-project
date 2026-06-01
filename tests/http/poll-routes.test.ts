@@ -63,7 +63,10 @@ describe('poll HTTP routes', () => {
   const creatorId = '22222222-2222-4222-8222-222222222222';
 
   it('POST /polls creates poll; GET returns detail without vote signals', async () => {
-    const service = createPollService(createInMemoryPollRepository());
+    const repository = createInMemoryPollRepository();
+    const ineligibleUserId = '33333333-3333-4333-8333-333333333333';
+    await repository.ensureUser(ineligibleUserId, 'Ineligible low-trust user');
+    const service = createPollService(repository);
     const server = createHttpServer({ pollService: service });
     const closesAt = new Date(Date.now() + 86_400_000).toISOString();
 
@@ -84,7 +87,12 @@ describe('poll HTTP routes', () => {
       const pollId = created.body.poll_id as string;
 
       const detail = await request(baseUrl, 'GET', `/polls/${pollId}`, {});
+      const ineligibleDetail = await request(baseUrl, 'GET', `/polls/${pollId}`, {
+        headers: { 'X-User-Id': ineligibleUserId },
+      });
       expect(detail.status).toBe(200);
+      expect(ineligibleDetail.status).toBe(200);
+      expect(ineligibleDetail.body).toEqual(detail.body);
       expect(detail.body.poll_id).toBe(pollId);
       expect(detail.body.public_lifecycle_state).toBe('collecting');
       expect(detail.body).not.toHaveProperty('option_vote_count');

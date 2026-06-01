@@ -288,7 +288,7 @@ describe('Result Display service', () => {
   });
 
   it('cannot reveal which option a specific official user selected', async () => {
-    const { repository, service, pollId, options } = await seedPoll();
+    const { repository, service, pollId, options } = await seedPoll('collecting');
     const firstUserId = '33333333-3333-4333-8333-333333333333';
     const secondUserId = '44444444-4444-4444-8444-444444444444';
     await repository.ensureUser(firstUserId, 'First official user');
@@ -297,6 +297,7 @@ describe('Result Display service', () => {
     repository.setUserTrustLevel(secondUserId, 'official');
     await service.castOfficialVote(pollId, firstUserId, options[0]!.id);
     await service.castOfficialVote(pollId, secondUserId, options[1]!.id);
+    repository.polls.get(pollId)!.public_lifecycle_state = 'revealed';
 
     const serialized = JSON.stringify(await service.getPollResults(pollId));
 

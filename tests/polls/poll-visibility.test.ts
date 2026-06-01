@@ -114,4 +114,35 @@ describe('Poll public visibility boundaries', () => {
       service.castOfficialVote(draft.poll_id, officialUserId, draftOption!.id),
     ).rejects.toBeInstanceOf(PollNotFoundError);
   });
+
+  it.each(['cancelled', 'revealed', 'locked', 'post_lock', 'unpublished'] as const)(
+    'rejects Reference Answer and Official Vote when lifecycle is %s',
+    async (publicLifecycleState) => {
+      const repository = createInMemoryPollRepository();
+      await repository.ensureUser(lowTrustUserId, 'Low trust');
+      await repository.ensureUser(officialUserId, 'Official');
+      repository.setUserTrustLevel(officialUserId, 'official');
+      const service = createPollService(repository, { selectShardId: () => 1 });
+      const created = await createPublishedPoll(service, 'Lifecycle blocked');
+      repository.polls.get(created.poll_id)!.public_lifecycle_state =
+        publicLifecycleState;
+      const [option] = await repository.listOptionsByPollId(created.poll_id);
+
+      await expect(
+        service.submitReferenceAnswer(created.poll_id, lowTrustUserId, option!.id),
+      ).rejects.toMatchObject({
+        code: 'POLL_VALIDATION',
+        message: 'Poll is not collecting responses',
+      });
+      await expect(
+        service.castOfficialVote(created.poll_id, officialUserId, option!.id),
+      ).rejects.toMatchObject({
+        code: 'POLL_VALIDATION',
+        message: 'Poll is not collecting responses',
+      });
+      expect(repository.referenceAnswerTokens.size).toBe(0);
+      expect(repository.voteTokens.size).toBe(0);
+      expect(repository.voteCounters.size).toBe(0);
+    },
+  );
 });

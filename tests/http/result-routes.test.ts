@@ -5,6 +5,8 @@ import { createInMemoryPollRepository } from '../../src/polls/in-memory-reposito
 import { createPollService } from '../../src/polls/service.js';
 
 const creatorId = '22222222-2222-4222-8222-222222222222';
+const ineligibleUserId = '33333333-3333-4333-8333-333333333333';
+const eligibleUserId = '44444444-4444-4444-8444-444444444444';
 
 async function withServer<T>(
   server: Server,
@@ -99,8 +101,11 @@ describe('Result Display HTTP route', () => {
     });
   });
 
-  it('returns the same counter-free collecting shell for creator and public reads', async () => {
+  it('returns the same counter-free collecting shell for every viewer class', async () => {
     const repository = createInMemoryPollRepository();
+    await repository.ensureUser(ineligibleUserId, 'Ineligible low-trust user');
+    await repository.ensureUser(eligibleUserId, 'Eligible official-trust user');
+    repository.setUserTrustLevel(eligibleUserId, 'official');
     const service = createPollService(repository);
     const created = await service.createPoll(
       {
@@ -132,10 +137,18 @@ describe('Result Display HTTP route', () => {
       const creator = await request(baseUrl, path, {
         headers: { 'X-User-Id': creatorId },
       });
-      const publicRead = await request(baseUrl, path);
+      const guest = await request(baseUrl, path);
+      const ineligible = await request(baseUrl, path, {
+        headers: { 'X-User-Id': ineligibleUserId },
+      });
+      const eligible = await request(baseUrl, path, {
+        headers: { 'X-User-Id': eligibleUserId },
+      });
 
       expect(creator.status).toBe(200);
-      expect(creator.body).toEqual(publicRead.body);
+      expect(creator.body).toEqual(guest.body);
+      expect(ineligible.body).toEqual(guest.body);
+      expect(eligible.body).toEqual(guest.body);
       expect(creator.body).toMatchObject({
         public_lifecycle_state: 'collecting',
         display_mode: 'collecting',

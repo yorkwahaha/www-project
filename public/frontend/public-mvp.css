@@ -370,6 +370,28 @@ button:disabled {
   font-style: italic;
 }
 
+.result-unavailable-status {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--mvp-surface-muted, #f4f4f5);
+  border: 1px solid var(--mvp-border, #e4e4e7);
+}
+
+.result-unavailable-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.result-unavailable-message {
+  margin: 0 0 0.5rem;
+}
+
+.result-unavailable-summary {
+  margin: 0;
+  color: var(--mvp-text-muted, #52525b);
+}
+
 .result-collecting-status {
   margin: 0 0 1rem;
   padding: 1rem 1.05rem;

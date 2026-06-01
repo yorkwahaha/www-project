@@ -56,6 +56,7 @@ function collectText(element: ReturnType<typeof createRoot>): string[] {
 
 const displaySafeResult = {
   poll_id: '11111111-1111-4111-8111-111111111111',
+  public_lifecycle_state: 'revealed',
   display_mode: 'rounded_with_bucketed_votes',
   total_votes_display: '100–499',
   collecting: false,
@@ -72,6 +73,7 @@ const displaySafeResult = {
 
 const collectingResult = {
   poll_id: '11111111-1111-4111-8111-111111111111',
+  public_lifecycle_state: 'collecting',
   display_mode: 'collecting',
   total_votes_display: '收集中',
   collecting: true,
@@ -198,6 +200,133 @@ describe('public result page', () => {
     expect(text).toMatch(/關注結果|站內通知/);
     expect(text).not.toMatch(/0\s*票|0%/);
     expect(text).not.toMatch(/option_id|shard|token/i);
+  });
+
+  it('prefers public_lifecycle_state over display-tier collecting after reveal', async () => {
+    const {
+      getPublicLifecycleState,
+      isCollectingResult,
+      renderResultDisplay,
+      resolveResultRenderMode,
+    } = await loadResultPageModule();
+    const revealedSubThreshold = {
+      ...displaySafeResult,
+      public_lifecycle_state: 'revealed',
+      display_mode: 'collecting',
+      total_votes_display: '收集中',
+      collecting: true,
+      options: [
+        {
+          option_index: 0,
+          display_label: '選項 A',
+          display_percentage: null,
+          display_count: null,
+        },
+      ],
+    };
+
+    expect(getPublicLifecycleState(revealedSubThreshold)).toBe('revealed');
+    expect(isCollectingResult(revealedSubThreshold)).toBe(false);
+    expect(resolveResultRenderMode(revealedSubThreshold)).toBe('aggregate');
+
+    const root = createRoot();
+    renderResultDisplay(root, revealedSubThreshold);
+    const text = collectText(root).join(' ');
+    expect(text).not.toMatch(/目前仍在收集中/);
+    expect(text).toContain('收集中');
+    expect(text).toContain('選項 A');
+    expect(text).not.toMatch(/約\s*\d+%/);
+  });
+
+  it.each([
+    {
+      public_lifecycle_state: 'cancelled',
+      user_message: '問卷已取消，不會產生公開結果。',
+      title: '問卷已取消',
+    },
+    {
+      public_lifecycle_state: 'unpublished',
+      user_message: '此問卷已結束公開鎖定期，並由發起者下架。',
+      title: '問卷已下架',
+    },
+    {
+      public_lifecycle_state: 'draft',
+      user_message: '此問卷目前沒有可公開顯示的結果。',
+      title: '目前沒有可公開顯示的結果',
+    },
+  ] as const)(
+    'renders unavailable lifecycle shells with safe user_message for %s',
+    async ({ public_lifecycle_state, user_message, title }) => {
+      const { renderResultDisplay } = await loadResultPageModule();
+      const root = createRoot();
+      const payload = {
+        poll_id: displaySafeResult.poll_id,
+        public_lifecycle_state,
+        display_mode: 'unavailable',
+        total_votes_display: '結果不可用',
+        collecting: false,
+        user_message,
+        options: [
+          {
+            option_index: 0,
+            display_label: '選項 A',
+            display_percentage: null,
+            display_count: null,
+          },
+        ],
+        updated_display: '最近更新',
+      };
+
+      renderResultDisplay(root, payload);
+      const text = collectText(root).join(' ');
+      expect(text).toContain(title);
+      expect(text).toContain(user_message);
+      expect(text).toMatch(/不顯示總票數、選項票數、百分比/);
+      expect(text).toContain('選項 A');
+      expect(text).not.toMatch(/約\s*\d+%|30–99|100–499/);
+    },
+  );
+
+  it('keeps demo ui_state collecting preview behavior', async () => {
+    const { renderResultDisplay } = await loadResultPageModule();
+    const policyUrl = pathToFileURL(
+      join(process.cwd(), 'public/frontend/policy-ui-placeholders.js'),
+    ).href;
+    const { resolveMockResultPayload } = await import(/* @vite-ignore */ policyUrl);
+    const root = createRoot();
+    const payload = resolveMockResultPayload(
+      { ...displaySafeResult, public_lifecycle_state: 'revealed' },
+      'collecting',
+    );
+
+    renderResultDisplay(root, payload);
+
+    const text = collectText(root).join(' ');
+    expect(text).toMatch(/目前仍在收集中/);
+    expect(text).toMatch(/狀態：收集中/);
+    expect(text).not.toMatch(/30–99|100–499/);
+  });
+
+  it('uses a safe fallback when unavailable lifecycle omits user_message', async () => {
+    const { resolveUnavailableUserMessage, renderResultDisplay } =
+      await loadResultPageModule();
+    const payload = {
+      public_lifecycle_state: 'draft',
+      display_mode: 'unavailable',
+      total_votes_display: '結果不可用',
+      collecting: false,
+      options: [],
+    };
+
+    expect(resolveUnavailableUserMessage(payload)).toBe(
+      '此問卷目前沒有可公開顯示的結果。',
+    );
+
+    const root = createRoot();
+    renderResultDisplay(root, payload);
+    expect(collectText(root).join(' ')).toContain(
+      '此問卷目前沒有可公開顯示的結果。',
+    );
   });
 
   it('renders identical content for direct visits and post-vote redirects', async () => {

@@ -74,7 +74,8 @@ Migration 為 forward-only。若部署後需回退應用程式，新增欄位、
 
 - Phase 55A：已新增 public result lifecycle guard；只有 `revealed`／`locked`／`post_lock` 可讀 aggregate。collecting 與 unavailable 狀態回 counter-free shell；legacy `status='closed'` 與票數門檻不會自行揭曉結果。
 - Phase 55B：既有 `GET /polls/:id/results` 與 `GET /polls/:id` 安全公開回應已補上 `public_lifecycle_state`；unavailable 結果殼新增 lifecycle-safe 文案，仍不讀 aggregate。
-- Phase 55C–57：公開 lifecycle create/read 擴充、close/reveal/post-lock/unpublish 交易。
+- Phase 55C：公開結果頁前端已依 `public_lifecycle_state`／`user_message` 渲染 collecting／unavailable／aggregate 三種唯讀殼；`?ui_state=` demo 預覽維持。
+- Phase 55D–57：公開 lifecycle create/read 擴充、close/reveal/post-lock/unpublish 交易。
 - Phase 56：eligibility evaluation 與 collecting 隱私測試。
 - Phase 58+：follow-result subscription 與 in-app notification。
 - Phase 59+：feedback。

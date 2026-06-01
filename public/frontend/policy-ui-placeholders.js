@@ -418,6 +418,7 @@ export function toCollectingPreviewPayload(apiResult) {
   const options = Array.isArray(apiResult?.options) ? apiResult.options : [];
   return {
     ...apiResult,
+    public_lifecycle_state: 'collecting',
     collecting: true,
     display_mode: 'collecting',
     total_votes_display: '收集中',

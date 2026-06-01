@@ -78,6 +78,7 @@ export function getDemoPollDetail() {
 export function getDemoCollectingResultPayload() {
   return {
     poll_id: DEMO_POLL_SLUG,
+    public_lifecycle_state: 'collecting',
     collecting: true,
     display_mode: 'collecting',
     total_votes_display: '收集中',

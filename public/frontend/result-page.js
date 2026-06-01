@@ -33,6 +33,19 @@ function appendText(parent, tagName, text, className) {
 
 const PUBLIC_NOTICE_TYPE = 'suspended_typo_correction_applied';
 const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
+const PUBLIC_LIFECYCLE_STATES = [
+  'draft',
+  'collecting',
+  'cancelled',
+  'revealed',
+  'locked',
+  'post_lock',
+  'unpublished',
+];
+const LIFECYCLE_AGGREGATE_STATES = new Set(['revealed', 'locked', 'post_lock']);
+const LIFECYCLE_UNAVAILABLE_STATES = new Set(['draft', 'cancelled', 'unpublished']);
+const UNAVAILABLE_RESULT_FALLBACK_MESSAGE =
+  '此問卷目前沒有可公開顯示的結果。';
 
 export function getPollIdFromResultPath(pathname) {
   const match = pathname.match(/^\/results\/([^/]+)$/);
@@ -71,7 +84,18 @@ export async function loadPublicNotices({ pollId, fetchImpl = globalThis.fetch }
   return response.json();
 }
 
-export function isCollectingResult(result) {
+export function getPublicLifecycleState(result) {
+  if (!result || typeof result !== 'object') {
+    return null;
+  }
+  const state = result.public_lifecycle_state;
+  if (typeof state === 'string' && PUBLIC_LIFECYCLE_STATES.includes(state)) {
+    return state;
+  }
+  return null;
+}
+
+function isLegacyCollectingResult(result) {
   if (!result || typeof result !== 'object') {
     return false;
   }
@@ -91,6 +115,51 @@ export function isCollectingResult(result) {
   );
 }
 
+/** Lifecycle collecting only; ignores display-tier sub-30 signals after reveal. */
+export function isCollectingResult(result) {
+  const lifecycle = getPublicLifecycleState(result);
+  if (lifecycle !== null) {
+    return lifecycle === 'collecting';
+  }
+  return isLegacyCollectingResult(result);
+}
+
+export function resolveUnavailableUserMessage(result) {
+  if (
+    result &&
+    typeof result === 'object' &&
+    typeof result.user_message === 'string' &&
+    result.user_message.trim()
+  ) {
+    return result.user_message.trim();
+  }
+  const lifecycle = getPublicLifecycleState(result);
+  if (lifecycle === 'cancelled') {
+    return '問卷已取消，不會產生公開結果。';
+  }
+  if (lifecycle === 'unpublished') {
+    return '此問卷已結束公開鎖定期，並由發起者下架。';
+  }
+  return UNAVAILABLE_RESULT_FALLBACK_MESSAGE;
+}
+
+export function resolveResultRenderMode(result) {
+  const lifecycle = getPublicLifecycleState(result);
+  if (lifecycle === 'collecting') {
+    return 'collecting';
+  }
+  if (LIFECYCLE_UNAVAILABLE_STATES.has(lifecycle)) {
+    return 'unavailable';
+  }
+  if (LIFECYCLE_AGGREGATE_STATES.has(lifecycle)) {
+    return 'aggregate';
+  }
+  if (isLegacyCollectingResult(result)) {
+    return 'collecting';
+  }
+  return 'aggregate';
+}
+
 export function normalizeDisplaySafeResult(result) {
   if (!result || typeof result !== 'object') {
     return null;
@@ -103,8 +172,12 @@ export function normalizeDisplaySafeResult(result) {
           typeof option.display_label === 'string',
       )
     : [];
+  const mode = resolveResultRenderMode(result);
   return {
-    collecting: isCollectingResult(result),
+    mode,
+    public_lifecycle_state: getPublicLifecycleState(result),
+    collecting: mode === 'collecting',
+    user_message: mode === 'unavailable' ? resolveUnavailableUserMessage(result) : '',
     total_votes_display:
       typeof result.total_votes_display === 'string'
         ? result.total_votes_display
@@ -141,6 +214,42 @@ export function renderCollectingStatusBlock(root) {
     'result-collecting-reveal',
   );
   renderCollectingPolicyExtras(block);
+
+  root.append(block);
+}
+
+function unavailableStatusTitle(lifecycleState) {
+  if (lifecycleState === 'cancelled') {
+    return '問卷已取消';
+  }
+  if (lifecycleState === 'unpublished') {
+    return '問卷已下架';
+  }
+  return '目前沒有可公開顯示的結果';
+}
+
+export function renderUnavailableStatusBlock(
+  root,
+  { userMessage, lifecycleState = null } = {},
+) {
+  const block = root.ownerDocument.createElement('section');
+  block.className = 'result-unavailable-status';
+  block.setAttribute('role', 'status');
+  block.setAttribute('aria-label', '結果不可用說明');
+
+  appendText(block, 'h2', unavailableStatusTitle(lifecycleState), 'result-unavailable-title');
+  appendText(
+    block,
+    'p',
+    userMessage || UNAVAILABLE_RESULT_FALLBACK_MESSAGE,
+    'result-unavailable-message',
+  );
+  appendText(
+    block,
+    'p',
+    '此頁不顯示總票數、選項票數、百分比、排名、趨勢或任何進度訊號。',
+    'result-unavailable-summary',
+  );
 
   root.append(block);
 }
@@ -203,7 +312,7 @@ export function renderResultDisplay(
     return;
   }
 
-  if (normalized.collecting) {
+  if (normalized.mode === 'collecting') {
     renderCollectingStatusBlock(root);
     appendText(
       root,
@@ -226,6 +335,27 @@ export function renderResultDisplay(
     });
     if (attachPolicyExtras) {
       renderResultPagePolicyExtras(root, { collecting: true });
+    }
+    return;
+  }
+
+  if (normalized.mode === 'unavailable') {
+    renderUnavailableStatusBlock(root, {
+      userMessage: normalized.user_message,
+      lifecycleState: normalized.public_lifecycle_state,
+    });
+    if (normalized.options.length === 0) {
+      appendText(root, 'p', '目前尚無可顯示的選項。', 'result-empty');
+      if (attachPolicyExtras) {
+        renderResultPagePolicyExtras(root, { collecting: false });
+      }
+      return;
+    }
+    renderOptionLabelsList(root, normalized.options, {
+      headingText: '問卷選項（不含票數）',
+    });
+    if (attachPolicyExtras) {
+      renderResultPagePolicyExtras(root, { collecting: false });
     }
     return;
   }
@@ -379,10 +509,11 @@ export async function bootstrapResultPage({
       errorPanel.hidden = true;
       errorPanel.replaceChildren();
     }
+    const apiLifecycle = getPublicLifecycleState(result);
     if (pageTitle) {
-      if (uiMockState === 'cancelled') {
+      if (uiMockState === 'cancelled' || apiLifecycle === 'cancelled') {
         pageTitle.textContent = '問卷已取消';
-      } else if (uiMockState === 'unpublished') {
+      } else if (uiMockState === 'unpublished' || apiLifecycle === 'unpublished') {
         pageTitle.textContent = '問卷已下架';
       } else if (demoOnly) {
         pageTitle.textContent = '示範結果頁（唯讀）';
@@ -393,7 +524,10 @@ export async function bootstrapResultPage({
     }
     if (introRoot) {
       introRoot.hidden =
-        uiMockState === 'cancelled' || uiMockState === 'unpublished';
+        uiMockState === 'cancelled' ||
+        uiMockState === 'unpublished' ||
+        apiLifecycle === 'cancelled' ||
+        apiLifecycle === 'unpublished';
       if (!introRoot.hidden) {
         renderResultsReadOnlyIntro(introRoot, pollId);
       } else {
@@ -406,10 +540,11 @@ export async function bootstrapResultPage({
       renderResultDisplay(root, mockApply.payload ?? result, {
         attachPolicyExtras: false,
       });
+      const displayPayload = mockApply.payload ?? result;
       const collecting =
         uiMockState != null
           ? isCollectingUiMockState(uiMockState)
-          : isCollectingResult(result);
+          : isCollectingResult(displayPayload);
       if (uiMockState && uiMockState !== 'collecting') {
         renderUiMockStatePanel(root, uiMockState);
       }

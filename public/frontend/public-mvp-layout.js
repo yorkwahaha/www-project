@@ -217,6 +217,66 @@ export function renderDemoNavBanner(parent, navMode) {
   return banner;
 }
 
+const FOOTER_LINKS = [
+  { href: '/faq', label: '常見問題' },
+  { href: '/trust-levels', label: '權限與信任等級' },
+];
+
+/**
+ * @param {HTMLElement} mount
+ */
+export function renderSiteFooter(mount) {
+  const doc = mount.ownerDocument;
+  const path = doc.defaultView?.location?.pathname ?? '';
+  mount.replaceChildren();
+  mount.className = 'mvp-site-footer';
+
+  const inner = doc.createElement('div');
+  inner.className = 'mvp-site-footer-inner';
+
+  const nav = doc.createElement('nav');
+  nav.className = 'mvp-site-footer-nav';
+  nav.setAttribute('aria-label', '說明與政策');
+
+  for (const link of FOOTER_LINKS) {
+    const a = doc.createElement('a');
+    a.href = link.href;
+    a.textContent = link.label;
+    if (path === link.href || path === `${link.href}/`) {
+      a.setAttribute('aria-current', 'page');
+    }
+    nav.append(a);
+  }
+
+  const note = doc.createElement('p');
+  note.className = 'mvp-site-footer-note';
+  note.textContent =
+    '公開 MVP 政策說明；部分功能為預覽，尚未實作帳號、通知或計分。';
+
+  inner.append(nav, note);
+  mount.append(inner);
+}
+
+function mountSiteFooter(documentObject) {
+  if (typeof documentObject?.getElementById !== 'function') {
+    return;
+  }
+  let footer = documentObject.getElementById('site-footer');
+  if (!footer) {
+    if (
+      typeof documentObject.createElement !== 'function' ||
+      !documentObject.body ||
+      typeof documentObject.body.append !== 'function'
+    ) {
+      return;
+    }
+    footer = documentObject.createElement('footer');
+    footer.id = 'site-footer';
+    documentObject.body.append(footer);
+  }
+  renderSiteFooter(footer);
+}
+
 export function mountSiteChrome(documentObject) {
   const search =
     typeof documentObject.defaultView?.location?.search === 'string'
@@ -238,6 +298,7 @@ export function mountSiteChrome(documentObject) {
   if (main && parseDemoNavMode(search) === 'logged-in-mock') {
     renderDemoNavBanner(main, 'logged-in-mock');
   }
+  mountSiteFooter(documentObject);
 }
 
 if (typeof document !== 'undefined') {

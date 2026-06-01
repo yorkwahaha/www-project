@@ -1636,4 +1636,210 @@ button:disabled {
   .mvp-demo-nav-banner {
     margin-bottom: 0.65rem;
   }
+
+  .mvp-trust-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Phase 46 — policy info pages (FAQ, trust levels) */
+.mvp-info-page {
+  max-width: 42rem;
+}
+
+.mvp-info-hero {
+  margin-bottom: 1rem;
+}
+
+.mvp-info-hero h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
+}
+
+.mvp-info-quick-grid {
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 720px) {
+  .mvp-info-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.mvp-faq-section {
+  margin-bottom: 0.75rem;
+}
+
+.mvp-dl-compact {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.mvp-dl-compact dt {
+  margin: 0.5rem 0 0.2rem;
+  font-weight: 600;
+  color: var(--mvp-text);
+}
+
+.mvp-dl-compact dd {
+  margin: 0 0 0.35rem;
+  color: var(--mvp-muted);
+}
+
+.mvp-quote-block {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-left: 3px solid var(--mvp-accent);
+  border-radius: 0 var(--mvp-radius-sm) var(--mvp-radius-sm) 0;
+  background: var(--mvp-accent-soft);
+  font-size: 0.9rem;
+  color: var(--mvp-text);
+}
+
+.mvp-trust-callout {
+  margin-bottom: 0.75rem;
+}
+
+.mvp-trust-level-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.mvp-trust-level-card {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-surface-elevated);
+}
+
+.mvp-trust-level-card--future {
+  opacity: 0.92;
+  border-style: dashed;
+}
+
+.mvp-trust-level-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem 0.65rem;
+  margin-bottom: 0.35rem;
+}
+
+.mvp-trust-level-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.mvp-trust-lv {
+  color: var(--mvp-accent);
+}
+
+.mvp-trust-level-lead {
+  margin: 0 0 0.65rem;
+  font-size: 0.88rem;
+  color: var(--mvp-muted);
+}
+
+.mvp-trust-cols {
+  display: grid;
+  gap: 0.65rem 1rem;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 0.5rem;
+}
+
+.mvp-trust-col-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.mvp-trust-can {
+  color: var(--mvp-accent);
+}
+
+.mvp-trust-cannot {
+  color: var(--mvp-danger);
+}
+
+.mvp-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mvp-trust-table {
+  width: 100%;
+  min-width: 18rem;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.mvp-trust-table th,
+.mvp-trust-table td {
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--mvp-border);
+  text-align: left;
+}
+
+.mvp-trust-table thead th {
+  background: var(--mvp-surface);
+  font-size: 0.8rem;
+}
+
+.mvp-trust-table tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mvp-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mvp-site-footer {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem 1.35rem;
+  border-top: 1px solid var(--mvp-border);
+  background: var(--mvp-surface);
+}
+
+.mvp-site-footer-inner {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.mvp-site-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.9rem;
+}
+
+.mvp-site-footer-nav a {
+  color: var(--mvp-accent);
+  text-decoration: none;
+}
+
+.mvp-site-footer-nav a[aria-current='page'] {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.mvp-site-footer-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--mvp-muted);
 }

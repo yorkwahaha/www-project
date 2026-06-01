@@ -41,6 +41,7 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('What We Wonder');
       expect(pageBody).toContain('href="/polls/new"');
       expect(pageBody).toContain('href="/explore"');
+      expect(pageBody).toContain('href="/faq"');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('class="mvp-body"');
       expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
@@ -213,6 +214,34 @@ describe('frontend static routes', () => {
       expect(page.status).toBe(200);
       expect(await page.text()).toContain('我的問卷');
       expect(layout.status).toBe(200);
+    });
+  });
+
+  it('serves public FAQ and trust-level policy pages', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const faq = await fetch(`${baseUrl}/faq`);
+      const faqBody = await faq.text();
+      const trust = await fetch(`${baseUrl}/trust-levels`);
+      const trustBody = await trust.text();
+
+      expect(faq.status).toBe(200);
+      expect(faq.headers.get('content-type')).toContain('text/html');
+      expect(faqBody).toContain('mvp-info-page');
+      expect(faqBody).toContain('收票中');
+      expect(faqBody).toContain('此問卷已結束公開鎖定期，並由發起者下架。');
+      expect(faqBody).toContain('href="/trust-levels"');
+      expect(faqBody).not.toMatch(/option_id|shard_id|vote_token/i);
+
+      expect(trust.status).toBe(200);
+      expect(trustBody).toContain('Lv.0');
+      expect(trustBody).toContain('Lv.4');
+      expect(trustBody).toContain('政治／高風險');
+      expect(trustBody).toContain('href="/faq"');
+      expect(trustBody).not.toMatch(/option_id|shard_id|vote_token/i);
     });
   });
 });

@@ -258,6 +258,16 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/faq') {
+    await sendPublicFile(res, 'faq.html', 'text/html; charset=utf-8');
+    return;
+  }
+
+  if (method === 'GET' && path === '/trust-levels') {
+    await sendPublicFile(res, 'trust-levels.html', 'text/html; charset=utf-8');
+    return;
+  }
+
   if (method === 'GET' && path === '/my-polls') {
     await sendPublicFile(res, 'my-polls.html', 'text/html; charset=utf-8');
     return;

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>常見問題｜What We Wonder</title>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
+  </head>
+  <body class="mvp-body">
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <header id="site-header" data-nav="guest" data-active=""></header>
+    <main id="main-content" class="mvp-page mvp-info-page" aria-labelledby="faq-heading">
+      <p class="mvp-demo-nav-switch" role="note">
+        導覽預覽：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
+
+      <p class="mvp-mock-banner" role="note">
+        <strong>政策說明頁</strong>：以下為大家想知道（WWW）公開 MVP 的產品規則摘要，供快速理解；正式上線後以系統狀態與公告為準。部分功能尚為預覽，尚未實作。
+      </p>
+
+      <header class="mvp-info-hero">
+        <h1 id="faq-heading">常見問題</h1>
+        <p class="mvp-lead">
+          收票怎麼算「盲測」？什麼時候看得到結果？取消和下架有什麼不同？這裡用最直白的方式說明。
+        </p>
+        <p class="mvp-meta mvp-preview-links">
+          也想了解帳號能做什麼？請看
+          <a href="/trust-levels">權限與信任等級說明</a>。
+        </p>
+      </header>
+
+      <div class="mvp-value-grid mvp-info-quick-grid" aria-label="重點速覽">
+        <article class="mvp-value-card">
+          <h3>收票中看不到票數</h3>
+          <p>不顯示票數、百分比、總票數、排名、趨勢或進度；發起者也一樣。</p>
+        </article>
+        <article class="mvp-value-card">
+          <h3>截止＝開始公開結果</h3>
+          <p>MVP 以同一時間點結束投票並公開彙總；不等於鎖定期結束。</p>
+        </article>
+        <article class="mvp-value-card">
+          <h3>公開後鎖定約 5 天</h3>
+          <p>鎖定期內不能下架、修改或隱藏結果；結束後發起者可下架。</p>
+        </article>
+        <article class="mvp-value-card">
+          <h3>取消 ≠ 下架</h3>
+          <p>收票中停止叫「取消」，不會形成公開結果；下架另有固定文案。</p>
+        </article>
+      </div>
+
+      <section class="mvp-policy-panel mvp-faq-section" aria-labelledby="faq-collecting">
+        <h2 id="faq-collecting" class="mvp-policy-panel-title">收票中為什麼什麼都看不到？</h2>
+        <ul class="policy-field-list">
+          <li>問卷在<strong>收票中（統計期間）</strong>時，平台上<strong>不顯示</strong>票數、百分比、總票數、排名、趨勢或任何進度訊號。</li>
+          <li><strong>發起者</strong>在收票中<strong>也不能</strong>查看中途統計或儀表板數字，避免影響自己或他人對題目的判斷。</li>
+          <li>這是為了讓後續投票者不受已出現的數字影響，屬於產品規則，不是畫面故障。</li>
+        </ul>
+      </section>
+
+      <section class="mvp-policy-panel mvp-faq-section" aria-labelledby="faq-close">
+        <h2 id="faq-close" class="mvp-policy-panel-title">截止、公開結果、鎖定期有什麼差別？</h2>
+        <dl class="mvp-dl-compact">
+          <dt>截止／結果公開（close）</dt>
+          <dd>
+            代表<strong>投票與統計期間結束</strong>，並<strong>開始顯示</strong>彙總結果。
+            在公開 MVP 政策中，<strong>截止時間即結果公開時間</strong>（同一個時間點）。
+          </dd>
+          <dt>公開鎖定期</dt>
+          <dd>
+            結果公開後進入約 <strong>5 天</strong>的公開鎖定期（MVP 暫定）。
+            這段時間內，發起者<strong>不能</strong>下架、刪除、修改問卷、重新開放投票，或隱藏已公開的結果。
+          </dd>
+          <dt>鎖定期結束後</dt>
+          <dd>
+            發起者可選擇維持公開，或將問卷<strong>下架（unpublish）</strong>，使其不再出現在一般探索列表。
+          </dd>
+        </dl>
+        <p class="policy-panel-text policy-panel-emphasis">
+          請記住：<strong>「截止」不等於「鎖定期結束」</strong>。截止當下結果就會公開；鎖定期是公開之後再保護結果的一段時間。
+        </p>
+      </section>
+
+      <section class="mvp-policy-panel mvp-faq-section" aria-labelledby="faq-cancel">
+        <h2 id="faq-cancel" class="mvp-policy-panel-title">取消和下架有什麼不同？</h2>
+        <ul class="policy-field-list">
+          <li>在<strong>收票中</strong>若要停止問卷，請用「<strong>取消</strong>」，<strong>不是</strong>「下架」。</li>
+          <li><strong>取消</strong>：在結果形成前停止；<strong>不會</strong>產生公開的彙總結果，也不會公布票數或百分比。</li>
+          <li><strong>下架</strong>：在<strong>公開鎖定期結束後</strong>，由發起者主動移除公開展示；訪客會看到固定說明：</li>
+        </ul>
+        <blockquote class="mvp-quote-block">
+          此問卷已結束公開鎖定期，並由發起者下架。
+        </blockquote>
+        <p class="policy-panel-text policy-panel-muted">
+          取消、下架、鎖定期等按鈕在部分預覽頁僅供體驗文案，尚未連接真實操作。
+        </p>
+      </section>
+
+      <section class="mvp-policy-panel mvp-faq-section" aria-labelledby="faq-eligibility">
+        <h2 id="faq-eligibility" class="mvp-policy-panel-title">不符合投票資格時怎麼辦？</h2>
+        <ul class="policy-field-list">
+          <li>沒有投票資格的人，仍可查看問卷的<strong>基本資訊</strong>（例如標題、說明、狀態、公開時間等）。</li>
+          <li>不能作答，也<strong>不能</strong>查看收票中的期中結果或票數。</li>
+          <li>可以<strong>關注結果</strong>：在結果公開後查看彙總統計。</li>
+        </ul>
+        <p class="policy-panel-text">
+          <strong>關注結果（MVP 定義）</strong>：以<strong>站內通知</strong>提醒結果已公開。
+          Email 與推播通知列為<strong>未來</strong>規劃，尚未開放。
+        </p>
+        <p class="policy-panel-text policy-panel-muted">
+          「<strong>放棄投票，只看結果</strong>」列為<strong>未來</strong>功能，<strong>不在</strong>公開 MVP 範圍內。
+        </p>
+      </section>
+
+      <section class="mvp-policy-panel mvp-faq-section" aria-labelledby="faq-quality">
+        <h2 id="faq-quality" class="mvp-policy-panel-title">投票後的品質回饋是什麼？</h2>
+        <ul class="policy-field-list">
+          <li>完成投票後，你可能會看到簡短的<strong>品質回饋問卷</strong>（可複選標籤），用來表達「這題寫得好不好」。</li>
+          <li>這是<strong>溫和的品質訊號</strong>，幫助平台辨識清楚、有價值的題目，<strong>不是</strong>公開羞辱發起者，也<strong>不是</strong>正式檢舉或申訴入口。</li>
+          <li>正式違規仍應走檢舉／治理流程，與品質回饋分開。</li>
+          <li>優質題目的判定會參考多種訊號（含此回饋），<strong>不是</strong>單純看按讚數；相關計分與顯示<strong>尚未實作</strong>，目前僅政策與 UI 預覽。</li>
+        </ul>
+      </section>
+
+      <p class="note mvp-meta">
+        更多技術與治理細節見專案政策文件；本頁僅供訪客快速理解公開 MVP 方向。
+      </p>
+    </main>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
+  </body>
+</html>

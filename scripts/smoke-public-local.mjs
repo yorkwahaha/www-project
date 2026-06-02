@@ -129,12 +129,21 @@ try {
       throw new Error('Landing page missing link to /polls/new');
     }
     if (!body.includes('href="/explore"')) {
-      throw new Error('Landing page missing link to /explore placeholder');
+      throw new Error('Landing page missing link to /explore');
+    }
+    const hasExploreLiveFeedCopy =
+      body.includes('最近發布') &&
+      body.includes('靜態範例') &&
+      !body.includes('完整探索列表將在正式上線後開放');
+    if (!hasExploreLiveFeedCopy) {
+      throw new Error(
+        'Landing page missing live explore feed copy (recently published + static examples)',
+      );
     }
     if (!body.includes('/frontend/public-mvp.css')) {
       throw new Error('Landing page missing shared public MVP stylesheet');
     }
-    pass('GET / links /polls/new and /explore');
+    pass('GET / links /polls/new and /explore with live-feed copy');
   }
 
   {

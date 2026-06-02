@@ -28,7 +28,7 @@ Phase **39** and **40** policy documents are committed and pushed. They define *
 
 | Area | Current state |
 |------|----------------|
-| **Public MVP routes** | `GET /` (homepage), `GET /polls/new`, `GET /vote/:pollId`, `GET /results/:pollId`, `GET /explore` (placeholder, no DB list) |
+| **Public MVP routes** | `GET /` (homepage), `GET /polls/new`, `GET /vote/:pollId`, `GET /results/:pollId`, `GET /explore` *(historical baseline: placeholder; **superseded Phase 63** — live freshness-only feed)* |
 | **Create / vote / results** | Works locally with demo (`npm run demo:public:local` or manual `www_test` + `npm start`) |
 | **Collecting results** | API intentionally returns `display_mode: collecting`, `total_votes_display: 收集中`, `options[].display_count` / `display_percentage: null` — **product rule**, not a UI bug |
 | **Policy docs** | Phase 39 (lifecycle) and Phase 40 (profile/eligibility/follow) at `8b94ac1` on `origin/master` |
@@ -47,7 +47,7 @@ Phase **39** and **40** policy documents are committed and pushed. They define *
 | **Create poll** | `GET /polls/new` | Title, description, category, options (today); future close/eligibility/lock copy | Collecting results for founder (warning only) | 39 §5–8; 40 §5 | Wording, disabled future fields | `closes_at`, eligibility rules, close conditions |
 | **Vote page** | `GET /vote/:pollId` | Title, description, category, options (if eligible + collecting), periods, eligibility block, notices | Totals, counts, %, participant threshold | 39 §12; 40 §6–9 | Notices, mock eligibility states | Eligibility eval, follow persistence |
 | **Results page** | `GET /results/:pollId` | State-specific notices; display-safe tiers after reveal; collecting hidden aggregates | Collecting aggregates for all viewer types | 39 §4, §13; 40 §6–10 | State placeholders, copy | Lifecycle state, follow, cancel/unpublish |
-| **Explore** | `GET /explore` | Placeholder explanation | Poll list until product opens discovery | 39 §11 | Copy only | Feed/list integration |
+| **Explore** | `GET /explore` | *(historical baseline; **superseded Phase 63**)* Placeholder explanation | Poll list until product opens discovery | 39 §11 | Copy only | Feed/list integration |
 | **Founder dashboard / My polls** | *Not built* | Title, status, periods, configured rules, share, cancel (pre-close), post-reveal public result | All intermediate metrics during collecting | 39 §14; 40 §11 | Static mock dashboard | Auth, poll ownership, lifecycle APIs |
 
 ---

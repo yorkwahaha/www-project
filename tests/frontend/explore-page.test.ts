@@ -151,8 +151,12 @@ describe('explore page feed helpers', () => {
       join(process.cwd(), 'docs/www-project-public-mvp-demo-release-handoff-v1.md'),
       'utf8',
     );
+    const manualQa = await readFile(
+      join(process.cwd(), 'docs/www-project-public-mvp-manual-qa-v1.md'),
+      'utf8',
+    );
 
-    for (const doc of [crossBrowserLog, productionBoundary, demoHandoff]) {
+    for (const doc of [crossBrowserLog, productionBoundary, demoHandoff, manualQa]) {
       expect(doc).toMatch(/freshness-only|GET \/polls\/feed/);
       expect(doc).not.toMatch(
         /GET \/explore.*placeholder|explore placeholder|尚無列表.*不列出問卷/i,

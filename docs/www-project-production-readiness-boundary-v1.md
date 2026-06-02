@@ -39,7 +39,8 @@
 | 路由 | 說明 |
 |------|------|
 | `GET /` | 首頁：進入建立問卷、探索說明 |
-| `GET /polls/new` | 建立問卷（2–6 選項），成功後顯示投票／結果完整網址 |
+| `GET /polls/new` | 展示用建立頁（預設不寫 DB）；版面與表單可走查 |
+| `GET /polls/new?live=1` | **本機即時**建立（`POST /polls`；2–6 選項，成功後顯示投票／結果完整網址；MVP dev 開關） |
 | `GET /vote/:pollId` | 投票頁（`vote-by-index`，不暴露內部 `option_id`） |
 | `GET /results/:pollId` | 公開結果唯讀頁（display-safe 統計） |
 | `GET /explore` | **Freshness-only** 探索列表（`GET /polls/feed`；收集中、依發布時間；無票數／熱門／個人化） |

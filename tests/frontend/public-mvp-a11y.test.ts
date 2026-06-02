@@ -53,7 +53,8 @@ describe('public MVP accessibility', () => {
 
     expect(explorePage).toContain('skip-link');
     expect(explorePage).toContain('id="main-content"');
-    expect(explorePage).toContain('explore-placeholder');
+    expect(explorePage).toContain('explore-feed');
+    expect(explorePage).toContain('id="explore-status"');
     expect(explorePage).toContain('/frontend/public-mvp.css');
     expect(createPage).toContain('role="status"');
     expect(createPage).toContain('aria-live="polite"');

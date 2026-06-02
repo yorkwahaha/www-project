@@ -164,7 +164,7 @@ describe('frontend static routes', () => {
     });
   });
 
-  it('serves the public explore placeholder without listing polls', async () => {
+  it('serves the public explore feed page and explore-page script', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),
     });
@@ -172,15 +172,20 @@ describe('frontend static routes', () => {
     await withServer(server, async (baseUrl) => {
       const page = await fetch(`${baseUrl}/explore`);
       const pageBody = await page.text();
+      const script = await fetch(`${baseUrl}/frontend/explore-page.js`);
 
       expect(page.status).toBe(200);
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
-      expect(pageBody).toContain('explore-placeholder');
+      expect(pageBody).toContain('explore-feed');
+      expect(pageBody).toContain('data-explore-feed="freshness-only"');
       expect(pageBody).toContain('/frontend/public-mvp.css');
-      expect(pageBody).toContain('id="site-header"');
-      expect(pageBody).toContain('href="/polls/new"');
-      expect(pageBody).not.toMatch(/option_id|shard_id|vote_token|personalization/i);
+      expect(pageBody).toContain('/frontend/explore-page.js');
+      expect(pageBody).toContain('id="explore-feed-list"');
+      expect(pageBody).toContain('票數或結果百分比');
+      expect(pageBody).not.toMatch(/option_id|shard_id|vote_token|personalization|mvp-result-preview/i);
+      expect(script.status).toBe(200);
+      expect(script.headers.get('content-type')).toContain('text/javascript');
     });
   });
 

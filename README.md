@@ -74,6 +74,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 62 (docs):** Public MVP status checkpoint and next-phase planning (post Phases 57–61; candidate phases with risk labels) — `docs/www-project-phase-62-public-mvp-status-checkpoint-v1.md`.
 
+**Phase 63:** Public explore feed UI — `GET /explore` lists collecting polls from existing `GET /polls/feed` (freshness-only; no vote counts, ranking, or personalization).
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -137,7 +139,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `GET` | `/polls/:id/public-notices` | Read visible public correction notices (Phase 8) |
 | `GET` | `/results/:id` | Public result page; **`?creator=1`** shows creator lifecycle panel (MVP dev; backend remains authoritative) |
 | `GET` | `/` | Public landing page (entry to create poll flow) |
-| `GET` | `/explore` | Read-only placeholder explaining no public poll list yet (not a feed UI) |
+| `GET` | `/explore` | Freshness-only public explore UI (consumes `GET /polls/feed`; collecting polls only; no counters) |
 | `GET` | `/faq` | Static FAQ (policy-aligned Traditional Chinese; demo-facing) |
 | `GET` | `/trust-levels` | Static trust-level permission matrix (demo-facing) |
 | `GET` | `/my-polls` | Creator dashboard; default static mock table; **`?live=1`** for live management (MVP dev) |
@@ -157,7 +159,7 @@ Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits 
 **Minimal public flow (Phase 23–24):**
 
 1. `GET /` — landing page; primary circulation is **share links** (vote/results URLs)
-2. `GET /explore` — placeholder only: explains list/explore is not open; does not query or list polls (Phase 30)
+2. `GET /explore` — freshness-only explore list (`GET /polls/feed`); collecting polls only; no vote counts or ranking
 3. `GET /polls/new` — demo/static create UI by default (no DB write); local MVP real create uses **`/polls/new?live=1`** (`POST /polls`)
 4. After **`?live=1`** create success, shareable full URLs for `GET /vote/:pollId` and `GET /results/:pollId` (copy buttons + visible links; poll id only, no tokens)
 5. `GET /vote/:pollId` — vote; success links to results
@@ -191,7 +193,7 @@ The public browser surface remains **share-link first**. Default routes stay **s
 | Results | `/results/:pollId` | Read-only display-safe results per lifecycle; collecting stays counter-free |
 | Results (creator) | `/results/:pollId?creator=1` | Creator lifecycle panel (cancel / close-reveal / unpublish) + post-transition refresh; **UI is not authorization** |
 | Results (demo) | `/results/demo` | Static lifecycle shells via `?ui_state=` (see handoff doc) |
-| Explore | `/explore` | **Placeholder** — sample cards link to demo routes; **not** `GET /polls/feed` UI |
+| Explore | `/explore` | **Freshness-only** list from `GET /polls/feed` (collecting, recently published); links to `/vote/:pollId`; no vote counts or ranking |
 
 **MVP dev query params (not production UX):**
 

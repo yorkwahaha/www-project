@@ -6,7 +6,7 @@
 
 **建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) **lifecycle／發起者 QA** → ③ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ④ 本文件訪客逐步 QA → ⑤ 實機結果填寫 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
-**提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore` 是 **placeholder**（說明邊界），不是真實 feed 列表，也不會查詢或列出問卷。
+**提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore`（Phase 63）消費既有 **`GET /polls/feed`**：僅列出**收集中**且可探索的問卷，依**最近發布**排序，**不**顯示票數、熱門或個人化。
 
 **Demo／展示（Phase 31）** 與 **本機啟動（Phase 32）** 細節見上列連結；本文件不重複完整啟動步驟。
 
@@ -43,15 +43,16 @@ npm run test:integration:local
 ### 3.1 打開首頁
 
 1. 瀏覽器開啟 `GET /`。
-2. 確認有「建立問卷」入口，導覽可進入「探索（尚未開放）」(`GET /explore`)。
+2. 確認有「建立問卷」入口，導覽可進入「探索問卷」(`GET /explore`)。
 3. 確認**未**出現登入、可點擊的問卷列表、或已完成的榜單／推薦介面。
 
-### 3.1a 探索 placeholder（Phase 30）
+### 3.1a 探索列表（Phase 63）
 
-1. 開啟 `GET /explore`。
-2. 應說明目前 MVP 以**分享連結**為主（建立 → 複製投票連結 → 分享 → 查看結果）。
-3. 應明確標示**沒有**公開列表、榜單排序、個人化推薦；頁面**不應**載入或列出任何問卷。
-4. 導覽可回到 `/` 與 `/polls/new`。
+1. 開啟 `GET /explore`（需本機伺服器與 `www_test` 才有真實列表）。
+2. 頁面應說明列表依**最近發布**、僅顯示**收集中**問卷，且**不**顯示票數／熱門／個人化。
+3. 若有可探索問卷，卡片應連到 `/vote/<pollId>`，**不應**出現百分比、票數或 `option_id`。
+4. 無問卷時應顯示空狀態；載入失敗應有繁中錯誤提示（無英文 stack）。
+5. 導覽可回到 `/` 與 `/polls/new?live=1`。
 
 ### 3.2 建立問卷
 
@@ -101,7 +102,7 @@ npm run test:integration:local
 3. 桌機寬度（≥1024px）內容仍置中、不過寬；無需 dark mode 或動畫。
 4. **此為開發者工具簡測**，不等於 Safari／Firefox／實機行動裝置的完整跨瀏覽器認證；實機結果請記錄於 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
-**Phase 28–32 仍不包含：** 真實 feed 列表 UI、ranking／推薦演算法、登入、admin UI、分類選擇、發布後編輯、production 一鍵部署。`/explore` 僅為邊界說明頁，不是 `GET /polls/feed` 的前台實作。
+**Phase 28–32 仍不包含：** ranking／推薦演算法、登入、admin UI、分類選擇、發布後編輯、production 一鍵部署。Phase 63 已提供 **freshness-only** 探索列表（`GET /explore` → `GET /polls/feed`），仍**不是**熱門／票數／個人化 feed。
 
 ### 3.8 發起者 lifecycle 即時流程（Phase 57–59）
 
@@ -128,7 +129,7 @@ npm run test:integration:local
 | 項目 | 說明 |
 |------|------|
 | 登入／註冊／Session／JWT／OAuth | 公開流程無使用者登入 |
-| Feed／探索列表 UI | `GET /explore` 為 placeholder；`GET /polls/feed` 僅 API，前台不列出問卷 |
+| Feed／探索列表 UI | Phase 63：`GET /explore` 消費 `GET /polls/feed`（freshness-only、收集中）；無熱門／個人化／票數排序 |
 | Ranking／Wonder Flow／個人化推薦 | 禁止以答案方向訊號排序 |
 | Admin UI | 管理流程僅 API + 煙霧，無公開管理介面 |
 | 發布後編輯問卷 | 創作者零編輯；需刪除重發或走 Admin Typo Correction |

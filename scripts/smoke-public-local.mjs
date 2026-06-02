@@ -139,17 +139,42 @@ try {
 
   {
     const { response, body } = await requestText(baseUrl, '/explore');
-    expectStatus('GET /explore placeholder page', response, 200);
-    if (!body.includes('explore-placeholder') || !body.includes('/frontend/public-mvp.css')) {
-      throw new Error('Explore placeholder missing layout marker or shared stylesheet');
+    expectStatus('GET /explore feed page', response, 200);
+    if (!body.includes('explore-feed') || !body.includes('/frontend/public-mvp.css')) {
+      throw new Error('Explore feed page missing layout marker or shared stylesheet');
     }
-    if (!body.includes('href="/polls/new"') || !body.includes('href="/"')) {
-      throw new Error('Explore placeholder missing navigation links');
+    if (!body.includes('/frontend/explore-page.js')) {
+      throw new Error('Explore feed page missing explore-page script');
     }
-    if (/option_id|shard_id|vote_token|personalization/i.test(body)) {
-      throw new Error('Explore placeholder page exposed forbidden technical fields');
+    if (!body.includes('data-explore-feed="freshness-only"')) {
+      throw new Error('Explore feed page missing freshness-only marker');
     }
-    pass('GET /explore serves read-only boundary page');
+    if (/option_id|shard_id|vote_token|personalization|mvp-result-preview/i.test(body)) {
+      throw new Error('Explore feed page exposed forbidden technical fields');
+    }
+    pass('GET /explore serves freshness-only feed UI');
+  }
+
+  {
+    const exploreScript = await requestText(baseUrl, '/frontend/explore-page.js');
+    expectStatus('GET /frontend/explore-page.js', exploreScript.response, 200);
+    if (!exploreScript.body.includes('/polls/feed')) {
+      throw new Error('Explore page script missing feed API path');
+    }
+    pass('GET /frontend/explore-page.js serves explore feed client');
+  }
+
+  {
+    const feed = await requestJson(baseUrl, '/polls/feed?limit=5');
+    expectStatus('GET /polls/feed', feed.response, 200);
+    const serialized = JSON.stringify(feed.body);
+    if (!Array.isArray(feed.body.polls)) {
+      throw new Error('Feed response missing polls array');
+    }
+    if (/option_id|vote_count|published_at|closes_at|rank|hot|trend|personalization/i.test(serialized)) {
+      throw new Error('Feed JSON exposed forbidden fields');
+    }
+    pass('GET /polls/feed returns privacy-safe freshness-only payload');
   }
 
   {

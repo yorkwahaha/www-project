@@ -9,7 +9,12 @@
   <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <header id="site-header" data-nav="guest" data-active="explore"></header>
-    <main id="main-content" class="mvp-page explore-placeholder explore-page" aria-labelledby="explore-heading">
+    <main
+      id="main-content"
+      class="mvp-page explore-page explore-feed"
+      data-explore-feed="freshness-only"
+      aria-labelledby="explore-heading"
+    >
       <p class="mvp-demo-nav-switch" role="note">
         切換瀏覽身分（展示用）：
         <a href="?nav=guest">訪客</a>
@@ -18,112 +23,36 @@
       </p>
       <h1 id="explore-heading">探索問卷</h1>
       <p class="mvp-lead">
-        目前為公開展示版（展示用，不儲存）；列表不依收集中票數排序。
+        依<strong>最近發布</strong>顯示目前可公開探索、仍在<strong>收集中</strong>的問卷。
+        不提供熱門、票數、個人化或榜單排序；列表亦<strong>不顯示</strong>票數或結果百分比。
         <a href="/">返回首頁</a>
         ·
         <a href="/faq">常見問題</a>
       </p>
 
-      <div class="mvp-search-row" role="search">
-        <input
-          class="mvp-search-input"
-          type="search"
-          disabled
-          placeholder="搜尋問卷標題（正式上線後開放）"
-          aria-label="搜尋問卷"
-        >
-        <button type="button" class="mvp-btn mvp-btn-secondary mvp-btn-sm" disabled>搜尋</button>
+      <p id="explore-status" class="mvp-form-hint" role="status" aria-live="polite">
+        載入探索列表中…
+      </p>
+
+      <p id="explore-error" class="mvp-error-panel" role="alert" hidden></p>
+
+      <div id="explore-feed-list" class="mvp-card-grid" aria-busy="true"></div>
+
+      <div id="explore-empty" class="mvp-empty-state" hidden>
+        <p>目前沒有可探索的公開問卷。你可以先發起一則問卷並分享投票連結。</p>
+        <a class="mvp-btn mvp-btn-secondary" href="/polls/new?live=1">建立問卷</a>
       </div>
 
-      <div class="mvp-filter-row" aria-label="篩選（展示用）">
-        <span class="mvp-filter-chip is-active">全部</span>
-        <span class="mvp-filter-chip">收集中</span>
-        <span class="mvp-filter-chip">已公開</span>
-        <span class="mvp-filter-chip">公開鎖定期</span>
-        <span class="mvp-filter-chip">生活</span>
-        <span class="mvp-filter-chip">職場</span>
-      </div>
-
-      <div class="mvp-card-grid">
-        <article class="mvp-poll-card">
-          <div class="mvp-poll-card-top">
-            <h3>每日咖啡攝取量落在哪個區間？</h3>
-            <span class="mvp-badge mvp-badge-collecting">收集中</span>
-          </div>
-          <p class="mvp-poll-card-meta">生活 · 2 天後截止</p>
-          <p class="mvp-poll-card-hint">收集中 · 不顯示票數</p>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-primary" href="/vote/demo">投票</a>
-          </div>
-        </article>
-
-        <article class="mvp-poll-card">
-          <div class="mvp-poll-card-top">
-            <h3>團隊站立會議最適合的頻率？</h3>
-            <span class="mvp-badge mvp-badge-revealed">已公開</span>
-          </div>
-          <p class="mvp-poll-card-meta">職場</p>
-          <div class="mvp-result-preview">約 38%（區間摘要 · 範例）
-            <div class="mvp-result-preview-bar" aria-hidden="true"><span style="width:38%"></span></div>
-          </div>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-secondary" href="/results/demo?ui_state=revealed">查看結果</a>
-          </div>
-        </article>
-
-        <article class="mvp-poll-card">
-          <div class="mvp-poll-card-top">
-            <h3>午休偏好調查</h3>
-            <span class="mvp-badge mvp-badge-locked">公開鎖定期</span>
-          </div>
-          <p class="mvp-poll-card-meta">生活 · 鎖定中</p>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-secondary" href="/results/demo?ui_state=locked">查看結果</a>
-          </div>
-        </article>
-
-        <article class="mvp-poll-card mvp-poll-card--muted">
-          <div class="mvp-poll-card-top">
-            <h3>舊版交通意見（已取消）</h3>
-            <span class="mvp-badge mvp-badge-danger">已取消</span>
-          </div>
-          <p class="mvp-poll-card-meta">無公開結果</p>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-ghost mvp-btn-sm" href="/results/demo?ui_state=cancelled">說明</a>
-          </div>
-        </article>
-
-        <article class="mvp-poll-card mvp-poll-card--muted">
-          <div class="mvp-poll-card-top">
-            <h3>春季活動意願（已下架）</h3>
-            <span class="mvp-badge mvp-badge-muted">已下架</span>
-          </div>
-          <p class="mvp-poll-card-meta">鎖定期後下架</p>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-ghost mvp-btn-sm" href="/results/demo?ui_state=unpublished">說明</a>
-          </div>
-        </article>
-
-        <article class="mvp-poll-card">
-          <div class="mvp-poll-card-top">
-            <h3>夜間運動習慣</h3>
-            <span class="mvp-badge mvp-badge-followed">已關注</span>
-          </div>
-          <p class="mvp-poll-card-meta">收集中 · 站內通知（範例）</p>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-secondary" href="/vote/demo?ui_state=followed">查看</a>
-          </div>
-        </article>
-      </div>
-
-      <div class="mvp-empty-state" style="margin-top:1rem">
-        <div class="mvp-mascot mvp-mascot--idle" aria-hidden="true">
-          <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
-        </div>
-        <p>完整探索列表將在正式上線後開放；目前先以範例資料展示。</p>
-        <a class="mvp-btn mvp-btn-secondary" href="/polls/new" style="margin-top:0.75rem">發起提問</a>
-      </div>
+      <button
+        type="button"
+        id="explore-load-more"
+        class="mvp-btn mvp-btn-secondary"
+        hidden
+      >
+        載入更多
+      </button>
     </main>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>
+    <script type="module" src="/frontend/explore-page.js"></script>
   </body>
 </html>

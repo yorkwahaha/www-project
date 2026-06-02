@@ -74,7 +74,7 @@
 | 固定本機 creator UUID | `127.0.0.1` / `localhost` → `LOCAL_DEMO_CREATOR_USER_ID` |
 | 無 production auth／session | 無註冊登入、token session、真實發起者身分 |
 | 資格 | `poll_eligibility_rules` schema 占位；完整年齡／地區 evaluator 與 profile **未**實作 |
-| Explore／feed UI | `GET /explore` 為 placeholder；`GET /polls/feed` API 存在但**無**產品化列表 UI |
+| Explore／feed UI | Phase 63：`GET /explore` 為 freshness-only 列表（`GET /polls/feed`）；仍無熱門／個人化／票數排序 |
 | Scheduler | Foundation only；無 cron／worker |
 | `design-drafts/` | 設計稿目錄**不**納入 git |
 | 跨瀏覽器／production | 見 production readiness 與 cross-browser QA log；demo-ready ≠ production-ready |

@@ -302,6 +302,15 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/explore-page.js') {
+    await sendPublicFile(
+      res,
+      'frontend/explore-page.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   const votePageMatch = path.match(/^\/vote\/([^/]+)$/);
   if (votePageMatch && method === 'GET') {
     const pollId = votePageMatch[1]!;

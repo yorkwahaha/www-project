@@ -103,12 +103,15 @@ describe('lifecycle scheduler runner', () => {
   it('is not imported by normal HTTP application startup', async () => {
     const app = await readFile(join(process.cwd(), 'src/app.ts'), 'utf8');
     const server = await readFile(join(process.cwd(), 'src/http/server.ts'), 'utf8');
+    const index = await readFile(join(process.cwd(), 'src/index.ts'), 'utf8');
     const packageJson = JSON.parse(
       await readFile(join(process.cwd(), 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
 
     expect(app).not.toContain('lifecycle-scheduler');
     expect(server).not.toContain('lifecycle-scheduler');
+    expect(index).not.toContain('lifecycle-scheduler');
+    expect(packageJson.scripts.start).toBe('node dist/index.js');
     expect(packageJson.scripts['scheduler:lifecycle']).toBe(
       'node dist/lifecycle-scheduler.js',
     );

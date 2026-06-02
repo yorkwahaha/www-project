@@ -131,22 +131,22 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `GET` | `/polls/:id/results` | Read display-safe aggregate Official Vote results |
 | `GET` | `/polls/feed` | Public freshness-only discovery feed (5B–5C; see below) |
 | `GET` | `/polls/:id/public-notices` | Read visible public correction notices (Phase 8) |
-| `GET` | `/results/:id` | Public identity-neutral result page |
+| `GET` | `/results/:id` | Public result page; **`?creator=1`** shows creator lifecycle panel (MVP dev; backend remains authoritative) |
 | `GET` | `/` | Public landing page (entry to create poll flow) |
 | `GET` | `/explore` | Read-only placeholder explaining no public poll list yet (not a feed UI) |
 | `GET` | `/faq` | Static FAQ (policy-aligned Traditional Chinese; demo-facing) |
 | `GET` | `/trust-levels` | Static trust-level permission matrix (demo-facing) |
-| `GET` | `/my-polls` | Creator dashboard mock (inert controls) |
+| `GET` | `/my-polls` | Creator dashboard; default static mock table; **`?live=1`** for live management (MVP dev) |
 | `GET` | `/vote/demo` | Static vote policy shell (`?ui_state=`, `?nav=`) |
 | `GET` | `/results/demo` | Static results policy shell (`?ui_state=`, `?nav=`) |
-| `GET` | `/polls/new` | Minimal public poll creation UI |
+| `GET` | `/polls/new` | Public poll creation UI; default demo (no DB write); **`?live=1`** for real `POST /polls` (MVP dev) |
 | `GET` | `/vote/:id` | Minimal public voting UI |
 | `GET` | `/health` | Health check |
 | `GET` | `/frontend/*` | Static frontend assets (JS, shared `public-mvp.css`) |
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 
-Minimal public poll creation UI: `GET /polls/new`. It submits to the existing `POST /polls` contract with general MVP defaults and does not add login, session, ranking, or edit behavior.
+Minimal public poll creation UI: `GET /polls/new` (demo by default). With **`?live=1`**, it submits to `POST /polls`, shows share links, and wires creator lifecycle controls. Neither mode adds login, session, ranking, or post-publish edit behavior.
 
 Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits the selected public `option_index` to `POST /polls/:id/vote-by-index`, and links to the identity-neutral result page without exposing internal option IDs.
 
@@ -173,29 +173,32 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 **Baseline commit (Phase 48):** `630baea` — FAQ, trust-level matrix, mobile readability polish.
 
-The public browser surface remains **share-link first** and **static/demo-facing** for policy UX: create a poll, copy vote/results URLs, vote once per user header (`X-User-Id`), read display-safe results when the backend lifecycle allows. There is **no** real login/session, DB-backed public lifecycle UI, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization on these pages.
+The public browser surface remains **share-link first**. Default routes stay **static/demo-facing** for policy UX; **creator lifecycle management** is available only with MVP dev query switches (`?live=1`, `?creator=1`) — not production login or authorization. Visitors vote with `X-User-Id`; results follow backend `public_lifecycle_state`. There is still **no** real login/session, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization.
 
 | Page | Route | Notes |
 |------|-------|--------|
 | Landing | `/` | Entry; links to create, explore, FAQ, trust matrix |
 | FAQ | `/faq` | Static policy Q&A (Traditional Chinese); aligns with Phase 39–41 drafts |
 | Trust levels | `/trust-levels` | Static Lv.0–Lv.4 permission matrix (demo copy) |
-| Create poll | `/polls/new` | Posts to `POST /polls`; shows share URLs on success |
-| My polls (mock) | `/my-polls` | Creator dashboard **mock** only — buttons inert |
+| Create poll | `/polls/new` | Default: demo preview (no DB write). **`?live=1`:** real `POST /polls`, share vote link, lifecycle controls |
+| My polls | `/my-polls` | Default: static mock table (inert). **`?live=1`:** live creator management (`sessionStorage` recent polls, lifecycle buttons) |
 | Vote | `/vote/:pollId` | Submits `option_index` via `vote-by-index` |
 | Vote (demo) | `/vote/demo` | Static policy shell; optional `?ui_state=` for QA |
-| Results | `/results/:pollId` | Read-only display-safe stats when revealed |
+| Results | `/results/:pollId` | Read-only display-safe results per lifecycle; collecting stays counter-free |
+| Results (creator) | `/results/:pollId?creator=1` | Creator lifecycle panel (cancel / close-reveal / unpublish) + post-transition refresh; **UI is not authorization** |
 | Results (demo) | `/results/demo` | Static lifecycle shells via `?ui_state=` (see handoff doc) |
 | Explore | `/explore` | **Placeholder** — sample cards link to demo routes; **not** `GET /polls/feed` UI |
 
-**Demo query params (static pages only):**
+**MVP dev query params (not production UX):**
 
 | Param | Values | Purpose |
 |-------|--------|---------|
-| `nav` | `guest`, `logged-in-mock` | Toggle header/nav mock (not real auth) |
+| `live` | `1` | Real create/manage on `/polls/new`, `/my-polls` (local demo creator `X-User-Id`; see Phase 60 handoff) |
+| `creator` | `1` | Show creator lifecycle panel on `/results/:pollId` (backend `POST /cancel|close|unpublish` remains authoritative) |
+| `nav` | `guest`, `logged-in-mock` | Toggle header/nav mock on static pages (not real auth) |
 | `ui_state` | `collecting`, `revealed`, `locked`, `post_lock`, `cancelled`, `unpublished`, … | Preview lifecycle copy on `/vote/demo`, `/results/demo`, etc. |
 
-Full demo URL list and product rules: **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
+Lifecycle manual QA and live creator flow: **`docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`**. Full demo URL list and product rules: **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
 
 **Collecting-stage privacy (product rule, MVP UI + future API):** While a poll is **collecting**, do **not** show vote counts, percentages, totals, ranking, trends, or progress — including to the **creator**. **Close** ends the voting/statistical period and reveals aggregate results; it does **not** mean the public lock period ends (MVP may use close time as reveal time). **Public lock period (MVP draft):** ~5 days after reveal — during lock, creator cannot unpublish/delete/edit/reopen/hide results; after lock, creator may unpublish. **Cancel** stops collecting (not “unpublish”); unpublish copy: 「此問卷已結束公開鎖定期，並由發起者下架。」 Ineligible users may see basic info, cannot vote, cannot see collecting results, but may **follow results** (MVP = in-app notification placeholder; email/push future). **Skip voting, view results** remains future.
 

@@ -90,6 +90,30 @@ export async function setUserTrustLevel(
   ]);
 }
 
+export async function waitForBlockedPollLocks(
+  pool: pg.Pool,
+  blockerPid: number,
+  expectedCount: number,
+): Promise<void> {
+  const deadline = Date.now() + 2_000;
+  while (Date.now() < deadline) {
+    const result = await pool.query<{ waiter_count: number }>(
+      `SELECT COUNT(*)::int AS waiter_count
+       FROM pg_stat_activity
+       WHERE pid <> $1
+         AND wait_event_type = 'Lock'
+         AND query LIKE '%FROM polls%'
+         AND query LIKE '%FOR UPDATE%'`,
+      [blockerPid],
+    );
+    if (result.rows[0]!.waiter_count >= expectedCount) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`Timed out waiting for ${expectedCount} blocked poll row locks`);
+}
+
 export async function listTableColumns(pool: pg.Pool, tableName: string): Promise<string[]> {
   const result = await pool.query<{ column_name: string }>(
     `SELECT column_name

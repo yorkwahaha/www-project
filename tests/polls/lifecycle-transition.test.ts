@@ -83,6 +83,39 @@ describe('poll lifecycle transitions', () => {
     });
   });
 
+  it.each(['revealed', 'locked'] as const)(
+    'rejects creator DELETE while aggregate results are %s',
+    async (publicLifecycleState) => {
+      const { repository, service, pollId } = await setup();
+      repository.polls.get(pollId)!.public_lifecycle_state = publicLifecycleState;
+
+      await expect(service.deletePoll(pollId, creatorId)).rejects.toMatchObject({
+        code: 'LIFECYCLE_CONFLICT',
+      });
+      expect(repository.polls.get(pollId)).toMatchObject({
+        status: 'active',
+        deleted_at: null,
+      });
+    },
+  );
+
+  it.each(['revealed_at', 'public_lock_ends_at'] as const)(
+    'fails closed when advancing malformed revealed poll with null %s',
+    async (missingTimestamp) => {
+      const { repository, service, pollId } = await setup();
+      const poll = repository.polls.get(pollId)!;
+      poll.public_lifecycle_state = 'revealed';
+      poll.revealed_at = new Date();
+      poll.public_lock_ends_at = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+      poll[missingTimestamp] = null;
+
+      await expect(service.advancePublicLifecycle(pollId)).rejects.toMatchObject({
+        code: 'LIFECYCLE_CONFLICT',
+      });
+      expect(repository.polls.get(pollId)!.public_lifecycle_state).toBe('revealed');
+    },
+  );
+
   it('advances revealed to locked to post_lock before creator unpublish', async () => {
     const { repository, service, pollId } = await setup();
     repository.polls.get(pollId)!.closes_at = new Date(Date.now() - 1_000);

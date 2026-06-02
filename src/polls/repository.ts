@@ -126,7 +126,7 @@ async function castOfficialVote(
     if (!user || user.status !== 'active' || !isOfficialVoteUser(user)) {
       throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
     }
-    const poll = await findPollByIdWithClient(client, pollId);
+    const poll = await findPollByIdWithClient(client, pollId, true);
     if (isPublicHiddenPoll(poll)) {
       throw new PollNotFoundError();
     }
@@ -451,18 +451,34 @@ async function softDeletePoll(
   pollId: string,
   creatorId: string,
 ): Promise<PollRow | null> {
-  const result = await pool.query<PollRow>(
-    `UPDATE polls
-     SET status = 'deleted', deleted_at = NOW(), updated_at = NOW()
-     WHERE id = $1 AND creator_id = $2 AND status <> 'deleted'
-     RETURNING
-       id, creator_id, title, description, category, status,
-       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at,
-       revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, deleted_at,
-       created_at, updated_at`,
-    [pollId, creatorId],
-  );
-  return result.rows[0] ?? null;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const poll = await findPollByIdWithClient(client, pollId, true);
+    if (!poll || poll.creator_id !== creatorId || poll.status === 'deleted') {
+      await client.query('COMMIT');
+      return null;
+    }
+    assertCreatorDeleteAllowed(poll);
+    const result = await client.query<PollRow>(
+      `UPDATE polls
+       SET status = 'deleted', deleted_at = NOW(), updated_at = NOW()
+       WHERE id = $1
+       RETURNING
+         id, creator_id, title, description, category, status,
+         public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at,
+         revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, deleted_at,
+         created_at, updated_at`,
+      [pollId],
+    );
+    await client.query('COMMIT');
+    return result.rows[0] ?? null;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 async function cancelPoll(
@@ -524,13 +540,12 @@ async function advancePublicLifecycle(
     assertTransitionPoll(poll);
     let publicLifecycleState: PublicLifecycleState;
     if (poll.public_lifecycle_state === 'revealed') {
+      assertLifecycleTimestampsPresent(poll);
       publicLifecycleState = 'locked';
     } else if (poll.public_lifecycle_state === 'locked') {
+      assertLifecycleTimestampsPresent(poll);
       const now = await getTransactionNow(client);
-      if (
-        poll.public_lock_ends_at === null ||
-        poll.public_lock_ends_at.getTime() > now.getTime()
-      ) {
+      if (poll.public_lock_ends_at.getTime() > now.getTime()) {
         throw new PollLockedPeriodConflictError();
       }
       publicLifecycleState = 'post_lock';
@@ -628,6 +643,29 @@ function assertLifecycleState(
   }
 }
 
+function assertCreatorDeleteAllowed(poll: PollRow): void {
+  if (
+    poll.public_lifecycle_state === 'revealed' ||
+    poll.public_lifecycle_state === 'locked' ||
+    poll.public_lifecycle_state === 'post_lock'
+  ) {
+    throw new PollLifecycleConflictError(
+      'Creator delete is not allowed after aggregate results are public',
+    );
+  }
+}
+
+function assertLifecycleTimestampsPresent(
+  poll: PollRow,
+): asserts poll is PollRow & {
+  revealed_at: Date;
+  public_lock_ends_at: Date;
+} {
+  if (poll.revealed_at === null || poll.public_lock_ends_at === null) {
+    throw new PollLifecycleConflictError('Poll lifecycle timestamps are incomplete');
+  }
+}
+
 async function getTransactionNow(client: PoolClient): Promise<Date> {
   const result = await client.query<{ now: Date }>(`SELECT NOW() AS now`);
   return result.rows[0]!.now;
@@ -659,15 +697,35 @@ async function createReferenceAnswerToken(
   userId: string,
   pollId: string,
   answeredAt: Date,
-  expiresAt: Date,
+  _expiresAt: Date,
 ): Promise<PollReferenceAnswerTokenRow> {
-  const result = await pool.query<PollReferenceAnswerTokenRow>(
-    `INSERT INTO poll_reference_answer_tokens (
-       user_id, poll_id, answered_at, expires_at
-     )
-     VALUES ($1, $2, $3, $4)
-     RETURNING id, user_id, poll_id, answered_at, expires_at, created_at`,
-    [userId, pollId, answeredAt, expiresAt],
-  );
-  return result.rows[0]!;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const poll = await findPollByIdWithClient(client, pollId, true);
+    if (isPublicHiddenPoll(poll)) {
+      throw new PollNotFoundError();
+    }
+    if (!poll || !isParticipationAllowed(poll)) {
+      if (!poll) {
+        throw new PollNotFoundError();
+      }
+      throw new PollValidationError(participationRejectionMessage(poll));
+    }
+    const result = await client.query<PollReferenceAnswerTokenRow>(
+      `INSERT INTO poll_reference_answer_tokens (
+         user_id, poll_id, answered_at, expires_at
+       )
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, user_id, poll_id, answered_at, expires_at, created_at`,
+      [userId, pollId, answeredAt, poll.closes_at],
+    );
+    await client.query('COMMIT');
+    return result.rows[0]!;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }

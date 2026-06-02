@@ -7,6 +7,7 @@ import {
   listTableColumns,
   setUserTrustLevel,
   truncateBusinessTables,
+  waitForBlockedPollLocks,
 } from '../helpers/pg-integration.js';
 
 const FIXED_SHARD_ID = 3;
@@ -216,4 +217,86 @@ describe('Official Vote PostgreSQL integration', () => {
     expect(tokens.rows).toHaveLength(0);
     expect(counters.rows).toHaveLength(0);
   });
+
+  it.each(['cancel', 'reveal'] as const)(
+    'serializes Official Vote with queued %s lifecycle transition',
+    async (transition) => {
+      const repository = createPgPollRepository(pool);
+      const service = createPollService(repository, {
+        selectShardId: () => FIXED_SHARD_ID,
+      });
+      await repository.ensureUser(creatorId, 'Creator');
+      await repository.ensureUser(officialUserId, 'Official voter');
+      await setUserTrustLevel(pool, officialUserId, 'official');
+      const created = await service.createPoll(
+        {
+          creatorId,
+          title: 'PG Official Vote lifecycle race',
+          description: '',
+          category: 'general',
+          options: ['A', 'B'],
+          eligibleRuleId: null,
+          closesAt: new Date(Date.now() + 86_400_000),
+          publish: true,
+        },
+        'Creator',
+      );
+      const [option] = await repository.listOptionsByPollId(created.poll_id);
+      const blocker = await pool.connect();
+      let released = false;
+      try {
+        await blocker.query('BEGIN');
+        const pidResult = await blocker.query<{ pid: number }>(
+          `SELECT pg_backend_pid() AS pid`,
+        );
+        const blockerPid = pidResult.rows[0]!.pid;
+        await blocker.query(`SELECT 1 FROM polls WHERE id = $1 FOR UPDATE`, [
+          created.poll_id,
+        ]);
+        if (transition === 'reveal') {
+          await blocker.query(
+            `UPDATE polls
+             SET closes_at = NOW() - INTERVAL '1 second'
+             WHERE id = $1`,
+            [created.poll_id],
+          );
+        }
+
+        const transitionAssertion = transition === 'cancel'
+          ? expect(service.cancelPoll(created.poll_id, creatorId)).resolves.toMatchObject({
+              public_lifecycle_state: 'cancelled',
+            })
+          : expect(service.revealPoll(created.poll_id)).resolves.toMatchObject({
+              public_lifecycle_state: 'revealed',
+            });
+        await waitForBlockedPollLocks(pool, blockerPid, 1);
+        const voteAssertion = expect(
+          service.castOfficialVote(created.poll_id, officialUserId, option!.id),
+        ).rejects.toMatchObject({
+          code: 'POLL_VALIDATION',
+          message: 'Poll is not collecting responses',
+        });
+        await waitForBlockedPollLocks(pool, blockerPid, 2);
+        await blocker.query('COMMIT');
+        released = true;
+        await Promise.all([transitionAssertion, voteAssertion]);
+      } finally {
+        if (!released) {
+          await blocker.query('ROLLBACK');
+        }
+        blocker.release();
+      }
+
+      const tokens = await pool.query(
+        `SELECT 1 FROM poll_vote_tokens WHERE poll_id = $1`,
+        [created.poll_id],
+      );
+      const counters = await pool.query(
+        `SELECT 1 FROM poll_option_vote_counters WHERE poll_id = $1`,
+        [created.poll_id],
+      );
+      expect(tokens.rows).toHaveLength(0);
+      expect(counters.rows).toHaveLength(0);
+    },
+  );
 });

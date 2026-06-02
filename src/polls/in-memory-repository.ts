@@ -183,6 +183,7 @@ export function createInMemoryPollRepository(): PollRepository & {
       if (!poll || poll.creator_id !== creatorId || poll.status === 'deleted') {
         return null;
       }
+      assertCreatorDeleteAllowed(poll);
       const deleted: PollRow = {
         ...poll,
         status: 'deleted',
@@ -229,13 +230,12 @@ export function createInMemoryPollRepository(): PollRepository & {
     async advancePublicLifecycle(pollId) {
       const poll = requireTransitionPoll(polls, pollId);
       if (poll.public_lifecycle_state === 'revealed') {
+        assertLifecycleTimestampsPresent(poll);
         return updatePoll(polls, poll, { public_lifecycle_state: 'locked' });
       }
       if (poll.public_lifecycle_state === 'locked') {
-        if (
-          poll.public_lock_ends_at === null ||
-          poll.public_lock_ends_at.getTime() > Date.now()
-        ) {
+        assertLifecycleTimestampsPresent(poll);
+        if (poll.public_lock_ends_at.getTime() > Date.now()) {
           throw new PollLockedPeriodConflictError();
         }
         return updatePoll(polls, poll, { public_lifecycle_state: 'post_lock' });
@@ -413,6 +413,29 @@ function assertLifecycleState(
 ): void {
   if (poll.public_lifecycle_state !== expected) {
     throw new PollLifecycleConflictError();
+  }
+}
+
+function assertCreatorDeleteAllowed(poll: PollRow): void {
+  if (
+    poll.public_lifecycle_state === 'revealed' ||
+    poll.public_lifecycle_state === 'locked' ||
+    poll.public_lifecycle_state === 'post_lock'
+  ) {
+    throw new PollLifecycleConflictError(
+      'Creator delete is not allowed after aggregate results are public',
+    );
+  }
+}
+
+function assertLifecycleTimestampsPresent(
+  poll: PollRow,
+): asserts poll is PollRow & {
+  revealed_at: Date;
+  public_lock_ends_at: Date;
+} {
+  if (poll.revealed_at === null || poll.public_lock_ends_at === null) {
+    throw new PollLifecycleConflictError('Poll lifecycle timestamps are incomplete');
   }
 }
 

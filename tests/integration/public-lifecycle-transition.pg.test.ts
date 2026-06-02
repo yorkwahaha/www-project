@@ -106,4 +106,93 @@ describe('Public lifecycle transition PostgreSQL integration', () => {
       unpublished_at: expect.any(Date),
     });
   });
+
+  it.each(['revealed', 'locked'] as const)(
+    'rejects creator DELETE for %s lifecycle without hiding results',
+    async (publicLifecycleState) => {
+      const repository = createPgPollRepository(pool);
+      const service = createPollService(repository);
+      await repository.ensureUser(creatorId, 'Creator');
+      const created = await service.createPoll(
+        {
+          creatorId,
+          title: 'PG delete lifecycle guard',
+          description: '',
+          category: 'general',
+          options: ['A', 'B'],
+          eligibleRuleId: null,
+          closesAt: new Date(Date.now() + 86_400_000),
+          publish: true,
+        },
+        'Creator',
+      );
+      await pool.query(
+        `UPDATE polls
+         SET public_lifecycle_state = $2
+         WHERE id = $1`,
+        [created.poll_id, publicLifecycleState],
+      );
+
+      await expect(service.deletePoll(created.poll_id, creatorId)).rejects.toMatchObject({
+        code: 'LIFECYCLE_CONFLICT',
+      });
+      const stored = await pool.query<{ status: string; deleted_at: Date | null }>(
+        `SELECT status, deleted_at FROM polls WHERE id = $1`,
+        [created.poll_id],
+      );
+      expect(stored.rows[0]).toEqual({ status: 'active', deleted_at: null });
+    },
+  );
+
+  it.each(['revealed_at', 'public_lock_ends_at'] as const)(
+    'fails closed when advancing malformed revealed row with null %s',
+    async (missingTimestamp) => {
+      const repository = createPgPollRepository(pool);
+      const service = createPollService(repository);
+      await repository.ensureUser(creatorId, 'Creator');
+      const created = await service.createPoll(
+        {
+          creatorId,
+          title: 'PG malformed lifecycle timestamps',
+          description: '',
+          category: 'general',
+          options: ['A', 'B'],
+          eligibleRuleId: null,
+          closesAt: new Date(Date.now() + 86_400_000),
+          publish: true,
+        },
+        'Creator',
+      );
+      await pool.query(
+        `UPDATE polls
+         SET public_lifecycle_state = 'revealed',
+             revealed_at = NOW(),
+             public_lock_ends_at = NOW() + INTERVAL '5 days'
+         WHERE id = $1`,
+        [created.poll_id],
+      );
+      if (missingTimestamp === 'revealed_at') {
+        await pool.query(
+          `UPDATE polls
+           SET revealed_at = NULL,
+               public_lock_ends_at = NULL
+           WHERE id = $1`,
+          [created.poll_id],
+        );
+      } else {
+        await pool.query(`UPDATE polls SET public_lock_ends_at = NULL WHERE id = $1`, [
+          created.poll_id,
+        ]);
+      }
+
+      await expect(service.advancePublicLifecycle(created.poll_id)).rejects.toMatchObject({
+        code: 'LIFECYCLE_CONFLICT',
+      });
+      const stored = await pool.query<{ public_lifecycle_state: string }>(
+        `SELECT public_lifecycle_state FROM polls WHERE id = $1`,
+        [created.poll_id],
+      );
+      expect(stored.rows[0]).toEqual({ public_lifecycle_state: 'revealed' });
+    },
+  );
 });

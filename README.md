@@ -14,7 +14,7 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 20 (docs):** Correction / admin governance handoff index (Phase 8–19 baseline, validation commands, privacy boundaries, TODOs) — `docs/www-project-phase-20-correction-admin-governance-handoff-v1.md`.
 
-**Phase 27 (docs):** Public MVP manual QA handoff (local setup, validation commands, browser checklist for `/` → create → vote → results) — `docs/www-project-public-mvp-manual-qa-v1.md`.
+**Phase 27 (docs):** Public MVP manual QA handoff (local setup, validation commands, browser checklist for `/` → create → vote → results) — `docs/www-project-public-mvp-manual-qa-v1.md`. **Lifecycle / creator live flow:** prefer Phase 60 doc first when testing `?live=1` and `?creator=1`.
 
 **Phase 31 (docs):** Public MVP demo/release handoff (showcase script, validation checklist, privacy boundaries, out-of-scope list) — `docs/www-project-public-mvp-demo-release-handoff-v1.md`.
 
@@ -61,6 +61,14 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 **Phase 56:** Eligibility and collecting privacy guardrails — public collecting results remain one identity-neutral counter-free shell for guests, creators, currently ineligible users, and eligible users. Shared participation checks now require `public_lifecycle_state='collecting'`, preventing Official Vote and Reference Answer after cancel/reveal/lock/post-lock/unpublish. The full age/region `poll_eligibility_rules` evaluator remains future because user profile fields are not yet implemented. See `docs/www-project-phase-56-eligibility-collecting-privacy-guardrails-v1.md`.
 
 **Phase 57:** Public lifecycle transition write APIs — creator-authenticated `POST /polls/:id/cancel`, `POST /polls/:id/close`, and `POST /polls/:id/unpublish` now use bounded row-lock transactions with server-written timestamps. Internal `revealPoll` and `advancePublicLifecycle` service helpers support scheduler calls without deploying a scheduler. `public_lifecycle_state` remains authoritative; collecting and unavailable result paths remain counter-free. See `docs/www-project-phase-57-lifecycle-transition-write-apis-v1.md`.
+
+**Phase 58A:** Lifecycle scheduler advancement foundation — `createPublicLifecycleSchedulerService` can advance `revealed → locked` and `locked → post_lock` in bounded batches; **no cron or deployment wiring yet**. See `docs/www-project-phase-58a-lifecycle-scheduler-advancement-foundation-v1.md`.
+
+**Phase 58B–58D:** Frontend creator lifecycle controls on `/polls/new?live=1`, `/my-polls?live=1`, and `/results/:id?creator=1`; result display re-fetch after successful transitions; safe copy when re-fetch fails. See `docs/www-project-phase-58b-frontend-creator-lifecycle-controls-v1.md`.
+
+**Phase 59:** Public MVP creator flow polish — shared Traditional Chinese guidance for vote sharing, poll management links, and cancel / close-reveal / unpublish semantics. See `docs/www-project-phase-59-public-mvp-creator-flow-polish-v1.md`.
+
+**Phase 60 (docs):** Public MVP lifecycle manual QA and handoff refresh (Phases 57–59 live flow, checklist, known limitations) — `docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`. Updates read order in `docs/www-project-public-mvp-manual-qa-v1.md`.
 
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 

@@ -87,6 +87,8 @@
 
 在專案根目錄：
 
+**Lifecycle / creator（Phase 60）：** 即時發起者流程與 lifecycle 手動 QA 見 [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md)（`/polls/new?live=1`、`/my-polls?live=1`、`/results/:id?creator=1`）。
+
 ```bash
 git diff --check
 npm run typecheck

@@ -1,10 +1,10 @@
 # WWW Project — 公開 MVP 手動測試交接（v1）
 
-適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`；探索邊界 `GET /explore`（公開 MVP 文件鏈 Phase 23–37）。
+適用範圍：公開流程 `/` → `/polls/new` → `/vote/:pollId` → `/results/:pollId`；探索邊界 `GET /explore`（公開 MVP 文件鏈 Phase 23–37）。**發起者 lifecycle 即時流程（`?live=1`／`?creator=1`）** 見 Phase 60 專文件。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
-**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ③ 本文件逐步 QA → ④ 實機結果填寫 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
+**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) **lifecycle／發起者 QA** → ③ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ④ 本文件訪客逐步 QA → ⑤ 實機結果填寫 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
 **提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore` 是 **placeholder**（說明邊界），不是真實 feed 列表，也不會查詢或列出問卷。
 
@@ -55,10 +55,10 @@ npm run test:integration:local
 
 ### 3.2 建立問卷
 
-1. 進入 `GET /polls/new`。
+1. 進入 `GET /polls/new`（**真實寫入 DB** 請用 **`/polls/new?live=1`**；無 `?live=1` 為展示用「不儲存」）。
 2. 填寫標題、至少兩個選項（可用 Tab 在欄位間移動）。
 3. 按「建立問卷」；送出期間按鈕應顯示忙碌狀態（例如「建立中…」）且不可重複點擊。
-4. 成功後應出現投票頁／結果頁連結，以及複製連結按鈕（若瀏覽器不支援剪貼簿，應有手動複製提示，頁面不應崩潰）。
+4. 成功後應出現投票頁／結果頁連結，以及複製連結按鈕（若瀏覽器不支援剪貼簿，應有手動複製提示，頁面不應崩潰）。`?live=1` 成功後另應有「下一步」、管理連結與發起者 lifecycle 區（Phase 59）。
 
 ### 3.3 複製投票連結／結果連結（Phase 29）
 
@@ -103,7 +103,18 @@ npm run test:integration:local
 
 **Phase 28–32 仍不包含：** 真實 feed 列表 UI、ranking／推薦演算法、登入、admin UI、分類選擇、發布後編輯、production 一鍵部署。`/explore` 僅為邊界說明頁，不是 `GET /polls/feed` 的前台實作。
 
-### 3.8 輔助工具（選做）
+### 3.8 發起者 lifecycle 即時流程（Phase 57–59）
+
+完整步驟、狀態表、下架前置條件與已知限制見 **[`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md)**。
+
+快速 smoke（瀏覽器）：
+
+1. `/polls/new?live=1` 建立 → 複製投票連結。
+2. `/my-polls?live=1` 確認即時問卷區與相同 lifecycle 按鈕。
+3. `/results/<pollId>?creator=1`：收集中無票數；「結束收集並公開結果」後主區顯示區間化統計。
+4. 「取消問卷」後主區為已取消 unavailable shell（非整體失敗訊息）。
+
+### 3.9 輔助工具（選做）
 
 - 使用螢幕閱讀器或瀏覽器無障礙檢查：建立中／錯誤／成功訊息應能被讀出（`aria-live`／`role="status"` 等）。
 - 僅鍵盤操作：從「跳到主要內容」連結開始，應能完成建立與投票主流程。
@@ -137,6 +148,7 @@ npm run test:integration:local
 ## 6. 相關文件
 
 - `README.md` — 指令與 API 總覽
+- `docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md` — **Lifecycle 手動 QA 與即時發起者交接（Phase 60）**
 - `docs/www-project-local-demo-startup-v1.md` — 本機 demo 啟動（Phase 32）
 - `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` — 跨瀏覽器／實機 QA 結果記錄表（Phase 34）
 - `docs/www-project-public-mvp-demo-release-handoff-v1.md` — Demo／release 展示與邊界交接（Phase 31）

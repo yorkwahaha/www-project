@@ -107,7 +107,7 @@ describe('Public lifecycle transition PostgreSQL integration', () => {
     });
   });
 
-  it.each(['revealed', 'locked'] as const)(
+  it.each(['revealed', 'locked', 'post_lock'] as const)(
     'rejects creator DELETE for %s lifecycle without hiding results',
     async (publicLifecycleState) => {
       const repository = createPgPollRepository(pool);

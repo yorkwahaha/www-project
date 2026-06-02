@@ -83,7 +83,7 @@ describe('poll lifecycle transitions', () => {
     });
   });
 
-  it.each(['revealed', 'locked'] as const)(
+  it.each(['revealed', 'locked', 'post_lock'] as const)(
     'rejects creator DELETE while aggregate results are %s',
     async (publicLifecycleState) => {
       const { repository, service, pollId } = await setup();

@@ -131,7 +131,34 @@ describe('explore page feed helpers', () => {
     expect(html).toContain('href="/explore"');
     expect(html).toContain('最近發布');
     expect(html).toContain('收集中');
+    expect(html).toContain('靜態範例');
+    expect(html).toMatch(/依發布時間|發布時間排序/);
     expect(html).toMatch(/非熱門|票數|個人化|榜單/);
+    expect(html).toMatch(/不顯示票數與結果預覽/);
     expect(html).not.toMatch(/完整探索列表將在正式上線後開放/);
+  });
+
+  it('manual QA docs describe live explore feed not placeholder', async () => {
+    const crossBrowserLog = await readFile(
+      join(process.cwd(), 'docs/www-project-public-mvp-cross-browser-qa-log-v1.md'),
+      'utf8',
+    );
+    const productionBoundary = await readFile(
+      join(process.cwd(), 'docs/www-project-production-readiness-boundary-v1.md'),
+      'utf8',
+    );
+    const demoHandoff = await readFile(
+      join(process.cwd(), 'docs/www-project-public-mvp-demo-release-handoff-v1.md'),
+      'utf8',
+    );
+
+    for (const doc of [crossBrowserLog, productionBoundary, demoHandoff]) {
+      expect(doc).toMatch(/freshness-only|GET \/polls\/feed/);
+      expect(doc).not.toMatch(
+        /GET \/explore.*placeholder|explore placeholder|尚無列表.*不列出問卷/i,
+      );
+    }
+    expect(demoHandoff).toMatch(/\?live=1/);
+    expect(demoHandoff).toMatch(/\?creator=1/);
   });
 });

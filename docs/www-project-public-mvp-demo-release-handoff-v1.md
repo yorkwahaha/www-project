@@ -2,13 +2,13 @@
 
 適用基準：公開 MVP 文件鏈 Phase 23–49（分享連結、政策靜態頁、demo 生命週期預覽、本機啟動交接）。
 
-**目前 `origin/master` 基準（Public MVP Demo）：** commit **`023cf9b`**（`fix: polish public mvp demo consistency`）。Phase 48 UI 為 **`630baea`**；Phase 49 同步 demo 狀態文件；Phase 51 定義 Real MVP 實作邊界見 [`www-project-phase-51-real-mvp-implementation-boundary-v1.md`](./www-project-phase-51-real-mvp-implementation-boundary-v1.md)（**僅規劃，未實作**）。
+**目前 `origin/master` 基準（Public MVP Demo）：** commit **`26baff0`** 起 — 首頁／探索文案與 Phase 63 `GET /explore` freshness-only 列表對齊。Phase 51 Real MVP 邊界見 [`www-project-phase-51-real-mvp-implementation-boundary-v1.md`](./www-project-phase-51-real-mvp-implementation-boundary-v1.md)（**僅規劃，未實作**）。
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
 **本文件用途：** 給同事、評審或自己「照著展示」用的交接說明。不是產品規格全文；細部手動步驟見 `docs/www-project-public-mvp-manual-qa-v1.md`。
 
-**實作性質：** Public MVP 前台仍為 **靜態／展示導向**（HTML + 共用 CSS/JS）。真實登入、DB 生命週期、通知持久化、信任分持久化、回饋持久化、正式榜單／個人化 feed **尚未實作**（見 §H）。
+**實作性質：** Public MVP 前台以 **HTML + 共用 CSS/JS** 為主；多數預設路由仍為 **靜態／mock 展示**。`GET /explore` 為 **live** freshness-only 列表（`GET /polls/feed`）。**即時**建立／發起者 lifecycle 請用 `?live=1`、`?creator=1`（MVP dev，非 production 登入）。真實登入、通知／信任分／回饋持久化、榜單／個人化 feed **尚未實作**（見 §H）。
 
 ---
 
@@ -22,7 +22,10 @@
 | `GET /polls/new` | 建立問卷（2–6 選項），成功後顯示投票／結果完整網址 |
 | `GET /vote/:pollId` | 真實投票頁（`POST /polls/:id/vote-by-index`） |
 | `GET /results/:pollId` | 真實結果頁（display-safe JSON；依後端狀態顯示） |
-| `GET /explore` | Placeholder：範例卡片連到 demo 路由；**不是** `GET /polls/feed` UI |
+| `GET /explore` | **Live** freshness-only 列表（`GET /polls/feed`；收集中、依發布時間；無票數／熱門／個人化） |
+| `GET /polls/new?live=1` | 真實 `POST /polls`（MVP dev 開關；無 `?live=1` 的 `/polls/new` 為展示用） |
+| `GET /my-polls?live=1` | 發起者即時問卷區（`sessionStorage`；無 `?live=1` 為 mock 表） |
+| `GET /results/:pollId?creator=1` | 發起者 lifecycle 區（MVP dev；與 Phase 60 手動 QA 一致） |
 
 ### A.2 政策說明頁（靜態 HTML，無需真實 poll id）
 
@@ -73,11 +76,11 @@
 
 ### B.2 真實流程（需 DB，約 5–10 分鐘）
 
-1. **首頁** `GET /` — 建立問卷、探索、FAQ、信任說明連結。
-2. **建立問卷** `/polls/new` — 2–4 選項，成功後複製 `/vote/<pollId>`。
-3. **投票** — 無痕視窗開啟投票連結並送出。
-4. **結果** `/results/<pollId>` — display-safe 區間化統計（非收集中洩漏場景時）。
-5. **`/explore`** — 說明無正式 feed／榜單；卡片僅連到 demo。
+1. **首頁** `GET /` — 建立問卷、探索、FAQ；「範例問卷」區區分 `/explore` 即時列表與靜態範例卡。
+2. **建立問卷** `/polls/new?live=1` — 2–4 選項，成功後複製 `/vote/<pollId>`（展示用請用無 `?live=1` 的 `/polls/new`）。
+3. **投票** — 無痕視窗開啟投票連結並送出（本機建議 `npm run demo:public:local`）。
+4. **結果** `/results/<pollId>` — display-safe；收集中無票數；`?creator=1` 可測發起者 lifecycle。
+5. **`/explore`** — 若有收集中問卷，卡片連 `/vote/<pollId>`；**不**顯示票數／熱門／個人化。
 
 **展示時可強調：** 問卷靠**分享連結**流通；收集中連發起者都看不到期中結果；關閉代表統計結束並揭曉，不等於鎖定期結束。
 
@@ -113,9 +116,10 @@ npm run test:integration:local
 - 公開問卷詳情（`GET /polls/:id`）**不暴露** `option_id`，選項以 `option_index` + 文字標籤呈現。
 - `POST /polls/:id/vote-by-index` 回應**不暴露** vote token、`shard_id`、`option_id`。
 - `GET /polls/:id/results` 回傳 **display-safe** JSON（區間化顯示欄位，非原始計數列）。
-- `GET /explore` 為靜態說明頁：**不查 DB、不列出 polls、不排序、不推薦**。
+- `GET /explore` 僅 **freshness-only** 列表（`GET /polls/feed`）；**不**熱門／票數／個人化排序。
+- `?live=1`、`?creator=1` 為 **MVP dev** 開關；**不是** production 登入或授權。
 - 公開 MVP **沒有** login / session / JWT / OAuth 前台。
-- 公開 MVP **沒有** ranking、真實 feed 列表 UI、personalization。
+- 公開 MVP **沒有** Wonder Flow ranking、個人化 feed、榜單 UI。
 - 公開 MVP **沒有** admin UI（管理僅 API＋營運煙霧，需 Bearer token）。
 
 ---
@@ -128,7 +132,7 @@ npm run test:integration:local
 - **真實登入／註冊／session**（`?nav=logged-in-mock` 僅展示用）
 - **通知持久化**（追蹤揭曉 MVP 定義為站內通知；email/push 為未來）
 - **信任評分持久化**、**回饋持久化**
-- **正式榜單／個人化 feed**（`GET /polls/feed` 僅 API；無瀏覽器列表 UI）
+- **榜單／個人化 feed**（`GET /explore` 僅 freshness-only；無熱門／票數排序）
 - ranking／Wonder Flow／依答案方向的推薦
 - admin UI
 - 「略過投票直接看結果」

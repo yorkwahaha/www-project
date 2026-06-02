@@ -8,6 +8,8 @@
 
 **提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore`（Phase 63）消費既有 **`GET /polls/feed`**：僅列出**收集中**且可探索的問卷，依**最近發布**排序，**不**顯示票數、熱門或個人化。
 
+**Phase 64（QA 文案）：** 預設 `/polls/new`、`/my-polls` 等多為**展示／mock**；**即時 DB** 請用 **`?live=1`**、發起者區用 **`?creator=1`**（MVP dev，非 production 登入）。首頁「範例問卷」下方卡片為**靜態範例**；真實探索列表在 **`/explore`**。
+
 **Demo／展示（Phase 31）** 與 **本機啟動（Phase 32）** 細節見上列連結；本文件不重複完整啟動步驟。
 
 ---
@@ -44,7 +46,8 @@ npm run test:integration:local
 
 1. 瀏覽器開啟 `GET /`。
 2. 確認有「建立問卷」入口，導覽可進入「探索問卷」(`GET /explore`)。
-3. 確認**未**出現登入、可點擊的問卷列表、或已完成的榜單／推薦介面。
+3. 「範例問卷」區應說明 `/explore` 為**即時** freshness-only 列表，下方卡片為**靜態範例**（可含 `/vote/demo` 等展示路由）；首頁本身**不是**可捲動的真實 feed。
+4. 確認**未**出現登入、榜單／熱門排序、或個人化推薦介面。
 
 ### 3.1a 探索列表（Phase 63）
 

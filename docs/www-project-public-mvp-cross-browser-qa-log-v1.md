@@ -14,7 +14,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| 適用 | 實機／多瀏覽器**手動**走查：建立問卷、分享連結、投票、結果、探索 placeholder |
+| 適用 | 實機／多瀏覽器**手動**走查：建立問卷、分享連結、投票、結果、探索列表（`GET /explore` → `GET /polls/feed`） |
 | 不適用 | 取代 `npm test`、`smoke:public:local`、`test:integration:local` |
 | 填寫原則 | 表格有實際列與 PASS/WARN/FAIL 才算「該環境已測」；空白模板**不代表**已完成測試 |
 | 與 smoke 關係 | Smoke 確認路由與公開 JSON 邊界；**不等於**真機 UI、剪貼簿、觸控、Safari 排版 |
@@ -54,14 +54,14 @@
 
 | # | 項目 | PASS | WARN | FAIL | 備註 |
 |---|------|:----:|:----:|:----:|------|
-| 1 | 首頁 `GET /` — 有建立問卷、探索（尚未開放） | ☑ | ☐ | ☐ | |
+| 1 | 首頁 `GET /` — 有建立問卷、探索連結；「範例問卷」區說明 `/explore` 為即時列表、下方為靜態範例 | ☐ | ☐ | ☐ | Phase 63–64 更新；**待重測** |
 | 2 | 建立問卷 `GET /polls/new` — 可送出 2–4 選項 | ☑ | ☐ | ☐ | 2 選項 |
 | 3 | 成功後**複製投票連結**（或手動選取完整 URL） | ☐ | ☑ | ☐ | 未點擊剪貼簿按鈕；成功區塊有「開啟投票頁」與複製按鈕 |
 | 4 | 成功後**複製結果連結**（或手動選取完整 URL） | ☐ | ☑ | ☐ | 同上 |
 | 5 | 投票頁 `GET /vote/:pollId` — 可選項並送出 | ☐ | ☑ | ☐ | UI 可選項；送出顯示「目前無法送出投票」— 隨機 `X-User-Id` 未在 DB 設 `trust_level=official`（本機 `npm start` 未種子使用者）。**API 層**以 smoke 種子 voter 驗證可 201（§G） |
 | 6 | 投票成功後可前往結果頁 | ☐ | ☑ | ☐ | 未在瀏覽器內完成投票；改以 `GET /results/:pollId` 驗證唯讀結果頁 |
 | 7 | 公開結果頁 `GET /results/:pollId` — 唯讀統計、可去投票頁 | ☑ | ☐ | ☐ | 標題「公開結果（唯讀）」、有「前往投票頁」；收集中應見「目前仍在收集中」說明（Phase 38），非投票失敗 |
-| 8 | 探索 placeholder `GET /explore` — 說明尚無列表，**不列出問卷** | ☑ | ☐ | ☐ | |
+| 8 | 探索 `GET /explore` — freshness-only 列表（`data-explore-feed="freshness-only"`）；卡片連 `/vote/<pollId>`；**不**顯示票數／百分比／熱門 | ☐ | ☐ | ☐ | Phase 63 起為 live feed；**待重測** |
 | 9 | 錯誤 poll id — 簡短繁中錯誤，可回首頁／建立 | ☐ | ☑ | ☐ | **有效 UUID、不存在：** 繁中「找不到此問卷…」☑。**非 UUID**（`/vote/not-a-uuid`）：伺服器直接回 JSON `INVALID_POLL_ID`，瀏覽器無 HTML 友善頁（與路由層行為一致，非本 Phase 修改範圍） |
 | 10 | 手機寬度簡測 **320–430px** — 主要頁不破版、可點 | ☐ | ☑ | ☐ | DevTools 390×844 僅抽測首頁載入；未逐頁完整走查 |
 | 11 | 鍵盤 **Tab** 順序簡測 — 可從 skip link 走到送出 | ☐ | ☐ | ☐ | **待測**（本 Phase 未做完整 Tab 走查） |
@@ -81,7 +81,7 @@
 | `POST .../vote-by-index` 回應 **無** token / shard / `option_id` | ☑ | ☐ | HTTP 201，body 無 denylist 欄位 |
 | `GET .../results` 僅 display-safe 欄位（區間化文字） | ☑ | ☐ | |
 | 分享 URL **無** user / session / device / admin token 參數 | ☑ | ☐ | `/vote/<uuid>`、`/results/<uuid>` |
-| `/explore` **不**列出 poll、不排序、不推薦 | ☑ | ☐ | 靜態說明頁 |
+| `/explore` 僅 freshness-only 列表；**不**熱門／票數／個人化排序 | ☐ | ☐ | Phase 63+ live UI；**待重測** |
 | Console **不應**出現 `option_id` 或可追溯 user-option 連結 | ☐ | ☐ | **待測**（本 Phase 未開 DevTools Console 逐項記錄） |
 
 ---
@@ -108,8 +108,9 @@
 - **尚未**完成 Windows Chrome／Edge、Safari、iPhone、Android 之**獨立產品**實機認證（Phase 36 僅完成有限 Chromium 自動化列）。
 - **尚未**做 production deployment／正式網域驗收。
 - **Clipboard API** 在部分瀏覽器／iframe／權限下可能失敗 → 應可手動選取完整 URL，頁面不崩潰。
-- **`GET /explore`** 為 **placeholder**，不是 `GET /polls/feed` 前台，不查 DB、不列問卷。
-- 公開 MVP **無** login、ranking UI、個人化推薦、admin UI。
+- **`GET /explore`** 消費 **`GET /polls/feed`**（freshness-only、收集中）；**無**熱門／票數／個人化／榜單。首頁「範例問卷」卡為**靜態展示**，非 feed。
+- 預設 `/polls/new`、`/my-polls` 多為展示／mock；**即時 DB 流程**用 `?live=1`、`?creator=1`（MVP dev，非 production 登入）。
+- 公開 MVP **無** login、Wonder Flow ranking、個人化推薦、admin UI。
 - 本機 `npm start` **未**自動種子 `official` 投票使用者時，瀏覽器投票可能失敗（見 §C#5）。
 
 ---

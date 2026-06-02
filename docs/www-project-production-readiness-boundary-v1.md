@@ -42,7 +42,7 @@
 | `GET /polls/new` | 建立問卷（2–6 選項），成功後顯示投票／結果完整網址 |
 | `GET /vote/:pollId` | 投票頁（`vote-by-index`，不暴露內部 `option_id`） |
 | `GET /results/:pollId` | 公開結果唯讀頁（display-safe 統計） |
-| `GET /explore` | **Placeholder**：說明尚無公開列表／榜單／個人化，**不查 DB** |
+| `GET /explore` | **Freshness-only** 探索列表（`GET /polls/feed`；收集中、依發布時間；無票數／熱門／個人化） |
 
 **建議 demo 前驗證（專案根目錄）：**
 
@@ -69,7 +69,7 @@ npm run test:integration:local
 | Production 部署 | 無一鍵正式上線腳本、無完整 production runbook |
 | 登入／Session | 無 JWT、OAuth、前台 session、使用者帳號體系 |
 | Admin UI | 管理僅 API + Bearer；無瀏覽器後台介面 |
-| 真實 Feed／Ranking | `GET /polls/feed` 僅 API 層 freshness-only；無列表 UI、無 Wonder Flow、無依答案方向的排序 |
+| 真實 Feed／Ranking | `GET /polls/feed` + `GET /explore` 列表 UI 僅 **freshness-only**；無 Wonder Flow、無依答案方向的排序、無個人化 |
 | Personalization | 無個人化推薦 |
 | 完整 Moderation | 無對外公開的完整審核／檢舉前台流程 |
 | 憑證生命週期 | 無 admin token 自動輪替 UI；正式 token 須營運自行產生與保管 |

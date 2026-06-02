@@ -128,7 +128,7 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
 | `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
 | `POST` | `/polls/:id/vote-by-index` | Record Official Vote from a public option index; internal option ID stays server-side |
-| `GET` | `/polls/:id/results` | Read display-safe aggregate Official Vote results |
+| `GET` | `/polls/:id/results` | Display-safe Official Vote results; aggregate only for `revealed` / `locked` / `post_lock`; `collecting` / `cancelled` / `unpublished` / `draft` are counter-free shells |
 | `GET` | `/polls/feed` | Public freshness-only discovery feed (5B–5C; see below) |
 | `GET` | `/polls/:id/public-notices` | Read visible public correction notices (Phase 8) |
 | `GET` | `/results/:id` | Public result page; **`?creator=1`** shows creator lifecycle panel (MVP dev; backend remains authoritative) |
@@ -154,10 +154,10 @@ Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits 
 
 1. `GET /` — landing page; primary circulation is **share links** (vote/results URLs)
 2. `GET /explore` — placeholder only: explains list/explore is not open; does not query or list polls (Phase 30)
-3. `GET /polls/new` — create a poll
-4. Success shows shareable full URLs for `GET /vote/:pollId` and `GET /results/:pollId` (copy buttons + visible links; poll id only, no tokens)
+3. `GET /polls/new` — demo/static create UI by default (no DB write); local MVP real create uses **`/polls/new?live=1`** (`POST /polls`)
+4. After **`?live=1`** create success, shareable full URLs for `GET /vote/:pollId` and `GET /results/:pollId` (copy buttons + visible links; poll id only, no tokens)
 5. `GET /vote/:pollId` — vote; success links to results
-6. `GET /results/:pollId` — **read-only** display-safe results with vote-page navigation; no login, real feed UI, ranking, or admin UI (Phase 29–30)
+6. `GET /results/:pollId` — **read-only** display-safe results per `public_lifecycle_state` (collecting counter-free; aggregate when `revealed` / `locked` / `post_lock`); no login, feed UI, ranking, or admin UI (Phase 29–30). Creator lifecycle: **`?creator=1`** (MVP dev; see Phase 60 handoff)
 
 Manual browser checklist (Traditional Chinese): **`docs/www-project-public-mvp-manual-qa-v1.md`**.
 

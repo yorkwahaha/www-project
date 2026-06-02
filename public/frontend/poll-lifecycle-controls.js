@@ -17,6 +17,8 @@ const CREATOR_USER_SESSION_KEY = 'www_public_mvp_creator_user_id';
 const MANAGED_POLL_SESSION_KEY = 'www_creator_managed_poll';
 
 const GENERIC_FAILURE = '目前無法更新問卷狀態，請稍後再試。';
+const LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS =
+  '狀態已更新。結果顯示暫時無法重新載入，請重新整理頁面。';
 
 /** @typedef {'cancel' | 'close' | 'unpublish'} LifecycleTransitionAction */
 
@@ -280,7 +282,9 @@ export function nextLifecycleStateFromTransition(action, body) {
  *   storage?: Storage;
  *   creatorUserId?: string;
  *   onStateChange?: (nextState: string) => void;
- *   onTransitionSuccess?: () => void | Promise<void>;
+ *   onTransitionSuccess?: () =>
+ *     | void
+ *     | Promise<void | { refreshed?: boolean }>;
  * }} options
  */
 export function renderCreatorLifecycleActions(host, options) {
@@ -364,6 +368,16 @@ export function renderCreatorLifecycleActions(host, options) {
   toolbar.append(resultLink);
 }
 
+function lifecycleFeedbackElement(host, fallback) {
+  if (host && typeof host.querySelector === 'function') {
+    const node = host.querySelector('.mvp-demo-action-feedback');
+    if (node) {
+      return node;
+    }
+  }
+  return fallback;
+}
+
 function lifecycleNoteForState(lifecycleState) {
   if (lifecycleState === 'revealed' || lifecycleState === 'locked') {
     return '問卷已公開結果並處於公開鎖定期，目前無法取消、下架或修改內容。';
@@ -421,11 +435,17 @@ async function runLifecycleTransition({
         onStateChange,
         onTransitionSuccess,
       });
-      await onTransitionSuccess?.();
+      const refreshOutcome = await onTransitionSuccess?.();
+      const feedback = lifecycleFeedbackElement(host, status);
+      feedback.textContent =
+        refreshOutcome && refreshOutcome.refreshed === false
+          ? LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS
+          : copy.success;
+    } else {
+      lifecycleFeedbackElement(host, status).textContent = copy.success;
     }
-    status.textContent = copy.success;
   } catch (error) {
-    status.textContent =
+    lifecycleFeedbackElement(host, status).textContent =
       error instanceof Error ? error.message : GENERIC_FAILURE;
     button.disabled = false;
   }

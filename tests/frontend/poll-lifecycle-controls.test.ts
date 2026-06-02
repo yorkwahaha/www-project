@@ -106,6 +106,188 @@ describe('poll lifecycle controls', () => {
     expect(lifecycleActionsForState('revealed')).toEqual([]);
   });
 
+  it('invokes onTransitionSuccess from lifecycle button after successful POST', async () => {
+    vi.stubGlobal('confirm', vi.fn(() => true));
+    const { renderCreatorLifecycleActions, LOCAL_DEMO_CREATOR_USER_ID } =
+      await loadModule();
+    const pollId = '22222222-2222-4222-8222-222222222222';
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        public_lifecycle_state: 'cancelled',
+        message: '問卷已取消，不會產生公開結果。',
+      }),
+    });
+    const onTransitionSuccess = vi.fn().mockResolvedValue({ refreshed: true });
+    const listeners = new Map<object, () => void>();
+    let documentObject: {
+      createElement(tagName: string): Record<string, unknown>;
+    };
+    const createElement = (tagName: string) => {
+      const element: Record<string, unknown> = {
+        tagName,
+        ownerDocument: documentObject,
+        className: '',
+        textContent: '',
+        href: '',
+        hidden: false,
+        disabled: false,
+        children: [] as Record<string, unknown>[],
+        append(child: Record<string, unknown>) {
+          (this.children as Record<string, unknown>[]).push(child);
+        },
+        replaceChildren() {
+          this.children = [];
+        },
+        setAttribute() {},
+        addEventListener(_type: string, handler: () => void) {
+          listeners.set(element, handler);
+        },
+      };
+      return element;
+    };
+    documentObject = { createElement };
+    const host = createElement('section') as HTMLElement & {
+      children: Record<string, unknown>[];
+    };
+
+    renderCreatorLifecycleActions(host, {
+      pollId,
+      lifecycleState: 'collecting',
+      fetchImpl,
+      storage: {
+        getItem: () => null,
+        setItem: () => {},
+      },
+      creatorUserId: LOCAL_DEMO_CREATOR_USER_ID,
+      onTransitionSuccess,
+    });
+
+    const toolbar = host.children.find(
+      (child) =>
+        child &&
+        typeof child === 'object' &&
+        String((child as { className?: string }).className).includes(
+          'mvp-creator-lifecycle-toolbar',
+        ),
+    ) as { children: Record<string, unknown>[] } | undefined;
+    const cancelButton = toolbar?.children.find(
+      (child) =>
+        child &&
+        typeof child === 'object' &&
+        String((child as { tagName?: string }).tagName).toLowerCase() === 'button' &&
+        (child as { textContent?: string }).textContent === '取消問卷',
+    );
+    expect(cancelButton).toBeTruthy();
+
+    const clickHandler = listeners.get(cancelButton!);
+    expect(clickHandler).toBeTypeOf('function');
+    clickHandler!();
+    await vi.waitFor(() => {
+      expect(fetchImpl).toHaveBeenCalled();
+      expect(onTransitionSuccess).toHaveBeenCalledTimes(1);
+    });
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps transition success status when refresh returns refreshed false', async () => {
+    vi.stubGlobal('confirm', vi.fn(() => true));
+    const { renderCreatorLifecycleActions, LOCAL_DEMO_CREATOR_USER_ID } =
+      await loadModule();
+    const pollId = '22222222-2222-4222-8222-222222222222';
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        public_lifecycle_state: 'cancelled',
+      }),
+    });
+    const onTransitionSuccess = vi.fn().mockResolvedValue({ refreshed: false });
+    const listeners = new Map<object, () => void>();
+    let documentObject: {
+      createElement(tagName: string): Record<string, unknown>;
+    };
+    const createElement = (tagName: string) => {
+      const element: Record<string, unknown> = {
+        tagName,
+        ownerDocument: documentObject,
+        className: '',
+        textContent: '',
+        href: '',
+        hidden: false,
+        disabled: false,
+        children: [] as Record<string, unknown>[],
+        append(child: Record<string, unknown>) {
+          (this.children as Record<string, unknown>[]).push(child);
+        },
+        replaceChildren() {
+          this.children = [];
+        },
+        setAttribute() {},
+        addEventListener(_type: string, handler: () => void) {
+          listeners.set(element, handler);
+        },
+      };
+      return element;
+    };
+    documentObject = { createElement };
+    const host = createElement('section') as HTMLElement & {
+      children: Record<string, unknown>[];
+      querySelector(selector: string): Record<string, unknown> | null;
+    };
+    host.querySelector = (selector: string) => {
+      if (selector === '.mvp-demo-action-feedback') {
+        return (
+          (host.children.find((child) =>
+            String((child as { className?: string }).className).includes(
+              'mvp-demo-action-feedback',
+            ),
+          ) as Record<string, unknown>) ?? null
+        );
+      }
+      return null;
+    };
+
+    renderCreatorLifecycleActions(host, {
+      pollId,
+      lifecycleState: 'collecting',
+      fetchImpl,
+      storage: {
+        getItem: () => null,
+        setItem: () => {},
+      },
+      creatorUserId: LOCAL_DEMO_CREATOR_USER_ID,
+      onTransitionSuccess,
+    });
+
+    const toolbar = host.children.find(
+      (child) =>
+        child &&
+        typeof child === 'object' &&
+        String((child as { className?: string }).className).includes(
+          'mvp-creator-lifecycle-toolbar',
+        ),
+    ) as { children: Record<string, unknown>[] } | undefined;
+    const cancelButton = toolbar?.children.find(
+      (child) =>
+        child &&
+        typeof child === 'object' &&
+        String((child as { tagName?: string }).tagName).toLowerCase() === 'button' &&
+        (child as { textContent?: string }).textContent === '取消問卷',
+    );
+    expect(cancelButton).toBeTruthy();
+
+    listeners.get(cancelButton!)?.();
+    await vi.waitFor(() => {
+      const status = host.querySelector('.mvp-demo-action-feedback') as {
+        textContent?: string;
+      } | null;
+      expect(status?.textContent).toContain('狀態已更新');
+      expect(status?.textContent).toContain('重新整理頁面');
+      expect(status?.textContent).not.toContain('目前無法更新問卷狀態');
+    });
+    vi.unstubAllGlobals();
+  });
+
   it('stores only poll id and lifecycle state in session storage', async () => {
     const { writeManagedPoll, readManagedPoll } = await loadModule();
     const storage = new Map<string, string>();

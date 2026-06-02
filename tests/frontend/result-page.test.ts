@@ -41,6 +41,19 @@ function createRoot() {
       replaceChildren() {
         this.children = [];
       },
+      prepend(child: ReturnType<typeof createElement>) {
+        this.children.unshift(child);
+      },
+      querySelector(selector: string) {
+        if (selector === '.result-refresh-failure-notice') {
+          return (
+            this.children.find((child) =>
+              String(child.className).includes('result-refresh-failure-notice'),
+            ) ?? null
+          );
+        }
+        return null;
+      },
     };
   }
   documentObject = { createElement };
@@ -506,14 +519,16 @@ describe('public result page', () => {
       search: '?creator=1',
       storage: { getItem: () => null, setItem: () => {} },
       fetchImpl,
-      onRefreshResultDisplay: null as (() => Promise<void>) | null,
+      onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
     };
     pageContext.onRefreshResultDisplay = () => refreshResultPageDisplay(pageContext);
 
-    await refreshResultPageDisplay(pageContext);
+    const firstRefresh = await refreshResultPageDisplay(pageContext);
+    expect(firstRefresh.refreshed).toBe(true);
     expect(collectText(resultRoot).join(' ')).toMatch(/目前仍在收集中/);
 
-    await refreshResultPageDisplay(pageContext);
+    const secondRefresh = await refreshResultPageDisplay(pageContext);
+    expect(secondRefresh.refreshed).toBe(true);
     const text = collectText(resultRoot).join(' ');
     expect(text).toContain('問卷已取消');
     expect(text).toContain('問卷已取消，不會產生公開結果。');
@@ -554,7 +569,7 @@ describe('public result page', () => {
       search: '?creator=1',
       storage: { getItem: () => null, setItem: () => {} },
       fetchImpl,
-      onRefreshResultDisplay: null as (() => Promise<void>) | null,
+      onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
     };
     pageContext.onRefreshResultDisplay = () => refreshResultPageDisplay(pageContext);
 
@@ -566,6 +581,119 @@ describe('public result page', () => {
     expect(text).toContain('約 43%');
     expect(text).not.toMatch(/目前仍在收集中/);
     expect(pageTitle.textContent).toBe('公開結果（唯讀）');
+  });
+
+  it('refreshes to unpublished unavailable shell after unpublish', async () => {
+    const { refreshResultPageDisplay } = await loadResultPageModule();
+    const resultRoot = createRoot();
+    const introRoot = createRoot();
+    const pageTitle = {
+      textContent: '',
+      setAttribute() {},
+      removeAttribute() {},
+    };
+    const pollId = collectingResult.poll_id;
+    const unpublishedPayload = {
+      poll_id: pollId,
+      public_lifecycle_state: 'unpublished',
+      display_mode: 'unavailable',
+      total_votes_display: '結果不可用',
+      collecting: false,
+      user_message: '此問卷已結束公開鎖定期，並由發起者下架。',
+      options: collectingResult.options,
+    };
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => collectingResult,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => unpublishedPayload,
+      });
+
+    const pageContext = {
+      pollId,
+      root: resultRoot,
+      introRoot,
+      pageTitle,
+      creatorLifecycleHost: null,
+      uiMockState: null,
+      demoOnly: false,
+      search: '?creator=1',
+      storage: { getItem: () => null, setItem: () => {} },
+      fetchImpl,
+      onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
+    };
+    pageContext.onRefreshResultDisplay = () => refreshResultPageDisplay(pageContext);
+
+    await refreshResultPageDisplay(pageContext);
+    const outcome = await refreshResultPageDisplay(pageContext);
+    expect(outcome.refreshed).toBe(true);
+
+    const text = collectText(resultRoot).join(' ');
+    expect(text).toContain('問卷已下架');
+    expect(text).toContain('此問卷已結束公開鎖定期，並由發起者下架。');
+    expect(text).not.toMatch(/目前仍在收集中|約\s*\d+%/);
+    expect(introRoot.hidden).toBe(true);
+    expect(pageTitle.textContent).toBe('問卷已下架');
+  });
+
+  it('shows a safe notice when refresh fails after transition without leaking API payload', async () => {
+    const {
+      refreshResultPageDisplay,
+      RESULT_DISPLAY_REFRESH_FAILURE_MESSAGE,
+    } = await loadResultPageModule();
+    const resultRoot = createRoot();
+    const introRoot = createRoot();
+    const pageTitle = {
+      textContent: '',
+      setAttribute() {},
+      removeAttribute() {},
+    };
+    const sensitiveBody = {
+      error: 'INTERNAL',
+      option_id: 'secret-option-id',
+      poll_option_vote_counters: [{ option_id: 'x', raw_count: 9999 }],
+      message: 'database connection leaked',
+    };
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => collectingResult,
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => sensitiveBody,
+      });
+
+    const pageContext = {
+      pollId: collectingResult.poll_id,
+      root: resultRoot,
+      introRoot,
+      pageTitle,
+      creatorLifecycleHost: null,
+      uiMockState: null,
+      demoOnly: false,
+      search: '?creator=1',
+      storage: { getItem: () => null, setItem: () => {} },
+      fetchImpl,
+      onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
+    };
+
+    await refreshResultPageDisplay(pageContext);
+    const outcome = await refreshResultPageDisplay(pageContext);
+    expect(outcome.refreshed).toBe(false);
+
+    const text = collectText(resultRoot).join(' ');
+    expect(text).toContain(RESULT_DISPLAY_REFRESH_FAILURE_MESSAGE);
+    expect(text).toMatch(/目前仍在收集中/);
+    expect(text).not.toContain('secret-option-id');
+    expect(text).not.toContain('poll_option_vote_counters');
+    expect(text).not.toContain('database connection leaked');
+    expect(text).not.toContain('raw_count');
   });
 
   it('contains no auto-refresh, precision reconstruction, or debug output', async () => {

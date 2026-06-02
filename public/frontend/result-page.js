@@ -39,6 +39,9 @@ function appendText(parent, tagName, text, className) {
 
 const PUBLIC_NOTICE_TYPE = 'suspended_typo_correction_applied';
 const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
+/** Shown when lifecycle POST succeeded but GET /results refresh failed (Phase 58D). */
+export const RESULT_DISPLAY_REFRESH_FAILURE_MESSAGE =
+  '問卷狀態已更新，但結果顯示暫時無法重新載入。請重新整理頁面查看最新內容。';
 const PUBLIC_LIFECYCLE_STATES = [
   'draft',
   'collecting',
@@ -541,14 +544,48 @@ function paintResultPageFromPayload(pageContext, result) {
   }
 }
 
-/** Re-fetch result API payload and repaint main display (Phase 58C). */
-export async function refreshResultPageDisplay(pageContext) {
-  const { pollId, demoOnly, fetchImpl = globalThis.fetch } = pageContext;
-  if (demoOnly) {
-    return;
+export function renderResultRefreshFailureNotice(root) {
+  const documentObject = root.ownerDocument;
+  if (typeof root.querySelector === 'function') {
+    root.querySelector('.result-refresh-failure-notice')?.remove();
   }
-  const result = await loadResultDisplay({ pollId, fetchImpl });
-  paintResultPageFromPayload(pageContext, result);
+  const notice = documentObject.createElement('section');
+  notice.className = 'result-refresh-failure-notice';
+  notice.setAttribute('role', 'status');
+  notice.setAttribute('aria-live', 'polite');
+  notice.setAttribute('aria-label', '結果顯示更新提示');
+  appendText(
+    notice,
+    'p',
+    RESULT_DISPLAY_REFRESH_FAILURE_MESSAGE,
+    'result-refresh-failure-message',
+  );
+  if (typeof root.prepend === 'function') {
+    root.prepend(notice);
+  } else {
+    root.children.unshift(notice);
+  }
+}
+
+/**
+ * Re-fetch result API payload and repaint main display (Phase 58C).
+ * @returns {Promise<{ refreshed: boolean }>}
+ */
+export async function refreshResultPageDisplay(pageContext) {
+  const { pollId, demoOnly, root, fetchImpl = globalThis.fetch } = pageContext;
+  if (demoOnly) {
+    return { refreshed: true };
+  }
+  try {
+    const result = await loadResultDisplay({ pollId, fetchImpl });
+    paintResultPageFromPayload(pageContext, result);
+    return { refreshed: true };
+  } catch {
+    if (root) {
+      renderResultRefreshFailureNotice(root);
+    }
+    return { refreshed: false };
+  }
 }
 
 export function renderResultPageNav(root, pollId) {

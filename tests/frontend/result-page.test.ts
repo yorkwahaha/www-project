@@ -465,6 +465,109 @@ describe('public result page', () => {
     expect(voteLink?.href).toBe(`/vote/${displaySafeResult.poll_id}`);
   });
 
+  it('refreshes main result display when lifecycle payload changes', async () => {
+    const { refreshResultPageDisplay } = await loadResultPageModule();
+    const resultRoot = createRoot();
+    const introRoot = createRoot();
+    const pageTitle = {
+      textContent: '',
+      setAttribute() {},
+      removeAttribute() {},
+    };
+    const pollId = collectingResult.poll_id;
+    const cancelledPayload = {
+      poll_id: pollId,
+      public_lifecycle_state: 'cancelled',
+      display_mode: 'unavailable',
+      total_votes_display: '結果不可用',
+      collecting: false,
+      user_message: '問卷已取消，不會產生公開結果。',
+      options: collectingResult.options,
+    };
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => collectingResult,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => cancelledPayload,
+      });
+
+    const pageContext = {
+      pollId,
+      root: resultRoot,
+      introRoot,
+      pageTitle,
+      creatorLifecycleHost: null,
+      uiMockState: null,
+      demoOnly: false,
+      search: '?creator=1',
+      storage: { getItem: () => null, setItem: () => {} },
+      fetchImpl,
+      onRefreshResultDisplay: null as (() => Promise<void>) | null,
+    };
+    pageContext.onRefreshResultDisplay = () => refreshResultPageDisplay(pageContext);
+
+    await refreshResultPageDisplay(pageContext);
+    expect(collectText(resultRoot).join(' ')).toMatch(/目前仍在收集中/);
+
+    await refreshResultPageDisplay(pageContext);
+    const text = collectText(resultRoot).join(' ');
+    expect(text).toContain('問卷已取消');
+    expect(text).toContain('問卷已取消，不會產生公開結果。');
+    expect(text).not.toMatch(/目前仍在收集中/);
+    expect(introRoot.hidden).toBe(true);
+    expect(pageTitle.textContent).toBe('問卷已取消');
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it('refreshes to aggregate display after close reveals results', async () => {
+    const { refreshResultPageDisplay } = await loadResultPageModule();
+    const resultRoot = createRoot();
+    const introRoot = createRoot();
+    const pageTitle = {
+      textContent: '載入結果中…',
+      setAttribute() {},
+      removeAttribute() {},
+    };
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => collectingResult,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => displaySafeResult,
+      });
+
+    const pageContext = {
+      pollId: collectingResult.poll_id,
+      root: resultRoot,
+      introRoot,
+      pageTitle,
+      creatorLifecycleHost: null,
+      uiMockState: null,
+      demoOnly: false,
+      search: '?creator=1',
+      storage: { getItem: () => null, setItem: () => {} },
+      fetchImpl,
+      onRefreshResultDisplay: null as (() => Promise<void>) | null,
+    };
+    pageContext.onRefreshResultDisplay = () => refreshResultPageDisplay(pageContext);
+
+    await refreshResultPageDisplay(pageContext);
+    await refreshResultPageDisplay(pageContext);
+
+    const text = collectText(resultRoot).join(' ');
+    expect(text).toContain(displaySafeResult.total_votes_display);
+    expect(text).toContain('約 43%');
+    expect(text).not.toMatch(/目前仍在收集中/);
+    expect(pageTitle.textContent).toBe('公開結果（唯讀）');
+  });
+
   it('contains no auto-refresh, precision reconstruction, or debug output', async () => {
     const source = await readFile(
       join(process.cwd(), 'public/frontend/result-page.js'),

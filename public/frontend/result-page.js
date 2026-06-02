@@ -417,7 +417,15 @@ export function renderPublicNotices(root, noticeList) {
 
 function mountCreatorLifecyclePanel(
   host,
-  { pollId, demoOnly, apiLifecycle, search, storage, fetchImpl },
+  {
+    pollId,
+    demoOnly,
+    apiLifecycle,
+    search,
+    storage,
+    fetchImpl,
+    onRefreshResultDisplay,
+  },
 ) {
   if (demoOnly || !apiLifecycle) {
     host.hidden = true;
@@ -456,7 +464,91 @@ function mountCreatorLifecyclePanel(
         });
       }
     },
+    onTransitionSuccess: onRefreshResultDisplay,
   });
+}
+
+function paintResultPageFromPayload(pageContext, result) {
+  const {
+    pollId,
+    root,
+    introRoot,
+    pageTitle,
+    creatorLifecycleHost,
+    uiMockState,
+    demoOnly,
+    search,
+    storage,
+    fetchImpl,
+    onRefreshResultDisplay,
+  } = pageContext;
+  const apiLifecycle = getPublicLifecycleState(result);
+  if (pageTitle) {
+    if (uiMockState === 'cancelled' || apiLifecycle === 'cancelled') {
+      pageTitle.textContent = '問卷已取消';
+    } else if (uiMockState === 'unpublished' || apiLifecycle === 'unpublished') {
+      pageTitle.textContent = '問卷已下架';
+    } else if (demoOnly) {
+      pageTitle.textContent = '示範結果頁（唯讀）';
+    } else {
+      pageTitle.textContent = '公開結果（唯讀）';
+    }
+    pageTitle.removeAttribute('aria-busy');
+  }
+  if (introRoot) {
+    introRoot.hidden =
+      uiMockState === 'cancelled' ||
+      uiMockState === 'unpublished' ||
+      apiLifecycle === 'cancelled' ||
+      apiLifecycle === 'unpublished';
+    if (!introRoot.hidden) {
+      renderResultsReadOnlyIntro(introRoot, pollId);
+    } else {
+      introRoot.replaceChildren();
+    }
+  }
+  if (creatorLifecycleHost) {
+    mountCreatorLifecyclePanel(creatorLifecycleHost, {
+      pollId,
+      demoOnly,
+      apiLifecycle,
+      search,
+      storage,
+      fetchImpl,
+      onRefreshResultDisplay,
+    });
+  }
+  markRegionBusy(root, false);
+  const mockApply = applyResultUiMockState(root, result, uiMockState);
+  if (!mockApply.terminal) {
+    renderResultDisplay(root, mockApply.payload ?? result, {
+      attachPolicyExtras: false,
+    });
+    const displayPayload = mockApply.payload ?? result;
+    const collecting =
+      uiMockState != null
+        ? isCollectingUiMockState(uiMockState)
+        : isCollectingResult(displayPayload);
+    if (uiMockState && uiMockState !== 'collecting') {
+      renderUiMockStatePanel(root, uiMockState);
+    }
+    renderResultPagePolicyExtras(root, {
+      collecting,
+      skipFollowPanel:
+        uiMockState === 'followed' || uiMockState === 'ineligible',
+      skipGlossary: Boolean(uiMockState) || demoOnly,
+    });
+  }
+}
+
+/** Re-fetch result API payload and repaint main display (Phase 58C). */
+export async function refreshResultPageDisplay(pageContext) {
+  const { pollId, demoOnly, fetchImpl = globalThis.fetch } = pageContext;
+  if (demoOnly) {
+    return;
+  }
+  const result = await loadResultDisplay({ pollId, fetchImpl });
+  paintResultPageFromPayload(pageContext, result);
 }
 
 export function renderResultPageNav(root, pollId) {
@@ -560,62 +652,21 @@ export async function bootstrapResultPage({
       errorPanel.hidden = true;
       errorPanel.replaceChildren();
     }
-    const apiLifecycle = getPublicLifecycleState(result);
-    if (pageTitle) {
-      if (uiMockState === 'cancelled' || apiLifecycle === 'cancelled') {
-        pageTitle.textContent = '問卷已取消';
-      } else if (uiMockState === 'unpublished' || apiLifecycle === 'unpublished') {
-        pageTitle.textContent = '問卷已下架';
-      } else if (demoOnly) {
-        pageTitle.textContent = '示範結果頁（唯讀）';
-      } else {
-        pageTitle.textContent = '公開結果（唯讀）';
-      }
-      pageTitle.removeAttribute('aria-busy');
-    }
-    if (introRoot) {
-      introRoot.hidden =
-        uiMockState === 'cancelled' ||
-        uiMockState === 'unpublished' ||
-        apiLifecycle === 'cancelled' ||
-        apiLifecycle === 'unpublished';
-      if (!introRoot.hidden) {
-        renderResultsReadOnlyIntro(introRoot, pollId);
-      } else {
-        introRoot.replaceChildren();
-      }
-    }
-    if (creatorLifecycleHost) {
-      mountCreatorLifecyclePanel(creatorLifecycleHost, {
-        pollId,
-        demoOnly,
-        apiLifecycle,
-        search: windowObject.location.search,
-        storage: windowObject.sessionStorage,
-        fetchImpl,
-      });
-    }
-    markRegionBusy(root, false);
-    const mockApply = applyResultUiMockState(root, result, uiMockState);
-    if (!mockApply.terminal) {
-      renderResultDisplay(root, mockApply.payload ?? result, {
-        attachPolicyExtras: false,
-      });
-      const displayPayload = mockApply.payload ?? result;
-      const collecting =
-        uiMockState != null
-          ? isCollectingUiMockState(uiMockState)
-          : isCollectingResult(displayPayload);
-      if (uiMockState && uiMockState !== 'collecting') {
-        renderUiMockStatePanel(root, uiMockState);
-      }
-      renderResultPagePolicyExtras(root, {
-        collecting,
-        skipFollowPanel:
-          uiMockState === 'followed' || uiMockState === 'ineligible',
-        skipGlossary: Boolean(uiMockState) || demoOnly,
-      });
-    }
+    const pageContext = {
+      pollId,
+      root,
+      introRoot,
+      pageTitle,
+      creatorLifecycleHost,
+      uiMockState,
+      demoOnly,
+      search: windowObject.location.search,
+      storage: windowObject.sessionStorage,
+      fetchImpl,
+      onRefreshResultDisplay: null,
+    };
+    pageContext.onRefreshResultDisplay = () => refreshResultPageDisplay(pageContext);
+    paintResultPageFromPayload(pageContext, result);
   } catch (error) {
     const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;
     showRouteError('無法載入結果', body);

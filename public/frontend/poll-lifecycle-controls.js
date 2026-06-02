@@ -280,6 +280,7 @@ export function nextLifecycleStateFromTransition(action, body) {
  *   storage?: Storage;
  *   creatorUserId?: string;
  *   onStateChange?: (nextState: string) => void;
+ *   onTransitionSuccess?: () => void | Promise<void>;
  * }} options
  */
 export function renderCreatorLifecycleActions(host, options) {
@@ -291,6 +292,7 @@ export function renderCreatorLifecycleActions(host, options) {
     storage = globalThis.sessionStorage,
     creatorUserId = resolvePublicMvpCreatorId(storage),
     onStateChange,
+    onTransitionSuccess,
   } = options;
 
   host.replaceChildren();
@@ -348,6 +350,7 @@ export function renderCreatorLifecycleActions(host, options) {
         status,
         title,
         onStateChange,
+        onTransitionSuccess,
         host,
       });
     });
@@ -384,6 +387,7 @@ async function runLifecycleTransition({
   status,
   title,
   onStateChange,
+  onTransitionSuccess,
   host,
 }) {
   if (!confirmLifecycleTransition(action)) {
@@ -415,7 +419,9 @@ async function runLifecycleTransition({
         storage,
         creatorUserId,
         onStateChange,
+        onTransitionSuccess,
       });
+      await onTransitionSuccess?.();
     }
     status.textContent = copy.success;
   } catch (error) {

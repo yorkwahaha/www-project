@@ -7,10 +7,10 @@ import {
 import { mountSiteChrome } from './public-mvp-layout.js';
 import {
   buildAbsoluteUrl,
-  buildPublicResultPath,
   buildPublicVotePath,
   copyTextToClipboard,
 } from './public-mvp-ui.js';
+import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
   readManagedPoll,
   renderCreatorLifecycleActions,
@@ -55,8 +55,7 @@ function mountLiveCreatorManagePanel(documentObject) {
   if (!host) {
     host = documentObject.createElement('section');
     host.id = 'creator-live-manage';
-    host.className = 'mvp-policy-panel';
-    host.style.marginBottom = '1rem';
+    host.className = 'mvp-policy-panel mvp-creator-live-manage';
     const lead = main.querySelector('.mvp-lead');
     if (lead?.nextSibling) {
       main.insertBefore(host, lead.nextSibling);
@@ -67,20 +66,64 @@ function mountLiveCreatorManagePanel(documentObject) {
 
   if (!managed) {
     host.replaceChildren();
+    host.setAttribute('role', 'note');
+    host.setAttribute('aria-label', '即時問卷管理說明');
     const note = documentObject.createElement('p');
     note.className = 'mvp-meta';
-    note.style.margin = '0';
-    note.textContent =
-      '即時模式：請先以 ?live=1 建立問卷，成功後此處會顯示可操作的問卷與狀態按鈕。';
+    note.textContent = CREATOR_FLOW_COPY.myPollsEmpty;
     host.append(note);
+    const createLink = documentObject.createElement('a');
+    createLink.className = 'mvp-action-link';
+    createLink.href = '/polls/new?live=1';
+    createLink.textContent = '前往建立問卷（即時模式）';
+    host.append(createLink);
     return;
   }
 
-  renderCreatorLifecycleActions(host, {
+  host.setAttribute('role', 'region');
+  host.setAttribute('aria-label', '即時問卷管理');
+
+  const heading = documentObject.createElement('h2');
+  heading.className = 'mvp-policy-panel-title';
+  heading.textContent = managed.title
+    ? `即時問卷：${managed.title}`
+    : '即時問卷管理';
+  host.append(heading);
+
+  const lead = documentObject.createElement('p');
+  lead.className = 'mvp-meta';
+  lead.textContent = CREATOR_FLOW_COPY.myPollsLead;
+  host.append(lead);
+
+  renderCreatorManageLinks(host, { pollId: managed.pollId });
+
+  const shareRow = documentObject.createElement('p');
+  shareRow.className = 'mvp-meta mvp-creator-flow-share-row';
+  const shareVote = documentObject.createElement('button');
+  shareVote.type = 'button';
+  shareVote.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
+  shareVote.textContent = '複製投票連結';
+  shareVote.addEventListener('click', async () => {
+    const url = buildAbsoluteUrl(buildPublicVotePath(managed.pollId));
+    const result = await copyTextToClipboard(url);
+    showDemoOnlyFeedback(
+      shareVote,
+      result.ok ? '已複製投票連結，可分享給參與者。' : '無法複製連結，請手動複製上方投票頁網址。',
+    );
+  });
+  shareRow.append(shareVote);
+  host.append(shareRow);
+
+  const lifecycleHost = documentObject.createElement('section');
+  lifecycleHost.className = 'mvp-creator-lifecycle-panel mvp-creator-flow-lifecycle';
+  host.append(lifecycleHost);
+
+  renderCreatorLifecycleActions(lifecycleHost, {
     pollId: managed.pollId,
     lifecycleState: managed.public_lifecycle_state,
     title: managed.title,
     storage: documentObject.defaultView?.sessionStorage,
+    flowContext: 'manage',
     onStateChange: (nextState) => {
       writeManagedPoll(documentObject.defaultView?.sessionStorage, {
         ...managed,
@@ -88,19 +131,6 @@ function mountLiveCreatorManagePanel(documentObject) {
       });
     },
   });
-
-  const links = documentObject.createElement('p');
-  links.className = 'mvp-meta';
-  links.style.marginTop = '0.5rem';
-  const vote = documentObject.createElement('a');
-  vote.href = buildPublicVotePath(managed.pollId);
-  vote.textContent = '投票頁';
-  vote.style.marginRight = '0.75rem';
-  const results = documentObject.createElement('a');
-  results.href = `${buildPublicResultPath(managed.pollId)}?creator=1`;
-  results.textContent = '結果頁（發起者）';
-  links.append(vote, results);
-  host.append(links);
 }
 
 function wireCollectingRow(row, documentObject, { demoOnly = false } = {}) {

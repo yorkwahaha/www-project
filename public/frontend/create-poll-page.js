@@ -11,6 +11,10 @@ import {
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import {
+  renderCreateSuccessFlowGuide,
+  renderCreatorManageLinks,
+} from './creator-flow-copy.js';
+import {
   renderCreatorLifecycleActions,
   resolvePublicMvpCreatorId,
   writeManagedPoll,
@@ -107,6 +111,11 @@ export function renderCreatePollSuccess(root, created, options = {}) {
   if (options.skipCreatorControls) {
     return;
   }
+  renderCreateSuccessFlowGuide(root);
+  renderCreatorManageLinks(root, {
+    pollId: created.poll_id,
+    locationObject: options.locationObject,
+  });
   const lifecycleHost = root.ownerDocument.createElement('section');
   lifecycleHost.className = 'mvp-creator-lifecycle-panel';
   root.append(lifecycleHost);
@@ -122,6 +131,7 @@ export function renderCreatePollSuccess(root, created, options = {}) {
     fetchImpl: options.fetchImpl,
     storage: options.storage,
     creatorUserId: options.creatorUserId,
+    flowContext: 'create',
   });
 }
 

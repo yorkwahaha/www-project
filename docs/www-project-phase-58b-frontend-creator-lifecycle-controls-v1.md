@@ -5,9 +5,11 @@
 ## 使用方式（本機即時）
 
 1. 以 `?live=1` 建立問卷：`/polls/new?live=1`
-2. 成功後於成功面板操作「取消問卷」或「結束收集並公開結果」
+2. 成功後複製投票連結分享，並於成功面板操作「取消問卷」或「結束收集並公開結果」（見 Phase 59 操作說明）
 3. 或以 `/my-polls?live=1` 管理同一瀏覽器工作階段內最近建立的問卷（`sessionStorage` 僅存 `pollId` 與 `public_lifecycle_state`，不含選項）
-4. 結果頁加上 `?creator=1` 或與已管理問卷相同 `pollId` 時顯示發起者操作區
+4. 結果頁加上 `?creator=1` 或與已管理問卷相同 `pollId` 時顯示發起者操作區；lifecycle 成功後結果區會自動 re-fetch（Phase 58C/D）
+
+詳見 [Phase 59 發起者流程說明](./www-project-phase-59-public-mvp-creator-flow-polish-v1.md)。
 
 ## 隱私邊界
 

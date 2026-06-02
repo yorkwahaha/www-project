@@ -458,6 +458,7 @@ function mountCreatorLifecyclePanel(
     title: managed?.pollId === pollId ? managed.title : undefined,
     fetchImpl,
     storage,
+    flowContext: 'results',
     onStateChange: (nextState) => {
       if (managed?.pollId === pollId) {
         writeManagedPoll(storage, {

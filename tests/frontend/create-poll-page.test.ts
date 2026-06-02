@@ -196,6 +196,57 @@ describe('public poll creation page', () => {
     ).rejects.toThrow('目前無法建立問卷，請稍後再試。');
   });
 
+  it('renders live creator flow guide and lifecycle panel after successful create', async () => {
+    const { renderCreatePollSuccess } = await loadCreatePollPageModule();
+    const root = createDomRoot();
+    const pollId = '22222222-2222-4222-8222-222222222222';
+
+    renderCreatePollSuccess(
+      root,
+      { poll_id: pollId },
+      {
+        locationObject: { origin: 'https://example.test' },
+        storage: { getItem: () => null, setItem: () => {} },
+      },
+    );
+
+    function collectAllText(
+      element: ReturnType<typeof createDomRoot>,
+    ): string {
+      return [
+        element.textContent,
+        ...element.children.flatMap((child) => collectAllText(child)),
+      ]
+        .filter(Boolean)
+        .join(' ');
+    }
+    const text = collectAllText(root);
+    expect(text).toContain('下一步');
+    expect(text).toContain('複製投票連結');
+    expect(text).toContain('取消問卷');
+    expect(text).toContain('結束收集並公開結果');
+    expect(text).toContain('我的問卷');
+    expect(text).toContain('結果頁（發起者）');
+    const findLinks = (
+      element: ReturnType<typeof createDomRoot>,
+    ): ReturnType<typeof createDomRoot>[] => {
+      const links: ReturnType<typeof createDomRoot>[] = [];
+      if (String(element.tagName).toLowerCase() === 'a') {
+        links.push(element);
+      }
+      for (const child of element.children) {
+        links.push(...findLinks(child));
+      }
+      return links;
+    };
+    expect(
+      findLinks(root).some((link) => link.href === '/my-polls?live=1'),
+    ).toBe(true);
+    expect(
+      findLinks(root).some((link) => link.href.includes('?creator=1')),
+    ).toBe(true);
+  });
+
   it('contains no storage, analytics, ranking, vote, feed, or result loading behavior', async () => {
     const source = await readFile(
       join(process.cwd(), 'public/frontend/create-poll-page.js'),

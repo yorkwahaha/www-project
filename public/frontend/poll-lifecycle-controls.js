@@ -4,6 +4,10 @@
  */
 
 import {
+  lifecycleLeadForContext,
+  renderCreatorActionGuide,
+} from './creator-flow-copy.js';
+import {
   buildPublicResultPath,
   isLocalDemoHostname,
   parsePollApiError,
@@ -285,6 +289,8 @@ export function nextLifecycleStateFromTransition(action, body) {
  *   onTransitionSuccess?: () =>
  *     | void
  *     | Promise<void | { refreshed?: boolean }>;
+ *   flowContext?: 'create' | 'manage' | 'results';
+ *   showFlowGuide?: boolean;
  * }} options
  */
 export function renderCreatorLifecycleActions(host, options) {
@@ -297,6 +303,8 @@ export function renderCreatorLifecycleActions(host, options) {
     creatorUserId = resolvePublicMvpCreatorId(storage),
     onStateChange,
     onTransitionSuccess,
+    flowContext = 'manage',
+    showFlowGuide = true,
   } = options;
 
   host.replaceChildren();
@@ -313,9 +321,12 @@ export function renderCreatorLifecycleActions(host, options) {
 
   const lead = host.ownerDocument.createElement('p');
   lead.className = 'mvp-meta mvp-creator-lifecycle-lead';
-  lead.textContent =
-    '以下操作會變更公開狀態；收集中不會顯示票數。公開鎖定期內無法下架或刪除。';
+  lead.textContent = lifecycleLeadForContext(flowContext, lifecycleState);
   host.append(lead);
+
+  if (showFlowGuide) {
+    renderCreatorActionGuide(host, lifecycleState);
+  }
 
   const toolbar = host.ownerDocument.createElement('div');
   toolbar.className = 'mvp-creator-lifecycle-toolbar';
@@ -355,6 +366,8 @@ export function renderCreatorLifecycleActions(host, options) {
         title,
         onStateChange,
         onTransitionSuccess,
+        flowContext,
+        showFlowGuide,
         host,
       });
     });
@@ -364,7 +377,7 @@ export function renderCreatorLifecycleActions(host, options) {
   const resultLink = host.ownerDocument.createElement('a');
   resultLink.className = 'mvp-action-link mvp-action-link-muted';
   resultLink.href = `${buildPublicResultPath(pollId)}?creator=1`;
-  resultLink.textContent = '查看公開結果頁';
+  resultLink.textContent = '結果頁（發起者）';
   toolbar.append(resultLink);
 }
 
@@ -402,6 +415,8 @@ async function runLifecycleTransition({
   title,
   onStateChange,
   onTransitionSuccess,
+  flowContext,
+  showFlowGuide,
   host,
 }) {
   if (!confirmLifecycleTransition(action)) {
@@ -434,6 +449,8 @@ async function runLifecycleTransition({
         creatorUserId,
         onStateChange,
         onTransitionSuccess,
+        flowContext,
+        showFlowGuide,
       });
       const refreshOutcome = await onTransitionSuccess?.();
       const feedback = lifecycleFeedbackElement(host, status);

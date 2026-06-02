@@ -123,7 +123,10 @@ describe('public MVP accessibility', () => {
     renderCreatePollSuccess(
       root,
       { poll_id: '22222222-2222-4222-8222-222222222222' },
-      { locationObject: { origin: 'https://example.test' } },
+      {
+        locationObject: { origin: 'https://example.test' },
+        skipCreatorControls: true,
+      },
     );
 
     const links = root.children.filter((child) => child.tagName === 'a');

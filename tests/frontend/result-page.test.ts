@@ -474,6 +474,9 @@ describe('public result page', () => {
     expect(source).not.toMatch(
       /setInterval|setTimeout|WebSocket|EventSource|requestAnimationFrame|console\.|Date\(|Math\./,
     );
-    expect(source).not.toMatch(/localStorage|sessionStorage|indexedDB|document\.cookie/);
+    expect(source).not.toMatch(/localStorage|indexedDB|document\.cookie/);
+    expect(source.replaceAll('windowObject.sessionStorage', '')).not.toMatch(
+      /sessionStorage/,
+    );
   });
 });

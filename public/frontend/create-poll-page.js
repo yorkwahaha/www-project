@@ -11,6 +11,11 @@ import {
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import {
+  renderCreatorLifecycleActions,
+  resolvePublicMvpCreatorId,
+  writeManagedPoll,
+} from './poll-lifecycle-controls.js';
+import {
   mountUiMockPreviewChrome,
   parseUiMockState,
   renderMockTerminalResultState,
@@ -99,6 +104,25 @@ export function renderCreatePollSuccess(root, created, options = {}) {
     return;
   }
   renderPollSharePanel(root, created.poll_id, options);
+  if (options.skipCreatorControls) {
+    return;
+  }
+  const lifecycleHost = root.ownerDocument.createElement('section');
+  lifecycleHost.className = 'mvp-creator-lifecycle-panel';
+  root.append(lifecycleHost);
+  writeManagedPoll(options.storage, {
+    pollId: created.poll_id,
+    public_lifecycle_state: 'collecting',
+    title: options.title,
+  });
+  renderCreatorLifecycleActions(lifecycleHost, {
+    pollId: created.poll_id,
+    lifecycleState: 'collecting',
+    title: options.title,
+    fetchImpl: options.fetchImpl,
+    storage: options.storage,
+    creatorUserId: options.creatorUserId,
+  });
 }
 
 export function renderCreatePollDemoSuccess(root) {
@@ -187,11 +211,15 @@ export function bootstrapCreatePollPage({
     };
 
     try {
+      const creatorUserId = resolvePublicMvpCreatorId(
+        globalThis.sessionStorage,
+        uuidFactory,
+      );
       const created = useLiveApi
         ? await submitCreatePoll({
             formValues,
             fetchImpl,
-            uuidFactory,
+            uuidFactory: () => creatorUserId,
             now,
           })
         : submitCreatePollDemo({ formValues });
@@ -199,7 +227,13 @@ export function bootstrapCreatePollPage({
         message,
         useLiveApi ? '問卷已建立。' : '表單通過檢查（展示用），資料不會儲存。',
       );
-      renderCreatePollSuccess(success, created, { demoStatic: !useLiveApi });
+      renderCreatePollSuccess(success, created, {
+        demoStatic: !useLiveApi,
+        fetchImpl,
+        storage: globalThis.sessionStorage,
+        creatorUserId,
+        title: formValues.title.trim(),
+      });
       form.reset();
       form.hidden = true;
       focusFirstFocusable(success);

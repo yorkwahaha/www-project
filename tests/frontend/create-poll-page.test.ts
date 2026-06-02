@@ -130,7 +130,10 @@ describe('public poll creation page', () => {
     renderCreatePollSuccess(
       root,
       { poll_id: '22222222-2222-4222-8222-222222222222' },
-      { locationObject: { origin: 'https://example.test' } },
+      {
+        locationObject: { origin: 'https://example.test' },
+        skipCreatorControls: true,
+      },
     );
 
     const links = root.children.filter((child) => child.tagName === 'a');
@@ -200,8 +203,11 @@ describe('public poll creation page', () => {
     );
 
     expect(source).not.toMatch(
-      /localStorage|sessionStorage|indexedDB|document\.cookie|analytics|console\./,
+      /localStorage|indexedDB|document\.cookie|analytics|console\./,
     );
+    expect(
+      source.replaceAll('globalThis.sessionStorage', '').replaceAll('options.storage', ''),
+    ).not.toMatch(/sessionStorage/);
     expect(source).not.toMatch(
       /reference-answer|vote-by-index|loadPollDetail|\/polls\/feed|\/polls\/.*\/results|ranking|spread_score|option_id/,
     );

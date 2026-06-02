@@ -14,6 +14,12 @@ import {
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import {
+  parseCreatorManageMode,
+  readManagedPoll,
+  renderCreatorLifecycleActions,
+  writeManagedPoll,
+} from './poll-lifecycle-controls.js';
+import {
   POLICY_UI_COPY,
   applyResultUiMockState,
   isCollectingUiMockState,
@@ -409,6 +415,50 @@ export function renderPublicNotices(root, noticeList) {
   }
 }
 
+function mountCreatorLifecyclePanel(
+  host,
+  { pollId, demoOnly, apiLifecycle, search, storage, fetchImpl },
+) {
+  if (demoOnly || !apiLifecycle) {
+    host.hidden = true;
+    host.replaceChildren();
+    return;
+  }
+  const managed = readManagedPoll(storage);
+  const showCreator =
+    parseCreatorManageMode(search) ||
+    (managed?.pollId === pollId);
+  if (!showCreator) {
+    host.hidden = true;
+    host.replaceChildren();
+    return;
+  }
+  const lifecycleState = apiLifecycle;
+  if (managed?.pollId === pollId && managed.public_lifecycle_state !== apiLifecycle) {
+    writeManagedPoll(storage, {
+      pollId,
+      public_lifecycle_state: apiLifecycle,
+      title: managed.title,
+    });
+  }
+  renderCreatorLifecycleActions(host, {
+    pollId,
+    lifecycleState,
+    title: managed?.pollId === pollId ? managed.title : undefined,
+    fetchImpl,
+    storage,
+    onStateChange: (nextState) => {
+      if (managed?.pollId === pollId) {
+        writeManagedPoll(storage, {
+          pollId,
+          public_lifecycle_state: nextState,
+          title: managed.title,
+        });
+      }
+    },
+  });
+}
+
 export function renderResultPageNav(root, pollId) {
   root.replaceChildren();
   renderPublicNav(root);
@@ -435,6 +485,7 @@ export async function bootstrapResultPage({
   const errorPanel = documentObject.getElementById('error-panel');
   const bottomNav = documentObject.getElementById('bottom-nav');
   const statePreviewLinks = documentObject.getElementById('result-state-preview-links');
+  const creatorLifecycleHost = documentObject.getElementById('creator-lifecycle-host');
   if (!root) {
     return;
   }
@@ -533,6 +584,16 @@ export async function bootstrapResultPage({
       } else {
         introRoot.replaceChildren();
       }
+    }
+    if (creatorLifecycleHost) {
+      mountCreatorLifecyclePanel(creatorLifecycleHost, {
+        pollId,
+        demoOnly,
+        apiLifecycle,
+        search: windowObject.location.search,
+        storage: windowObject.sessionStorage,
+        fetchImpl,
+      });
     }
     markRegionBusy(root, false);
     const mockApply = applyResultUiMockState(root, result, uiMockState);

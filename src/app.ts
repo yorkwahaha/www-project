@@ -1,4 +1,7 @@
 import { createAdminCorrectionServices } from './admin/create-admin-correction-services.js';
+import { createCreatorSessionConfigFromEnv } from './creator-sessions/config.js';
+import { createPgCreatorSessionRepository } from './creator-sessions/repository.js';
+import { createCreatorSessionService } from './creator-sessions/service.js';
 import { getPool } from './db/client.js';
 import { createAdminAuthFromEnv } from './http/admin-auth.js';
 import { createHttpServer } from './http/server.js';
@@ -25,11 +28,19 @@ export function createApp(): WwwApp {
       const publicNoticeService = createPublicNoticeService(
         createPgPublicNoticeRepository(pool),
       );
+      const creatorSessionConfig = createCreatorSessionConfigFromEnv();
       const server = createHttpServer({
         pollService,
         adminCorrection: createAdminCorrectionServices(pool),
         adminAuth: createAdminAuthFromEnv(),
         publicNoticeService,
+        creatorSession: {
+          config: creatorSessionConfig,
+          service: createCreatorSessionService(
+            createPgCreatorSessionRepository(pool),
+            creatorSessionConfig,
+          ),
+        },
       });
       server.listen(port);
       return server;

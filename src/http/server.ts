@@ -7,9 +7,14 @@ import type { PublicNoticeService } from '../public-notices/service.js';
 import { sendJson } from './json.js';
 import { createAdminRouteHandlers, type AdminCorrectionServices } from './admin-routes.js';
 import type { AdminAuth } from './admin-auth.js';
+import {
+  createCreatorSessionRouteHandlers,
+} from './creator-session-routes.js';
 import { handleAdminRouteError } from './admin-error.js';
 import { createPollRouteHandlers } from './poll-routes.js';
 import { createPublicNoticeRouteHandlers } from './public-notice-routes.js';
+import type { CreatorSessionConfig } from '../creator-sessions/config.js';
+import type { CreatorSessionService } from '../creator-sessions/service.js';
 
 export type { AdminCorrectionServices } from './admin-routes.js';
 
@@ -28,6 +33,10 @@ export type HttpServerOptions = {
   adminCorrection?: AdminCorrectionServices;
   adminAuth?: AdminAuth;
   publicNoticeService?: PublicNoticeService;
+  creatorSession?: {
+    service: CreatorSessionService;
+    config: CreatorSessionConfig;
+  };
 };
 
 export function createHttpServer(options: HttpServerOptions) {
@@ -41,6 +50,12 @@ export function createHttpServer(options: HttpServerOptions) {
   const publicNoticeRoutes = options.publicNoticeService
     ? createPublicNoticeRouteHandlers(options.publicNoticeService)
     : null;
+  const creatorSessionRoutes = options.creatorSession
+    ? createCreatorSessionRouteHandlers(
+        options.creatorSession.service,
+        options.creatorSession.config,
+      )
+    : null;
 
   return createServer(async (req, res) => {
     try {
@@ -51,6 +66,7 @@ export function createHttpServer(options: HttpServerOptions) {
         adminRoutes,
         options.adminAuth ?? null,
         publicNoticeRoutes,
+        creatorSessionRoutes,
       );
     } catch {
       sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'Internal server error' });
@@ -65,6 +81,7 @@ async function routeRequest(
   adminRoutes: ReturnType<typeof createAdminRouteHandlers> | null,
   adminAuth: AdminAuth | null,
   publicNoticeRoutes: ReturnType<typeof createPublicNoticeRouteHandlers> | null,
+  creatorSessionRoutes: ReturnType<typeof createCreatorSessionRouteHandlers> | null,
 ): Promise<void> {
   const method = req.method ?? 'GET';
   const url = new URL(req.url ?? '/', 'http://localhost');
@@ -72,6 +89,27 @@ async function routeRequest(
 
   if (method === 'GET' && path === '/health') {
     sendJson(res, 200, getHealthStatus());
+    return;
+  }
+
+  if (path === '/creator/session') {
+    if (!creatorSessionRoutes) {
+      sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+      return;
+    }
+    if (method === 'POST') {
+      await creatorSessionRoutes.handlePostSession(req, res);
+      return;
+    }
+    if (method === 'GET') {
+      await creatorSessionRoutes.handleGetSession(req, res);
+      return;
+    }
+    if (method === 'DELETE') {
+      await creatorSessionRoutes.handleDeleteSession(req, res);
+      return;
+    }
+    sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
     return;
   }
 

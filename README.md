@@ -70,6 +70,10 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 60 (docs):** Public MVP lifecycle manual QA and handoff refresh (Phases 57–59 live flow, checklist, known limitations) — `docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`. Updates read order in `docs/www-project-public-mvp-manual-qa-v1.md`.
 
+**Phase 60F–61 (docs):** README Public MVP status — live creator routes (`?live=1`, `?creator=1`), Minimal public flow, and `GET /polls/:id/results` lifecycle gating wording.
+
+**Phase 62 (docs):** Public MVP status checkpoint and next-phase planning (post Phases 57–61; candidate phases with risk labels) — `docs/www-project-phase-62-public-mvp-status-checkpoint-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

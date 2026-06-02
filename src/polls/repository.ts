@@ -41,6 +41,7 @@ export type PollRepository = {
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
   listVoteAggregatesByPollId(pollId: string): Promise<PollOptionVoteAggregateRow[]>;
   listPublicFeedPolls(params: ListPublicFeedPollsParams): Promise<PublicFeedPollRow[]>;
+  listPublicLifecycleSchedulerCandidateIds(limit: number): Promise<string[]>;
   optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
   softDeletePoll(pollId: string, creatorId: string): Promise<PollRow | null>;
   cancelPoll(pollId: string, creatorId: string): Promise<PollRow>;
@@ -78,6 +79,8 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
     listVoteAggregatesByPollId: (pollId) => listVoteAggregatesByPollId(pool, pollId),
     listPublicFeedPolls: (params) => listPublicFeedPolls(pool, params),
+    listPublicLifecycleSchedulerCandidateIds: (limit) =>
+      listPublicLifecycleSchedulerCandidateIds(pool, limit),
     optionBelongsToPoll: (pollId, optionId) => optionBelongsToPoll(pool, pollId, optionId),
     softDeletePoll: (pollId, creatorId) => softDeletePoll(pool, pollId, creatorId),
     cancelPoll: (pollId, creatorId) => cancelPoll(pool, pollId, creatorId),
@@ -446,6 +449,39 @@ async function listPublicFeedPolls(
   return result.rows;
 }
 
+async function listPublicLifecycleSchedulerCandidateIds(
+  pool: Pool,
+  limit: number,
+): Promise<string[]> {
+  const result = await pool.query<{ id: string }>(
+    `SELECT id
+     FROM polls
+     WHERE status IN ('active', 'closed')
+       AND (
+         (
+           public_lifecycle_state = 'revealed'
+           AND (
+             revealed_at IS NULL
+             OR public_lock_ends_at IS NULL
+             OR revealed_at <= NOW()
+           )
+         )
+         OR (
+           public_lifecycle_state = 'locked'
+           AND (
+             revealed_at IS NULL
+             OR public_lock_ends_at IS NULL
+             OR public_lock_ends_at <= NOW()
+           )
+         )
+       )
+     ORDER BY id ASC
+     LIMIT $1`,
+    [limit],
+  );
+  return result.rows.map((row) => row.id);
+}
+
 async function softDeletePoll(
   pool: Pool,
   pollId: string,
@@ -541,6 +577,10 @@ async function advancePublicLifecycle(
     let publicLifecycleState: PublicLifecycleState;
     if (poll.public_lifecycle_state === 'revealed') {
       assertLifecycleTimestampsPresent(poll);
+      const now = await getTransactionNow(client);
+      if (poll.revealed_at.getTime() > now.getTime()) {
+        throw new PollLifecycleConflictError('Poll revealed_at has not been reached');
+      }
       publicLifecycleState = 'locked';
     } else if (poll.public_lifecycle_state === 'locked') {
       assertLifecycleTimestampsPresent(poll);

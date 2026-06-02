@@ -178,6 +178,35 @@ export function createInMemoryPollRepository(): PollRepository & {
         }));
     },
 
+    async listPublicLifecycleSchedulerCandidateIds(limit) {
+      const now = Date.now();
+      return [...polls.values()]
+        .filter((poll) => (
+          poll.status === 'active' || poll.status === 'closed'
+        ))
+        .filter((poll) => (
+          (
+            poll.public_lifecycle_state === 'revealed' &&
+            (
+              poll.revealed_at === null ||
+              poll.public_lock_ends_at === null ||
+              poll.revealed_at.getTime() <= now
+            )
+          ) ||
+          (
+            poll.public_lifecycle_state === 'locked' &&
+            (
+              poll.revealed_at === null ||
+              poll.public_lock_ends_at === null ||
+              poll.public_lock_ends_at.getTime() <= now
+            )
+          )
+        ))
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .slice(0, limit)
+        .map((poll) => poll.id);
+    },
+
     async softDeletePoll(pollId, creatorId) {
       const poll = polls.get(pollId);
       if (!poll || poll.creator_id !== creatorId || poll.status === 'deleted') {
@@ -231,6 +260,9 @@ export function createInMemoryPollRepository(): PollRepository & {
       const poll = requireTransitionPoll(polls, pollId);
       if (poll.public_lifecycle_state === 'revealed') {
         assertLifecycleTimestampsPresent(poll);
+        if (poll.revealed_at.getTime() > Date.now()) {
+          throw new PollLifecycleConflictError('Poll revealed_at has not been reached');
+        }
         return updatePoll(polls, poll, { public_lifecycle_state: 'locked' });
       }
       if (poll.public_lifecycle_state === 'locked') {

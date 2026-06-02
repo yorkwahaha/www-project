@@ -76,6 +76,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 63:** Public explore feed UI — `GET /explore` lists collecting polls from existing `GET /polls/feed` (freshness-only; no vote counts, ranking, or personalization).
 
+**Phase 64:** Explicit lifecycle scheduler runner — after build, `npm run scheduler:lifecycle -- --limit 100` runs one bounded server-side batch for due `revealed → locked` and `locked → post_lock` transitions. It is safe for manual or cron invocation, but no production cron is installed by this repository. See `docs/www-project-phase-64-lifecycle-scheduler-runner-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -96,6 +98,8 @@ npm install
 npm run typecheck
 npm run build
 npm start
+# One explicit scheduler batch after build; requires DATABASE_URL:
+# DATABASE_URL=postgres://... npm run scheduler:lifecycle -- --limit 100
 npm test
 npm run migrate:check
 # Apply migrations when DATABASE_URL is set:
@@ -114,6 +118,8 @@ npm run demo:public:local
 `npm run demo:public:local` starts Docker `www_test` if needed, applies migrations, seeds **local-only** fake official demo voters (for reliable manual voting on `127.0.0.1`), sets fake `ADMIN_AUTH_CREDENTIALS_JSON` in the process only, then listens on port 3000 until Ctrl+C. Refuses non-`www_test` URLs. Does not commit secrets.
 
 The integration quick command starts the local Docker test service if needed, waits for health, runs migration validation and apply, then runs the integration suite. The admin smoke command uses the same isolated `www_test` database with fake local-only admin credentials and synthetic fixture rows. The public flow smoke command validates `GET /` → `/polls/new` → create poll → `/vote/:pollId` → vote-by-index → `/results/:pollId` without a browser, and checks that public JSON responses do not expose `option_id`, vote tokens, or shard internals. All local smoke commands intentionally leave the test container running for fast reruns. If `DATABASE_URL` is unset, the lower-level `npm run test:integration` exits immediately with setup instructions (environment not ready — not a unit-test regression). See Phase 15 doc §8 and Phase 14 doc §8.
+
+`npm run scheduler:lifecycle -- --limit 100` is a one-shot operator command, not an HTTP hook or always-on worker. It requires a migrated `DATABASE_URL`, accepts limits `1..100`, prints counts and aggregated lifecycle error codes only, and returns nonzero when malformed lifecycle rows fail closed. Cron frequency, overlap policy, deployment supervision, alerting, and retries remain operator responsibilities.
 
 ## Layout
 

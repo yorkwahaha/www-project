@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createPublicLifecycleSchedulerService } from '../../src/polls/lifecycle-scheduler-service.js';
+import { runLifecycleSchedulerCommand } from '../../src/polls/lifecycle-scheduler-runner.js';
 import { createPgPollRepository } from '../../src/polls/repository.js';
 import { createPollService } from '../../src/polls/service.js';
 import {
@@ -67,19 +68,21 @@ describe('Public lifecycle scheduler PostgreSQL integration', () => {
       [futureLocked.poll_id],
     );
 
-    const result = await scheduler.runDuePublicLifecycleAdvancementBatch();
+    const summaries: string[] = [];
+    const errors: string[] = [];
+    const exitCode = await runLifecycleSchedulerCommand([], {
+      scheduler,
+      writeSummary: (message) => summaries.push(message),
+      writeError: (message) => errors.push(message),
+    });
 
-    expect(result).toMatchObject({ candidate_count: 2, failed: [] });
-    expect(result.advanced).toEqual(expect.arrayContaining([
-      {
-        poll_id: dueRevealed.poll_id,
-        public_lifecycle_state: 'locked',
-      },
-      {
-        poll_id: dueLocked.poll_id,
-        public_lifecycle_state: 'post_lock',
-      },
-    ]));
+    expect(exitCode).toBe(0);
+    expect(summaries).toEqual([
+      'lifecycle-scheduler: {"candidate_count":2,"advanced_count":2,"locked_count":1,"post_lock_count":1,"failed_count":0,"failed_by_code":{}}',
+    ]);
+    expect(errors).toEqual([]);
+    expect(summaries[0]).not.toContain(dueRevealed.poll_id);
+    expect(summaries[0]).not.toContain(dueLocked.poll_id);
     expect(await lifecycleStatesById([
       dueRevealed.poll_id,
       futureRevealed.poll_id,

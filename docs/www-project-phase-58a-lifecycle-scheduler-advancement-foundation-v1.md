@@ -21,15 +21,13 @@
 - Scheduler 不新增 lifecycle event log、result snapshot、raw vote event、analytics、metrics 或 durable user-option linkage。
 - Creator DELETE 仍拒絕 `revealed`／`locked`／`post_lock`；公開鎖定結束後隱藏結果仍只能走 guarded `unpublish`。
 
-## 3. Future Invocation
+## 3. Phase 64 Runner Wiring
 
-本 Phase 不部署 cron 或 worker。後續部署層應以單一 server-side job 定期建立 PostgreSQL repository 並呼叫：
+Phase 64 已新增 explicit one-shot runner。完成 build 且在 shell 設定已 migration 的 `DATABASE_URL` 後，可手動執行：
 
-```ts
-const scheduler = createPublicLifecycleSchedulerService(
-  createPgPollRepository(pool),
-);
-await scheduler.runDuePublicLifecycleAdvancementBatch();
+```bash
+npm run build
+npm run scheduler:lifecycle -- --limit 100
 ```
 
-部署層不得把 candidate poll、timestamp、counter、option choice 或 user-option linkage 寫入 logs、metrics、APM、debug payload 或 analytics。
+Runner 適合後續由 cron 呼叫，但 repo 不會安裝或自動啟動 production cron。詳細操作與安全邊界見 [`www-project-phase-64-lifecycle-scheduler-runner-v1.md`](./www-project-phase-64-lifecycle-scheduler-runner-v1.md)。

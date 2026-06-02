@@ -102,6 +102,19 @@ export type PublicFeedPollRow = {
   published_at: Date;
 };
 
+export type CreatorOwnedPollRow = {
+  id: string;
+  title: string;
+  category: string;
+  public_lifecycle_state: PublicLifecycleState;
+  closes_at: Date;
+  revealed_at: Date | null;
+  public_lock_ends_at: Date | null;
+  cancelled_at: Date | null;
+  unpublished_at: Date | null;
+  created_at: Date;
+};
+
 export type CreatePollInput = {
   creatorId: string;
   title: string;
@@ -218,4 +231,18 @@ export type PublicFeedResult = {
     result_page_url: string;
   }>;
   next_cursor: string | null;
+};
+
+export type CreatorOwnedPollListResult = {
+  polls: Array<{
+    poll_id: string;
+    title: string;
+    category: string;
+    public_lifecycle_state: PublicLifecycleState;
+    closes_at: string;
+    revealed_at: string | null;
+    public_lock_ends_at: string | null;
+    cancelled_at: string | null;
+    unpublished_at: string | null;
+  }>;
 };

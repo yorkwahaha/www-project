@@ -10,6 +10,7 @@ import type { AdminAuth } from './admin-auth.js';
 import {
   createCreatorSessionRouteHandlers,
 } from './creator-session-routes.js';
+import { createCreatorPollRouteHandlers } from './creator-poll-routes.js';
 import { handleAdminRouteError } from './admin-error.js';
 import { createPollRouteHandlers } from './poll-routes.js';
 import { createPublicNoticeRouteHandlers } from './public-notice-routes.js';
@@ -56,6 +57,13 @@ export function createHttpServer(options: HttpServerOptions) {
         options.creatorSession.config,
       )
     : null;
+  const creatorPollRoutes = options.creatorSession
+    ? createCreatorPollRouteHandlers(
+        options.pollService,
+        options.creatorSession.service,
+        options.creatorSession.config,
+      )
+    : null;
 
   return createServer(async (req, res) => {
     try {
@@ -67,6 +75,7 @@ export function createHttpServer(options: HttpServerOptions) {
         options.adminAuth ?? null,
         publicNoticeRoutes,
         creatorSessionRoutes,
+        creatorPollRoutes,
       );
     } catch {
       sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'Internal server error' });
@@ -82,6 +91,7 @@ async function routeRequest(
   adminAuth: AdminAuth | null,
   publicNoticeRoutes: ReturnType<typeof createPublicNoticeRouteHandlers> | null,
   creatorSessionRoutes: ReturnType<typeof createCreatorSessionRouteHandlers> | null,
+  creatorPollRoutes: ReturnType<typeof createCreatorPollRouteHandlers> | null,
 ): Promise<void> {
   const method = req.method ?? 'GET';
   const url = new URL(req.url ?? '/', 'http://localhost');
@@ -107,6 +117,57 @@ async function routeRequest(
     }
     if (method === 'DELETE') {
       await creatorSessionRoutes.handleDeleteSession(req, res);
+      return;
+    }
+    sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
+    return;
+  }
+
+  if (path === '/creator/polls') {
+    if (!creatorPollRoutes) {
+      sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+      return;
+    }
+    if (method === 'POST') {
+      await creatorPollRoutes.handlePostCreatorPolls(req, res);
+      return;
+    }
+    if (method === 'GET') {
+      await creatorPollRoutes.handleGetCreatorPolls(req, res);
+      return;
+    }
+    sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
+    return;
+  }
+
+  const creatorPollMatch = path.match(
+    /^\/creator\/polls\/([^/]+)(?:\/(cancel|close|unpublish))?$/,
+  );
+  if (creatorPollMatch) {
+    if (!creatorPollRoutes) {
+      sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+      return;
+    }
+    const pollId = creatorPollMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    const transition = creatorPollMatch[2];
+    if (method === 'DELETE' && transition === undefined) {
+      await creatorPollRoutes.handleDeleteCreatorPoll(req, res, pollId);
+      return;
+    }
+    if (method === 'POST' && transition === 'cancel') {
+      await creatorPollRoutes.handlePostCancelCreatorPoll(req, res, pollId);
+      return;
+    }
+    if (method === 'POST' && transition === 'close') {
+      await creatorPollRoutes.handlePostCloseCreatorPoll(req, res, pollId);
+      return;
+    }
+    if (method === 'POST' && transition === 'unpublish') {
+      await creatorPollRoutes.handlePostUnpublishCreatorPoll(req, res, pollId);
       return;
     }
     sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });

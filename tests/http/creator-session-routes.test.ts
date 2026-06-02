@@ -1,5 +1,4 @@
 import type { Server } from 'node:http';
-import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 import type { CreatorSessionConfig } from '../../src/creator-sessions/config.js';
 import { createInMemoryCreatorSessionRepository } from '../../src/creator-sessions/in-memory-repository.js';
@@ -277,10 +276,5 @@ describe('creator session routes', () => {
         .runDuePublicLifecycleAdvancementBatch(),
     ).toEqual({ candidate_count: 0, advanced: [], failed: [] });
 
-    const serverSource = await readFile(
-      new URL('../../src/http/server.ts', import.meta.url),
-      'utf8',
-    );
-    expect(serverSource).not.toContain('/creator/polls');
   });
 });

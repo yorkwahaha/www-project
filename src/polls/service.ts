@@ -11,6 +11,7 @@ import type { PollRepository } from './repository.js';
 import type {
   CreatePollInput,
   CreatePollResult,
+  CreatorOwnedPollListResult,
   CancelPollResult,
   DeletePollResult,
   AdvancePublicLifecycleResult,
@@ -44,6 +45,8 @@ import { validateCreatePollInput } from './validation.js';
 
 export type PollService = {
   createPoll(input: CreatePollInput, displayName: string): Promise<CreatePollResult>;
+  createCreatorPoll(input: CreatePollInput): Promise<CreatePollResult>;
+  getCreatorOwnedPolls(creatorId: string): Promise<CreatorOwnedPollListResult>;
   getPollById(pollId: string): Promise<PollDetail>;
   getPollResults(pollId: string): Promise<PollResultDisplay>;
   getPublicFeed(query?: PublicFeedQuery): Promise<PublicFeedResult>;
@@ -71,6 +74,8 @@ export type PollService = {
   assertCreatorCannotEditPublishedPoll(): never;
 };
 
+export const CREATOR_OWNED_POLL_LIST_LIMIT = 50;
+
 export function createPollService(
   repository: PollRepository,
   options: { selectShardId?: () => number } = {},
@@ -78,14 +83,7 @@ export function createPollService(
   const selectShardId = options.selectShardId ?? (() => randomInt(0, SHARD_COUNT));
   return {
     async createPoll(input, displayName) {
-      validateCreatePollInput({
-        title: input.title,
-        description: input.description,
-        category: input.category,
-        options: input.options,
-        closesAt: input.closesAt,
-        publish: input.publish,
-      });
+      validatePollCreation(input);
       await repository.ensureUser(input.creatorId, displayName);
       const poll = await repository.createPollWithOptions(input);
       return {
@@ -156,6 +154,40 @@ export function createPollService(
         poll_id: deleted.id,
         status: 'deleted',
         deleted_at: deleted.deleted_at!.toISOString(),
+      };
+    },
+
+    async createCreatorPoll(input) {
+      validatePollCreation(input);
+      const creator = await repository.findUserById(input.creatorId);
+      if (!creator || creator.status !== 'active') {
+        throw new PollForbiddenError('Active creator is required');
+      }
+      const poll = await repository.createPollWithOptions(input);
+      return {
+        poll_id: poll.id,
+        status: poll.status,
+        created_at: poll.created_at.toISOString(),
+      };
+    },
+
+    async getCreatorOwnedPolls(creatorId) {
+      const rows = await repository.listCreatorOwnedPolls(
+        creatorId,
+        CREATOR_OWNED_POLL_LIST_LIMIT,
+      );
+      return {
+        polls: rows.map((poll) => ({
+          poll_id: poll.id,
+          title: poll.title,
+          category: poll.category,
+          public_lifecycle_state: poll.public_lifecycle_state,
+          closes_at: poll.closes_at.toISOString(),
+          revealed_at: poll.revealed_at?.toISOString() ?? null,
+          public_lock_ends_at: poll.public_lock_ends_at?.toISOString() ?? null,
+          cancelled_at: poll.cancelled_at?.toISOString() ?? null,
+          unpublished_at: poll.unpublished_at?.toISOString() ?? null,
+        })),
       };
     },
 
@@ -269,6 +301,17 @@ export function createPollService(
       throw new PublishedPollImmutableError();
     },
   };
+}
+
+function validatePollCreation(input: CreatePollInput): void {
+  validateCreatePollInput({
+    title: input.title,
+    description: input.description,
+    category: input.category,
+    options: input.options,
+    closesAt: input.closesAt,
+    publish: input.publish,
+  });
 }
 
 function toRevealPollResult(poll: PollRow): RevealPollResult {

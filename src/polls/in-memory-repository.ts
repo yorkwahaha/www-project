@@ -178,6 +178,34 @@ export function createInMemoryPollRepository(): PollRepository & {
         }));
     },
 
+    async listCreatorOwnedPolls(creatorId, limit) {
+      return [...polls.values()]
+        .filter((poll) => (
+          poll.creator_id === creatorId &&
+          poll.status !== 'deleted' &&
+          poll.status !== 'suspended' &&
+          poll.status !== 'correction_pending' &&
+          poll.archived_at === null
+        ))
+        .sort((a, b) => (
+          b.created_at.getTime() - a.created_at.getTime() ||
+          a.id.localeCompare(b.id)
+        ))
+        .slice(0, limit)
+        .map((poll) => ({
+          id: poll.id,
+          title: poll.title,
+          category: poll.category,
+          public_lifecycle_state: poll.public_lifecycle_state,
+          closes_at: poll.closes_at,
+          revealed_at: poll.revealed_at,
+          public_lock_ends_at: poll.public_lock_ends_at,
+          cancelled_at: poll.cancelled_at,
+          unpublished_at: poll.unpublished_at,
+          created_at: poll.created_at,
+        }));
+    },
+
     async listPublicLifecycleSchedulerCandidateIds(limit) {
       const now = Date.now();
       return [...polls.values()]

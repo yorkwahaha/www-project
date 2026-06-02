@@ -78,6 +78,10 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 64:** Explicit lifecycle scheduler runner — after build, `npm run scheduler:lifecycle -- --limit 100` runs one bounded server-side batch for due `revealed → locked` and `locked → post_lock` transitions. It is safe for manual or cron invocation, but no production cron is installed by this repository. See `docs/www-project-phase-64-lifecycle-scheduler-runner-v1.md`.
 
+**Phase 65A:** Creator session foundation — digest-backed fixed-TTL `creator_session` cookies, exact-match Origin gate, local/test-only issuance, and production fail-closed behavior. No frontend UX or creator ownership rewiring. See `docs/www-project-phase-65a-creator-session-foundation-v1.md`.
+
+**Phase 65B:** Backend creator-owned poll APIs — authenticated `/creator/polls` create/list/delete/lifecycle routes use only the Phase 65A cookie principal. Owned list reads are bounded, deterministic, polls-table-only, and counter-free. Legacy `/polls` creator writes remain until Phase 65C frontend cutover plus retirement or development gate. See `docs/www-project-phase-65b-creator-owned-poll-apis-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

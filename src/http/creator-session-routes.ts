@@ -1,15 +1,17 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { CreatorSessionConfig } from '../creator-sessions/config.js';
-import { CreatorSessionError, invalidCreatorSession } from '../creator-sessions/errors.js';
-import type {
-  CreatorSessionPrincipal,
-  CreatorSessionService,
-} from '../creator-sessions/service.js';
+import { CreatorSessionError } from '../creator-sessions/errors.js';
+import type { CreatorSessionPrincipal, CreatorSessionService } from '../creator-sessions/service.js';
+import {
+  assertCreatorMutationOrigin,
+  authenticateCreatorRequest,
+  CREATOR_SESSION_COOKIE_NAME,
+  readCreatorSessionCookie,
+} from './creator-auth.js';
 import { readJsonBody, sendJson } from './json.js';
 
-export const CREATOR_SESSION_COOKIE_NAME = 'creator_session';
+export { CREATOR_SESSION_COOKIE_NAME } from './creator-auth.js';
 const CREATOR_SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
-const TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 
 type LocalTestIssueBody = {
   user_id?: unknown;
@@ -37,7 +39,7 @@ export function createCreatorSessionRouteHandlers(
 
     async handleGetSession(req: IncomingMessage, res: ServerResponse): Promise<void> {
       try {
-        sendJson(res, 200, toSessionResponse(await authenticateRequest(req, service)));
+        sendJson(res, 200, toSessionResponse(await authenticateCreatorRequest(req, service)));
       } catch (err) {
         handleCreatorSessionRouteError(res, err);
       }
@@ -56,73 +58,12 @@ export function createCreatorSessionRouteHandlers(
   };
 }
 
-export function readCreatorSessionCookie(req: IncomingMessage): string {
-  const raw = req.headers.cookie;
-  if (raw === undefined || Array.isArray(raw)) {
-    throw invalidCreatorSession();
-  }
-
-  const matches: string[] = [];
-  for (const segment of raw.split(';')) {
-    const trimmed = segment.trim();
-    const separator = trimmed.indexOf('=');
-    if (separator < 1) {
-      continue;
-    }
-    if (trimmed.slice(0, separator) === CREATOR_SESSION_COOKIE_NAME) {
-      matches.push(trimmed.slice(separator + 1));
-    }
-  }
-  if (matches.length !== 1 || !TOKEN_PATTERN.test(matches[0]!)) {
-    throw invalidCreatorSession();
-  }
-  return matches[0]!;
-}
-
 function issuerUnavailable(): CreatorSessionError {
   return new CreatorSessionError(
     'CREATOR_SESSION_ISSUER_UNAVAILABLE',
     'Creator session issuer is unavailable',
     503,
   );
-}
-
-function authenticateRequest(
-  req: IncomingMessage,
-  service: CreatorSessionService,
-): Promise<CreatorSessionPrincipal> {
-  return service.authenticateToken(readCreatorSessionCookie(req));
-}
-
-function assertCreatorMutationOrigin(
-  req: IncomingMessage,
-  config: CreatorSessionConfig,
-): void {
-  const raw = req.headers.origin;
-  if (raw === undefined || Array.isArray(raw) || !config.allowedOrigins.has(raw)) {
-    throw new CreatorSessionError(
-      'CREATOR_SESSION_ORIGIN_REJECTED',
-      'Creator session mutation origin is not allowed',
-      403,
-    );
-  }
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new CreatorSessionError(
-      'CREATOR_SESSION_ORIGIN_REJECTED',
-      'Creator session mutation origin is not allowed',
-      403,
-    );
-  }
-  if (url.origin !== raw || (url.protocol !== 'http:' && url.protocol !== 'https:')) {
-    throw new CreatorSessionError(
-      'CREATOR_SESSION_ORIGIN_REJECTED',
-      'Creator session mutation origin is not allowed',
-      403,
-    );
-  }
 }
 
 function serializeSessionCookie(token: string, config: CreatorSessionConfig): string {

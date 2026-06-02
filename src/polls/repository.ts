@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from 'pg';
 import type {
   CreatePollInput,
+  CreatorOwnedPollRow,
   PollOptionRow,
   PollOptionVoteAggregateRow,
   PollOptionVoteCounterRow,
@@ -41,6 +42,7 @@ export type PollRepository = {
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
   listVoteAggregatesByPollId(pollId: string): Promise<PollOptionVoteAggregateRow[]>;
   listPublicFeedPolls(params: ListPublicFeedPollsParams): Promise<PublicFeedPollRow[]>;
+  listCreatorOwnedPolls(creatorId: string, limit: number): Promise<CreatorOwnedPollRow[]>;
   listPublicLifecycleSchedulerCandidateIds(limit: number): Promise<string[]>;
   optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
   softDeletePoll(pollId: string, creatorId: string): Promise<PollRow | null>;
@@ -79,6 +81,7 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
     listVoteAggregatesByPollId: (pollId) => listVoteAggregatesByPollId(pool, pollId),
     listPublicFeedPolls: (params) => listPublicFeedPolls(pool, params),
+    listCreatorOwnedPolls: (creatorId, limit) => listCreatorOwnedPolls(pool, creatorId, limit),
     listPublicLifecycleSchedulerCandidateIds: (limit) =>
       listPublicLifecycleSchedulerCandidateIds(pool, limit),
     optionBelongsToPoll: (pollId, optionId) => optionBelongsToPoll(pool, pollId, optionId),
@@ -445,6 +448,26 @@ async function listPublicFeedPolls(
      ORDER BY published_at DESC, id ASC
      LIMIT $${values.length}`,
     values,
+  );
+  return result.rows;
+}
+
+async function listCreatorOwnedPolls(
+  pool: Pool,
+  creatorId: string,
+  limit: number,
+): Promise<CreatorOwnedPollRow[]> {
+  const result = await pool.query<CreatorOwnedPollRow>(
+    `SELECT
+       id, title, category, public_lifecycle_state, closes_at,
+       revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, created_at
+     FROM polls
+     WHERE creator_id = $1
+       AND status NOT IN ('deleted', 'suspended', 'correction_pending')
+       AND archived_at IS NULL
+     ORDER BY created_at DESC, id ASC
+     LIMIT $2`,
+    [creatorId, limit],
   );
   return result.rows;
 }

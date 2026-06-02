@@ -125,4 +125,13 @@ describe('explore page feed helpers', () => {
     expect(html).not.toContain('mvp-result-preview');
     expect(html).not.toContain('/vote/demo');
   });
+
+  it('homepage copy points to live explore feed without launch-delay wording', async () => {
+    const html = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
+    expect(html).toContain('href="/explore"');
+    expect(html).toContain('最近發布');
+    expect(html).toContain('收集中');
+    expect(html).toMatch(/非熱門|票數|個人化|榜單/);
+    expect(html).not.toMatch(/完整探索列表將在正式上線後開放/);
+  });
 });

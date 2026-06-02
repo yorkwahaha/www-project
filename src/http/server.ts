@@ -186,6 +186,26 @@ async function routeRequest(
     return;
   }
 
+  const lifecycleTransitionMatch = path.match(
+    /^\/polls\/([^/]+)\/(cancel|close|unpublish)$/,
+  );
+  if (lifecycleTransitionMatch && method === 'POST') {
+    const pollId = lifecycleTransitionMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    const transition = lifecycleTransitionMatch[2];
+    if (transition === 'cancel') {
+      await pollRoutes.handlePostCancelPoll(req, res, pollId);
+    } else if (transition === 'close') {
+      await pollRoutes.handlePostClosePoll(req, res, pollId);
+    } else {
+      await pollRoutes.handlePostUnpublishPoll(req, res, pollId);
+    }
+    return;
+  }
+
   const officialVoteMatch = path.match(/^\/polls\/([^/]+)\/vote$/);
   if (officialVoteMatch && method === 'POST') {
     const pollId = officialVoteMatch[1]!;

@@ -27,6 +27,30 @@ export class PollValidationError extends PollError {
   }
 }
 
+export class PollLifecycleConflictError extends PollError {
+  constructor(message = 'Poll lifecycle transition is not allowed') {
+    super('LIFECYCLE_CONFLICT', message, 409);
+  }
+}
+
+export class PollAlreadyCancelledError extends PollError {
+  constructor(message = 'Poll is already cancelled') {
+    super('ALREADY_CANCELLED', message, 409);
+  }
+}
+
+export class PollAlreadyUnpublishedError extends PollError {
+  constructor(message = 'Poll is already unpublished') {
+    super('ALREADY_UNPUBLISHED', message, 409);
+  }
+}
+
+export class PollLockedPeriodConflictError extends PollError {
+  constructor(message = 'Poll public lock period has not ended') {
+    super('LOCKED_PERIOD_CONFLICT', message, 409);
+  }
+}
+
 export class InvalidFeedLimitError extends PollError {
   constructor(message = 'Feed limit must be an integer from 1 to 50') {
     super('INVALID_FEED_LIMIT', message, 400);

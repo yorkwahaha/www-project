@@ -6,13 +6,22 @@ import type {
   PollOptionVoteCounterRow,
   PollReferenceAnswerTokenRow,
   PollRow,
+  PublicLifecycleState,
   PollStatus,
   PollVoteTokenRow,
   ListPublicFeedPollsParams,
   PublicFeedPollRow,
   UserRow,
 } from './types.js';
-import { PollForbiddenError, PollNotFoundError, PollValidationError } from './errors.js';
+import {
+  PollAlreadyCancelledError,
+  PollAlreadyUnpublishedError,
+  PollForbiddenError,
+  PollLifecycleConflictError,
+  PollLockedPeriodConflictError,
+  PollNotFoundError,
+  PollValidationError,
+} from './errors.js';
 import {
   isParticipationAllowed,
   isPublicHiddenPoll,
@@ -34,6 +43,10 @@ export type PollRepository = {
   listPublicFeedPolls(params: ListPublicFeedPollsParams): Promise<PublicFeedPollRow[]>;
   optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
   softDeletePoll(pollId: string, creatorId: string): Promise<PollRow | null>;
+  cancelPoll(pollId: string, creatorId: string): Promise<PollRow>;
+  revealPoll(pollId: string, creatorId?: string): Promise<PollRow>;
+  advancePublicLifecycle(pollId: string): Promise<PollRow>;
+  unpublishPoll(pollId: string, creatorId: string): Promise<PollRow>;
   createReferenceAnswerToken(
     userId: string,
     pollId: string,
@@ -67,6 +80,10 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     listPublicFeedPolls: (params) => listPublicFeedPolls(pool, params),
     optionBelongsToPoll: (pollId, optionId) => optionBelongsToPoll(pool, pollId, optionId),
     softDeletePoll: (pollId, creatorId) => softDeletePoll(pool, pollId, creatorId),
+    cancelPoll: (pollId, creatorId) => cancelPoll(pool, pollId, creatorId),
+    revealPoll: (pollId, creatorId) => revealPoll(pool, pollId, creatorId),
+    advancePublicLifecycle: (pollId) => advancePublicLifecycle(pool, pollId),
+    unpublishPoll: (pollId, creatorId) => unpublishPoll(pool, pollId, creatorId),
     createReferenceAnswerToken: (userId, pollId, answeredAt, expiresAt) =>
       createReferenceAnswerToken(pool, userId, pollId, answeredAt, expiresAt),
     castOfficialVote: (userId, pollId, optionId, votedAtMinute, selectShardId) =>
@@ -183,14 +200,17 @@ async function findUserByIdWithClient(
 async function findPollByIdWithClient(
   client: PoolClient,
   pollId: string,
+  forUpdate = false,
 ): Promise<PollRow | null> {
   const result = await client.query<PollRow>(
     `SELECT
        id, creator_id, title, description, category, status,
-       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at,
+       revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, deleted_at,
        created_at, updated_at
      FROM polls
-     WHERE id = $1`,
+     WHERE id = $1
+     ${forUpdate ? 'FOR UPDATE' : ''}`,
     [pollId],
   );
   return result.rows[0] ?? null;
@@ -312,7 +332,8 @@ async function insertPoll(
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING
        id, creator_id, title, description, category, status,
-       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at,
+       revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, deleted_at,
        created_at, updated_at`,
     [
       input.creatorId,
@@ -346,7 +367,8 @@ async function findPollById(pool: Pool, pollId: string): Promise<PollRow | null>
   const result = await pool.query<PollRow>(
     `SELECT
        id, creator_id, title, description, category, status,
-       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at,
+       revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, deleted_at,
        created_at, updated_at
      FROM polls
      WHERE id = $1`,
@@ -398,6 +420,7 @@ async function listPublicFeedPolls(
   const feedOpenAt = new Date();
   const conditions = [
     "status = 'active'",
+    "public_lifecycle_state = 'collecting'",
     'published_at IS NOT NULL',
     'archived_at IS NULL',
     'closes_at > $1',
@@ -434,11 +457,187 @@ async function softDeletePoll(
      WHERE id = $1 AND creator_id = $2 AND status <> 'deleted'
      RETURNING
        id, creator_id, title, description, category, status,
-       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at, deleted_at,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at,
+       revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, deleted_at,
        created_at, updated_at`,
     [pollId, creatorId],
   );
   return result.rows[0] ?? null;
+}
+
+async function cancelPoll(
+  pool: Pool,
+  pollId: string,
+  creatorId: string,
+): Promise<PollRow> {
+  return withLockedPoll(pool, pollId, async (client, poll) => {
+    assertCreatorTransitionPoll(poll, creatorId);
+    if (poll.public_lifecycle_state === 'cancelled') {
+      throw new PollAlreadyCancelledError();
+    }
+    assertLifecycleState(poll, 'collecting');
+    await client.query(
+      `UPDATE polls
+       SET public_lifecycle_state = 'cancelled',
+           cancelled_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $1`,
+      [pollId],
+    );
+    return requirePollByIdWithClient(client, pollId);
+  });
+}
+
+async function revealPoll(
+  pool: Pool,
+  pollId: string,
+  creatorId?: string,
+): Promise<PollRow> {
+  return withLockedPoll(pool, pollId, async (client, poll) => {
+    assertTransitionPoll(poll);
+    if (creatorId !== undefined) {
+      assertCreator(poll, creatorId);
+    }
+    assertLifecycleState(poll, 'collecting');
+    const now = await getTransactionNow(client);
+    if (poll.closes_at.getTime() > now.getTime()) {
+      throw new PollValidationError('Poll cannot be revealed before closes_at');
+    }
+    await client.query(
+      `UPDATE polls
+       SET public_lifecycle_state = 'revealed',
+           revealed_at = NOW(),
+           public_lock_ends_at = NOW() + INTERVAL '5 days',
+           updated_at = NOW()
+       WHERE id = $1`,
+      [pollId],
+    );
+    return requirePollByIdWithClient(client, pollId);
+  });
+}
+
+async function advancePublicLifecycle(
+  pool: Pool,
+  pollId: string,
+): Promise<PollRow> {
+  return withLockedPoll(pool, pollId, async (client, poll) => {
+    assertTransitionPoll(poll);
+    let publicLifecycleState: PublicLifecycleState;
+    if (poll.public_lifecycle_state === 'revealed') {
+      publicLifecycleState = 'locked';
+    } else if (poll.public_lifecycle_state === 'locked') {
+      const now = await getTransactionNow(client);
+      if (
+        poll.public_lock_ends_at === null ||
+        poll.public_lock_ends_at.getTime() > now.getTime()
+      ) {
+        throw new PollLockedPeriodConflictError();
+      }
+      publicLifecycleState = 'post_lock';
+    } else {
+      throw new PollLifecycleConflictError();
+    }
+    await client.query(
+      `UPDATE polls
+       SET public_lifecycle_state = $2,
+           updated_at = NOW()
+       WHERE id = $1`,
+      [pollId, publicLifecycleState],
+    );
+    return requirePollByIdWithClient(client, pollId);
+  });
+}
+
+async function unpublishPoll(
+  pool: Pool,
+  pollId: string,
+  creatorId: string,
+): Promise<PollRow> {
+  return withLockedPoll(pool, pollId, async (client, poll) => {
+    assertCreatorTransitionPoll(poll, creatorId);
+    if (poll.public_lifecycle_state === 'unpublished') {
+      throw new PollAlreadyUnpublishedError();
+    }
+    assertLifecycleState(poll, 'post_lock');
+    const now = await getTransactionNow(client);
+    if (
+      poll.public_lock_ends_at === null ||
+      poll.public_lock_ends_at.getTime() > now.getTime()
+    ) {
+      throw new PollLockedPeriodConflictError();
+    }
+    await client.query(
+      `UPDATE polls
+       SET public_lifecycle_state = 'unpublished',
+           unpublished_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $1`,
+      [pollId],
+    );
+    return requirePollByIdWithClient(client, pollId);
+  });
+}
+
+async function withLockedPoll(
+  pool: Pool,
+  pollId: string,
+  transition: (client: PoolClient, poll: PollRow) => Promise<PollRow>,
+): Promise<PollRow> {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const poll = await findPollByIdWithClient(client, pollId, true);
+    const transitioned = await transition(client, poll ?? missingPoll());
+    await client.query('COMMIT');
+    return transitioned;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+function missingPoll(): never {
+  throw new PollNotFoundError();
+}
+
+function assertTransitionPoll(poll: PollRow): void {
+  if (isPublicHiddenPoll(poll)) {
+    throw new PollNotFoundError();
+  }
+}
+
+function assertCreatorTransitionPoll(poll: PollRow, creatorId: string): void {
+  assertTransitionPoll(poll);
+  assertCreator(poll, creatorId);
+}
+
+function assertCreator(poll: PollRow, creatorId: string): void {
+  if (poll.creator_id !== creatorId) {
+    throw new PollForbiddenError('Only the creator may change poll lifecycle');
+  }
+}
+
+function assertLifecycleState(
+  poll: PollRow,
+  expected: PublicLifecycleState,
+): void {
+  if (poll.public_lifecycle_state !== expected) {
+    throw new PollLifecycleConflictError();
+  }
+}
+
+async function getTransactionNow(client: PoolClient): Promise<Date> {
+  const result = await client.query<{ now: Date }>(`SELECT NOW() AS now`);
+  return result.rows[0]!.now;
+}
+
+async function requirePollByIdWithClient(
+  client: PoolClient,
+  pollId: string,
+): Promise<PollRow> {
+  return (await findPollByIdWithClient(client, pollId)) ?? missingPoll();
 }
 
 async function optionBelongsToPoll(

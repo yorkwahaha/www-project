@@ -23,6 +23,10 @@ function poll(overrides: Partial<PollRow> = {}): PollRow {
     published_at: now,
     archived_at: null,
     closes_at: new Date('2026-12-31T12:00:00.000Z'),
+    revealed_at: null,
+    public_lock_ends_at: null,
+    cancelled_at: null,
+    unpublished_at: null,
     deleted_at: null,
     created_at: now,
     updated_at: now,
@@ -107,6 +111,18 @@ describe('public visibility helpers', () => {
     expect(isPublicFeedEligible(expired, now)).toBe(false);
     expect(isPublicDirectReadable(expired)).toBe(true);
     expect(isPublicResultsReadable(expired)).toBe(true);
+  });
+
+  it('excludes non-collecting lifecycle states from feed eligibility', () => {
+    for (const public_lifecycle_state of [
+      'cancelled',
+      'revealed',
+      'locked',
+      'post_lock',
+      'unpublished',
+    ] as const) {
+      expect(isPublicFeedEligible(poll({ public_lifecycle_state }))).toBe(false);
+    }
   });
 
   it('allows participation only for collecting, unarchived active polls before closes_at', () => {

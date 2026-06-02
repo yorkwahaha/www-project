@@ -112,4 +112,49 @@ describe('Reference Answer PostgreSQL integration', () => {
     );
     expect(countersAfterDuplicate.rows).toHaveLength(0);
   });
+
+  it.each(['cancelled', 'revealed', 'locked', 'post_lock', 'unpublished'] as const)(
+    'rejects Reference Answer for %s lifecycle without token or counter writes',
+    async (publicLifecycleState) => {
+      const repository = createPgPollRepository(pool);
+      const service = createPollService(repository);
+      await repository.ensureUser(creatorId, 'Creator');
+      await repository.ensureUser(lowTrustUserId, 'Low trust voter');
+      const created = await service.createPoll(
+        {
+          creatorId,
+          title: 'PG lifecycle-blocked Reference Answer',
+          description: '',
+          category: 'general',
+          options: ['A', 'B'],
+          eligibleRuleId: null,
+          closesAt: new Date(Date.now() + 86_400_000),
+          publish: true,
+        },
+        'Creator',
+      );
+      const [option] = await repository.listOptionsByPollId(created.poll_id);
+      await pool.query(
+        `UPDATE polls SET public_lifecycle_state = $2 WHERE id = $1`,
+        [created.poll_id, publicLifecycleState],
+      );
+
+      await expect(
+        service.submitReferenceAnswer(created.poll_id, lowTrustUserId, option!.id),
+      ).rejects.toMatchObject({
+        code: 'POLL_VALIDATION',
+        message: 'Poll is not collecting responses',
+      });
+      const tokens = await pool.query(
+        `SELECT 1 FROM poll_reference_answer_tokens WHERE poll_id = $1`,
+        [created.poll_id],
+      );
+      const counters = await pool.query(
+        `SELECT 1 FROM poll_option_vote_counters WHERE poll_id = $1`,
+        [created.poll_id],
+      );
+      expect(tokens.rows).toHaveLength(0);
+      expect(counters.rows).toHaveLength(0);
+    },
+  );
 });

@@ -11,15 +11,19 @@ import type { PollRepository } from './repository.js';
 import type {
   CreatePollInput,
   CreatePollResult,
+  CancelPollResult,
   DeletePollResult,
+  AdvancePublicLifecycleResult,
   PollDetail,
   PollOptionVoteAggregateRow,
   PollRow,
   PollResultDisplay,
   PublicFeedQuery,
   PublicFeedResult,
+  RevealPollResult,
   OfficialVoteResult,
   ReferenceAnswerResult,
+  UnpublishPollResult,
 } from './types.js';
 import { decodeFeedCursor, encodeFeedCursor, parseFeedLimit } from './feed-cursor.js';
 import {
@@ -44,6 +48,11 @@ export type PollService = {
   getPollResults(pollId: string): Promise<PollResultDisplay>;
   getPublicFeed(query?: PublicFeedQuery): Promise<PublicFeedResult>;
   deletePoll(pollId: string, creatorId: string): Promise<DeletePollResult>;
+  cancelPoll(pollId: string, creatorId: string): Promise<CancelPollResult>;
+  closePoll(pollId: string, creatorId: string): Promise<RevealPollResult>;
+  revealPoll(pollId: string): Promise<RevealPollResult>;
+  advancePublicLifecycle(pollId: string): Promise<AdvancePublicLifecycleResult>;
+  unpublishPoll(pollId: string, creatorId: string): Promise<UnpublishPollResult>;
   submitReferenceAnswer(
     pollId: string,
     userId: string,
@@ -150,6 +159,39 @@ export function createPollService(
       };
     },
 
+    async cancelPoll(pollId, creatorId) {
+      await repository.cancelPoll(pollId, creatorId);
+      return {
+        public_lifecycle_state: 'cancelled',
+        message: '問卷已取消，不會產生公開結果。',
+      };
+    },
+
+    async closePoll(pollId, creatorId) {
+      return toRevealPollResult(await repository.revealPoll(pollId, creatorId));
+    },
+
+    async revealPoll(pollId) {
+      return toRevealPollResult(await repository.revealPoll(pollId));
+    },
+
+    async advancePublicLifecycle(pollId) {
+      const poll = await repository.advancePublicLifecycle(pollId);
+      return {
+        public_lifecycle_state: poll.public_lifecycle_state as 'locked' | 'post_lock',
+        revealed_at: poll.revealed_at!.toISOString(),
+        public_lock_ends_at: poll.public_lock_ends_at!.toISOString(),
+      };
+    },
+
+    async unpublishPoll(pollId, creatorId) {
+      await repository.unpublishPoll(pollId, creatorId);
+      return {
+        public_lifecycle_state: 'unpublished',
+        user_message: '此問卷已結束公開鎖定期，並由發起者下架。',
+      };
+    },
+
     async submitReferenceAnswer(pollId, userId, optionId) {
       const user = await repository.findUserById(userId);
       if (!user || user.status !== 'active') {
@@ -226,6 +268,14 @@ export function createPollService(
     assertCreatorCannotEditPublishedPoll(): never {
       throw new PublishedPollImmutableError();
     },
+  };
+}
+
+function toRevealPollResult(poll: PollRow): RevealPollResult {
+  return {
+    public_lifecycle_state: 'revealed',
+    revealed_at: poll.revealed_at!.toISOString(),
+    public_lock_ends_at: poll.public_lock_ends_at!.toISOString(),
   };
 }
 

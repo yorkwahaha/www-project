@@ -22,6 +22,7 @@ export function isPublicFeedEligible(
 ): boolean {
   return (
     poll.status === 'active' &&
+    poll.public_lifecycle_state === 'collecting' &&
     poll.published_at !== null &&
     poll.archived_at === null &&
     isPollOpenByCloseTime(poll, now)

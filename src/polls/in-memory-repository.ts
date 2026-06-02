@@ -11,7 +11,15 @@ import type {
   UserRow,
 } from './types.js';
 import type { TrustLevel } from './trust.js';
-import { PollForbiddenError, PollNotFoundError, PollValidationError } from './errors.js';
+import {
+  PollAlreadyCancelledError,
+  PollAlreadyUnpublishedError,
+  PollForbiddenError,
+  PollLifecycleConflictError,
+  PollLockedPeriodConflictError,
+  PollNotFoundError,
+  PollValidationError,
+} from './errors.js';
 import {
   INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
   OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
@@ -99,6 +107,10 @@ export function createInMemoryPollRepository(): PollRepository & {
         published_at: input.publish ? now : null,
         archived_at: null,
         closes_at: input.closesAt,
+        revealed_at: null,
+        public_lock_ends_at: null,
+        cancelled_at: null,
+        unpublished_at: null,
         deleted_at: null,
         created_at: now,
         updated_at: now,
@@ -183,6 +195,71 @@ export function createInMemoryPollRepository(): PollRepository & {
 
     async optionBelongsToPoll(pollId, optionId) {
       return (options.get(pollId) ?? []).some((option) => option.id === optionId);
+    },
+
+    async cancelPoll(pollId, creatorId) {
+      const poll = requireCreatorTransitionPoll(polls, pollId, creatorId);
+      if (poll.public_lifecycle_state === 'cancelled') {
+        throw new PollAlreadyCancelledError();
+      }
+      assertLifecycleState(poll, 'collecting');
+      return updatePoll(polls, poll, {
+        public_lifecycle_state: 'cancelled',
+        cancelled_at: new Date(),
+      });
+    },
+
+    async revealPoll(pollId, creatorId) {
+      const poll = requireTransitionPoll(polls, pollId);
+      if (creatorId !== undefined) {
+        assertCreator(poll, creatorId);
+      }
+      assertLifecycleState(poll, 'collecting');
+      const now = new Date();
+      if (poll.closes_at.getTime() > now.getTime()) {
+        throw new PollValidationError('Poll cannot be revealed before closes_at');
+      }
+      return updatePoll(polls, poll, {
+        public_lifecycle_state: 'revealed',
+        revealed_at: now,
+        public_lock_ends_at: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000),
+      });
+    },
+
+    async advancePublicLifecycle(pollId) {
+      const poll = requireTransitionPoll(polls, pollId);
+      if (poll.public_lifecycle_state === 'revealed') {
+        return updatePoll(polls, poll, { public_lifecycle_state: 'locked' });
+      }
+      if (poll.public_lifecycle_state === 'locked') {
+        if (
+          poll.public_lock_ends_at === null ||
+          poll.public_lock_ends_at.getTime() > Date.now()
+        ) {
+          throw new PollLockedPeriodConflictError();
+        }
+        return updatePoll(polls, poll, { public_lifecycle_state: 'post_lock' });
+      }
+      throw new PollLifecycleConflictError();
+    },
+
+    async unpublishPoll(pollId, creatorId) {
+      const poll = requireCreatorTransitionPoll(polls, pollId, creatorId);
+      if (poll.public_lifecycle_state === 'unpublished') {
+        throw new PollAlreadyUnpublishedError();
+      }
+      assertLifecycleState(poll, 'post_lock');
+      const now = new Date();
+      if (
+        poll.public_lock_ends_at === null ||
+        poll.public_lock_ends_at.getTime() > now.getTime()
+      ) {
+        throw new PollLockedPeriodConflictError();
+      }
+      return updatePoll(polls, poll, {
+        public_lifecycle_state: 'unpublished',
+        unpublished_at: now,
+      });
     },
 
     async createReferenceAnswerToken(userId, pollId, answeredAt, expiresAt) {
@@ -301,6 +378,52 @@ export function createInMemoryPollRepository(): PollRepository & {
       );
     },
   };
+}
+
+function requireTransitionPoll(
+  polls: Map<string, PollRow>,
+  pollId: string,
+): PollRow {
+  const poll = polls.get(pollId);
+  if (isPublicHiddenPoll(poll)) {
+    throw new PollNotFoundError();
+  }
+  return poll!;
+}
+
+function requireCreatorTransitionPoll(
+  polls: Map<string, PollRow>,
+  pollId: string,
+  creatorId: string,
+): PollRow {
+  const poll = requireTransitionPoll(polls, pollId);
+  assertCreator(poll, creatorId);
+  return poll;
+}
+
+function assertCreator(poll: PollRow, creatorId: string): void {
+  if (poll.creator_id !== creatorId) {
+    throw new PollForbiddenError('Only the creator may change poll lifecycle');
+  }
+}
+
+function assertLifecycleState(
+  poll: PollRow,
+  expected: PollRow['public_lifecycle_state'],
+): void {
+  if (poll.public_lifecycle_state !== expected) {
+    throw new PollLifecycleConflictError();
+  }
+}
+
+function updatePoll(
+  polls: Map<string, PollRow>,
+  poll: PollRow,
+  updates: Partial<PollRow>,
+): PollRow {
+  const updated = { ...poll, ...updates, updated_at: new Date() };
+  polls.set(poll.id, updated);
+  return updated;
 }
 
 function isPublicFeedRowAfterCursor(

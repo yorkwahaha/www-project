@@ -72,6 +72,45 @@ export function createPollRouteHandlers(pollService: PollService) {
       }
     },
 
+    async handlePostCancelPoll(
+      req: IncomingMessage,
+      res: ServerResponse,
+      pollId: string,
+    ): Promise<void> {
+      try {
+        const result = await pollService.cancelPoll(pollId, requireUserId(req));
+        sendJson(res, 200, result);
+      } catch (err) {
+        handlePollRouteError(res, err);
+      }
+    },
+
+    async handlePostClosePoll(
+      req: IncomingMessage,
+      res: ServerResponse,
+      pollId: string,
+    ): Promise<void> {
+      try {
+        const result = await pollService.closePoll(pollId, requireUserId(req));
+        sendJson(res, 200, result);
+      } catch (err) {
+        handlePollRouteError(res, err);
+      }
+    },
+
+    async handlePostUnpublishPoll(
+      req: IncomingMessage,
+      res: ServerResponse,
+      pollId: string,
+    ): Promise<void> {
+      try {
+        const result = await pollService.unpublishPoll(pollId, requireUserId(req));
+        sendJson(res, 200, result);
+      } catch (err) {
+        handlePollRouteError(res, err);
+      }
+    },
+
     handlePostReferenceAnswer(
       req: IncomingMessage,
       res: ServerResponse,

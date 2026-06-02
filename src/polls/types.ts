@@ -35,6 +35,10 @@ export type PollRow = {
   published_at: Date | null;
   archived_at: Date | null;
   closes_at: Date;
+  revealed_at: Date | null;
+  public_lock_ends_at: Date | null;
+  cancelled_at: Date | null;
+  unpublished_at: Date | null;
   deleted_at: Date | null;
   created_at: Date;
   updated_at: Date;
@@ -136,6 +140,28 @@ export type DeletePollResult = {
   poll_id: string;
   status: 'deleted';
   deleted_at: string;
+};
+
+export type CancelPollResult = {
+  public_lifecycle_state: 'cancelled';
+  message: '問卷已取消，不會產生公開結果。';
+};
+
+export type RevealPollResult = {
+  public_lifecycle_state: 'revealed';
+  revealed_at: string;
+  public_lock_ends_at: string;
+};
+
+export type AdvancePublicLifecycleResult = {
+  public_lifecycle_state: 'locked' | 'post_lock';
+  revealed_at: string;
+  public_lock_ends_at: string;
+};
+
+export type UnpublishPollResult = {
+  public_lifecycle_state: 'unpublished';
+  user_message: '此問卷已結束公開鎖定期，並由發起者下架。';
 };
 
 export type ReferenceAnswerResult = {

@@ -60,6 +60,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 56:** Eligibility and collecting privacy guardrails — public collecting results remain one identity-neutral counter-free shell for guests, creators, currently ineligible users, and eligible users. Shared participation checks now require `public_lifecycle_state='collecting'`, preventing Official Vote and Reference Answer after cancel/reveal/lock/post-lock/unpublish. The full age/region `poll_eligibility_rules` evaluator remains future because user profile fields are not yet implemented. See `docs/www-project-phase-56-eligibility-collecting-privacy-guardrails-v1.md`.
 
+**Phase 57:** Public lifecycle transition write APIs — creator-authenticated `POST /polls/:id/cancel`, `POST /polls/:id/close`, and `POST /polls/:id/unpublish` now use bounded row-lock transactions with server-written timestamps. Internal `revealPoll` and `advancePublicLifecycle` service helpers support scheduler calls without deploying a scheduler. `public_lifecycle_state` remains authoritative; collecting and unavailable result paths remain counter-free. See `docs/www-project-phase-57-lifecycle-transition-write-apis-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

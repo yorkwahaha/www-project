@@ -86,6 +86,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 65C-B:** Legacy creator-write retirement — development-era `/polls` creator writes that trusted client-selected `X-User-Id` now fail closed with `410 LEGACY_CREATOR_WRITE_RETIRED`. There is no dev or production bypass. Use `/creator/polls` with the Phase 65A creator cookie for create/delete/lifecycle writes. Public reads, vote, vote-by-index, Reference Answer, feed, notices, results, and scheduler behavior are unchanged. See `docs/www-project-phase-65c-b-legacy-creator-write-retirement-v1.md`.
 
+**Phase 65 (docs):** Final creator auth & ownership checkpoint — summarizes 65A session, 65B `/creator/polls`, 65C-A live frontend cutover, 65C-B legacy 410 retirement, remaining non-goals, and Phase 66 plan-only entry — `docs/www-project-phase-65-final-creator-auth-ownership-checkpoint-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

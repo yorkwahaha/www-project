@@ -88,6 +88,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 65 (docs):** Final creator auth & ownership checkpoint — summarizes 65A session, 65B `/creator/polls`, 65C-A live frontend cutover, 65C-B legacy 410 retirement, remaining non-goals, and Phase 66 plan-only entry — `docs/www-project-phase-65-final-creator-auth-ownership-checkpoint-v1.md`.
 
+**Phase 66A (docs):** Profile / eligibility / demographic qualification boundary spec (66P-R approved; 66B schema limited to display name, birth year-month, region; gender excluded; vote-by-index eligibility ordering and indistinguishable denials) — `docs/www-project-phase-66-profile-eligibility-boundary-spec-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

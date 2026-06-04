@@ -92,6 +92,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 66B:** Minimal user profile schema foundation — `migrations/010_phase66b_user_profile_foundation.sql` adds nullable user-scoped `birth_year_month` and `residential_region`; existing `users.display_name` remains the display field. No gender, exact birthday, evaluator, API/runtime/frontend behavior, vote flow, Reference Answer behavior, ranking, personalization, or demographic breakdowns were added.
 
+**Phase 66C:** Profile eligibility evaluator only — Official Vote and `vote-by-index` now check `poll_eligibility_rules` against nullable user profile fields inside the vote transaction before option resolution, vote token write, or counter increment. Reference Answer eligibility, frontend UX, ranking, personalization, demographic breakdowns, public result behavior, and creator eligibility edits remain unchanged.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

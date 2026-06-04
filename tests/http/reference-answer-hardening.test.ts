@@ -11,6 +11,7 @@ import {
 } from '../../src/polls/reference-answer-messages.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import { createPollService } from '../../src/polls/service.js';
+import type { PollEligibilityRuleRow } from '../../src/polls/types.js';
 
 const lowTrustUserId = '22222222-2222-4222-8222-222222222222';
 const officialTrustUserId = '44444444-4444-4444-8444-444444444444';
@@ -87,6 +88,23 @@ async function seedActivePoll(
   return { pollId: created.poll_id, optionId: option!.id };
 }
 
+function profileRule(
+  pollId: string,
+  input: Partial<PollEligibilityRuleRow>,
+): PollEligibilityRuleRow {
+  const now = new Date('2026-01-01T00:00:00.000Z');
+  return {
+    poll_id: pollId,
+    rule_type: 'unrestricted',
+    min_birth_year_month: null,
+    max_birth_year_month: null,
+    allowed_regions: [],
+    created_at: now,
+    updated_at: now,
+    ...input,
+  };
+}
+
 describe('Reference Answer HTTP hardening', () => {
   beforeEach(() => {
     clearDiagnosticRecordsForTests();
@@ -117,6 +135,31 @@ describe('Reference Answer HTTP hardening', () => {
       const diagnosticJson = JSON.stringify(diagnostics);
       expect(diagnosticJson).not.toContain(optionId);
       expect(diagnosticJson).not.toContain('option_id');
+    });
+  });
+
+  it('does not apply profile eligibility rules to Reference Answer', async () => {
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(lowTrustUserId, 'Low trust');
+    const service = createPollService(repository);
+    const { pollId, optionId } = await seedActivePoll(repository, service);
+    repository.setPollEligibilityRule(profileRule(pollId, {
+      rule_type: 'region',
+      allowed_regions: ['TW-KHH'],
+    }));
+    const server = createHttpServer({ pollService: service });
+
+    await withServer(server, async (baseUrl) => {
+      const response = await request(baseUrl, `/polls/${pollId}/reference-answer`, {
+        headers: { 'X-User-Id': lowTrustUserId },
+        body: { option_id: optionId },
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ status: 'recorded', reference_answered: true });
+      expect(repository.referenceAnswerTokens.size).toBe(1);
+      expect(repository.voteTokens.size).toBe(0);
+      expect(repository.voteCounters.size).toBe(0);
     });
   });
 

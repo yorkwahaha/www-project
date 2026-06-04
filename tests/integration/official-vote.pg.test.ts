@@ -9,6 +9,7 @@ import {
   truncateBusinessTables,
   waitForBlockedPollLocks,
 } from '../helpers/pg-integration.js';
+import { OFFICIAL_VOTE_ELIGIBILITY_MESSAGE } from '../../src/polls/official-vote-messages.js';
 
 const FIXED_SHARD_ID = 3;
 const creatorId = '11111111-1111-4111-8111-111111111111';
@@ -166,6 +167,67 @@ describe('Official Vote PostgreSQL integration', () => {
         vote_count: '1',
       },
     ]);
+  });
+
+  it('checks profile eligibility before vote-by-index option resolution and writes nothing', async () => {
+    const repository = createPgPollRepository(pool);
+    const service = createPollService(repository, {
+      selectShardId: () => FIXED_SHARD_ID,
+    });
+
+    await repository.ensureUser(creatorId, 'Creator');
+    await repository.ensureUser(officialUserId, 'Official voter');
+    await setUserTrustLevel(pool, officialUserId, 'official');
+
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'PG Official Vote Profile Eligibility',
+        description: '',
+        category: 'general',
+        options: ['A', 'B'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+    await pool.query(
+      `INSERT INTO poll_eligibility_rules (poll_id, rule_type, allowed_regions)
+       VALUES ($1, 'region', ARRAY['TW-KHH']::TEXT[])`,
+      [created.poll_id],
+    );
+
+    const validIndex = await service.castOfficialVoteByIndex(created.poll_id, officialUserId, 0)
+      .then(() => null)
+      .catch((err: unknown) => err);
+    const nonexistentIndex = await service.castOfficialVoteByIndex(
+      created.poll_id,
+      officialUserId,
+      99,
+    )
+      .then(() => null)
+      .catch((err: unknown) => err);
+
+    expect(validIndex).toMatchObject({
+      code: 'POLL_FORBIDDEN',
+      message: OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+    });
+    expect(nonexistentIndex).toMatchObject({
+      code: 'POLL_FORBIDDEN',
+      message: OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+    });
+
+    const tokens = await pool.query(
+      `SELECT 1 FROM poll_vote_tokens WHERE poll_id = $1`,
+      [created.poll_id],
+    );
+    const counters = await pool.query(
+      `SELECT 1 FROM poll_option_vote_counters WHERE poll_id = $1`,
+      [created.poll_id],
+    );
+    expect(tokens.rows).toHaveLength(0);
+    expect(counters.rows).toHaveLength(0);
   });
 
   it('rejects Official Vote outside collecting lifecycle without writing token or counter', async () => {

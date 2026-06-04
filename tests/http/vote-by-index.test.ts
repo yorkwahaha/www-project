@@ -2,8 +2,12 @@ import type { Server } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import { createHttpServer } from '../../src/http/server.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
-import { INVALID_OFFICIAL_VOTE_OPTION_MESSAGE } from '../../src/polls/official-vote-messages.js';
+import {
+  INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
+  OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+} from '../../src/polls/official-vote-messages.js';
 import { createPollService } from '../../src/polls/service.js';
+import type { PollEligibilityRuleRow } from '../../src/polls/types.js';
 
 const creatorId = '22222222-2222-4222-8222-222222222222';
 const officialUserId = '44444444-4444-4444-8444-444444444444';
@@ -58,6 +62,23 @@ async function request(baseUrl: string, pollId: string, body: unknown) {
   };
 }
 
+function profileRule(
+  pollId: string,
+  input: Partial<PollEligibilityRuleRow>,
+): PollEligibilityRuleRow {
+  const now = new Date('2026-01-01T00:00:00.000Z');
+  return {
+    poll_id: pollId,
+    rule_type: 'unrestricted',
+    min_birth_year_month: null,
+    max_birth_year_month: null,
+    allowed_regions: [],
+    created_at: now,
+    updated_at: now,
+    ...input,
+  };
+}
+
 function expectSafe(body: unknown, optionId?: string) {
   const serialized = JSON.stringify(body);
   if (optionId) expect(serialized).not.toContain(optionId);
@@ -95,6 +116,32 @@ describe('POST /polls/:pollId/vote-by-index', () => {
         expect(response.body.message).toBe(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
         expectSafe(response.body);
       }
+    });
+  });
+
+  it('returns indistinguishable profile-ineligible responses for valid and nonexistent indexes', async () => {
+    const { repository, service, pollId } = await seedVoteByIndex();
+    repository.setPollEligibilityRule(profileRule(pollId, {
+      rule_type: 'region',
+      allowed_regions: ['TW-KHH'],
+    }));
+    const server = createHttpServer({ pollService: service });
+
+    await withServer(server, async (baseUrl) => {
+      const valid = await request(baseUrl, pollId, { option_index: 0 });
+      const nonexistent = await request(baseUrl, pollId, { option_index: 99 });
+
+      expect(valid).toEqual(nonexistent);
+      expect(valid).toEqual({
+        status: 403,
+        body: {
+          error: 'POLL_FORBIDDEN',
+          message: OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+        },
+      });
+      expectSafe(valid.body);
+      expect(repository.voteTokens.size).toBe(0);
+      expect(repository.voteCounters.size).toBe(0);
     });
   });
 

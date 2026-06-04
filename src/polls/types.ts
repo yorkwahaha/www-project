@@ -58,6 +58,24 @@ export type UserRow = {
   display_name: string;
   trust_level: TrustLevel;
   status: string;
+  birth_year_month: Date | null;
+  residential_region: string | null;
+  created_at: Date;
+  updated_at: Date;
+};
+
+export type PollEligibilityRuleType =
+  | 'unrestricted'
+  | 'age'
+  | 'region'
+  | 'age_region';
+
+export type PollEligibilityRuleRow = {
+  poll_id: string;
+  rule_type: PollEligibilityRuleType;
+  min_birth_year_month: Date | null;
+  max_birth_year_month: Date | null;
+  allowed_regions: string[];
   created_at: Date;
   updated_at: Date;
 };

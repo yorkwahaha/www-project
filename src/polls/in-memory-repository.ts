@@ -3,6 +3,7 @@ import type {
   CreatePollInput,
   PollOptionRow,
   PollOptionVoteCounterRow,
+  PollEligibilityRuleRow,
   PollReferenceAnswerTokenRow,
   PollRow,
   PollStatus,
@@ -24,6 +25,7 @@ import {
   INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
   OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
 } from './official-vote-messages.js';
+import { isProfileEligibleForOfficialVote } from './profile-eligibility.js';
 import {
   isParticipationAllowed,
   isPublicFeedEligible,
@@ -37,9 +39,15 @@ export function createInMemoryPollRepository(): PollRepository & {
   readonly polls: Map<string, PollRow>;
   readonly options: Map<string, PollOptionRow[]>;
   readonly referenceAnswerTokens: Map<string, PollReferenceAnswerTokenRow>;
+  readonly eligibilityRules: Map<string, PollEligibilityRuleRow>;
   readonly voteTokens: Map<string, PollVoteTokenRow>;
   readonly voteCounters: Map<string, PollOptionVoteCounterRow>;
   setUserTrustLevel(userId: string, trustLevel: TrustLevel): void;
+  setUserProfile(
+    userId: string,
+    profile: Pick<UserRow, 'birth_year_month' | 'residential_region'>,
+  ): void;
+  setPollEligibilityRule(rule: PollEligibilityRuleRow): void;
   failNextVoteTokenInsert(): void;
   failNextVoteCounterIncrement(): void;
 } {
@@ -47,6 +55,7 @@ export function createInMemoryPollRepository(): PollRepository & {
   const polls = new Map<string, PollRow>();
   const options = new Map<string, PollOptionRow[]>();
   const referenceAnswerTokens = new Map<string, PollReferenceAnswerTokenRow>();
+  const eligibilityRules = new Map<string, PollEligibilityRuleRow>();
   const voteTokens = new Map<string, PollVoteTokenRow>();
   const voteCounters = new Map<string, PollOptionVoteCounterRow>();
   let failVoteTokenInsert = false;
@@ -56,6 +65,7 @@ export function createInMemoryPollRepository(): PollRepository & {
     polls,
     options,
     referenceAnswerTokens,
+    eligibilityRules,
     voteTokens,
     voteCounters,
 
@@ -64,6 +74,18 @@ export function createInMemoryPollRepository(): PollRepository & {
       if (user) {
         user.trust_level = trustLevel;
       }
+    },
+
+    setUserProfile(userId, profile) {
+      const user = users.get(userId);
+      if (user) {
+        user.birth_year_month = profile.birth_year_month;
+        user.residential_region = profile.residential_region;
+      }
+    },
+
+    setPollEligibilityRule(rule) {
+      eligibilityRules.set(rule.poll_id, rule);
     },
 
     failNextVoteTokenInsert() {
@@ -85,6 +107,8 @@ export function createInMemoryPollRepository(): PollRepository & {
         display_name: displayName,
         trust_level: 'low',
         status: 'active',
+        birth_year_month: null,
+        residential_region: null,
         created_at: now,
         updated_at: now,
       };
@@ -358,6 +382,9 @@ export function createInMemoryPollRepository(): PollRepository & {
         }
         throw new PollValidationError(participationRejectionMessage(poll));
       }
+      if (!isProfileEligibleForOfficialVote(user, eligibilityRules.get(pollId) ?? null)) {
+        throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
+      }
       if (!(options.get(pollId) ?? []).some((option) => option.id === optionId)) {
         throw new PollValidationError(INVALID_OFFICIAL_VOTE_OPTION_MESSAGE);
       }
@@ -421,6 +448,9 @@ export function createInMemoryPollRepository(): PollRepository & {
           throw new PollNotFoundError();
         }
         throw new PollValidationError(participationRejectionMessage(poll));
+      }
+      if (!isProfileEligibleForOfficialVote(user, eligibilityRules.get(pollId) ?? null)) {
+        throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
       }
       const optionId = Number.isInteger(optionIndex) && optionIndex >= 0
         ? (options.get(pollId) ?? [])

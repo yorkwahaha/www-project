@@ -5,6 +5,7 @@ import type {
   PollOptionRow,
   PollOptionVoteAggregateRow,
   PollOptionVoteCounterRow,
+  PollEligibilityRuleRow,
   PollReferenceAnswerTokenRow,
   PollRow,
   PublicLifecycleState,
@@ -32,6 +33,7 @@ import {
   INVALID_OFFICIAL_VOTE_OPTION_MESSAGE,
   OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
 } from './official-vote-messages.js';
+import { isProfileEligibleForOfficialVote } from './profile-eligibility.js';
 import { isOfficialVoteUser } from './trust.js';
 
 export type PollRepository = {
@@ -142,6 +144,10 @@ async function castOfficialVote(
       }
       throw new PollValidationError(participationRejectionMessage(poll));
     }
+    const eligibilityRule = await findPollEligibilityRuleWithClient(client, poll.id);
+    if (!isProfileEligibleForOfficialVote(user, eligibilityRule)) {
+      throw new PollForbiddenError(OFFICIAL_VOTE_ELIGIBILITY_MESSAGE);
+    }
     const optionId = await resolveOfficialVoteOptionIdWithClient(
       client,
       pollId,
@@ -196,9 +202,27 @@ async function findUserByIdWithClient(
   userId: string,
 ): Promise<UserRow | null> {
   const result = await client.query<UserRow>(
-    `SELECT id, display_name, trust_level, status, created_at, updated_at
+    `SELECT
+       id, display_name, trust_level, status,
+       birth_year_month, residential_region,
+       created_at, updated_at
      FROM users WHERE id = $1`,
     [userId],
+  );
+  return result.rows[0] ?? null;
+}
+
+async function findPollEligibilityRuleWithClient(
+  client: PoolClient,
+  pollId: string,
+): Promise<PollEligibilityRuleRow | null> {
+  const result = await client.query<PollEligibilityRuleRow>(
+    `SELECT
+       poll_id, rule_type, min_birth_year_month, max_birth_year_month,
+       allowed_regions, created_at, updated_at
+     FROM poll_eligibility_rules
+     WHERE poll_id = $1`,
+    [pollId],
   );
   return result.rows[0] ?? null;
 }
@@ -276,7 +300,10 @@ async function incrementVoteCounter(
 
 async function findUserById(pool: Pool, userId: string): Promise<UserRow | null> {
   const result = await pool.query<UserRow>(
-    `SELECT id, display_name, trust_level, status, created_at, updated_at
+    `SELECT
+       id, display_name, trust_level, status,
+       birth_year_month, residential_region,
+       created_at, updated_at
      FROM users WHERE id = $1`,
     [userId],
   );
@@ -289,7 +316,10 @@ async function ensureUser(
   displayName: string,
 ): Promise<UserRow> {
   const existing = await pool.query<UserRow>(
-    `SELECT id, display_name, trust_level, status, created_at, updated_at
+    `SELECT
+       id, display_name, trust_level, status,
+       birth_year_month, residential_region,
+       created_at, updated_at
      FROM users WHERE id = $1`,
     [userId],
   );
@@ -299,7 +329,10 @@ async function ensureUser(
   const inserted = await pool.query<UserRow>(
     `INSERT INTO users (id, display_name)
      VALUES ($1, $2)
-     RETURNING id, display_name, trust_level, status, created_at, updated_at`,
+      RETURNING
+        id, display_name, trust_level, status,
+        birth_year_month, residential_region,
+        created_at, updated_at`,
     [userId, displayName],
   );
   return inserted.rows[0]!;

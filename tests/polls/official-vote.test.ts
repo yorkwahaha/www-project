@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
+import { OFFICIAL_VOTE_ELIGIBILITY_MESSAGE } from '../../src/polls/official-vote-messages.js';
 import { createPollService } from '../../src/polls/service.js';
+import type { PollEligibilityRuleRow } from '../../src/polls/types.js';
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
 
@@ -30,6 +32,23 @@ async function addOfficialUser(
 ) {
   await repository.ensureUser(userId, 'Official');
   repository.setUserTrustLevel(userId, 'official');
+}
+
+function profileRule(
+  pollId: string,
+  input: Partial<PollEligibilityRuleRow>,
+): PollEligibilityRuleRow {
+  const now = new Date('2026-01-01T00:00:00.000Z');
+  return {
+    poll_id: pollId,
+    rule_type: 'unrestricted',
+    min_birth_year_month: null,
+    max_birth_year_month: null,
+    allowed_regions: [],
+    created_at: now,
+    updated_at: now,
+    ...input,
+  };
 }
 
 describe('Official Vote service', () => {
@@ -71,6 +90,73 @@ describe('Official Vote service', () => {
 
     await expect(service.castOfficialVote(pollId, creatorId, optionId)).rejects.toMatchObject({
       code: 'POLL_FORBIDDEN',
+    });
+    expect(repository.voteTokens.size).toBe(0);
+    expect(repository.voteCounters.size).toBe(0);
+  });
+
+  it('rejects profile-ineligible Official Vote before token or counter writes', async () => {
+    const { repository, service, pollId, optionId } = await seedOfficialVote();
+    await addOfficialUser(repository, creatorId);
+    repository.setPollEligibilityRule(profileRule(pollId, {
+      rule_type: 'age_region',
+      min_birth_year_month: new Date('1990-01-01T00:00:00.000Z'),
+      max_birth_year_month: new Date('2000-12-01T00:00:00.000Z'),
+      allowed_regions: ['TW-KHH'],
+    }));
+
+    await expect(service.castOfficialVote(pollId, creatorId, optionId)).rejects.toMatchObject({
+      code: 'POLL_FORBIDDEN',
+      message: OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+    });
+    expect(repository.voteTokens.size).toBe(0);
+    expect(repository.voteCounters.size).toBe(0);
+  });
+
+  it('allows profile-eligible Official Vote under age and region rules', async () => {
+    const { repository, service, pollId, optionId } = await seedOfficialVote();
+    await addOfficialUser(repository, creatorId);
+    repository.setUserProfile(creatorId, {
+      birth_year_month: new Date('1999-05-01T00:00:00.000Z'),
+      residential_region: 'TW-KHH',
+    });
+    repository.setPollEligibilityRule(profileRule(pollId, {
+      rule_type: 'age_region',
+      min_birth_year_month: new Date('1990-01-01T00:00:00.000Z'),
+      max_birth_year_month: new Date('2000-12-01T00:00:00.000Z'),
+      allowed_regions: ['TW-KHH'],
+    }));
+
+    await expect(service.castOfficialVote(pollId, creatorId, optionId)).resolves.toEqual({
+      status: 'voted',
+      voted: true,
+    });
+    expect(repository.voteTokens.size).toBe(1);
+    expect(repository.voteCounters.size).toBe(1);
+  });
+
+  it('rejects profile-ineligible vote-by-index before distinguishing valid and nonexistent indexes', async () => {
+    const { repository, service, pollId } = await seedOfficialVote();
+    await addOfficialUser(repository, creatorId);
+    repository.setPollEligibilityRule(profileRule(pollId, {
+      rule_type: 'region',
+      allowed_regions: ['TW-KHH'],
+    }));
+
+    const validIndex = await service.castOfficialVoteByIndex(pollId, creatorId, 0)
+      .then(() => null)
+      .catch((err: unknown) => err);
+    const nonexistentIndex = await service.castOfficialVoteByIndex(pollId, creatorId, 99)
+      .then(() => null)
+      .catch((err: unknown) => err);
+
+    expect(validIndex).toMatchObject({
+      code: 'POLL_FORBIDDEN',
+      message: OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
+    });
+    expect(nonexistentIndex).toMatchObject({
+      code: 'POLL_FORBIDDEN',
+      message: OFFICIAL_VOTE_ELIGIBILITY_MESSAGE,
     });
     expect(repository.voteTokens.size).toBe(0);
     expect(repository.voteCounters.size).toBe(0);

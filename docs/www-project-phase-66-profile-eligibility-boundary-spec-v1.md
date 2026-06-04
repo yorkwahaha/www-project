@@ -1,6 +1,6 @@
 # WWW Project Phase 66 — Profile / Eligibility / Demographic Qualification Boundary Spec v1
 
-**狀態：** **66A** 為 docs/spec only（**66P-R 已核准**）。**66B** 已交付 schema foundation only（`migrations/010_phase66b_user_profile_foundation.sql`）；不含 runtime、API、vote-by-index、Reference Answer、frontend、evaluator 行為變更。
+**狀態：** **66A** 為 docs/spec only（**66P-R 已核准**）。**66B** 已交付 schema foundation only（`migrations/010_phase66b_user_profile_foundation.sql`）。**66C** 已交付 Official Vote profile eligibility evaluator only；Reference Answer、frontend、Profile API、ranking、personalization、demographic breakdown 仍未實作。
 
 **Baseline：** `origin/master` @ **`c52fc0e`**（Phase 65 最終檢查點已合併）。
 
@@ -21,7 +21,8 @@
 | **66P-R** | Plan review：邊界、隱私、授權分離、ordering 契約 | **已核准**（本 spec） |
 | **66A** | 發布本 spec + README 索引 + docs guard | **已交付** |
 | **66B** | 首輪 **schema foundation only**（見 §2） | **已實作：`migrations/010_phase66b_user_profile_foundation.sql`** |
-| **66C+** | Profile API、evaluator、frontend、Reference Answer profile 門檻 | **須**另案核准 |
+| **66C** | Official Vote profile eligibility evaluator only | **已實作：Official Vote / `vote-by-index` transaction guard** |
+| **66D+** | Profile API、frontend、Reference Answer profile 門檻 | **須**另案核准 |
 
 ---
 
@@ -46,7 +47,7 @@
 
 - 不新增 vote-time profile snapshot 表。
 - 不新增 user–option linkage 表或欄位。
-- 不修改 `poll_eligibility_rules` 語意實作（evaluator 屬 66C+）。
+- 66B 不修改 `poll_eligibility_rules` 語意實作；66C 僅實作 Official Vote evaluator。
 - 不修改 Reference Answer token 表結構以綁定 profile 欄位。
 
 ---
@@ -163,7 +164,7 @@ Eligibility 決策若需除錯，僅能使用 **poll-scoped、無 option 維度*
 
 - Production credential verifier、完整帳號 UX
 - Ranking、personalization、feed 契約變更
-- Eligibility evaluator **實作**（僅定邊界）
+- Reference Answer eligibility evaluator、Profile API、frontend profile UX
 - Reference Answer profile 門檻
 - `design-drafts/` 納入 git
 
@@ -175,3 +176,4 @@ Eligibility 決策若需除錯，僅能使用 **poll-scoped、無 option 維度*
 |------|------|
 | v1 / 66A | 66P-R 核准之 profile / eligibility / demographic 邊界 spec |
 | v1.1 / 66B | 新增 users profile schema foundation：`birth_year_month`、`residential_region`；沿用 `display_name`；無 gender／evaluator／API 行為變更 |
+| v1.2 / 66C | 新增 Official Vote profile eligibility evaluator；`vote-by-index` 在 option resolution 前 fail closed；Reference Answer／frontend／ranking／results 不變 |

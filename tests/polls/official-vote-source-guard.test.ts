@@ -12,4 +12,24 @@ describe('Official Vote source guard', () => {
     expect(repository).toContain('const shardId = selectShardId();');
     expect(repository.toLowerCase()).not.toMatch(/\brandom\s*\(/);
   });
+
+  it('checks profile eligibility before option resolution, token write, and counter increment', async () => {
+    const repository = await readFile(join(process.cwd(), 'src/polls/repository.ts'), 'utf8');
+    const transactionStart = repository.indexOf('async function castOfficialVote(');
+    const transactionEnd = repository.indexOf('async function resolveOfficialVoteOptionIdWithClient');
+    const transactionBody = repository.slice(transactionStart, transactionEnd);
+    const eligibilityRuleLookup = transactionBody.indexOf('findPollEligibilityRuleWithClient');
+    const eligibilityCheck = transactionBody.indexOf('isProfileEligibleForOfficialVote');
+    const optionResolution = transactionBody.indexOf('resolveOfficialVoteOptionIdWithClient');
+    const tokenWrite = transactionBody.indexOf('insertVoteToken');
+    const counterIncrement = transactionBody.indexOf('incrementVoteCounter');
+
+    expect(transactionStart).toBeGreaterThan(-1);
+    expect(transactionEnd).toBeGreaterThan(transactionStart);
+    expect(eligibilityRuleLookup).toBeGreaterThan(-1);
+    expect(eligibilityCheck).toBeGreaterThan(eligibilityRuleLookup);
+    expect(eligibilityCheck).toBeLessThan(optionResolution);
+    expect(eligibilityCheck).toBeLessThan(tokenWrite);
+    expect(eligibilityCheck).toBeLessThan(counterIncrement);
+  });
 });

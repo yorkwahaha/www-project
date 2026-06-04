@@ -40,7 +40,7 @@ function createDomRoot() {
 }
 
 describe('public poll creation page', () => {
-  it('submits a normalized published poll to the existing POST /polls API', async () => {
+  it('submits a normalized published poll to the creator-owned API without creator headers', async () => {
     const { submitCreatePoll } = await loadCreatePollPageModule();
     const fetchImpl = vi.fn(async () => ({
       ok: true,
@@ -58,15 +58,13 @@ describe('public poll creation page', () => {
         options: ['  飯  ', ' 麵 ', '', '   '],
       },
       fetchImpl,
-      uuidFactory: () => '11111111-1111-4111-8111-111111111111',
       now: () => new Date('2026-05-31T12:00:00.000Z'),
     });
 
-    expect(fetchImpl).toHaveBeenCalledWith('/polls', {
+    expect(fetchImpl).toHaveBeenCalledWith('/creator/polls', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': '11111111-1111-4111-8111-111111111111',
       },
       body: JSON.stringify({
         title: '午餐想吃什麼？',
@@ -79,6 +77,7 @@ describe('public poll creation page', () => {
       }),
       credentials: 'same-origin',
     });
+    expect(JSON.stringify(fetchImpl.mock.calls)).not.toMatch(/X-User-Id|X-Display-Name/);
   });
 
   it('demo submit returns a static poll id without calling fetch', async () => {
@@ -191,7 +190,6 @@ describe('public poll creation page', () => {
       submitCreatePoll({
         formValues: { title: 'Question', options: ['One', 'Two'] },
         fetchImpl,
-        uuidFactory: () => '11111111-1111-4111-8111-111111111111',
       }),
     ).rejects.toThrow('目前無法建立問卷，請稍後再試。');
   });
@@ -206,7 +204,6 @@ describe('public poll creation page', () => {
       { poll_id: pollId },
       {
         locationObject: { origin: 'https://example.test' },
-        storage: { getItem: () => null, setItem: () => {} },
       },
     );
 
@@ -256,12 +253,12 @@ describe('public poll creation page', () => {
     expect(source).not.toMatch(
       /localStorage|indexedDB|document\.cookie|analytics|console\./,
     );
-    expect(
-      source.replaceAll('globalThis.sessionStorage', '').replaceAll('options.storage', ''),
-    ).not.toMatch(/sessionStorage/);
+    expect(source).not.toMatch(/sessionStorage/);
     expect(source).not.toMatch(
-      /reference-answer|vote-by-index|loadPollDetail|\/polls\/feed|\/polls\/.*\/results|ranking|spread_score|option_id/,
+      /reference-answer|vote-by-index|loadPollDetail|\/polls\/feed|\/polls\/.*\/results|X-User-Id|X-Display-Name|ranking|spread_score|option_id/,
     );
+    expect(source).toContain('ensureCreatorSessionForLiveMode');
+    expect(source).toContain('/creator/polls');
   });
 
   it('create poll page copy marks default submit as preview without persisting', async () => {

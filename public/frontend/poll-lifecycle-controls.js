@@ -1,6 +1,6 @@
 /**
  * Phase 58B — creator lifecycle controls (POST cancel / close / unpublish).
- * No option_id or counter data in storage, logs, or UI payloads.
+ * No option_id, counter data, or creator authority in storage, logs, or UI payloads.
  */
 
 import {
@@ -17,12 +17,10 @@ import {
 /** Seeded creator for localhost manual / smoke flows (matches scripts/smoke-public-local.mjs). */
 export const LOCAL_DEMO_CREATOR_USER_ID = '11111111-1111-4111-8111-111111111111';
 
-const CREATOR_USER_SESSION_KEY = 'www_public_mvp_creator_user_id';
-const MANAGED_POLL_SESSION_KEY = 'www_creator_managed_poll';
-
 const GENERIC_FAILURE = '目前無法更新問卷狀態，請稍後再試。';
 const LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS =
   '狀態已更新。結果顯示暫時無法重新載入，請重新整理頁面。';
+const CREATOR_SESSION_FAILURE = '目前無法確認發起者身分，請稍後再試。';
 
 /** @typedef {'cancel' | 'close' | 'unpublish'} LifecycleTransitionAction */
 
@@ -80,78 +78,54 @@ export function parseCreatorManageMode(search = '') {
 }
 
 /**
- * @param {Storage | undefined} storage
  * @param {() => string} [uuidFactory]
  */
 export function resolvePublicMvpCreatorId(
-  storage = globalThis.sessionStorage,
   uuidFactory = () => globalThis.crypto.randomUUID(),
 ) {
   const hostname = globalThis.location?.hostname;
   if (hostname && isLocalDemoHostname(hostname)) {
     return LOCAL_DEMO_CREATOR_USER_ID;
   }
-  if (!storage) {
-    return uuidFactory();
-  }
-  const existing = storage.getItem(CREATOR_USER_SESSION_KEY);
-  if (existing) {
-    return existing;
-  }
-  const created = uuidFactory();
-  storage.setItem(CREATOR_USER_SESSION_KEY, created);
-  return created;
+  return uuidFactory();
 }
 
 /**
- * @param {Storage | undefined} storage
- * @returns {{ pollId: string; public_lifecycle_state: string; title?: string } | null}
+ * @param {{ fetchImpl?: typeof fetch; locationObject?: Location }} [options]
  */
-export function readManagedPoll(storage = globalThis.sessionStorage) {
-  if (!storage) {
-    return null;
+export async function ensureCreatorSessionForLiveMode({
+  fetchImpl = globalThis.fetch,
+  locationObject = globalThis.location,
+} = {}) {
+  let response;
+  try {
+    response = await fetchImpl('/creator/session', {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+  } catch {
+    throw new Error(CREATOR_SESSION_FAILURE);
   }
-  const raw = storage.getItem(MANAGED_POLL_SESSION_KEY);
-  if (!raw) {
-    return null;
+  if (response.ok) {
+    return true;
+  }
+  if (response.status !== 401 || !isLocalDemoHostname(locationObject?.hostname)) {
+    throw new Error(CREATOR_SESSION_FAILURE);
   }
   try {
-    const parsed = JSON.parse(raw);
-    if (
-      parsed &&
-      typeof parsed === 'object' &&
-      typeof parsed.pollId === 'string' &&
-      POLL_ID_PATTERN.test(parsed.pollId) &&
-      typeof parsed.public_lifecycle_state === 'string'
-    ) {
-      return {
-        pollId: parsed.pollId,
-        public_lifecycle_state: parsed.public_lifecycle_state,
-        title: typeof parsed.title === 'string' ? parsed.title : undefined,
-      };
-    }
+    response = await fetchImpl('/creator/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: LOCAL_DEMO_CREATOR_USER_ID }),
+      credentials: 'same-origin',
+    });
   } catch {
-    // ignore corrupt session entries
+    throw new Error(CREATOR_SESSION_FAILURE);
   }
-  return null;
-}
-
-/**
- * @param {Storage | undefined} storage
- * @param {{ pollId: string; public_lifecycle_state: string; title?: string }} poll
- */
-export function writeManagedPoll(storage, poll) {
-  if (!storage || !poll?.pollId || !POLL_ID_PATTERN.test(poll.pollId)) {
-    return;
+  if (!response.ok) {
+    throw new Error(CREATOR_SESSION_FAILURE);
   }
-  storage.setItem(
-    MANAGED_POLL_SESSION_KEY,
-    JSON.stringify({
-      pollId: poll.pollId,
-      public_lifecycle_state: poll.public_lifecycle_state,
-      ...(poll.title ? { title: poll.title } : {}),
-    }),
-  );
+  return true;
 }
 
 /**
@@ -225,23 +199,20 @@ export function confirmLifecycleTransition(
 /**
  * @param {string} pollId
  * @param {LifecycleTransitionAction} action
- * @param {string} creatorUserId
  * @param {typeof fetch} [fetchImpl]
  */
 export async function postPollLifecycleTransition(
   pollId,
   action,
-  creatorUserId,
   fetchImpl = globalThis.fetch,
 ) {
   const copy = LIFECYCLE_TRANSITION_COPY[action];
   let response;
   try {
     response = await fetchImpl(
-      `/polls/${encodeURIComponent(pollId)}/${copy.path}`,
+      `/creator/polls/${encodeURIComponent(pollId)}/${copy.path}`,
       {
         method: 'POST',
-        headers: { 'X-User-Id': creatorUserId },
         credentials: 'same-origin',
       },
     );
@@ -283,8 +254,6 @@ export function nextLifecycleStateFromTransition(action, body) {
  *   lifecycleState: string;
  *   title?: string;
  *   fetchImpl?: typeof fetch;
- *   storage?: Storage;
- *   creatorUserId?: string;
  *   onStateChange?: (nextState: string) => void;
  *   onTransitionSuccess?: () =>
  *     | void
@@ -299,8 +268,6 @@ export function renderCreatorLifecycleActions(host, options) {
     lifecycleState,
     title,
     fetchImpl = globalThis.fetch,
-    storage = globalThis.sessionStorage,
-    creatorUserId = resolvePublicMvpCreatorId(storage),
     onStateChange,
     onTransitionSuccess,
     flowContext = 'manage',
@@ -359,9 +326,7 @@ export function renderCreatorLifecycleActions(host, options) {
         button,
         action,
         pollId,
-        creatorUserId,
         fetchImpl,
-        storage,
         status,
         title,
         onStateChange,
@@ -408,9 +373,7 @@ async function runLifecycleTransition({
   button,
   action,
   pollId,
-  creatorUserId,
   fetchImpl,
-  storage,
   status,
   title,
   onStateChange,
@@ -429,24 +392,16 @@ async function runLifecycleTransition({
     const body = await postPollLifecycleTransition(
       pollId,
       action,
-      creatorUserId,
       fetchImpl,
     );
     const nextState = nextLifecycleStateFromTransition(action, body);
     if (nextState) {
-      writeManagedPoll(storage, {
-        pollId,
-        public_lifecycle_state: nextState,
-        title,
-      });
       onStateChange?.(nextState);
       renderCreatorLifecycleActions(host, {
         pollId,
         lifecycleState: nextState,
         title,
         fetchImpl,
-        storage,
-        creatorUserId,
         onStateChange,
         onTransitionSuccess,
         flowContext,

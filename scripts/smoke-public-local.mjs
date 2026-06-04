@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { createServer as createNetServer } from 'node:net';
 import pg from 'pg';
 import {
   LOCAL_DEMO_READ_ADMIN_ID as readAdminId,
@@ -23,6 +24,7 @@ const BUSINESS_TABLES = [
   'poll_correction_requests',
   'public_notices',
   'admin_users',
+  'creator_sessions',
   'poll_option_vote_counters',
   'poll_vote_tokens',
   'poll_reference_answer_tokens',
@@ -61,6 +63,23 @@ function assertPublicJsonSafe(label, value, optionIds = []) {
   }
 }
 
+async function findOpenPort() {
+  const probe = createNetServer();
+  await new Promise((resolve, reject) => {
+    probe.once('error', reject);
+    probe.listen(0, '127.0.0.1', resolve);
+  });
+  const address = probe.address();
+  if (!address || typeof address === 'string') {
+    throw new Error('Failed to reserve a local smoke port.');
+  }
+  const port = address.port;
+  await new Promise((resolve, reject) => {
+    probe.close((error) => (error ? reject(error) : resolve()));
+  });
+  return port;
+}
+
 async function requestText(baseUrl, path, options = {}) {
   const response = await fetch(`${baseUrl}${path}`, options);
   return { response, body: await response.text() };
@@ -80,8 +99,9 @@ async function resetDatabase(client) {
   await client.query(
     `INSERT INTO users (id, display_name, trust_level)
      VALUES ($1, 'Public Smoke Voter', 'official'),
-            ($2, 'Public Smoke Read Admin', 'low')`,
-    [voterId, readAdminId],
+            ($2, 'Public Smoke Read Admin', 'low'),
+            ($3, 'Public Smoke Creator', 'low')`,
+    [voterId, readAdminId, creatorId],
   );
   await client.query(
     `INSERT INTO admin_users (user_id, role, status)
@@ -111,15 +131,20 @@ let closePool;
 
 try {
   await resetDatabase(client);
+  const port = await findOpenPort();
+  const baseUrl = `http://127.0.0.1:${port}`;
+  process.env.APP_ENV = 'test';
+  process.env.CREATOR_SESSION_ALLOW_INSECURE_COOKIE = 'true';
+  process.env.CREATOR_SESSION_LOCAL_TEST_ISSUER_ENABLED = 'true';
+  process.env.CREATOR_SESSION_ALLOWED_ORIGINS_JSON = JSON.stringify([baseUrl]);
   const { createApp } = await import('../dist/app.js');
   ({ closePool } = await import('../dist/db/client.js'));
-  server = createApp().startHttpServer(0);
+  server = createApp().startHttpServer(port);
   await new Promise((resolve) => server.once('listening', resolve));
   const address = server.address();
   if (!address || typeof address === 'string') {
     throw new Error('Public flow smoke server failed to bind.');
   }
-  const baseUrl = `http://127.0.0.1:${address.port}`;
   const closesAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   {
@@ -239,12 +264,31 @@ try {
   }
 
   let pollId;
+  let creatorCookie;
   {
-    const { response, body } = await requestJson(baseUrl, '/polls', {
+    const { response, body } = await requestJson(baseUrl, '/creator/session', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': creatorId,
+        Origin: baseUrl,
+      },
+      body: JSON.stringify({ user_id: creatorId }),
+    });
+    expectStatus('POST /creator/session issues local creator cookie', response, 201);
+    creatorCookie = response.headers.get('set-cookie')?.split(';', 1)[0];
+    if (!creatorCookie) {
+      throw new Error('Creator session did not set a cookie');
+    }
+    assertPublicJsonSafe('POST /creator/session response', body);
+  }
+
+  {
+    const { response, body } = await requestJson(baseUrl, '/creator/polls', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: creatorCookie,
+        Origin: baseUrl,
       },
       body: JSON.stringify({
         title: 'Public Smoke Lunch Poll',
@@ -256,13 +300,13 @@ try {
         publish: true,
       }),
     });
-    expectStatus('POST /polls creates poll', response, 201);
-    assertPublicJsonSafe('POST /polls response', body);
+    expectStatus('POST /creator/polls creates poll', response, 201);
+    assertPublicJsonSafe('POST /creator/polls response', body);
     pollId = body.poll_id;
     if (typeof pollId !== 'string' || pollId.length === 0) {
-      throw new Error('POST /polls did not return poll_id');
+      throw new Error('POST /creator/polls did not return poll_id');
     }
-    pass(`POST /polls returned poll_id ${pollId}`);
+    pass(`POST /creator/polls returned poll_id ${pollId}`);
   }
 
   {
@@ -345,5 +389,5 @@ try {
   await client.end();
 }
 
-console.log('\nPublic flow local smoke passed (/ → /polls/new → /vote → /results).');
+console.log('\nPublic flow local smoke passed (/ → /polls/new → /creator/polls → /vote → /results).');
 console.log('Docker test container remains running for the next rerun.');

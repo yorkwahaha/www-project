@@ -12,19 +12,19 @@ import {
 } from './public-mvp-ui.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
-  readManagedPoll,
+  ensureCreatorSessionForLiveMode,
   renderCreatorLifecycleActions,
-  writeManagedPoll,
 } from './poll-lifecycle-controls.js';
 
 const MOCK_SHARE_MSG = '已複製範例投票連結，可分享給他人體驗流程。';
+const OWNED_POLLS_LOAD_FAILURE = '目前無法載入你的問卷，請稍後再試。';
 
 export function wireMyPollsDemoPage(documentObject = globalThis.document) {
   mountSiteChrome(documentObject);
 
   const useLiveApi = parseLiveApiMode(documentObject.defaultView?.location?.search ?? '');
   if (useLiveApi) {
-    mountLiveCreatorManagePanel(documentObject);
+    void mountLiveCreatorManagePanel(documentObject);
   }
 
   const table = documentObject.querySelector('.mvp-dash-table tbody');
@@ -44,12 +44,33 @@ export function wireMyPollsDemoPage(documentObject = globalThis.document) {
   wireUnpublishedRow(rows[4], documentObject);
 }
 
-function mountLiveCreatorManagePanel(documentObject) {
+export async function fetchCreatorOwnedPolls(fetchImpl = globalThis.fetch) {
+  let response;
+  try {
+    response = await fetchImpl('/creator/polls', {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+  } catch {
+    throw new Error(OWNED_POLLS_LOAD_FAILURE);
+  }
+  if (!response.ok) {
+    throw new Error(OWNED_POLLS_LOAD_FAILURE);
+  }
+  try {
+    const body = await response.json();
+    return Array.isArray(body.polls) ? body.polls : [];
+  } catch {
+    throw new Error(OWNED_POLLS_LOAD_FAILURE);
+  }
+}
+
+async function mountLiveCreatorManagePanel(documentObject) {
   const main = documentObject.getElementById('main-content');
-  const managed = readManagedPoll(documentObject.defaultView?.sessionStorage);
   if (!main) {
     return;
   }
+  const fetchImpl = documentObject.defaultView?.fetch ?? globalThis.fetch;
 
   let host = documentObject.getElementById('creator-live-manage');
   if (!host) {
@@ -64,30 +85,52 @@ function mountLiveCreatorManagePanel(documentObject) {
     }
   }
 
-  if (!managed) {
-    host.replaceChildren();
-    host.setAttribute('role', 'note');
-    host.setAttribute('aria-label', '即時問卷管理說明');
-    const note = documentObject.createElement('p');
-    note.className = 'mvp-meta';
-    note.textContent = CREATOR_FLOW_COPY.myPollsEmpty;
-    host.append(note);
-    const createLink = documentObject.createElement('a');
-    createLink.className = 'mvp-action-link';
-    createLink.href = '/polls/new?live=1';
-    createLink.textContent = '前往建立問卷（即時模式）';
-    host.append(createLink);
-    return;
-  }
-
   host.setAttribute('role', 'region');
   host.setAttribute('aria-label', '即時問卷管理');
+  host.replaceChildren();
 
+  const status = documentObject.createElement('p');
+  status.className = 'mvp-meta';
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+  status.textContent = '載入你的問卷…';
+  host.append(status);
+
+  try {
+    await ensureCreatorSessionForLiveMode({
+      fetchImpl,
+      locationObject: documentObject.defaultView?.location ?? globalThis.location,
+    });
+    const polls = await fetchCreatorOwnedPolls(fetchImpl);
+    host.replaceChildren();
+    if (polls.length === 0) {
+      renderCreatorPollsEmptyState(host, documentObject);
+      return;
+    }
+    renderCreatorPollsList(host, documentObject, polls, fetchImpl);
+  } catch (error) {
+    status.textContent = error instanceof Error ? error.message : OWNED_POLLS_LOAD_FAILURE;
+  }
+}
+
+function renderCreatorPollsEmptyState(host, documentObject) {
+  host.setAttribute('role', 'note');
+  host.setAttribute('aria-label', '即時問卷管理說明');
+  const note = documentObject.createElement('p');
+  note.className = 'mvp-meta';
+  note.textContent = CREATOR_FLOW_COPY.myPollsEmpty;
+  host.append(note);
+  const createLink = documentObject.createElement('a');
+  createLink.className = 'mvp-action-link';
+  createLink.href = '/polls/new?live=1';
+  createLink.textContent = '前往建立問卷（即時模式）';
+  host.append(createLink);
+}
+
+function renderCreatorPollsList(host, documentObject, polls, fetchImpl) {
   const heading = documentObject.createElement('h2');
   heading.className = 'mvp-policy-panel-title';
-  heading.textContent = managed.title
-    ? `即時問卷：${managed.title}`
-    : '即時問卷管理';
+  heading.textContent = '即時問卷管理';
   host.append(heading);
 
   const lead = documentObject.createElement('p');
@@ -95,7 +138,24 @@ function mountLiveCreatorManagePanel(documentObject) {
   lead.textContent = CREATOR_FLOW_COPY.myPollsLead;
   host.append(lead);
 
-  renderCreatorManageLinks(host, { pollId: managed.pollId });
+  for (const poll of polls) {
+    renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl);
+  }
+}
+
+function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
+  const pollHost = documentObject.createElement('section');
+  pollHost.className = 'mvp-creator-live-poll';
+  host.append(pollHost);
+
+  const heading = documentObject.createElement('h3');
+  heading.className = 'mvp-creator-lifecycle-title';
+  heading.textContent = poll.title
+    ? `即時問卷：${poll.title}`
+    : '即時問卷';
+  pollHost.append(heading);
+
+  renderCreatorManageLinks(pollHost, { pollId: poll.poll_id });
 
   const shareRow = documentObject.createElement('p');
   shareRow.className = 'mvp-meta mvp-creator-flow-share-row';
@@ -104,7 +164,7 @@ function mountLiveCreatorManagePanel(documentObject) {
   shareVote.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
   shareVote.textContent = '複製投票連結';
   shareVote.addEventListener('click', async () => {
-    const url = buildAbsoluteUrl(buildPublicVotePath(managed.pollId));
+    const url = buildAbsoluteUrl(buildPublicVotePath(poll.poll_id));
     const result = await copyTextToClipboard(url);
     showDemoOnlyFeedback(
       shareVote,
@@ -112,23 +172,20 @@ function mountLiveCreatorManagePanel(documentObject) {
     );
   });
   shareRow.append(shareVote);
-  host.append(shareRow);
+  pollHost.append(shareRow);
 
   const lifecycleHost = documentObject.createElement('section');
   lifecycleHost.className = 'mvp-creator-lifecycle-panel mvp-creator-flow-lifecycle';
-  host.append(lifecycleHost);
+  pollHost.append(lifecycleHost);
 
   renderCreatorLifecycleActions(lifecycleHost, {
-    pollId: managed.pollId,
-    lifecycleState: managed.public_lifecycle_state,
-    title: managed.title,
-    storage: documentObject.defaultView?.sessionStorage,
+    pollId: poll.poll_id,
+    lifecycleState: poll.public_lifecycle_state,
+    title: poll.title,
+    fetchImpl,
     flowContext: 'manage',
     onStateChange: (nextState) => {
-      writeManagedPoll(documentObject.defaultView?.sessionStorage, {
-        ...managed,
-        public_lifecycle_state: nextState,
-      });
+      poll.public_lifecycle_state = nextState;
     },
   });
 }

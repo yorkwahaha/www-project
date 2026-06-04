@@ -517,7 +517,6 @@ describe('public result page', () => {
       uiMockState: null,
       demoOnly: false,
       search: '?creator=1',
-      storage: { getItem: () => null, setItem: () => {} },
       fetchImpl,
       onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
     };
@@ -567,7 +566,6 @@ describe('public result page', () => {
       uiMockState: null,
       demoOnly: false,
       search: '?creator=1',
-      storage: { getItem: () => null, setItem: () => {} },
       fetchImpl,
       onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
     };
@@ -622,7 +620,6 @@ describe('public result page', () => {
       uiMockState: null,
       demoOnly: false,
       search: '?creator=1',
-      storage: { getItem: () => null, setItem: () => {} },
       fetchImpl,
       onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
     };
@@ -678,7 +675,6 @@ describe('public result page', () => {
       uiMockState: null,
       demoOnly: false,
       search: '?creator=1',
-      storage: { getItem: () => null, setItem: () => {} },
       fetchImpl,
       onRefreshResultDisplay: null as (() => Promise<{ refreshed: boolean }>) | null,
     };
@@ -706,8 +702,6 @@ describe('public result page', () => {
       /setInterval|setTimeout|WebSocket|EventSource|requestAnimationFrame|console\.|Date\(|Math\./,
     );
     expect(source).not.toMatch(/localStorage|indexedDB|document\.cookie/);
-    expect(source.replaceAll('windowObject.sessionStorage', '')).not.toMatch(
-      /sessionStorage/,
-    );
+    expect(source).not.toMatch(/sessionStorage/);
   });
 });

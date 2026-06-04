@@ -36,7 +36,7 @@ npm run smoke:admin:local
 npm run test:integration:local
 ```
 
-全部通過後再進行下方手動流程。`smoke:public:local` 不取代瀏覽器操作，但可確認 `GET /`、`/polls/new`、`/explore`、`/vote/:pollId`、`/results/:pollId` 與 `POST /polls`、`vote-by-index`、公開 JSON 未洩漏 `option_id`、vote token、shard 等欄位（以煙霧內建 HTTP 檢查代替長駐 server 時可用）。
+全部通過後再進行下方手動流程。`smoke:public:local` 不取代瀏覽器操作，但可確認 `GET /`、`/polls/new`、`/explore`、`/vote/:pollId`、`/results/:pollId` 與 creator `POST /creator/polls`、public `vote-by-index`、公開 JSON 未洩漏 `option_id`、vote token、shard 等欄位（以煙霧內建 HTTP 檢查代替長駐 server 時可用）。
 
 ---
 

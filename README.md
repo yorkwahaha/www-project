@@ -82,6 +82,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 65B:** Backend creator-owned poll APIs — authenticated `/creator/polls` create/list/delete/lifecycle routes use only the Phase 65A cookie principal. Owned list reads are bounded, deterministic, polls-table-only, and counter-free. Legacy `/polls` creator writes remain until Phase 65C frontend cutover plus retirement or development gate. See `docs/www-project-phase-65b-creator-owned-poll-apis-v1.md`.
 
+**Phase 65C-A:** Live creator frontend cutover — `/polls/new?live=1`, `/my-polls?live=1`, and creator lifecycle controls now use Phase 65B `/creator/polls` APIs with the Phase 65A cookie. Local/demo live mode bootstraps only the local-test creator session; no production login UX, schema change, ranking, scheduler, or legacy route retirement was added. Legacy `/polls` creator writes remain a Phase 65C-B risk. See `docs/www-project-phase-65c-a-frontend-creator-api-cutover-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -134,11 +136,14 @@ The integration quick command starts the local Docker test service if needed, wa
 
 ## Public APIs (Phase 0–5C)
 
-All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-Name` on create.
+Legacy public poll creator-write routes still require header `X-User-Id` (UUID); Phase 65C-B must retire or development-gate them. Public vote and Reference Answer routes also keep their existing `X-User-Id` behavior. Live creator frontend flows use `/creator/polls` with the `creator_session` cookie instead.
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/polls` | Create draft or published poll |
+| `POST` | `/polls` | Legacy creator-write create route (still present until Phase 65C-B) |
+| `POST` | `/creator/polls` | Live creator create route using `creator_session` cookie |
+| `GET` | `/creator/polls` | Counter-free owned poll list using `creator_session` cookie |
+| `DELETE` | `/creator/polls/:id` | Creator-owned soft-delete route using `creator_session` cookie |
 | `GET` | `/polls/:id` | Poll detail (no vote/ranking signals) |
 | `DELETE` | `/polls/:id` | Creator soft-delete |
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
@@ -155,14 +160,14 @@ All mutating poll routes require header `X-User-Id` (UUID). Optional `X-Display-
 | `GET` | `/my-polls` | Creator dashboard; default static mock table; **`?live=1`** for live management (MVP dev) |
 | `GET` | `/vote/demo` | Static vote policy shell (`?ui_state=`, `?nav=`) |
 | `GET` | `/results/demo` | Static results policy shell (`?ui_state=`, `?nav=`) |
-| `GET` | `/polls/new` | Public poll creation UI; default demo (no DB write); **`?live=1`** for real `POST /polls` (MVP dev) |
+| `GET` | `/polls/new` | Public poll creation UI; default demo (no DB write); **`?live=1`** for real `POST /creator/polls` (MVP dev) |
 | `GET` | `/vote/:id` | Minimal public voting UI |
 | `GET` | `/health` | Health check |
 | `GET` | `/frontend/*` | Static frontend assets (JS, shared `public-mvp.css`) |
 
 `PUT` / `PATCH` on polls return `405` (creator zero-edit after publish).
 
-Minimal public poll creation UI: `GET /polls/new` (demo by default). With **`?live=1`**, it submits to `POST /polls`, shows share links, and wires creator lifecycle controls. Neither mode adds login, session, ranking, or post-publish edit behavior.
+Minimal public poll creation UI: `GET /polls/new` (demo by default). With **`?live=1`**, it ensures the local/demo creator session when available, submits to `POST /creator/polls`, shows share links, and wires creator lifecycle controls. Neither mode adds production login, ranking, or post-publish edit behavior.
 
 Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits the selected public `option_index` to `POST /polls/:id/vote-by-index`, and links to the identity-neutral result page without exposing internal option IDs.
 
@@ -170,7 +175,7 @@ Minimal public voting UI: `GET /vote/:id`. It loads public poll detail, submits 
 
 1. `GET /` — landing page; primary circulation is **share links** (vote/results URLs)
 2. `GET /explore` — freshness-only explore list (`GET /polls/feed`); collecting polls only; no vote counts or ranking
-3. `GET /polls/new` — demo/static create UI by default (no DB write); local MVP real create uses **`/polls/new?live=1`** (`POST /polls`)
+3. `GET /polls/new` — demo/static create UI by default (no DB write); local MVP real create uses **`/polls/new?live=1`** (`POST /creator/polls`)
 4. After **`?live=1`** create success, shareable full URLs for `GET /vote/:pollId` and `GET /results/:pollId` (copy buttons + visible links; poll id only, no tokens)
 5. `GET /vote/:pollId` — vote; success links to results
 6. `GET /results/:pollId` — **read-only** display-safe results per `public_lifecycle_state` (collecting counter-free; aggregate when `revealed` / `locked` / `post_lock`); no login, feed UI, ranking, or admin UI (Phase 29–30). Creator lifecycle: **`?creator=1`** (MVP dev; see Phase 60 handoff)
@@ -189,15 +194,15 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 **Baseline commit (Phase 48):** `630baea` — FAQ, trust-level matrix, mobile readability polish.
 
-The public browser surface remains **share-link first**. Default routes stay **static/demo-facing** for policy UX; **creator lifecycle management** is available only with MVP dev query switches (`?live=1`, `?creator=1`) — not production login or authorization. Visitors vote with `X-User-Id`; results follow backend `public_lifecycle_state`. There is still **no** real login/session, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization.
+The public browser surface remains **share-link first**. Default routes stay **static/demo-facing** for policy UX; **creator lifecycle management** is available only with MVP dev query switches (`?live=1`, `?creator=1`) and the Phase 65A creator cookie — not production login UX. Visitors vote with `X-User-Id`; results follow backend `public_lifecycle_state`. There is still **no** production credential verifier, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization.
 
 | Page | Route | Notes |
 |------|-------|--------|
 | Landing | `/` | Entry; links to create, explore, FAQ, trust matrix |
 | FAQ | `/faq` | Static policy Q&A (Traditional Chinese); aligns with Phase 39–41 drafts |
 | Trust levels | `/trust-levels` | Static Lv.0–Lv.4 permission matrix (demo copy) |
-| Create poll | `/polls/new` | Default: demo preview (no DB write). **`?live=1`:** real `POST /polls`, share vote link, lifecycle controls |
-| My polls | `/my-polls` | Default: static mock table (inert). **`?live=1`:** live creator management (`sessionStorage` recent polls, lifecycle buttons) |
+| Create poll | `/polls/new` | Default: demo preview (no DB write). **`?live=1`:** real `POST /creator/polls`, share vote link, lifecycle controls |
+| My polls | `/my-polls` | Default: static mock table (inert). **`?live=1`:** live creator management from `GET /creator/polls` |
 | Vote | `/vote/:pollId` | Submits `option_index` via `vote-by-index` |
 | Vote (demo) | `/vote/demo` | Static policy shell; optional `?ui_state=` for QA |
 | Results | `/results/:pollId` | Read-only display-safe results per lifecycle; collecting stays counter-free |
@@ -209,8 +214,8 @@ The public browser surface remains **share-link first**. Default routes stay **s
 
 | Param | Values | Purpose |
 |-------|--------|---------|
-| `live` | `1` | Real create/manage on `/polls/new`, `/my-polls` (local demo creator `X-User-Id`; see Phase 60 handoff) |
-| `creator` | `1` | Show creator lifecycle panel on `/results/:pollId` (backend `POST /cancel|close|unpublish` remains authoritative) |
+| `live` | `1` | Real create/manage on `/polls/new`, `/my-polls` using the Phase 65A creator cookie |
+| `creator` | `1` | Show creator lifecycle panel on `/results/:pollId` (backend `/creator/polls/:id/cancel|close|unpublish` remains authoritative) |
 | `nav` | `guest`, `logged-in-mock` | Toggle header/nav mock on static pages (not real auth) |
 | `ui_state` | `collecting`, `revealed`, `locked`, `post_lock`, `cancelled`, `unpublished`, … | Preview lifecycle copy on `/vote/demo`, `/results/demo`, etc. |
 

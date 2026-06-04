@@ -23,8 +23,8 @@
 | `GET /vote/:pollId` | 真實投票頁（`POST /polls/:id/vote-by-index`） |
 | `GET /results/:pollId` | 真實結果頁（display-safe JSON；依後端狀態顯示） |
 | `GET /explore` | **Live** freshness-only 列表（`GET /polls/feed`；收集中、依發布時間；無票數／熱門／個人化） |
-| `GET /polls/new?live=1` | 真實 `POST /polls`（MVP dev 開關；無 `?live=1` 的 `/polls/new` 為展示用） |
-| `GET /my-polls?live=1` | 發起者即時問卷區（`sessionStorage`；無 `?live=1` 為 mock 表） |
+| `GET /polls/new?live=1` | 真實 `POST /creator/polls`（MVP dev 開關；無 `?live=1` 的 `/polls/new` 為展示用） |
+| `GET /my-polls?live=1` | 發起者即時問卷區（`GET /creator/polls`；無 `?live=1` 為 mock 表） |
 | `GET /results/:pollId?creator=1` | 發起者 lifecycle 區（MVP dev；與 Phase 60 手動 QA 一致） |
 
 ### A.2 政策說明頁（靜態 HTML，無需真實 poll id）
@@ -58,7 +58,7 @@
 - `?nav=guest` — 訪客導覽
 - `?nav=logged-in-mock` — 登入後導覽 mock
 
-後端另有 JSON API（例如 `POST /polls`、`GET /polls/:id/results`），前台不直接暴露內部 `option_id`、vote token、shard 等欄位。
+後端另有 JSON API（例如 creator `POST /creator/polls`、public `GET /polls/:id/results`），前台不直接暴露內部 `option_id`、vote token、shard 等欄位。
 
 ---
 

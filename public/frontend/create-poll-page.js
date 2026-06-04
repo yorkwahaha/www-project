@@ -15,9 +15,8 @@ import {
   renderCreatorManageLinks,
 } from './creator-flow-copy.js';
 import {
+  ensureCreatorSessionForLiveMode,
   renderCreatorLifecycleActions,
-  resolvePublicMvpCreatorId,
-  writeManagedPoll,
 } from './poll-lifecycle-controls.js';
 import {
   mountUiMockPreviewChrome,
@@ -67,18 +66,16 @@ export function submitCreatePollDemo({ formValues }) {
 export async function submitCreatePoll({
   formValues,
   fetchImpl = globalThis.fetch,
-  uuidFactory = () => globalThis.crypto.randomUUID(),
   now = () => new Date(),
 }) {
   const normalized = normalizeCreatePollForm(formValues);
   const closesAt = new Date(now().getTime() + PUBLISH_DURATION_MS).toISOString();
   let response;
   try {
-    response = await fetchImpl('/polls', {
+    response = await fetchImpl('/creator/polls', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': uuidFactory(),
       },
       body: JSON.stringify({
         ...normalized,
@@ -119,18 +116,11 @@ export function renderCreatePollSuccess(root, created, options = {}) {
   const lifecycleHost = root.ownerDocument.createElement('section');
   lifecycleHost.className = 'mvp-creator-lifecycle-panel';
   root.append(lifecycleHost);
-  writeManagedPoll(options.storage, {
-    pollId: created.poll_id,
-    public_lifecycle_state: 'collecting',
-    title: options.title,
-  });
   renderCreatorLifecycleActions(lifecycleHost, {
     pollId: created.poll_id,
     lifecycleState: 'collecting',
     title: options.title,
     fetchImpl: options.fetchImpl,
-    storage: options.storage,
-    creatorUserId: options.creatorUserId,
     flowContext: 'create',
   });
 }
@@ -221,15 +211,16 @@ export function bootstrapCreatePollPage({
     };
 
     try {
-      const creatorUserId = resolvePublicMvpCreatorId(
-        globalThis.sessionStorage,
-        uuidFactory,
-      );
+      if (useLiveApi) {
+        await ensureCreatorSessionForLiveMode({
+          fetchImpl,
+          locationObject: globalThis.location,
+        });
+      }
       const created = useLiveApi
         ? await submitCreatePoll({
             formValues,
             fetchImpl,
-            uuidFactory: () => creatorUserId,
             now,
           })
         : submitCreatePollDemo({ formValues });
@@ -240,8 +231,6 @@ export function bootstrapCreatePollPage({
       renderCreatePollSuccess(success, created, {
         demoStatic: !useLiveApi,
         fetchImpl,
-        storage: globalThis.sessionStorage,
-        creatorUserId,
         title: formValues.title.trim(),
       });
       form.reset();

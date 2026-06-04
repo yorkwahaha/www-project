@@ -20,7 +20,7 @@ export const CREATOR_FLOW_COPY = {
   myPollsEmpty:
     '即時模式：請先到「建立問卷」頁加上 ?live=1 建立問卷；成功後此處會顯示可管理的問卷與狀態按鈕。',
   myPollsLead:
-    '以下為本瀏覽器工作階段最近建立的問卷。可分享投票連結、查看結果，或變更公開狀態。',
+    '以下為發起者工作階段可管理的問卷。可分享投票連結、查看結果，或變更公開狀態。',
   resultsCreatorLead:
     '發起者操作區：須先「結束收集並公開結果」後，上方才會顯示公開的區間化統計。',
   lifecycleLeadCollecting:

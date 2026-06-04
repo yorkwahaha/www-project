@@ -30,9 +30,8 @@ describe('poll lifecycle controls', () => {
     ).toContain('尚未到預定截止時間');
   });
 
-  it('posts cancel/close/unpublish to existing poll routes', async () => {
-    const { postPollLifecycleTransition, LOCAL_DEMO_CREATOR_USER_ID } =
-      await loadModule();
+  it('posts cancel/close/unpublish to creator-owned poll routes without creator headers', async () => {
+    const { postPollLifecycleTransition } = await loadModule();
     const fetchImpl = vi
       .fn()
       .mockResolvedValueOnce({
@@ -59,43 +58,71 @@ describe('poll lifecycle controls', () => {
       });
 
     const pollId = '22222222-2222-4222-8222-222222222222';
-    await postPollLifecycleTransition(
-      pollId,
-      'cancel',
-      LOCAL_DEMO_CREATOR_USER_ID,
-      fetchImpl,
-    );
-    await postPollLifecycleTransition(
-      pollId,
-      'close',
-      LOCAL_DEMO_CREATOR_USER_ID,
-      fetchImpl,
-    );
-    await postPollLifecycleTransition(
-      pollId,
-      'unpublish',
-      LOCAL_DEMO_CREATOR_USER_ID,
-      fetchImpl,
-    );
+    await postPollLifecycleTransition(pollId, 'cancel', fetchImpl);
+    await postPollLifecycleTransition(pollId, 'close', fetchImpl);
+    await postPollLifecycleTransition(pollId, 'unpublish', fetchImpl);
 
     expect(fetchImpl).toHaveBeenNthCalledWith(
       1,
-      `/polls/${pollId}/cancel`,
+      `/creator/polls/${pollId}/cancel`,
       expect.objectContaining({
         method: 'POST',
-        headers: { 'X-User-Id': LOCAL_DEMO_CREATOR_USER_ID },
+        credentials: 'same-origin',
       }),
     );
+    expect(fetchImpl.mock.calls[0]![1]).not.toHaveProperty('headers');
     expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
-      `/polls/${pollId}/close`,
+      `/creator/polls/${pollId}/close`,
       expect.any(Object),
     );
     expect(fetchImpl).toHaveBeenNthCalledWith(
       3,
-      `/polls/${pollId}/unpublish`,
+      `/creator/polls/${pollId}/unpublish`,
       expect.any(Object),
     );
+    expect(JSON.stringify(fetchImpl.mock.calls)).not.toMatch(/X-User-Id|X-Display-Name/);
+  });
+
+  it('bootstraps the local demo creator session only after a 401 session check', async () => {
+    const { ensureCreatorSessionForLiveMode, LOCAL_DEMO_CREATOR_USER_ID } =
+      await loadModule();
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 401 })
+      .mockResolvedValueOnce({ ok: true, status: 201 });
+
+    await expect(
+      ensureCreatorSessionForLiveMode({
+        fetchImpl,
+        locationObject: { hostname: '127.0.0.1' },
+      }),
+    ).resolves.toBe(true);
+
+    expect(fetchImpl).toHaveBeenNthCalledWith(1, '/creator/session', {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+    expect(fetchImpl).toHaveBeenNthCalledWith(2, '/creator/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: LOCAL_DEMO_CREATOR_USER_ID }),
+      credentials: 'same-origin',
+    });
+  });
+
+  it('does not issue local test sessions on non-local hosts', async () => {
+    const { ensureCreatorSessionForLiveMode } = await loadModule();
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: false, status: 401 });
+
+    await expect(
+      ensureCreatorSessionForLiveMode({
+        fetchImpl,
+        locationObject: { hostname: 'www.example.test' },
+      }),
+    ).rejects.toThrow('目前無法確認發起者身分');
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it('exposes actions only for collecting and post_lock states', async () => {
@@ -108,8 +135,7 @@ describe('poll lifecycle controls', () => {
 
   it('invokes onTransitionSuccess from lifecycle button after successful POST', async () => {
     vi.stubGlobal('confirm', vi.fn(() => true));
-    const { renderCreatorLifecycleActions, LOCAL_DEMO_CREATOR_USER_ID } =
-      await loadModule();
+    const { renderCreatorLifecycleActions } = await loadModule();
     const pollId = '22222222-2222-4222-8222-222222222222';
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: true,
@@ -155,11 +181,6 @@ describe('poll lifecycle controls', () => {
       pollId,
       lifecycleState: 'collecting',
       fetchImpl,
-      storage: {
-        getItem: () => null,
-        setItem: () => {},
-      },
-      creatorUserId: LOCAL_DEMO_CREATOR_USER_ID,
       onTransitionSuccess,
     });
 
@@ -192,8 +213,7 @@ describe('poll lifecycle controls', () => {
 
   it('keeps transition success status when refresh returns refreshed false', async () => {
     vi.stubGlobal('confirm', vi.fn(() => true));
-    const { renderCreatorLifecycleActions, LOCAL_DEMO_CREATOR_USER_ID } =
-      await loadModule();
+    const { renderCreatorLifecycleActions } = await loadModule();
     const pollId = '22222222-2222-4222-8222-222222222222';
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: true,
@@ -251,11 +271,6 @@ describe('poll lifecycle controls', () => {
       pollId,
       lifecycleState: 'collecting',
       fetchImpl,
-      storage: {
-        getItem: () => null,
-        setItem: () => {},
-      },
-      creatorUserId: LOCAL_DEMO_CREATOR_USER_ID,
       onTransitionSuccess,
     });
 
@@ -288,26 +303,9 @@ describe('poll lifecycle controls', () => {
     vi.unstubAllGlobals();
   });
 
-  it('stores only poll id and lifecycle state in session storage', async () => {
-    const { writeManagedPoll, readManagedPoll } = await loadModule();
-    const storage = new Map<string, string>();
-    const session = {
-      getItem: (key: string) => storage.get(key) ?? null,
-      setItem: (key: string, value: string) => {
-        storage.set(key, value);
-      },
-    };
-    writeManagedPoll(session, {
-      pollId: '22222222-2222-4222-8222-222222222222',
-      public_lifecycle_state: 'collecting',
-      title: '午餐',
-    });
-    expect(readManagedPoll(session)).toEqual({
-      pollId: '22222222-2222-4222-8222-222222222222',
-      public_lifecycle_state: 'collecting',
-      title: '午餐',
-    });
-    const raw = storage.get('www_creator_managed_poll');
-    expect(raw).not.toContain('option');
+  it('does not expose managed-poll session storage helpers for creator authority', async () => {
+    const module = await loadModule();
+    expect(module).not.toHaveProperty('writeManagedPoll');
+    expect(module).not.toHaveProperty('readManagedPoll');
   });
 });

@@ -15,9 +15,7 @@ import {
 import { mountSiteChrome } from './public-mvp-layout.js';
 import {
   parseCreatorManageMode,
-  readManagedPoll,
   renderCreatorLifecycleActions,
-  writeManagedPoll,
 } from './poll-lifecycle-controls.js';
 import {
   POLICY_UI_COPY,
@@ -425,7 +423,6 @@ function mountCreatorLifecyclePanel(
     demoOnly,
     apiLifecycle,
     search,
-    storage,
     fetchImpl,
     onRefreshResultDisplay,
   },
@@ -435,39 +432,18 @@ function mountCreatorLifecyclePanel(
     host.replaceChildren();
     return;
   }
-  const managed = readManagedPoll(storage);
-  const showCreator =
-    parseCreatorManageMode(search) ||
-    (managed?.pollId === pollId);
-  if (!showCreator) {
+  if (!parseCreatorManageMode(search)) {
     host.hidden = true;
     host.replaceChildren();
     return;
   }
   const lifecycleState = apiLifecycle;
-  if (managed?.pollId === pollId && managed.public_lifecycle_state !== apiLifecycle) {
-    writeManagedPoll(storage, {
-      pollId,
-      public_lifecycle_state: apiLifecycle,
-      title: managed.title,
-    });
-  }
   renderCreatorLifecycleActions(host, {
     pollId,
     lifecycleState,
-    title: managed?.pollId === pollId ? managed.title : undefined,
+    title: undefined,
     fetchImpl,
-    storage,
     flowContext: 'results',
-    onStateChange: (nextState) => {
-      if (managed?.pollId === pollId) {
-        writeManagedPoll(storage, {
-          pollId,
-          public_lifecycle_state: nextState,
-          title: managed.title,
-        });
-      }
-    },
     onTransitionSuccess: onRefreshResultDisplay,
   });
 }
@@ -482,7 +458,6 @@ function paintResultPageFromPayload(pageContext, result) {
     uiMockState,
     demoOnly,
     search,
-    storage,
     fetchImpl,
     onRefreshResultDisplay,
   } = pageContext;
@@ -517,7 +492,6 @@ function paintResultPageFromPayload(pageContext, result) {
       demoOnly,
       apiLifecycle,
       search,
-      storage,
       fetchImpl,
       onRefreshResultDisplay,
     });
@@ -699,7 +673,6 @@ export async function bootstrapResultPage({
       uiMockState,
       demoOnly,
       search: windowObject.location.search,
-      storage: windowObject.sessionStorage,
       fetchImpl,
       onRefreshResultDisplay: null,
     };

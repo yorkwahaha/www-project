@@ -23,13 +23,13 @@
 
 | 步驟 | URL／操作 | 誰 | 說明 |
 |------|-----------|-----|------|
-| 1 | `GET /polls/new?live=1` | 發起者 | 真實 `POST /polls`；成功後複製**投票連結**、管理 lifecycle |
+| 1 | `GET /polls/new?live=1` | 發起者 | 真實 `POST /creator/polls`；成功後複製**投票連結**、管理 lifecycle |
 | 2 | `GET /vote/<pollId>` | 訪客 | 分享連結投票；`X-User-Id` 為本機 demo 投票者（見 §5） |
-| 3 | `GET /my-polls?live=1` | 發起者 | 同一瀏覽器工作階段內最近建立的問卷（`sessionStorage`） |
+| 3 | `GET /my-polls?live=1` | 發起者 | 透過 `GET /creator/polls` 讀取發起者擁有的問卷 |
 | 4 | `GET /results/<pollId>?creator=1` | 發起者 | 發起者操作區 + 結果顯示；lifecycle 成功後自動 re-fetch 結果 |
 | 5 | `GET /results/<pollId>` | 訪客 | 唯讀結果；依 `public_lifecycle_state` 顯示 collecting／unavailable／aggregate |
 
-**未加 `?live=1` 的 `/polls/new`** 仍為展示用（不寫入 DB）。**未加 `?creator=1` 的結果頁** 仍可依 `sessionStorage` 中相同 `pollId` 顯示發起者區（Phase 58B）。
+**未加 `?live=1` 的 `/polls/new`** 仍為展示用（不寫入 DB）。**未加 `?creator=1` 的結果頁** 不顯示發起者操作區。
 
 ---
 
@@ -51,19 +51,19 @@
 
 ---
 
-## 3. 發起者操作（Phase 57 API + 58B UI）
+## 3. 發起者操作（Phase 65B API + 65C-A UI）
 
-均需本機 **creator** `X-User-Id`（見 §5）。按鈕文案與確認框為繁中。
+均需 Phase 65A `creator_session` cookie；本機 live mode 可透過 local-test issuer 建立 cookie（見 §5）。按鈕文案與確認框為繁中。
 
 | 按鈕 | API | 允許狀態 | 效果摘要 |
 |------|-----|----------|----------|
-| **取消問卷** | `POST /polls/:id/cancel` | `collecting` | → `cancelled`；不產生公開彙總結果 |
-| **結束收集並公開結果** | `POST /polls/:id/close` | `collecting`（且須達 `closes_at`） | → `revealed`；開始顯示 aggregate；進入約 5 天公開鎖定期 |
-| **下架問卷** | `POST /polls/:id/unpublish` | `post_lock`（鎖定期須已結束） | → `unpublished`；訪客無法再看公開結果 |
+| **取消問卷** | `POST /creator/polls/:id/cancel` | `collecting` | → `cancelled`；不產生公開彙總結果 |
+| **結束收集並公開結果** | `POST /creator/polls/:id/close` | `collecting`（且須達 `closes_at`） | → `revealed`；開始顯示 aggregate；進入約 5 天公開鎖定期 |
+| **下架問卷** | `POST /creator/polls/:id/unpublish` | `post_lock`（鎖定期須已結束） | → `unpublished`；訪客無法再看公開結果 |
 
 **結果頁 refresh（58C/D）：** 在 `/results/:id?creator=1` 操作成功後，前端會 `GET /polls/:id/results` 重繪主顯示區。若 POST 成功但 GET 失敗，控制區顯示「狀態已更新…請重新整理頁面」，主區 prepend 安全提示，**不**暴露 API 錯誤內文，並保留舊快照。
 
-**`sessionStorage`（發起者管理用）：** 僅 `pollId`、`public_lifecycle_state`、可選 `title`。**不含** `option_id` 或任何選項／票數。
+**發起者管理來源：** `/my-polls?live=1` 使用 `GET /creator/polls` 的 counter-free allowlist，不使用 `sessionStorage` 作 ownership authority。
 
 ---
 
@@ -89,7 +89,7 @@ npm run demo:public:local
 
 | 項目 | 本機 MVP 行為 |
 |------|----------------|
-| Creator `X-User-Id` | `127.0.0.1` / `localhost` 固定為 `11111111-1111-4111-8111-111111111111`（`LOCAL_DEMO_CREATOR_USER_ID`） |
+| Creator session | `127.0.0.1` / `localhost` live mode 可用 local-test issuer，使用 seeded creator `11111111-1111-4111-8111-111111111111` 建立 `creator_session` |
 | 投票者 | `demo:public:local` 種子 official 使用者；第二人可加 `?demoVoter=b`（見啟動文件） |
 | DB | 僅 **`www_test`**；勿對 production 跑 smoke |
 
@@ -146,7 +146,7 @@ npm run smoke:public:local
 ### G. 隱私快檢
 
 - [ ] 公開頁與 Network 中 `GET /polls/:id/results` 在 collecting／cancelled／unpublished **無** aggregate 欄位外洩
-- [ ] `sessionStorage` 的 `www_creator_managed_poll` **無** option 字樣
+- [ ] `/my-polls?live=1` 的 `GET /creator/polls` 回應無 option、count、percent、token、ranking、creator_id
 
 ---
 
@@ -155,9 +155,9 @@ npm run smoke:public:local
 | 限制 | 說明 |
 |------|------|
 | `?live=1` | 開發用即時 API 開關；非 production 授權模型 |
-| `?creator=1` | 顯示發起者操作區的 MVP 開關；**不**代表已登入或後端已驗證身分 |
-| 固定 creator UUID | 本機 hostname 下所有「發起者」共用同一 `X-User-Id` |
-| 前端 ≠ 授權 | 隱藏按鈕或 UI 狀態可被繞過；以 `POST /cancel|close|unpublish` 與 aggregate guard 為準 |
+| `?creator=1` | 顯示發起者操作區的 MVP 開關；後端仍以 `creator_session` 驗證 |
+| 本機 creator session | 本機 hostname 下 live mode 可簽發 local-test `creator_session`；production issuer 仍 fail closed |
+| 前端 ≠ 授權 | 隱藏按鈕或 UI 狀態可被繞過；以 `/creator/polls/:id/cancel|close|unpublish` 與 aggregate guard 為準 |
 | Scheduler | 58A foundation 存在；**無** cron／部署 wiring；`revealed→locked→post_lock` 本機可能需手動或 DB 調整 |
 | `design-drafts/` | 設計稿目錄**不**納入 git；勿 commit |
 | 無登入／feed UI | 見 [`www-project-public-mvp-manual-qa-v1.md`](./www-project-public-mvp-manual-qa-v1.md) §4 |
@@ -168,9 +168,9 @@ npm run smoke:public:local
 
 | Method | Path | 說明 |
 |--------|------|------|
-| `POST` | `/polls/:id/cancel` | Creator；`collecting → cancelled` |
-| `POST` | `/polls/:id/close` | Creator；`collecting → revealed`（server 寫入 reveal／lock 時間） |
-| `POST` | `/polls/:id/unpublish` | Creator；`post_lock → unpublished` |
+| `POST` | `/creator/polls/:id/cancel` | Creator；`collecting → cancelled` |
+| `POST` | `/creator/polls/:id/close` | Creator；`collecting → revealed`（server 寫入 reveal／lock 時間） |
+| `POST` | `/creator/polls/:id/unpublish` | Creator；`post_lock → unpublished` |
 
 公開讀取仍用既有 `GET /polls/:id`、`GET /polls/:id/results`（含 `public_lifecycle_state`）。
 

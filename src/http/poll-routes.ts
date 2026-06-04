@@ -7,42 +7,17 @@ import {
   handlePostOfficialVoteByIndex as dispatchOfficialVoteByIndex,
 } from './official-vote-routes.js';
 import { handlePostReferenceAnswer as dispatchReferenceAnswer } from './reference-answer-routes.js';
-import { readJsonBody, sendJson } from './json.js';
+import { sendJson } from './json.js';
 
-type CreatePollBody = {
-  title?: string;
-  description?: string;
-  category?: string;
-  options?: string[];
-  eligible_rule_id?: string | null;
-  closes_at?: string;
-  publish?: boolean;
-};
+const LEGACY_CREATOR_WRITE_RETIRED = {
+  error: 'LEGACY_CREATOR_WRITE_RETIRED',
+  message: 'Legacy creator-write routes are retired; use /creator/polls',
+} as const;
 
 export function createPollRouteHandlers(pollService: PollService) {
   return {
-    async handlePostPolls(req: IncomingMessage, res: ServerResponse): Promise<void> {
-      try {
-        const creatorId = requireUserId(req);
-        const displayName = req.headers['x-display-name']?.toString() ?? 'Creator';
-        const body = await readJsonBody<CreatePollBody>(req);
-        const result = await pollService.createPoll(
-          {
-            creatorId,
-            title: body.title ?? '',
-            description: body.description ?? '',
-            category: body.category ?? '',
-            options: body.options ?? [],
-            eligibleRuleId: body.eligible_rule_id ?? null,
-            closesAt: new Date(body.closes_at ?? ''),
-            publish: body.publish === true,
-          },
-          displayName,
-        );
-        sendJson(res, 201, result);
-      } catch (err) {
-        handlePollRouteError(res, err);
-      }
+    async handlePostPolls(_req: IncomingMessage, res: ServerResponse): Promise<void> {
+      sendLegacyCreatorWriteRetired(res);
     },
 
     async handleGetPoll(
@@ -59,56 +34,35 @@ export function createPollRouteHandlers(pollService: PollService) {
     },
 
     async handleDeletePoll(
-      req: IncomingMessage,
+      _req: IncomingMessage,
       res: ServerResponse,
-      pollId: string,
+      _pollId: string,
     ): Promise<void> {
-      try {
-        const creatorId = requireUserId(req);
-        const result = await pollService.deletePoll(pollId, creatorId);
-        sendJson(res, 200, result);
-      } catch (err) {
-        handlePollRouteError(res, err);
-      }
+      sendLegacyCreatorWriteRetired(res);
     },
 
     async handlePostCancelPoll(
-      req: IncomingMessage,
+      _req: IncomingMessage,
       res: ServerResponse,
-      pollId: string,
+      _pollId: string,
     ): Promise<void> {
-      try {
-        const result = await pollService.cancelPoll(pollId, requireUserId(req));
-        sendJson(res, 200, result);
-      } catch (err) {
-        handlePollRouteError(res, err);
-      }
+      sendLegacyCreatorWriteRetired(res);
     },
 
     async handlePostClosePoll(
-      req: IncomingMessage,
+      _req: IncomingMessage,
       res: ServerResponse,
-      pollId: string,
+      _pollId: string,
     ): Promise<void> {
-      try {
-        const result = await pollService.closePoll(pollId, requireUserId(req));
-        sendJson(res, 200, result);
-      } catch (err) {
-        handlePollRouteError(res, err);
-      }
+      sendLegacyCreatorWriteRetired(res);
     },
 
     async handlePostUnpublishPoll(
-      req: IncomingMessage,
+      _req: IncomingMessage,
       res: ServerResponse,
-      pollId: string,
+      _pollId: string,
     ): Promise<void> {
-      try {
-        const result = await pollService.unpublishPoll(pollId, requireUserId(req));
-        sendJson(res, 200, result);
-      } catch (err) {
-        handlePollRouteError(res, err);
-      }
+      sendLegacyCreatorWriteRetired(res);
     },
 
     handlePostReferenceAnswer(
@@ -161,6 +115,10 @@ export function createPollRouteHandlers(pollService: PollService) {
       return dispatchOfficialVoteByIndex(req, res, pollId, pollService, requireUserId);
     },
   };
+}
+
+function sendLegacyCreatorWriteRetired(res: ServerResponse): void {
+  sendJson(res, 410, LEGACY_CREATOR_WRITE_RETIRED);
 }
 
 function requireUserId(req: IncomingMessage): string {

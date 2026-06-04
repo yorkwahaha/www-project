@@ -67,6 +67,9 @@ Phase 65C must switch the live frontend transport to `/creator/polls`, then reti
 development-gate those legacy creator-write routes. Phase 65B is not a production auth
 cutover by itself.
 
+**Resolved after Phase 65B:** Phase 65C-A moved the live frontend transport to
+`/creator/polls`; Phase 65C-B retired the legacy `/polls` creator-write routes.
+
 ## Explicit Non-Goals
 
 - Frontend session UX or `/my-polls` transport switch

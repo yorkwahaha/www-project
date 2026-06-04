@@ -80,9 +80,11 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 65A:** Creator session foundation — digest-backed fixed-TTL `creator_session` cookies, exact-match Origin gate, local/test-only issuance, and production fail-closed behavior. No frontend UX or creator ownership rewiring. See `docs/www-project-phase-65a-creator-session-foundation-v1.md`.
 
-**Phase 65B:** Backend creator-owned poll APIs — authenticated `/creator/polls` create/list/delete/lifecycle routes use only the Phase 65A cookie principal. Owned list reads are bounded, deterministic, polls-table-only, and counter-free. Legacy `/polls` creator writes remain until Phase 65C frontend cutover plus retirement or development gate. See `docs/www-project-phase-65b-creator-owned-poll-apis-v1.md`.
+**Phase 65B:** Backend creator-owned poll APIs — authenticated `/creator/polls` create/list/delete/lifecycle routes use only the Phase 65A cookie principal. Owned list reads are bounded, deterministic, polls-table-only, and counter-free. The then-deferred legacy `/polls` creator-write risk is resolved by Phase 65C-A/B. See `docs/www-project-phase-65b-creator-owned-poll-apis-v1.md`.
 
-**Phase 65C-A:** Live creator frontend cutover — `/polls/new?live=1`, `/my-polls?live=1`, and creator lifecycle controls now use Phase 65B `/creator/polls` APIs with the Phase 65A cookie. Local/demo live mode bootstraps only the local-test creator session; no production login UX, schema change, ranking, scheduler, or legacy route retirement was added. Legacy `/polls` creator writes remain a Phase 65C-B risk. See `docs/www-project-phase-65c-a-frontend-creator-api-cutover-v1.md`.
+**Phase 65C-A:** Live creator frontend cutover — `/polls/new?live=1`, `/my-polls?live=1`, and creator lifecycle controls now use Phase 65B `/creator/polls` APIs with the Phase 65A cookie. Local/demo live mode bootstraps only the local-test creator session; no production login UX, schema change, ranking, scheduler, or legacy route retirement was added in that phase. The remaining legacy `/polls` creator-write risk is resolved by Phase 65C-B. See `docs/www-project-phase-65c-a-frontend-creator-api-cutover-v1.md`.
+
+**Phase 65C-B:** Legacy creator-write retirement — development-era `/polls` creator writes that trusted client-selected `X-User-Id` now fail closed with `410 LEGACY_CREATOR_WRITE_RETIRED`. There is no dev or production bypass. Use `/creator/polls` with the Phase 65A creator cookie for create/delete/lifecycle writes. Public reads, vote, vote-by-index, Reference Answer, feed, notices, results, and scheduler behavior are unchanged. See `docs/www-project-phase-65c-b-legacy-creator-write-retirement-v1.md`.
 
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
@@ -136,16 +138,19 @@ The integration quick command starts the local Docker test service if needed, wa
 
 ## Public APIs (Phase 0–5C)
 
-Legacy public poll creator-write routes still require header `X-User-Id` (UUID); Phase 65C-B must retire or development-gate them. Public vote and Reference Answer routes also keep their existing `X-User-Id` behavior. Live creator frontend flows use `/creator/polls` with the `creator_session` cookie instead.
+Legacy public poll creator-write routes no longer accept `X-User-Id` creator authority; they return `410 LEGACY_CREATOR_WRITE_RETIRED`. Public vote and Reference Answer routes keep their existing public `X-User-Id` behavior. Live creator frontend flows use `/creator/polls` with the `creator_session` cookie instead.
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/polls` | Legacy creator-write create route (still present until Phase 65C-B) |
+| `POST` | `/polls` | Retired legacy creator-write create route; returns `410 LEGACY_CREATOR_WRITE_RETIRED` |
 | `POST` | `/creator/polls` | Live creator create route using `creator_session` cookie |
 | `GET` | `/creator/polls` | Counter-free owned poll list using `creator_session` cookie |
 | `DELETE` | `/creator/polls/:id` | Creator-owned soft-delete route using `creator_session` cookie |
 | `GET` | `/polls/:id` | Poll detail (no vote/ranking signals) |
-| `DELETE` | `/polls/:id` | Creator soft-delete |
+| `DELETE` | `/polls/:id` | Retired legacy creator-write delete route; returns `410 LEGACY_CREATOR_WRITE_RETIRED` |
+| `POST` | `/polls/:id/cancel` | Retired legacy creator-write lifecycle route; returns `410 LEGACY_CREATOR_WRITE_RETIRED` |
+| `POST` | `/polls/:id/close` | Retired legacy creator-write lifecycle route; returns `410 LEGACY_CREATOR_WRITE_RETIRED` |
+| `POST` | `/polls/:id/unpublish` | Retired legacy creator-write lifecycle route; returns `410 LEGACY_CREATOR_WRITE_RETIRED` |
 | `POST` | `/polls/:id/reference-answer` | Record Reference Answer participation only |
 | `POST` | `/polls/:id/vote` | Record Official Vote and increment aggregate shard |
 | `POST` | `/polls/:id/vote-by-index` | Record Official Vote from a public option index; internal option ID stays server-side |

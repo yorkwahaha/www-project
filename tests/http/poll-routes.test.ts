@@ -62,29 +62,94 @@ describe('poll HTTP routes', () => {
 
   const creatorId = '22222222-2222-4222-8222-222222222222';
 
-  it('POST /polls creates poll; GET returns detail without vote signals', async () => {
+  it('retires legacy POST /polls even when X-User-Id is supplied', async () => {
     const repository = createInMemoryPollRepository();
-    const ineligibleUserId = '33333333-3333-4333-8333-333333333333';
-    await repository.ensureUser(ineligibleUserId, 'Ineligible low-trust user');
     const service = createPollService(repository);
     const server = createHttpServer({ pollService: service });
-    const closesAt = new Date(Date.now() + 86_400_000).toISOString();
 
     await withServer(server, async (baseUrl) => {
-      const created = await request(baseUrl, 'POST', '/polls', {
-        headers: { 'X-User-Id': creatorId },
+      const response = await request(baseUrl, 'POST', '/polls', {
+        headers: { 'X-User-Id': creatorId, 'X-Display-Name': 'Legacy Creator' },
         body: {
-          title: 'HTTP poll',
-          description: 'via test',
+          title: 'Legacy create',
+          description: '',
           category: 'general',
           options: ['One', 'Two'],
-          closes_at: closesAt,
+          eligible_rule_id: null,
+          closes_at: new Date(Date.now() + 86_400_000).toISOString(),
           publish: true,
         },
       });
 
-      expect(created.status).toBe(201);
-      const pollId = created.body.poll_id as string;
+      expect(response).toEqual({
+        status: 410,
+        body: {
+          error: 'LEGACY_CREATOR_WRITE_RETIRED',
+          message: 'Legacy creator-write routes are retired; use /creator/polls',
+        },
+      });
+      expect(repository.polls.size).toBe(0);
+    });
+  });
+
+  it('retires legacy DELETE /polls/:id even when X-User-Id is supplied', async () => {
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(creatorId, 'Low trust creator');
+    const service = createPollService(repository);
+    const server = createHttpServer({ pollService: service });
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'Delete legacy route',
+        description: '',
+        category: 'general',
+        options: ['One', 'Two'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+
+    await withServer(server, async (baseUrl) => {
+      const response = await request(baseUrl, 'DELETE', `/polls/${created.poll_id}`, {
+        headers: { 'X-User-Id': creatorId },
+      });
+
+      expect(response).toEqual({
+        status: 410,
+        body: {
+          error: 'LEGACY_CREATOR_WRITE_RETIRED',
+          message: 'Legacy creator-write routes are retired; use /creator/polls',
+        },
+      });
+      expect(repository.polls.get(created.poll_id)?.status).toBe('active');
+    });
+  });
+
+  it('GET /polls/:id returns detail without vote signals', async () => {
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(creatorId, 'Low trust creator');
+    const ineligibleUserId = '33333333-3333-4333-8333-333333333333';
+    await repository.ensureUser(ineligibleUserId, 'Ineligible low-trust user');
+    const service = createPollService(repository);
+    const server = createHttpServer({ pollService: service });
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'HTTP poll',
+        description: 'via test',
+        category: 'general',
+        options: ['One', 'Two'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: true,
+      },
+      'Creator',
+    );
+
+    await withServer(server, async (baseUrl) => {
+      const pollId = created.poll_id;
 
       const detail = await request(baseUrl, 'GET', `/polls/${pollId}`, {});
       const ineligibleDetail = await request(baseUrl, 'GET', `/polls/${pollId}`, {
@@ -153,23 +218,26 @@ describe('poll HTTP routes', () => {
   });
 
   it('GET /polls/:id returns 404 for draft polls without leaking state', async () => {
-    const service = createPollService(createInMemoryPollRepository());
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(creatorId, 'Low trust creator');
+    const service = createPollService(repository);
     const server = createHttpServer({ pollService: service });
-    const closesAt = new Date(Date.now() + 86_400_000).toISOString();
+    const created = await service.createPoll(
+      {
+        creatorId,
+        title: 'Draft poll',
+        description: '',
+        category: 'general',
+        options: ['One', 'Two'],
+        eligibleRuleId: null,
+        closesAt: new Date(Date.now() + 86_400_000),
+        publish: false,
+      },
+      'Creator',
+    );
 
     await withServer(server, async (baseUrl) => {
-      const created = await request(baseUrl, 'POST', '/polls', {
-        headers: { 'X-User-Id': creatorId },
-        body: {
-          title: 'Draft poll',
-          description: '',
-          category: 'general',
-          options: ['One', 'Two'],
-          closes_at: closesAt,
-          publish: false,
-        },
-      });
-      const pollId = created.body.poll_id as string;
+      const pollId = created.poll_id;
       const response = await request(baseUrl, 'GET', `/polls/${pollId}`, {});
 
       expect(response.status).toBe(404);

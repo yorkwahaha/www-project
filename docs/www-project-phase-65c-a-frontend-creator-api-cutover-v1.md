@@ -67,6 +67,9 @@ Phase 65C-B must retire or development-gate:
 Public vote, Reference Answer, reads, feed, results, and public notices must remain
 available when Phase 65C-B gates only legacy creator-write routes.
 
+**Resolved by Phase 65C-B:** see
+`docs/www-project-phase-65c-b-legacy-creator-write-retirement-v1.md`.
+
 ## Validation
 
 Required validation for this phase:

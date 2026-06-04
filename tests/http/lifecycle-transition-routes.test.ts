@@ -32,12 +32,12 @@ async function post(baseUrl: string, path: string, userId?: string) {
   return { status: response.status, body: await response.json() };
 }
 
-describe('poll lifecycle HTTP routes', () => {
-  it('requires creator auth and exposes only server-written lifecycle results', async () => {
+describe('legacy poll lifecycle HTTP routes', () => {
+  it('retires legacy X-User-Id lifecycle writes without mutating poll state', async () => {
     const repository = createInMemoryPollRepository();
     const service = createPollService(repository);
     const server = createHttpServer({ pollService: service });
-    const cancelled = await service.createPoll(
+    const collecting = await service.createPoll(
       {
         creatorId,
         title: 'Cancel route',
@@ -66,35 +66,30 @@ describe('poll lifecycle HTTP routes', () => {
     repository.polls.get(revealed.poll_id)!.closes_at = new Date(Date.now() - 1_000);
 
     await withServer(server, async (baseUrl) => {
-      await expect(post(baseUrl, `/polls/${cancelled.poll_id}/cancel`)).resolves.toMatchObject({
-        status: 401,
+      for (const [pollId, transition] of [
+        [collecting.poll_id, 'cancel'],
+        [revealed.poll_id, 'close'],
+        [revealed.poll_id, 'unpublish'],
+      ] as const) {
+        await expect(
+          post(baseUrl, `/polls/${pollId}/${transition}`, creatorId),
+        ).resolves.toEqual({
+          status: 410,
+          body: {
+            error: 'LEGACY_CREATOR_WRITE_RETIRED',
+            message: 'Legacy creator-write routes are retired; use /creator/polls',
+          },
+        });
+      }
+
+      expect(repository.polls.get(collecting.poll_id)).toMatchObject({
+        public_lifecycle_state: 'collecting',
+        cancelled_at: null,
       });
-      await expect(
-        post(baseUrl, `/polls/${cancelled.poll_id}/cancel`, creatorId),
-      ).resolves.toEqual({
-        status: 200,
-        body: {
-          public_lifecycle_state: 'cancelled',
-          message: '問卷已取消，不會產生公開結果。',
-        },
-      });
-      const close = await post(baseUrl, `/polls/${revealed.poll_id}/close`, creatorId);
-      expect(close).toMatchObject({
-        status: 200,
-        body: { public_lifecycle_state: 'revealed' },
-      });
-      await service.advancePublicLifecycle(revealed.poll_id);
-      repository.polls.get(revealed.poll_id)!.public_lock_ends_at =
-        new Date(Date.now() - 1_000);
-      await service.advancePublicLifecycle(revealed.poll_id);
-      await expect(
-        post(baseUrl, `/polls/${revealed.poll_id}/unpublish`, creatorId),
-      ).resolves.toEqual({
-        status: 200,
-        body: {
-          public_lifecycle_state: 'unpublished',
-          user_message: '此問卷已結束公開鎖定期，並由發起者下架。',
-        },
+      expect(repository.polls.get(revealed.poll_id)).toMatchObject({
+        public_lifecycle_state: 'collecting',
+        revealed_at: null,
+        unpublished_at: null,
       });
     });
   });

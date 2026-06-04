@@ -364,3 +364,55 @@ describe('Phase 54 public lifecycle schema guard', () => {
     expect(phase54).not.toContain('user_id');
   });
 });
+
+describe('Phase 66B user profile schema guard', () => {
+  async function readPhase66bMigration(): Promise<string> {
+    return readFile(
+      join(MIGRATIONS_DIR, '010_phase66b_user_profile_foundation.sql'),
+      'utf8',
+    );
+  }
+
+  it('adds only minimal user-scoped profile columns', async () => {
+    const phase66b = (await readPhase66bMigration()).toLowerCase();
+
+    expect(phase66b).toMatch(/\balter\s+table\s+users\b/);
+    expect(phase66b).toContain('add column birth_year_month date');
+    expect(phase66b).toContain('add column residential_region text');
+    expect(phase66b).toContain('users_birth_year_month_check');
+    expect(phase66b).toContain("date_trunc('month', birth_year_month)::date");
+    expect(phase66b).toContain('users_residential_region_check');
+    expect(phase66b).not.toMatch(/\bcreate\s+table\b/);
+    expect(phase66b).not.toMatch(/\balter\s+table\s+(?!users\b)\w+/);
+  });
+
+  it('keeps forbidden profile and linkage data out of the schema foundation', async () => {
+    const phase66b = (await readPhase66bMigration()).toLowerCase();
+
+    expect(phase66b).not.toMatch(/\badd\s+column\s+gender\b/);
+    expect(phase66b).not.toMatch(/(?:^|,|\n)\s*gender\s+\w+/);
+
+    for (const forbidden of [
+      'birthday',
+      'birth_day',
+      'date_of_birth',
+      'eligibility_snapshot',
+      'profile_snapshot',
+      'vote_time',
+      'selected_option_index',
+      'option_id',
+      'option_text',
+      'poll_vote_tokens',
+      'poll_reference_answer_tokens',
+      'poll_option_vote_counters',
+      'poll_result',
+      'ranking',
+      'analytics',
+      'metric',
+      'apm',
+      'debug_payload',
+    ]) {
+      expect(phase66b).not.toContain(forbidden);
+    }
+  });
+});

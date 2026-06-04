@@ -1,6 +1,6 @@
 # WWW Project Phase 66 — Profile / Eligibility / Demographic Qualification Boundary Spec v1
 
-**狀態：** **66A 規格文件 only**（**66P-R 已核准**；不含 schema migration、runtime、frontend、API、evaluator 實作或測試行為變更）。
+**狀態：** **66A** 為 docs/spec only（**66P-R 已核准**）。**66B** 已交付 schema foundation only（`migrations/010_phase66b_user_profile_foundation.sql`）；不含 runtime、API、vote-by-index、Reference Answer、frontend、evaluator 行為變更。
 
 **Baseline：** `origin/master` @ **`c52fc0e`**（Phase 65 最終檢查點已合併）。
 
@@ -19,8 +19,8 @@
 | 代號 | 範圍 | 本文件 |
 |------|------|--------|
 | **66P-R** | Plan review：邊界、隱私、授權分離、ordering 契約 | **已核准**（本 spec） |
-| **66A** | 發布本 spec + README 索引 + docs guard | **本交付** |
-| **66B** | 首輪 **schema foundation only**（見 §2） | **未**在本 Phase 實作 |
+| **66A** | 發布本 spec + README 索引 + docs guard | **已交付** |
+| **66B** | 首輪 **schema foundation only**（見 §2） | **已實作：`migrations/010_phase66b_user_profile_foundation.sql`** |
 | **66C+** | Profile API、evaluator、frontend、Reference Answer profile 門檻 | **須**另案核准 |
 
 ---
@@ -34,6 +34,8 @@
 | `display_name` / `nickname` | 顯示用名稱 | 不得用於 option 解析或排序訊號 |
 | `birth_year_month` | 出生年月（建議 `YYYY-MM` 或等價正規化） | 供年齡區間 evaluator；不得存精確生日若無獨立核准 |
 | `residential_region` | 居住地區（政策定義之枚舉或正規化代碼） | 供地區資格；不得細到可識別個人地址 |
+
+**66B 實作決議：** 既有 `users.display_name` 已作為顯示名稱欄位；66B 僅新增 nullable `users.birth_year_month` 與 `users.residential_region`。未新增 `nickname` 欄位，避免重複 identity surface。
 
 ### 2.2 **明確排除：gender**
 
@@ -172,3 +174,4 @@ Eligibility 決策若需除錯，僅能使用 **poll-scoped、無 option 維度*
 | 版本 | 內容 |
 |------|------|
 | v1 / 66A | 66P-R 核准之 profile / eligibility / demographic 邊界 spec |
+| v1.1 / 66B | 新增 users profile schema foundation：`birth_year_month`、`residential_region`；沿用 `display_name`；無 gender／evaluator／API 行為變更 |

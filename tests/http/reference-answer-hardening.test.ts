@@ -138,7 +138,7 @@ describe('Reference Answer HTTP hardening', () => {
     });
   });
 
-  it('does not apply profile eligibility rules to Reference Answer', async () => {
+  it('does not apply profile eligibility rules or creator_session cookie to Reference Answer', async () => {
     const repository = createInMemoryPollRepository();
     await repository.ensureUser(lowTrustUserId, 'Low trust');
     const service = createPollService(repository);
@@ -151,7 +151,10 @@ describe('Reference Answer HTTP hardening', () => {
 
     await withServer(server, async (baseUrl) => {
       const response = await request(baseUrl, `/polls/${pollId}/reference-answer`, {
-        headers: { 'X-User-Id': lowTrustUserId },
+        headers: {
+          'X-User-Id': lowTrustUserId,
+          Cookie: 'creator_session=malformed-public-cookie',
+        },
         body: { option_id: optionId },
       });
 

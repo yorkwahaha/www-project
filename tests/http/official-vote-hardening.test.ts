@@ -25,10 +25,19 @@ async function withServer<T>(server: Server, run: (baseUrl: string) => Promise<T
   }
 }
 
-async function request(baseUrl: string, path: string, body: unknown) {
+async function request(
+  baseUrl: string,
+  path: string,
+  body: unknown,
+  headers: Record<string, string> = {},
+) {
   const response = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-User-Id': officialUserId },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-User-Id': officialUserId,
+      ...headers,
+    },
     body: JSON.stringify(body),
   });
   return {
@@ -82,6 +91,28 @@ describe('Official Vote HTTP hardening', () => {
       expect(response.body).toEqual({ status: 'voted', voted: true });
       expectSafe(response.body, optionId);
       expect([...repository.voteCounters.values()][0]!.shard_id).toBe(2);
+      expectSafe(getDiagnosticRecordsForTests(), optionId);
+    });
+  });
+
+  it('does not let creator_session cookie affect public vote', async () => {
+    const { repository, service, pollId, optionId } = await seedVote();
+    const server = createHttpServer({ pollService: service });
+
+    await withServer(server, async (baseUrl) => {
+      const response = await request(
+        baseUrl,
+        `/polls/${pollId}/vote`,
+        { option_id: optionId },
+        { Cookie: 'creator_session=malformed-public-cookie' },
+      );
+
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ status: 'voted', voted: true });
+      expect([...repository.voteCounters.values()]).toEqual([
+        { poll_id: pollId, option_id: optionId, shard_id: 2, vote_count: 1 },
+      ]);
+      expectSafe(response.body, optionId);
       expectSafe(getDiagnosticRecordsForTests(), optionId);
     });
   });

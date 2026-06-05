@@ -47,12 +47,18 @@ async function seedVoteByIndex() {
   return { repository, service, pollId: created.poll_id, options };
 }
 
-async function request(baseUrl: string, pollId: string, body: unknown) {
+async function request(
+  baseUrl: string,
+  pollId: string,
+  body: unknown,
+  headers: Record<string, string> = {},
+) {
   const response = await fetch(`${baseUrl}/polls/${pollId}/vote-by-index`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-User-Id': officialUserId,
+      ...headers,
     },
     body: JSON.stringify(body),
   });
@@ -101,6 +107,27 @@ describe('POST /polls/:pollId/vote-by-index', () => {
       ]);
       const [token] = [...repository.voteTokens.values()];
       expect(token).not.toHaveProperty('option_id');
+    });
+  });
+
+  it('does not let creator_session cookie affect public vote-by-index', async () => {
+    const { repository, service, pollId, options } = await seedVoteByIndex();
+    const server = createHttpServer({ pollService: service });
+
+    await withServer(server, async (baseUrl) => {
+      const response = await request(
+        baseUrl,
+        pollId,
+        { option_index: 1 },
+        { Cookie: 'creator_session=malformed-public-cookie' },
+      );
+
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ status: 'voted', voted: true });
+      expect([...repository.voteCounters.values()]).toEqual([
+        { poll_id: pollId, option_id: options[1]!.id, shard_id: 2, vote_count: 1 },
+      ]);
+      expectSafe(response.body, options[1]!.id);
     });
   });
 

@@ -94,6 +94,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 66C:** Profile eligibility evaluator only — Official Vote and `vote-by-index` now check `poll_eligibility_rules` against nullable user profile fields inside the vote transaction before option resolution, vote token write, or counter increment. Reference Answer eligibility, frontend UX, ranking, personalization, demographic breakdowns, public result behavior, and creator eligibility edits remain unchanged.
 
+**Phase 66E-P (docs):** Profile update API foundation plan — user-authenticated future API draft for `birth_year_month` and coarse `residential_region` only; no runtime, schema, frontend, Reference Answer, ranking, result, feed, notice, scheduler, or demographic behavior changes — `docs/www-project-phase-66e-profile-update-api-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

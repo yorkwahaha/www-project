@@ -1,4 +1,4 @@
-/** Shared public MVP UI helpers (no durable storage, no option_id). */
+/** Shared public MVP UI helpers with no durable storage. */
 
 export const POLL_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -106,6 +106,15 @@ export function messageForVoteSubmitFailure({ status, errorCode, message } = {})
   if (errorCode === 'OFFICIAL_VOTE_DUPLICATE') {
     return '您已在此問卷投過票，可前往結果頁查看。';
   }
+  if (errorCode === 'PROFILE_REQUIRED') {
+    return '請先完成個人資料後再投票。';
+  }
+  if (errorCode === 'PROFILE_INELIGIBLE') {
+    return '你目前不符合此問卷的投票資格。';
+  }
+  if (errorCode === 'POLL_FORBIDDEN' || status === 403) {
+    return '你目前不符合此問卷的投票資格。';
+  }
   if (errorCode === 'POLL_NOT_FOUND' || status === 404) {
     return '找不到此問卷，無法送出投票。';
   }
@@ -135,6 +144,11 @@ export function renderPublicNav(root) {
   create.href = '/polls/new';
   create.textContent = '發起提問';
   nav.append(create);
+
+  const profile = root.ownerDocument.createElement('a');
+  profile.href = '/profile';
+  profile.textContent = '個人資料';
+  nav.append(profile);
 
   root.append(nav);
   return nav;

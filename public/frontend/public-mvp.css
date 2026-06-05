@@ -183,6 +183,7 @@ code {
 }
 
 .mvp-form input,
+.mvp-form select,
 .mvp-form textarea,
 .mvp-form button {
   width: 100%;
@@ -198,6 +199,23 @@ code {
 .mvp-form textarea {
   resize: vertical;
   min-height: 5rem;
+}
+
+.mvp-form-hint {
+  margin: -0.5rem 0 0.85rem;
+  font-size: 0.84rem;
+  color: var(--mvp-muted);
+}
+
+.mvp-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.mvp-form-actions .mvp-btn-primary,
+.mvp-form-actions .mvp-btn-secondary {
+  flex: 1 1 10rem;
 }
 
 .mvp-form fieldset {

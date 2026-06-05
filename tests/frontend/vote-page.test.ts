@@ -168,6 +168,27 @@ describe('public voting page', () => {
     ).rejects.toThrow('目前無法送出投票，請稍後再試。');
   });
 
+  it('shows fixed profile eligibility failures without option details', async () => {
+    const { submitVoteByIndex } = await loadVotePageModule();
+    const fetchImpl = vi.fn(async () => ({
+      ok: false,
+      status: 403,
+      json: async () => ({
+        error: 'POLL_FORBIDDEN',
+        message: 'private option_index 0 option_id abc option text Rice',
+      }),
+    }));
+
+    await expect(
+      submitVoteByIndex({
+        pollId: 'public-poll-id',
+        optionIndex: 0,
+        userId: 'runtime-user-id',
+        fetchImpl,
+      }),
+    ).rejects.toThrow('你目前不符合此問卷的投票資格。');
+  });
+
   it('maps poll-not-found load failures to a friendly message', async () => {
     const { loadPollDetail } = await loadVotePageModule();
     const fetchImpl = vi.fn(async () => ({

@@ -74,6 +74,7 @@ export const VALID_DEMO_NAV_MODES = ['guest', 'logged-in-mock'];
 const NAV_LINKS = [
   { href: '/', key: 'home', label: '首頁' },
   { href: '/explore', key: 'explore', label: '探索' },
+  { href: '/profile', key: 'profile', label: '個人資料' },
   { href: '/polls/new', key: 'create', label: '發起提問' },
 ];
 
@@ -156,6 +157,11 @@ export function renderSiteHeader(mount, options = {}) {
     myPolls.href = '/my-polls';
     myPolls.textContent = '我的問卷';
 
+    const profile = doc.createElement('a');
+    profile.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
+    profile.href = '/profile';
+    profile.textContent = '個人資料';
+
     const create = doc.createElement('a');
     create.className = 'mvp-btn mvp-btn-primary mvp-btn-sm';
     create.href = '/polls/new';
@@ -167,7 +173,7 @@ export function renderSiteHeader(mount, options = {}) {
     avatar.setAttribute('aria-hidden', 'true');
     avatar.textContent = 'Y';
 
-    actions.append(myPolls, create, avatar);
+    actions.append(myPolls, profile, create, avatar);
   } else {
     const login = doc.createElement('a');
     login.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';

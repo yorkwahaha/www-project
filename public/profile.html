@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>個人資料 | What We Wonder</title>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
+  </head>
+  <body class="mvp-body">
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <header id="site-header" data-nav="logged-in-mock" data-active="profile"></header>
+    <main id="main-content" class="mvp-page mvp-shell">
+      <p class="mvp-demo-nav-switch" role="note">
+        切換瀏覽身分（展示用）：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
+      <p class="mvp-brand">個人資料</p>
+      <h1>投票資格資料</h1>
+      <p class="mvp-lead">
+        此資料只用於判斷你是否符合部分問卷投票資格。
+      </p>
+
+      <div class="mvp-form-card">
+        <form id="profile-form" class="mvp-form" novalidate aria-describedby="profile-form-message">
+          <label for="profile-birth-year-month">出生年月</label>
+          <input
+            id="profile-birth-year-month"
+            name="birth_year_month"
+            type="month"
+            inputmode="numeric"
+            autocomplete="bday-month"
+            placeholder="YYYY-MM"
+          >
+          <p class="mvp-form-hint">只填年份與月份，例如 1998-07；可留空。</p>
+
+          <label for="profile-residential-region">居住地區</label>
+          <select id="profile-residential-region" name="residential_region">
+            <option value="">未填寫</option>
+            <option value="TW-TPE">TW-TPE 台北市</option>
+            <option value="TW-NWT">TW-NWT 新北市</option>
+            <option value="TW-TAO">TW-TAO 桃園市</option>
+            <option value="TW-TXG">TW-TXG 台中市</option>
+            <option value="TW-TNN">TW-TNN 台南市</option>
+            <option value="TW-KHH">TW-KHH 高雄市</option>
+            <option value="TW-HSZ">TW-HSZ 新竹市</option>
+            <option value="TW-CYI">TW-CYI 嘉義市</option>
+            <option value="TW-ILA">TW-ILA 宜蘭縣</option>
+            <option value="TW-HUA">TW-HUA 花蓮縣</option>
+            <option value="TW-TTT">TW-TTT 台東縣</option>
+            <option value="TW-PEN">TW-PEN 澎湖縣</option>
+          </select>
+          <p class="mvp-form-hint">請選擇粗粒度地區代碼；可留空。</p>
+
+          <div class="mvp-form-actions">
+            <button id="profile-submit" type="submit" class="mvp-btn-primary">儲存</button>
+            <button id="profile-clear" type="button" class="mvp-btn-secondary">清除欄位</button>
+          </div>
+        </form>
+      </div>
+
+      <p id="profile-form-message" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
+    <script type="module" src="/frontend/profile-page.js"></script>
+  </body>
+</html>

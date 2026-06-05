@@ -266,6 +266,8 @@ describe('public poll creation page', () => {
     expect(html).toMatch(/展示用，不儲存/);
     expect(html).toMatch(/公開展示版/);
     expect(html).toMatch(/Lv\.1 註冊用戶/);
-    expect(html).toMatch(/不透露/);
+    expect(html).toMatch(/出生年／月/);
+    expect(html).toMatch(/地區/);
+    expect(html).not.toMatch(/gender|性別/i);
   });
 });

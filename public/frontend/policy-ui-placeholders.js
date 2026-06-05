@@ -58,7 +58,7 @@ export const POLICY_UI_COPY = {
     '這項功能會在登入與通知系統完成後開放；目前不會儲存關注或發送通知。',
   profileFutureTitle: '個人資料與資格（尚未開放）',
   profileFutureFields:
-    '未來將需要：暱稱、出生年／月（不含日期）、居住縣市、性別（含「不願透露」）。性別可能用於個人檔案；以性別限制投票資格將另行規劃。',
+    '未來將需要：暱稱、出生年／月（不含日期）、粗粒度居住地區。這些資料只用於投票資格判斷。',
 };
 
 function appendParagraph(parent, text, className = 'policy-panel-text') {
@@ -215,7 +215,6 @@ export function renderEligibilityPlaceholderPanel(parent) {
   for (const item of [
     '年齡：未設定（示範：12–15、18–30、65+ 等區間，依自行填寫的出生年／月判斷）',
     '地區：未設定（示範：可限制特定縣市）',
-    '性別：不限制（MVP 不以性別作為投票資格）',
     '你的狀態：範例展示 — 真實資格判斷尚未開放',
   ]) {
     const li = doc.createElement('li');

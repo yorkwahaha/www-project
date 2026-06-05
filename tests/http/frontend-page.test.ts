@@ -222,6 +222,33 @@ describe('frontend static routes', () => {
     });
   });
 
+  it('serves the profile page and profile-page script', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const page = await fetch(`${baseUrl}/profile`, {
+        headers: { Cookie: 'creator_session=ignored-static-cookie' },
+      });
+      const pageBody = await page.text();
+      const script = await fetch(`${baseUrl}/frontend/profile-page.js`);
+
+      expect(page.status).toBe(200);
+      expect(page.headers.get('content-type')).toContain('text/html');
+      expect(page.headers.get('cache-control')).toBe('no-store');
+      expect(pageBody).toContain('投票資格資料');
+      expect(pageBody).toContain('name="birth_year_month"');
+      expect(pageBody).toContain('name="residential_region"');
+      expect(pageBody).toContain('/frontend/profile-page.js');
+      expect(pageBody).not.toMatch(
+        /gender|性別|birthday|生日|address|地址|GPS|geocode|precise location|精準位置|option_id|option_text|option_index/i,
+      );
+      expect(script.status).toBe(200);
+      expect(script.headers.get('content-type')).toContain('text/javascript');
+    });
+  });
+
   it('serves public FAQ and trust-level policy pages', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),

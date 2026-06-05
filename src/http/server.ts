@@ -52,7 +52,7 @@ export function createHttpServer(options: HttpServerOptions) {
   }
   const userAuthResolver =
     options.userAuthResolver ?? createDefaultTestUserAuthResolver();
-  const pollRoutes = createPollRouteHandlers(options.pollService);
+  const pollRoutes = createPollRouteHandlers(options.pollService, userAuthResolver);
   const userProfileRoutes = createUserProfileRouteHandlers(
     options.pollService,
     userAuthResolver,

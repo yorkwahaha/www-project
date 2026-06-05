@@ -24,13 +24,13 @@ export async function handlePostOfficialVote(
   res: ServerResponse,
   pollId: string,
   pollService: PollService,
-  requireUserId: (req: IncomingMessage) => string,
+  requirePublicVoteUserAuth: (req: IncomingMessage) => Promise<string>,
 ): Promise<void> {
   let userId: string | undefined;
   let requestBody: OfficialVoteBody | undefined;
 
   try {
-    userId = requireUserId(req);
+    userId = await requirePublicVoteUserAuth(req);
     requestBody = await readJsonBody<OfficialVoteBody>(req);
 
     recordOfficialVoteDiagnostic({
@@ -64,10 +64,10 @@ export async function handlePostOfficialVoteByIndex(
   res: ServerResponse,
   pollId: string,
   pollService: PollService,
-  requireUserId: (req: IncomingMessage) => string,
+  requirePublicVoteUserAuth: (req: IncomingMessage) => Promise<string>,
 ): Promise<void> {
   try {
-    const userId = requireUserId(req);
+    const userId = await requirePublicVoteUserAuth(req);
     const requestBody = await readJsonBody<OfficialVoteByIndexBody>(req);
     if (
       !Number.isInteger(requestBody.option_index) ||

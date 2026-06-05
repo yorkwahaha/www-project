@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { UserAuthResolver } from '../auth/user-auth-resolver.js';
 import { PollError } from '../polls/errors.js';
 import type { PublicFeedQuery } from '../polls/types.js';
 import type { PollService } from '../polls/service.js';
@@ -14,7 +15,15 @@ const LEGACY_CREATOR_WRITE_RETIRED = {
   message: 'Legacy creator-write routes are retired; use /creator/polls',
 } as const;
 
-export function createPollRouteHandlers(pollService: PollService) {
+const AUTH_REQUIRED_MESSAGE = 'User authentication is required';
+
+export function createPollRouteHandlers(
+  pollService: PollService,
+  userAuthResolver: UserAuthResolver,
+) {
+  const requirePublicVoteUserAuth = (req: IncomingMessage) =>
+    resolvePublicVoteUserAuth(req, userAuthResolver);
+
   return {
     async handlePostPolls(_req: IncomingMessage, res: ServerResponse): Promise<void> {
       sendLegacyCreatorWriteRetired(res);
@@ -104,7 +113,13 @@ export function createPollRouteHandlers(pollService: PollService) {
       res: ServerResponse,
       pollId: string,
     ): Promise<void> {
-      return dispatchOfficialVote(req, res, pollId, pollService, requireUserId);
+      return dispatchOfficialVote(
+        req,
+        res,
+        pollId,
+        pollService,
+        requirePublicVoteUserAuth,
+      );
     },
 
     handlePostOfficialVoteByIndex(
@@ -112,9 +127,26 @@ export function createPollRouteHandlers(pollService: PollService) {
       res: ServerResponse,
       pollId: string,
     ): Promise<void> {
-      return dispatchOfficialVoteByIndex(req, res, pollId, pollService, requireUserId);
+      return dispatchOfficialVoteByIndex(
+        req,
+        res,
+        pollId,
+        pollService,
+        requirePublicVoteUserAuth,
+      );
     },
   };
+}
+
+async function resolvePublicVoteUserAuth(
+  req: IncomingMessage,
+  userAuthResolver: UserAuthResolver,
+): Promise<string> {
+  const auth = await userAuthResolver.resolveUserAuth(req);
+  if (auth === null) {
+    throw new PollError('AUTH_REQUIRED', AUTH_REQUIRED_MESSAGE, 401);
+  }
+  return auth.user_id;
 }
 
 function sendLegacyCreatorWriteRetired(res: ServerResponse): void {

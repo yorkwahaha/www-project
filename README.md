@@ -120,6 +120,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 70D-P (docs):** Production creator_session strategy plan — recommends keeping `creator_session` local/demo-only while production `/creator/*` moves toward formal `UserAuthResolver` user auth plus creator ownership checks. This is specification only: no runtime, migration, API behavior, profile, vote, Reference Answer, ranking, result, feed, notice, scheduler, or frontend behavior has been implemented — `docs/www-project-phase-70d-production-creator-session-strategy-plan-v1.md`.
 
+**Phase 70D-I-A (docs):** Creator route adapter UserAuth cutover plan — specifies the future production `/creator/*` route adapter move from creator_session-only authority to `UserAuthResolver` plus creator ownership checks, with route-by-route rules and validation requirements. This is specification only; no runtime, migration, API behavior, creator session, profile, vote, Reference Answer, ranking, result, feed, notice, scheduler, or frontend behavior has been implemented — `docs/www-project-phase-70d-creator-route-adapter-userauth-cutover-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

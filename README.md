@@ -110,6 +110,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 69 (docs):** MVP demo release readiness & handoff closure — consolidates Phases 65–68 into a showcase-ready, testable, handoff state: release readiness checklist, demo startup, tester operation order, known limits (MVP `X-User-Id`, production auth later, scheduler not in `npm start`), and invariant boundaries. **Recommended tester entry:** `docs/www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`. No schema, auth, evaluator, or Reference Answer scope changes.
 
+**Phase 70 (docs):** Production user auth / account boundary plan — defines how future production user identity should replace MVP demo-style `X-User-Id` while keeping `creator_session` scoped, `/profile` and Official Vote tied to formal user auth, Reference Answer outside profile eligibility, and the Raw Option Linkage Ban intact. No runtime, migration, API behavior, result/feed/notices/scheduler/ranking/personalization, or Reference Answer changes — `docs/www-project-phase-70-production-user-auth-account-boundary-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

@@ -1,5 +1,6 @@
 import type { Server } from 'node:http';
 import { describe, expect, it } from 'vitest';
+import { createUserAuthResolver } from '../../src/auth/user-auth-resolver.js';
 import { createHttpServer } from '../../src/http/server.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import { createPollService } from '../../src/polls/service.js';
@@ -8,6 +9,10 @@ import type { PollEligibilityRuleRow } from '../../src/polls/types.js';
 const userId = '11111111-1111-4111-8111-111111111111';
 const otherUserId = '33333333-3333-4333-8333-333333333333';
 const lowTrustUserId = '22222222-2222-4222-8222-222222222222';
+const AUTH_REQUIRED = {
+  error: 'AUTH_REQUIRED',
+  message: 'User authentication is required',
+} as const;
 
 async function withServer<T>(server: Server, run: (baseUrl: string) => Promise<T>) {
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -75,7 +80,7 @@ describe('User profile HTTP routes', () => {
 
       expect(getResponse).toEqual({
         status: 401,
-        body: { error: 'AUTH_REQUIRED', message: 'X-User-Id header is required' },
+        body: AUTH_REQUIRED,
       });
       expect(putResponse).toEqual(getResponse);
     });
@@ -96,9 +101,58 @@ describe('User profile HTTP routes', () => {
 
       expect(getResponse).toEqual({
         status: 401,
-        body: { error: 'AUTH_REQUIRED', message: 'X-User-Id header is required' },
+        body: AUTH_REQUIRED,
       });
       expect(putResponse).toEqual(getResponse);
+    });
+  });
+
+  it('rejects raw X-User-Id in production mode for GET and PUT', async () => {
+    const service = createPollService(createInMemoryPollRepository());
+    const productionResolver = createUserAuthResolver({ mode: 'production' });
+    const server = createHttpServer({
+      pollService: service,
+      userAuthResolver: productionResolver,
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const getResponse = await request(baseUrl, 'GET', '/users/me/profile', {
+        headers: { 'X-User-Id': userId },
+      });
+      const putResponse = await request(baseUrl, 'PUT', '/users/me/profile', {
+        headers: { 'X-User-Id': userId },
+        body: { birth_year_month: null, residential_region: null },
+      });
+
+      expect(getResponse).toEqual({ status: 401, body: AUTH_REQUIRED });
+      expect(putResponse).toEqual(getResponse);
+    });
+  });
+
+  it('accepts trusted verifier identity in production mode', async () => {
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(userId, 'Profile User');
+    const service = createPollService(repository);
+    const productionResolver = createUserAuthResolver({
+      mode: 'production',
+      trustedCredentialVerifier: () => ({ user_id: userId }),
+    });
+    const server = createHttpServer({
+      pollService: service,
+      userAuthResolver: productionResolver,
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const updated = await request(baseUrl, 'PUT', '/users/me/profile', {
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      const readBack = await request(baseUrl, 'GET', '/users/me/profile');
+
+      expect(updated).toEqual({
+        status: 200,
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      expect(readBack).toEqual(updated);
     });
   });
 

@@ -62,6 +62,31 @@ describe('creator_session public read boundary', () => {
         expect(withCookie).toEqual(withoutCookie);
         expect(JSON.stringify(withCookie.body)).not.toMatch(/creator_session|token|shard_id/i);
       }
+
+      for (const method of ['GET', 'PUT'] as const) {
+        const response = await fetch(`${baseUrl}/users/me/profile`, {
+          method,
+          headers: {
+            Cookie: 'creator_session=malformed-public-cookie',
+            ...(method === 'PUT'
+              ? {
+                  'Content-Type': 'application/json',
+                }
+              : {}),
+          },
+          body:
+            method === 'PUT'
+              ? JSON.stringify({ birth_year_month: null, residential_region: null })
+              : undefined,
+        });
+        const body = (await response.json()) as Record<string, unknown>;
+
+        expect(response.status).toBe(401);
+        expect(body).toEqual({
+          error: 'AUTH_REQUIRED',
+          message: 'User authentication is required',
+        });
+      }
     });
   });
 });

@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { UserAuthResolver } from '../auth/user-auth-resolver.js';
 import { PollError, PollValidationError } from '../polls/errors.js';
 import type { PollService } from '../polls/service.js';
 import type { UpdateUserProfileInput } from '../polls/types.js';
@@ -13,11 +14,16 @@ const PROFILE_VALIDATION_MESSAGE = 'Invalid profile payload';
 const PROFILE_BODY_KEYS = ['birth_year_month', 'residential_region'] as const;
 const REGION_PATTERN = /^[A-Z]{2}(?:-[A-Z0-9]{2,8}){1,3}$/;
 
-export function createUserProfileRouteHandlers(pollService: PollService) {
+const AUTH_REQUIRED_MESSAGE = 'User authentication is required';
+
+export function createUserProfileRouteHandlers(
+  pollService: PollService,
+  userAuthResolver: UserAuthResolver,
+) {
   return {
     async handleGetProfile(req: IncomingMessage, res: ServerResponse): Promise<void> {
       try {
-        const userId = requireUserId(req);
+        const userId = await requireAuthenticatedUserId(req, userAuthResolver);
         sendJson(res, 200, await pollService.getUserProfile(userId));
       } catch (err) {
         handleProfileRouteError(res, err);
@@ -26,7 +32,7 @@ export function createUserProfileRouteHandlers(pollService: PollService) {
 
     async handlePutProfile(req: IncomingMessage, res: ServerResponse): Promise<void> {
       try {
-        const userId = requireUserId(req);
+        const userId = await requireAuthenticatedUserId(req, userAuthResolver);
         const body = await readJsonBody<UserProfileBody>(req);
         sendJson(res, 200, await pollService.updateUserProfile(userId, parseProfileBody(body)));
       } catch (err) {
@@ -36,12 +42,15 @@ export function createUserProfileRouteHandlers(pollService: PollService) {
   };
 }
 
-function requireUserId(req: IncomingMessage): string {
-  const userId = req.headers['x-user-id']?.toString().trim();
-  if (!userId) {
-    throw new PollError('AUTH_REQUIRED', 'X-User-Id header is required', 401);
+async function requireAuthenticatedUserId(
+  req: IncomingMessage,
+  userAuthResolver: UserAuthResolver,
+): Promise<string> {
+  const auth = await userAuthResolver.resolveUserAuth(req);
+  if (auth === null) {
+    throw new PollError('AUTH_REQUIRED', AUTH_REQUIRED_MESSAGE, 401);
   }
-  return userId;
+  return auth.user_id;
 }
 
 function parseProfileBody(body: UserProfileBody): UpdateUserProfileInput {

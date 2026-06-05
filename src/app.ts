@@ -1,3 +1,4 @@
+import { createUserAuthResolverFromEnv } from './auth/user-auth-resolver.js';
 import { createAdminCorrectionServices } from './admin/create-admin-correction-services.js';
 import { createCreatorSessionConfigFromEnv } from './creator-sessions/config.js';
 import { createPgCreatorSessionRepository } from './creator-sessions/repository.js';
@@ -31,6 +32,7 @@ export function createApp(): WwwApp {
       const creatorSessionConfig = createCreatorSessionConfigFromEnv();
       const server = createHttpServer({
         pollService,
+        userAuthResolver: createUserAuthResolverFromEnv(),
         adminCorrection: createAdminCorrectionServices(pool),
         adminAuth: createAdminAuthFromEnv(),
         publicNoticeService,

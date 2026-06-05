@@ -14,6 +14,10 @@ import { createCreatorPollRouteHandlers } from './creator-poll-routes.js';
 import { handleAdminRouteError } from './admin-error.js';
 import { createPollRouteHandlers } from './poll-routes.js';
 import { createPublicNoticeRouteHandlers } from './public-notice-routes.js';
+import {
+  createDefaultTestUserAuthResolver,
+  type UserAuthResolver,
+} from '../auth/user-auth-resolver.js';
 import { createUserProfileRouteHandlers } from './user-profile-routes.js';
 import type { CreatorSessionConfig } from '../creator-sessions/config.js';
 import type { CreatorSessionService } from '../creator-sessions/service.js';
@@ -32,6 +36,7 @@ function isPublicMvpPagePollId(pollId: string): boolean {
 
 export type HttpServerOptions = {
   pollService: PollService;
+  userAuthResolver?: UserAuthResolver;
   adminCorrection?: AdminCorrectionServices;
   adminAuth?: AdminAuth;
   publicNoticeService?: PublicNoticeService;
@@ -45,8 +50,13 @@ export function createHttpServer(options: HttpServerOptions) {
   if ((options.adminCorrection === undefined) !== (options.adminAuth === undefined)) {
     throw new Error('adminCorrection and adminAuth must be configured together');
   }
+  const userAuthResolver =
+    options.userAuthResolver ?? createDefaultTestUserAuthResolver();
   const pollRoutes = createPollRouteHandlers(options.pollService);
-  const userProfileRoutes = createUserProfileRouteHandlers(options.pollService);
+  const userProfileRoutes = createUserProfileRouteHandlers(
+    options.pollService,
+    userAuthResolver,
+  );
   const adminRoutes = options.adminCorrection && options.adminAuth
     ? createAdminRouteHandlers(options.adminCorrection, options.adminAuth)
     : null;

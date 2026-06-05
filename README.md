@@ -112,6 +112,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 70A:** Production user auth resolver foundation — `src/auth/user-auth-resolver.ts` defines `UserAuthResolver` / `AuthenticatedUserContext`, production fail-closed behavior without a trusted verifier, and explicit local/test MVP `X-User-Id` compatibility marked as non-production. `/users/me/profile`, Official Vote, `vote-by-index`, creator-owned routes, and Reference Answer are not cut over yet; Phase 70B is the profile API cutover. Plan and boundaries: `docs/www-project-phase-70-production-user-auth-account-boundary-plan-v1.md`.
 
+**Phase 70B:** Profile API production auth cutover — `GET /users/me/profile` and `PUT /users/me/profile` now resolve identity via `UserAuthResolver` instead of reading raw `X-User-Id` directly. Production (`APP_ENV=production`) fail-closed unless a trusted credential verifier is configured; local/demo/test (`APP_ENV=development|test`) keep explicit MVP `X-User-Id` compatibility. `creator_session` does not authorize profile routes. Vote, vote-by-index, creator, and Reference Answer routes are unchanged. No schema, response shape, or eligibility evaluator changes.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

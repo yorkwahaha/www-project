@@ -59,3 +59,33 @@ function normalizeUserId(raw: string): string | null {
   const userId = raw.trim();
   return userId === '' ? null : userId;
 }
+
+export function createDefaultTestUserAuthResolver(): UserAuthResolver {
+  return createUserAuthResolver({
+    mode: 'test',
+    allowMvpUserIdHeader: true,
+  });
+}
+
+export function createUserAuthResolverFromEnv(
+  env: NodeJS.ProcessEnv = process.env,
+): UserAuthResolver {
+  const appEnv = parseAppEnvironment(env.APP_ENV);
+  if (appEnv === 'production') {
+    return createUserAuthResolver({ mode: 'production' });
+  }
+  return createUserAuthResolver({
+    mode: appEnv === 'test' ? 'test' : 'local_demo',
+    allowMvpUserIdHeader: true,
+  });
+}
+
+function parseAppEnvironment(
+  raw: string | undefined,
+): 'development' | 'test' | 'production' {
+  const value = raw?.trim() || 'production';
+  if (value === 'development' || value === 'test' || value === 'production') {
+    return value;
+  }
+  throw new Error('APP_ENV must be development, test, or production');
+}

@@ -1,6 +1,6 @@
 import type { IncomingMessage } from 'node:http';
 import { describe, expect, it } from 'vitest';
-import { createUserAuthResolver } from '../../src/auth/user-auth-resolver.js';
+import { createUserAuthResolver, createUserAuthResolverFromEnv } from '../../src/auth/user-auth-resolver.js';
 
 const userId = '11111111-1111-4111-8111-111111111111';
 
@@ -60,6 +60,30 @@ describe('UserAuthResolver foundation', () => {
 
     await expect(disabled.resolveUserAuth(req({ 'x-user-id': userId }))).resolves.toBeNull();
     await expect(enabled.resolveUserAuth(req({ 'x-user-id': userId }))).resolves.toEqual({
+      user_id: userId,
+      source: 'test',
+    });
+  });
+
+  it('creates production resolver that rejects raw X-User-Id', async () => {
+    const resolver = createUserAuthResolverFromEnv({ APP_ENV: 'production' });
+
+    await expect(resolver.resolveUserAuth(req({ 'x-user-id': userId }))).resolves.toBeNull();
+  });
+
+  it('creates local demo resolver that allows MVP X-User-Id when APP_ENV is development', async () => {
+    const resolver = createUserAuthResolverFromEnv({ APP_ENV: 'development' });
+
+    await expect(resolver.resolveUserAuth(req({ 'x-user-id': userId }))).resolves.toEqual({
+      user_id: userId,
+      source: 'local_demo',
+    });
+  });
+
+  it('creates test resolver that allows MVP X-User-Id when APP_ENV is test', async () => {
+    const resolver = createUserAuthResolverFromEnv({ APP_ENV: 'test' });
+
+    await expect(resolver.resolveUserAuth(req({ 'x-user-id': userId }))).resolves.toEqual({
       user_id: userId,
       source: 'test',
     });

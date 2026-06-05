@@ -42,6 +42,21 @@ async function request(baseUrl: string, method: 'GET' | 'PUT', body?: unknown) {
 describe('User profile API PostgreSQL integration', () => {
   const pool = createIntegrationPool();
 
+  async function readStoredProfile() {
+    const stored = await pool.query<{
+      birth_year_month: string | null;
+      residential_region: string | null;
+    }>(
+      `SELECT
+         to_char(birth_year_month, 'YYYY-MM-DD') AS birth_year_month,
+         residential_region
+       FROM users
+       WHERE id = $1`,
+      [userId],
+    );
+    return stored.rows;
+  }
+
   beforeAll(async () => {
     await applyMigrations();
   });
@@ -54,7 +69,7 @@ describe('User profile API PostgreSQL integration', () => {
     await pool.end();
   });
 
-  it('updates existing Phase 66B profile columns without new storage shape', async () => {
+  it('updates, reads, clears, and rejects invalid payloads without partial profile writes', async () => {
     const repository = createPgPollRepository(pool);
     await repository.ensureUser(userId, 'Profile User');
     const server = createHttpServer({ pollService: createPollService(repository) });
@@ -71,21 +86,37 @@ describe('User profile API PostgreSQL integration', () => {
         body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
       });
       expect(readBack).toEqual(updated);
-    });
 
-    const stored = await pool.query<{
-      birth_year_month: string | null;
-      residential_region: string | null;
-    }>(
-      `SELECT
-         to_char(birth_year_month, 'YYYY-MM-DD') AS birth_year_month,
-         residential_region
-       FROM users
-       WHERE id = $1`,
-      [userId],
-    );
-    expect(stored.rows).toEqual([
-      { birth_year_month: '1998-07-01', residential_region: 'TW-TPE' },
-    ]);
+      let stored = await readStoredProfile();
+      expect(stored).toEqual([
+        { birth_year_month: '1998-07-01', residential_region: 'TW-TPE' },
+      ]);
+
+      const invalid = await request(baseUrl, 'PUT', {
+        birth_year_month: '1999-08',
+        residential_region: 'Taipei Road 1',
+      });
+      expect(invalid).toEqual({
+        status: 400,
+        body: { error: 'POLL_VALIDATION', message: 'Invalid profile payload' },
+      });
+      stored = await readStoredProfile();
+      expect(stored).toEqual([
+        { birth_year_month: '1998-07-01', residential_region: 'TW-TPE' },
+      ]);
+
+      const cleared = await request(baseUrl, 'PUT', {
+        birth_year_month: null,
+        residential_region: null,
+      });
+      expect(cleared).toEqual({
+        status: 200,
+        body: { birth_year_month: null, residential_region: null },
+      });
+      stored = await readStoredProfile();
+      expect(stored).toEqual([
+        { birth_year_month: null, residential_region: null },
+      ]);
+    });
   });
 });

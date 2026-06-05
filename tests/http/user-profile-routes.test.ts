@@ -6,6 +6,7 @@ import { createPollService } from '../../src/polls/service.js';
 import type { PollEligibilityRuleRow } from '../../src/polls/types.js';
 
 const userId = '11111111-1111-4111-8111-111111111111';
+const otherUserId = '33333333-3333-4333-8333-333333333333';
 const lowTrustUserId = '22222222-2222-4222-8222-222222222222';
 
 async function withServer<T>(server: Server, run: (baseUrl: string) => Promise<T>) {
@@ -85,14 +86,19 @@ describe('User profile HTTP routes', () => {
     const server = createHttpServer({ pollService: service });
 
     await withServer(server, async (baseUrl) => {
-      const response = await request(baseUrl, 'GET', '/users/me/profile', {
+      const getResponse = await request(baseUrl, 'GET', '/users/me/profile', {
         headers: { Cookie: 'creator_session=malformed-public-cookie' },
       });
+      const putResponse = await request(baseUrl, 'PUT', '/users/me/profile', {
+        headers: { Cookie: 'creator_session=malformed-public-cookie' },
+        body: { birth_year_month: null, residential_region: null },
+      });
 
-      expect(response).toEqual({
+      expect(getResponse).toEqual({
         status: 401,
         body: { error: 'AUTH_REQUIRED', message: 'X-User-Id header is required' },
       });
+      expect(putResponse).toEqual(getResponse);
     });
   });
 
@@ -122,13 +128,17 @@ describe('User profile HTTP routes', () => {
         body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
       });
       expect(readBack).toEqual(updated);
+      expect(Object.keys(readBack.body).sort()).toEqual([
+        'birth_year_month',
+        'residential_region',
+      ]);
       expect(JSON.stringify(readBack.body)).not.toMatch(
         /gender|birthday|address|option_id|option_text|option_index|token|shard/i,
       );
     });
   });
 
-  it('rejects exact birthday, invalid region, unknown fields, and missing fields', async () => {
+  it('rejects malformed birth year-month, invalid region, extra fields, and missing fields', async () => {
     const repository = createInMemoryPollRepository();
     await repository.ensureUser(userId, 'Profile User');
     const service = createPollService(repository);
@@ -141,13 +151,29 @@ describe('User profile HTTP routes', () => {
       });
 
       for (const body of [
+        { birth_year_month: '', residential_region: 'TW-TPE' },
+        { birth_year_month: '1998', residential_region: 'TW-TPE' },
+        { birth_year_month: '1998-7', residential_region: 'TW-TPE' },
+        { birth_year_month: '1998-00', residential_region: 'TW-TPE' },
+        { birth_year_month: '1998-13', residential_region: 'TW-TPE' },
         { birth_year_month: '1998-07-02', residential_region: 'TW-TPE' },
         { birth_year_month: '1998-07-01', residential_region: 'TW-TPE' },
+        { birth_year_month: 199807, residential_region: 'TW-TPE' },
+        { birth_year_month: {}, residential_region: 'TW-TPE' },
         { birth_year_month: '1998-07', residential_region: 'Taipei Road 1' },
+        { birth_year_month: '1998-07', residential_region: '12 Example Street' },
+        { birth_year_month: '1998-07', residential_region: 'TW TPE' },
+        { birth_year_month: '1998-07', residential_region: 'tw-tpe' },
         { birth_year_month: '1998-07', residential_region: ' '.repeat(2) },
         { birth_year_month: '1998-07', residential_region: `TW-${'A'.repeat(63)}` },
+        { birth_year_month: '1998-07', residential_region: 123 },
+        { birth_year_month: '1998-07', residential_region: {} },
         { birth_year_month: '1998-07', residential_region: 'TW-TPE', gender: 'x' },
+        { birth_year_month: '1998-07', residential_region: 'TW-TPE', option_id: 'x' },
+        { birth_year_month: '1998-07', residential_region: 'TW-TPE', address: 'x' },
         { birth_year_month: '1998-07' },
+        { residential_region: 'TW-TPE' },
+        {},
       ]) {
         const response = await request(baseUrl, 'PUT', '/users/me/profile', {
           headers: { 'X-User-Id': userId },
@@ -167,6 +193,49 @@ describe('User profile HTTP routes', () => {
         birth_year_month: '1998-07',
         residential_region: 'TW-TPE',
       });
+    });
+  });
+
+  it('keeps profile reads and writes scoped to the X-User-Id user only', async () => {
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(userId, 'Profile User A');
+    await repository.ensureUser(otherUserId, 'Profile User B');
+    const service = createPollService(repository);
+    const server = createHttpServer({ pollService: service });
+
+    await withServer(server, async (baseUrl) => {
+      await request(baseUrl, 'PUT', '/users/me/profile', {
+        headers: { 'X-User-Id': userId },
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      await request(baseUrl, 'PUT', '/users/me/profile', {
+        headers: { 'X-User-Id': otherUserId },
+        body: { birth_year_month: '2001-02', residential_region: 'TW-KHH' },
+      });
+
+      const userARead = await request(baseUrl, 'GET', '/users/me/profile', {
+        headers: { 'X-User-Id': userId },
+      });
+      const userBRead = await request(baseUrl, 'GET', '/users/me/profile', {
+        headers: { 'X-User-Id': otherUserId },
+      });
+      await request(baseUrl, 'PUT', '/users/me/profile', {
+        headers: { 'X-User-Id': userId },
+        body: { birth_year_month: '1999-08', residential_region: 'TW-NWT' },
+      });
+      const userBAfterUserAWrite = await request(baseUrl, 'GET', '/users/me/profile', {
+        headers: { 'X-User-Id': otherUserId },
+      });
+
+      expect(userARead).toEqual({
+        status: 200,
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      expect(userBRead).toEqual({
+        status: 200,
+        body: { birth_year_month: '2001-02', residential_region: 'TW-KHH' },
+      });
+      expect(userBAfterUserAWrite).toEqual(userBRead);
     });
   });
 

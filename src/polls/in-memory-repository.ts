@@ -116,6 +116,17 @@ export function createInMemoryPollRepository(): PollRepository & {
       return user;
     },
 
+    async updateUserProfile(userId, input) {
+      const user = users.get(userId);
+      if (!user) {
+        return null;
+      }
+      user.birth_year_month = input.birth_year_month;
+      user.residential_region = input.residential_region;
+      user.updated_at = new Date();
+      return user;
+    },
+
     async createPollWithOptions(input) {
       const now = new Date();
       const status: PollStatus = input.publish ? 'active' : 'draft';

@@ -25,6 +25,8 @@ import type {
   OfficialVoteResult,
   ReferenceAnswerResult,
   UnpublishPollResult,
+  UpdateUserProfileInput,
+  UserProfile,
 } from './types.js';
 import { decodeFeedCursor, encodeFeedCursor, parseFeedLimit } from './feed-cursor.js';
 import {
@@ -50,6 +52,8 @@ export type PollService = {
   getPollById(pollId: string): Promise<PollDetail>;
   getPollResults(pollId: string): Promise<PollResultDisplay>;
   getPublicFeed(query?: PublicFeedQuery): Promise<PublicFeedResult>;
+  getUserProfile(userId: string): Promise<UserProfile>;
+  updateUserProfile(userId: string, input: UpdateUserProfileInput): Promise<UserProfile>;
   deletePoll(pollId: string, creatorId: string): Promise<DeletePollResult>;
   cancelPoll(pollId: string, creatorId: string): Promise<CancelPollResult>;
   closePoll(pollId: string, creatorId: string): Promise<RevealPollResult>;
@@ -136,6 +140,26 @@ export function createPollService(
             ? encodeFeedCursor(lastRow.published_at, lastRow.id)
             : null,
       };
+    },
+
+    async getUserProfile(userId) {
+      const user = await repository.findUserById(userId);
+      if (!user || user.status !== 'active') {
+        throw new PollForbiddenError('Active user is required');
+      }
+      return toUserProfile(user);
+    },
+
+    async updateUserProfile(userId, input) {
+      const existing = await repository.findUserById(userId);
+      if (!existing || existing.status !== 'active') {
+        throw new PollForbiddenError('Active user is required');
+      }
+      const updated = await repository.updateUserProfile(userId, input);
+      if (!updated) {
+        throw new PollForbiddenError('Active user is required');
+      }
+      return toUserProfile(updated);
     },
 
     async deletePoll(pollId, creatorId) {
@@ -325,6 +349,24 @@ function toRevealPollResult(poll: PollRow): RevealPollResult {
 function truncateToMinute(value: Date): Date {
   value.setSeconds(0, 0);
   return value;
+}
+
+function toUserProfile(user: {
+  birth_year_month: Date | null;
+  residential_region: string | null;
+}): UserProfile {
+  return {
+    birth_year_month: user.birth_year_month
+      ? formatBirthYearMonth(user.birth_year_month)
+      : null,
+    residential_region: user.residential_region,
+  };
+}
+
+function formatBirthYearMonth(value: Date): string {
+  const year = value.getFullYear().toString().padStart(4, '0');
+  const month = (value.getMonth() + 1).toString().padStart(2, '0');
+  return `${year}-${month}`;
 }
 
 function isUniqueViolation(err: unknown): boolean {

@@ -96,6 +96,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 66E-P (docs):** Profile update API foundation plan — user-authenticated future API draft for `birth_year_month` and coarse `residential_region` only; no runtime, schema, frontend, Reference Answer, ranking, result, feed, notice, scheduler, or demographic behavior changes — `docs/www-project-phase-66e-profile-update-api-plan-v1.md`.
 
+**Phase 66E-A:** Profile update API foundation — `GET /users/me/profile` and `PUT /users/me/profile` read/update only `birth_year_month` and coarse `residential_region` through user auth. No gender, exact birthday, migration, frontend UX, Reference Answer eligibility, ranking, result, feed, notice, scheduler, personalization, demographic breakdown, vote-time snapshot, backfill, or historical recalculation was added.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -156,6 +158,8 @@ Legacy public poll creator-write routes no longer accept `X-User-Id` creator aut
 | `POST` | `/creator/polls` | Live creator create route using `creator_session` cookie |
 | `GET` | `/creator/polls` | Counter-free owned poll list using `creator_session` cookie |
 | `DELETE` | `/creator/polls/:id` | Creator-owned soft-delete route using `creator_session` cookie |
+| `GET` | `/users/me/profile` | Read current user's profile fields (`birth_year_month`, `residential_region`) |
+| `PUT` | `/users/me/profile` | Replace current user's profile fields; accepts only `birth_year_month` and coarse `residential_region` |
 | `GET` | `/polls/:id` | Poll detail (no vote/ranking signals) |
 | `DELETE` | `/polls/:id` | Retired legacy creator-write delete route; returns `410 LEGACY_CREATOR_WRITE_RETIRED` |
 | `POST` | `/polls/:id/cancel` | Retired legacy creator-write lifecycle route; returns `410 LEGACY_CREATOR_WRITE_RETIRED` |

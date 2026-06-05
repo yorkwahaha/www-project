@@ -14,6 +14,7 @@ import { createCreatorPollRouteHandlers } from './creator-poll-routes.js';
 import { handleAdminRouteError } from './admin-error.js';
 import { createPollRouteHandlers } from './poll-routes.js';
 import { createPublicNoticeRouteHandlers } from './public-notice-routes.js';
+import { createUserProfileRouteHandlers } from './user-profile-routes.js';
 import type { CreatorSessionConfig } from '../creator-sessions/config.js';
 import type { CreatorSessionService } from '../creator-sessions/service.js';
 
@@ -45,6 +46,7 @@ export function createHttpServer(options: HttpServerOptions) {
     throw new Error('adminCorrection and adminAuth must be configured together');
   }
   const pollRoutes = createPollRouteHandlers(options.pollService);
+  const userProfileRoutes = createUserProfileRouteHandlers(options.pollService);
   const adminRoutes = options.adminCorrection && options.adminAuth
     ? createAdminRouteHandlers(options.adminCorrection, options.adminAuth)
     : null;
@@ -71,6 +73,7 @@ export function createHttpServer(options: HttpServerOptions) {
         req,
         res,
         pollRoutes,
+        userProfileRoutes,
         adminRoutes,
         options.adminAuth ?? null,
         publicNoticeRoutes,
@@ -87,6 +90,7 @@ async function routeRequest(
   req: IncomingMessage,
   res: ServerResponse,
   pollRoutes: ReturnType<typeof createPollRouteHandlers>,
+  userProfileRoutes: ReturnType<typeof createUserProfileRouteHandlers>,
   adminRoutes: ReturnType<typeof createAdminRouteHandlers> | null,
   adminAuth: AdminAuth | null,
   publicNoticeRoutes: ReturnType<typeof createPublicNoticeRouteHandlers> | null,
@@ -99,6 +103,19 @@ async function routeRequest(
 
   if (method === 'GET' && path === '/health') {
     sendJson(res, 200, getHealthStatus());
+    return;
+  }
+
+  if (path === '/users/me/profile') {
+    if (method === 'GET') {
+      await userProfileRoutes.handleGetProfile(req, res);
+      return;
+    }
+    if (method === 'PUT') {
+      await userProfileRoutes.handlePutProfile(req, res);
+      return;
+    }
+    sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
     return;
   }
 

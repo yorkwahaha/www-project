@@ -11,6 +11,7 @@ import type {
   PublicLifecycleState,
   PollStatus,
   PollVoteTokenRow,
+  UpdateUserProfileInput,
   ListPublicFeedPollsParams,
   PublicFeedPollRow,
   UserRow,
@@ -39,6 +40,7 @@ import { isOfficialVoteUser } from './trust.js';
 export type PollRepository = {
   ensureUser(userId: string, displayName: string): Promise<UserRow>;
   findUserById(userId: string): Promise<UserRow | null>;
+  updateUserProfile(userId: string, input: UpdateUserProfileInput): Promise<UserRow | null>;
   createPollWithOptions(input: CreatePollInput): Promise<PollRow>;
   findPollById(pollId: string): Promise<PollRow | null>;
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
@@ -78,6 +80,7 @@ export function createPgPollRepository(pool: Pool): PollRepository {
   return {
     ensureUser: (userId, displayName) => ensureUser(pool, userId, displayName),
     findUserById: (userId) => findUserById(pool, userId),
+    updateUserProfile: (userId, input) => updateUserProfile(pool, userId, input),
     createPollWithOptions: (input) => createPollWithOptions(pool, input),
     findPollById: (pollId) => findPollById(pool, pollId),
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
@@ -306,6 +309,26 @@ async function findUserById(pool: Pool, userId: string): Promise<UserRow | null>
        created_at, updated_at
      FROM users WHERE id = $1`,
     [userId],
+  );
+  return result.rows[0] ?? null;
+}
+
+async function updateUserProfile(
+  pool: Pool,
+  userId: string,
+  input: UpdateUserProfileInput,
+): Promise<UserRow | null> {
+  const result = await pool.query<UserRow>(
+    `UPDATE users
+     SET birth_year_month = $2,
+         residential_region = $3,
+         updated_at = now()
+     WHERE id = $1
+     RETURNING
+       id, display_name, trust_level, status,
+       birth_year_month, residential_region,
+       created_at, updated_at`,
+    [userId, input.birth_year_month, input.residential_region],
   );
   return result.rows[0] ?? null;
 }

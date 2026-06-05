@@ -386,6 +386,14 @@ describe('Phase 66B user profile schema guard', () => {
     expect(phase66b).not.toMatch(/\balter\s+table\s+(?!users\b)\w+/);
   });
 
+  it('does not add a Phase 66E migration for the profile API foundation', async () => {
+    const migrationFiles = await readdir(MIGRATIONS_DIR);
+
+    expect(migrationFiles).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/phase66e/i)]),
+    );
+  });
+
   it('keeps forbidden profile and linkage data out of the schema foundation', async () => {
     const phase66b = (await readPhase66bMigration()).toLowerCase();
 

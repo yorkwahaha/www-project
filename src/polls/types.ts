@@ -64,6 +64,16 @@ export type UserRow = {
   updated_at: Date;
 };
 
+export type UserProfile = {
+  birth_year_month: string | null;
+  residential_region: string | null;
+};
+
+export type UpdateUserProfileInput = {
+  birth_year_month: Date | null;
+  residential_region: string | null;
+};
+
 export type PollEligibilityRuleType =
   | 'unrestricted'
   | 'age'

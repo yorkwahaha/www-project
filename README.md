@@ -100,6 +100,10 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 66F-P (docs):** Profile UX / onboarding plan — future profile UI may collect only `birth_year_month` and coarse `residential_region` for Official Vote eligibility prompts; no gender, exact birthday, precise location, runtime/frontend/API/schema, Reference Answer, ranking, personalization, demographic, snapshot, backfill, or recalculation behavior changes — `docs/www-project-phase-66f-profile-ux-onboarding-plan-v1.md`.
 
+**Phase 66F:** Profile UX — `GET /profile` collects only `birth_year_month` and coarse `residential_region` via `GET`/`PUT /users/me/profile` with MVP `X-User-Id` (no creator cookie). Save/clear, fixed ineligible vote copy, mobile-readable form. No gender, exact birthday, precise location, Reference Answer eligibility, ranking, or demographic breakdowns.
+
+**Phase 66 (docs):** Final profile eligibility checkpoint — summarizes 66A–66F (boundary spec, schema, evaluator, route tests, profile API, profile UX), vote-by-index ordering, Reference Answer exclusion, Raw Option Linkage Ban, manual QA checklist, and MVP `X-User-Id` auth limitation — `docs/www-project-phase-66-final-profile-eligibility-checkpoint-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -178,6 +182,7 @@ Legacy public poll creator-write routes no longer accept `X-User-Id` creator aut
 | `GET` | `/explore` | Freshness-only public explore UI (consumes `GET /polls/feed`; collecting polls only; no counters) |
 | `GET` | `/faq` | Static FAQ (policy-aligned Traditional Chinese; demo-facing) |
 | `GET` | `/trust-levels` | Static trust-level permission matrix (demo-facing) |
+| `GET` | `/profile` | Profile UX for `birth_year_month` and coarse `residential_region` (MVP `X-User-Id`) |
 | `GET` | `/my-polls` | Creator dashboard; default static mock table; **`?live=1`** for live management (MVP dev) |
 | `GET` | `/vote/demo` | Static vote policy shell (`?ui_state=`, `?nav=`) |
 | `GET` | `/results/demo` | Static results policy shell (`?ui_state=`, `?nav=`) |

@@ -118,6 +118,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 70C-I:** Official Vote route adapter UserAuth cutover — `POST /polls/:id/vote` and `POST /polls/:id/vote-by-index` now resolve identity via `UserAuthResolver` instead of reading raw `X-User-Id` directly. Production (`APP_ENV=production`) fail-closed unless a trusted credential verifier is configured; local/demo/test keep explicit MVP `X-User-Id` compatibility. `creator_session` does not authorize public vote routes. Reference Answer, profile API, service transaction order, token/counter schema, and eligibility evaluator are unchanged. Plan: `docs/www-project-phase-70c-official-vote-user-auth-cutover-plan-v1.md`.
 
+**Phase 70D-P (docs):** Production creator_session strategy plan — recommends keeping `creator_session` local/demo-only while production `/creator/*` moves toward formal `UserAuthResolver` user auth plus creator ownership checks. This is specification only: no runtime, migration, API behavior, profile, vote, Reference Answer, ranking, result, feed, notice, scheduler, or frontend behavior has been implemented — `docs/www-project-phase-70d-production-creator-session-strategy-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

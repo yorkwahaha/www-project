@@ -12,9 +12,15 @@ describe('Phase 70 production user auth account boundary plan doc', () => {
       'utf8',
     );
     const readme = await readFile(join(process.cwd(), 'README.md'), 'utf8');
+    const resolverTest = await readFile(
+      join(process.cwd(), 'tests/auth/user-auth-resolver.test.ts'),
+      'utf8',
+    );
 
-    expect(source).toMatch(/docs\/spec only/i);
+    expect(source).toContain('Phase 70A resolver foundation');
     expect(source).toContain('No runtime auth verifier');
+    expect(source).toContain('route adapter cutover');
+    expect(source).toContain('No migration');
     expect(source).toContain('MVP demo-style `X-User-Id`');
     expect(source).toContain('`creator_session` currently serves creator-owned flows only');
     expect(source).toContain('Official Vote already runs profile eligibility');
@@ -31,14 +37,18 @@ describe('Phase 70 production user auth account boundary plan doc', () => {
     expect(source).toContain('Do not apply profile eligibility to Reference Answer');
     expect(source).toContain('Add `gender`, exact birthday');
     expect(source).toContain('Phase 70A — Production User Auth Resolver Foundation');
+    expect(source).toContain('foundation implemented as an internal resolver contract only');
     expect(source).toContain('**Recommended owner:** GPT-5.5 High');
     expect(source).toContain('Composer can implement Phase 70B');
     expect(source).toContain('vote-by-index` ineligible indistinguishability tests');
     expect(source).toContain('Raw Option Linkage Ban guard tests');
     expect(source).toContain('npm run migrate:check');
-    expect(readme).toContain('Phase 70 (docs)');
+    expect(readme).toContain('Phase 70A');
+    expect(readme).toContain('UserAuthResolver');
+    expect(readme).toContain('Phase 70B is the profile API cutover');
     expect(readme).toContain(
       'docs/www-project-phase-70-production-user-auth-account-boundary-plan-v1.md',
     );
+    expect(resolverTest).not.toMatch(/option_id|option_index|option_text/i);
   });
 });

@@ -1,6 +1,6 @@
 # WWW Project Phase 70 — Production User Auth / Account Boundary Plan v1
 
-**Status:** docs/spec only. No runtime auth verifier, route adapter, frontend behavior, migration, API contract change, scheduler, ranking, feed, result, notice, personalization, demographic breakdown, Official Vote transaction change, or Reference Answer behavior is implemented by this phase.
+**Status:** production auth/account boundary plan plus Phase 70A resolver foundation. No runtime auth verifier, route adapter cutover, frontend behavior, migration, API contract change, scheduler, ranking, feed, result, notice, personalization, demographic breakdown, Official Vote transaction change, or Reference Answer behavior is implemented by Phase 70A.
 
 **Baseline:** `origin/master` @ **`873f0d9`**.
 
@@ -162,6 +162,8 @@ Keep the implementation in a few complete phases rather than many tiny slices.
 ### Phase 70A — Production User Auth Resolver Foundation
 
 **Recommended owner:** GPT-5.5 High.
+
+**Implementation status:** foundation implemented as an internal resolver contract only. `/users/me/profile`, Official Vote, `vote-by-index`, creator-owned routes, and Reference Answer remain on their pre-70A runtime paths until later approved cutover phases.
 
 **Goal:** introduce a server-side current-user resolver abstraction and production-fail-closed adapter without changing public behavior yet.
 

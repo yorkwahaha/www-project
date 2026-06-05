@@ -1,6 +1,8 @@
 import type { IncomingMessage } from 'node:http';
+import type { UserAuthResolver } from '../auth/user-auth-resolver.js';
 import type { CreatorSessionConfig } from '../creator-sessions/config.js';
 import { CreatorSessionError, invalidCreatorSession } from '../creator-sessions/errors.js';
+import { PollError } from '../polls/errors.js';
 import type {
   CreatorSessionPrincipal,
   CreatorSessionService,
@@ -8,6 +10,30 @@ import type {
 
 export const CREATOR_SESSION_COOKIE_NAME = 'creator_session';
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
+
+const AUTH_REQUIRED_MESSAGE = 'User authentication is required';
+
+export function hasCreatorSessionCookie(req: IncomingMessage): boolean {
+  const raw = req.headers.cookie;
+  if (raw === undefined || Array.isArray(raw)) {
+    return false;
+  }
+
+  for (const segment of raw.split(';')) {
+    const trimmed = segment.trim();
+    const separator = trimmed.indexOf('=');
+    if (separator < 1) {
+      continue;
+    }
+    if (
+      trimmed.slice(0, separator) === CREATOR_SESSION_COOKIE_NAME &&
+      TOKEN_PATTERN.test(trimmed.slice(separator + 1))
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export function readCreatorSessionCookie(req: IncomingMessage): string {
   const raw = req.headers.cookie;
@@ -37,6 +63,32 @@ export function authenticateCreatorRequest(
   service: CreatorSessionService,
 ): Promise<CreatorSessionPrincipal> {
   return service.authenticateToken(readCreatorSessionCookie(req));
+}
+
+export async function requireCreatorRouteUserId(
+  req: IncomingMessage,
+  userAuthResolver: UserAuthResolver,
+  creatorSessionService: CreatorSessionService,
+  config: CreatorSessionConfig,
+): Promise<string> {
+  if (config.environment === 'production') {
+    const auth = await userAuthResolver.resolveUserAuth(req);
+    if (auth === null) {
+      throw new PollError('AUTH_REQUIRED', AUTH_REQUIRED_MESSAGE, 401);
+    }
+    return auth.user_id;
+  }
+
+  if (hasCreatorSessionCookie(req)) {
+    return (await authenticateCreatorRequest(req, creatorSessionService)).userId;
+  }
+
+  const auth = await userAuthResolver.resolveUserAuth(req);
+  if (auth !== null) {
+    return auth.user_id;
+  }
+
+  throw invalidCreatorSession();
 }
 
 export function assertCreatorMutationOrigin(

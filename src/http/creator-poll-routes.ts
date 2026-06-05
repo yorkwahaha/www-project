@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { UserAuthResolver } from '../auth/user-auth-resolver.js';
 import type { CreatorSessionConfig } from '../creator-sessions/config.js';
 import { CreatorSessionError } from '../creator-sessions/errors.js';
 import type { CreatorSessionService } from '../creator-sessions/service.js';
@@ -6,7 +7,7 @@ import { PollError } from '../polls/errors.js';
 import type { PollService } from '../polls/service.js';
 import {
   assertCreatorMutationOrigin,
-  authenticateCreatorRequest,
+  requireCreatorRouteUserId,
 } from './creator-auth.js';
 import { readJsonBody, sendJson } from './json.js';
 
@@ -24,9 +25,15 @@ export function createCreatorPollRouteHandlers(
   pollService: PollService,
   creatorSessionService: CreatorSessionService,
   config: CreatorSessionConfig,
+  userAuthResolver: UserAuthResolver,
 ) {
   async function requireCreatorId(req: IncomingMessage): Promise<string> {
-    return (await authenticateCreatorRequest(req, creatorSessionService)).userId;
+    return requireCreatorRouteUserId(
+      req,
+      userAuthResolver,
+      creatorSessionService,
+      config,
+    );
   }
 
   async function requireCreatorMutation(req: IncomingMessage): Promise<string> {

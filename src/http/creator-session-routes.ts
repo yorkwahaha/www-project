@@ -1,6 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { UserAuthResolver } from '../auth/user-auth-resolver.js';
 import type { CreatorSessionConfig } from '../creator-sessions/config.js';
 import { CreatorSessionError } from '../creator-sessions/errors.js';
+import { PollError } from '../polls/errors.js';
 import type { CreatorSessionPrincipal, CreatorSessionService } from '../creator-sessions/service.js';
 import {
   assertCreatorMutationOrigin,
@@ -17,9 +19,12 @@ type LocalTestIssueBody = {
   user_id?: unknown;
 };
 
+const AUTH_REQUIRED_MESSAGE = 'User authentication is required';
+
 export function createCreatorSessionRouteHandlers(
   service: CreatorSessionService,
   config: CreatorSessionConfig,
+  userAuthResolver: UserAuthResolver,
 ) {
   return {
     async handlePostSession(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -39,6 +44,14 @@ export function createCreatorSessionRouteHandlers(
 
     async handleGetSession(req: IncomingMessage, res: ServerResponse): Promise<void> {
       try {
+        if (config.environment === 'production') {
+          const auth = await userAuthResolver.resolveUserAuth(req);
+          if (auth === null) {
+            throw new PollError('AUTH_REQUIRED', AUTH_REQUIRED_MESSAGE, 401);
+          }
+          sendJson(res, 200, { authenticated: true });
+          return;
+        }
         sendJson(res, 200, toSessionResponse(await authenticateCreatorRequest(req, service)));
       } catch (err) {
         handleCreatorSessionRouteError(res, err);
@@ -48,6 +61,11 @@ export function createCreatorSessionRouteHandlers(
     async handleDeleteSession(req: IncomingMessage, res: ServerResponse): Promise<void> {
       try {
         assertCreatorMutationOrigin(req, config);
+        if (config.environment === 'production') {
+          res.setHeader('Set-Cookie', serializeClearedSessionCookie(config));
+          sendJson(res, 200, { authenticated: false });
+          return;
+        }
         await service.revokeToken(readCreatorSessionCookie(req));
         res.setHeader('Set-Cookie', serializeClearedSessionCookie(config));
         sendJson(res, 200, { authenticated: false });
@@ -100,7 +118,7 @@ function toSessionResponse(principal: CreatorSessionPrincipal): {
 }
 
 function handleCreatorSessionRouteError(res: ServerResponse, err: unknown): void {
-  if (err instanceof CreatorSessionError) {
+  if (err instanceof CreatorSessionError || err instanceof PollError) {
     sendJson(res, err.statusCode, { error: err.code, message: err.message });
     return;
   }

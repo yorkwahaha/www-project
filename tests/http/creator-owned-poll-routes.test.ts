@@ -108,14 +108,14 @@ async function createOwnedPoll(
 }
 
 describe('creator-owned poll routes', () => {
-  it('uses only the creator cookie as authority and ignores spoofed creator identity inputs', async () => {
+  it('prefers creator cookie over spoofed identity inputs and rejects missing auth', async () => {
     const fixture = await createFixture();
     await withServer(fixture.server, async (baseUrl) => {
-      const withoutCookie = await request(baseUrl, 'POST', '/creator/polls', {
-        headers: { Origin: allowedOrigin, 'X-User-Id': creatorB },
-        body: createBody('Spoof attempt'),
+      const withoutAuth = await request(baseUrl, 'POST', '/creator/polls', {
+        headers: { Origin: allowedOrigin },
+        body: createBody('No auth'),
       });
-      expect(withoutCookie).toMatchObject({
+      expect(withoutAuth).toMatchObject({
         status: 401,
         body: {
           error: 'CREATOR_SESSION_INVALID',

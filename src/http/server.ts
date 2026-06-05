@@ -67,6 +67,7 @@ export function createHttpServer(options: HttpServerOptions) {
     ? createCreatorSessionRouteHandlers(
         options.creatorSession.service,
         options.creatorSession.config,
+        userAuthResolver,
       )
     : null;
   const creatorPollRoutes = options.creatorSession
@@ -74,6 +75,7 @@ export function createHttpServer(options: HttpServerOptions) {
         options.pollService,
         options.creatorSession.service,
         options.creatorSession.config,
+        userAuthResolver,
       )
     : null;
 

@@ -108,6 +108,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 68 (docs + UX copy):** Public demo polish & manual QA closure — README demo test order, integrated Phase 65–67 manual QA (creator session, profile, vote eligibility, results), FAQ/handoff updates, public page copy consistency, copy guard tests. No schema, auth, evaluator, or Reference Answer scope changes — `docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`.
 
+**Phase 69 (docs):** MVP demo release readiness & handoff closure — consolidates Phases 65–68 into a showcase-ready, testable, handoff state: release readiness checklist, demo startup, tester operation order, known limits (MVP `X-User-Id`, production auth later, scheduler not in `npm start`), and invariant boundaries. **Recommended tester entry:** `docs/www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`. No schema, auth, evaluator, or Reference Answer scope changes.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -220,7 +222,13 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 **Local demo startup (Traditional Chinese):** preferred: `npm run demo:public:local` → open `http://127.0.0.1:3000/`. Manual path: session `DATABASE_URL` on `www_test`, seed demo users, migrate, build, `npm start`. Step-by-step: **`docs/www-project-local-demo-startup-v1.md`** (not for production deploy). Public MVP UI is a functional CSS skeleton; full visual redesign is a later UI Phase.
 
-### Public demo test order (Phase 68 — for manual QA)
+### Demo release readiness (Phase 69)
+
+**Status:** MVP demo is **showcase-ready** for local handoff — creator flow, profile eligibility, public vote/results, and integrated manual QA are documented and guarded. This is **not** production-ready: there is **no** production user login; visitors vote and edit profile with **MVP demo-style `X-User-Id`**; creators use **`creator_session`** scoped to `/creator/*` only. **Production user-auth wiring later.**
+
+**Recommended tester entry:** **`docs/www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`** → startup → operation order → release readiness checklist. Detailed steps: manual QA §3.10 · demo handoff · Phase 60/67/68 docs (cross-linked, not duplicated).
+
+### Public demo test order (Phase 68–69 — for manual QA)
 
 **Automated pre-check:** `npm test` + `npm run smoke:public:local` (HTTP routes, creator create, `vote-by-index`, JSON privacy — **not** a substitute for full browser QA).
 
@@ -234,7 +242,7 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 | 6 | `/results/<pollId>` | Collecting = counter-free; revealed = display-safe aggregate |
 | 7 | `/results/<pollId>?creator=1` | Creator lifecycle panel (UI not authorization) |
 
-**Reference Answer** does **not** use profile eligibility (regression: `reference-answer-hardening` tests). Full checklist: **`docs/www-project-public-mvp-manual-qa-v1.md`** §3.10 · closure index: **`docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`**.
+**Reference Answer** does **not** use profile eligibility (regression: `reference-answer-hardening` tests). Full checklist: **`docs/www-project-public-mvp-manual-qa-v1.md`** §3.10 · release readiness: **`docs/www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`** · closure index: **`docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`**.
 
 ### Public MVP current status (Phase 49 — demo handoff)
 
@@ -266,7 +274,7 @@ The public browser surface remains **share-link first**. Default routes stay **s
 | `nav` | `guest`, `logged-in-mock` | Toggle header/nav mock on static pages (not real auth) |
 | `ui_state` | `collecting`, `revealed`, `locked`, `post_lock`, `cancelled`, `unpublished`, … | Preview lifecycle copy on `/vote/demo`, `/results/demo`, etc. |
 
-Lifecycle manual QA and live creator flow: **`docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`**. Profile eligibility demo QA: **`docs/www-project-phase-67-profile-eligibility-demo-qa-v1.md`**. Integrated manual QA closure (Phase 65–67): **`docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`** + **`docs/www-project-public-mvp-manual-qa-v1.md`** §3.10. Full demo URL list and product rules: **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
+**Release readiness entry (Phase 69):** **`docs/www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`**. Lifecycle manual QA: **`docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`**. Profile eligibility demo QA: **`docs/www-project-phase-67-profile-eligibility-demo-qa-v1.md`**. Integrated manual QA closure (Phase 65–68): **`docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`** + **`docs/www-project-public-mvp-manual-qa-v1.md`** §3.10. Full demo URL list and product rules: **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
 
 **Collecting-stage privacy (product rule, MVP UI + future API):** While a poll is **collecting**, do **not** show vote counts, percentages, totals, ranking, trends, or progress — including to the **creator**. **Close** ends the voting/statistical period and reveals aggregate results; it does **not** mean the public lock period ends (MVP may use close time as reveal time). **Public lock period (MVP draft):** ~5 days after reveal — during lock, creator cannot unpublish/delete/edit/reopen/hide results; after lock, creator may unpublish. **Cancel** stops collecting (not “unpublish”); unpublish copy: 「此問卷已結束公開鎖定期，並由發起者下架。」 Ineligible users may see basic info, cannot vote, cannot see collecting results, but may **follow results** (MVP = in-app notification placeholder; email/push future). **Skip voting, view results** remains future.
 

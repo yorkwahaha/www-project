@@ -6,10 +6,11 @@
 
 **規範依據：** `AGENTS.md` v0.2。
 
-**主文件（測試者請從此開始）：**
+**主文件（測試者請從 Phase 69 開始）：**
 
 | 順序 | 文件 |
 |------|------|
+| 0 | [`www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`](./www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md) — **唯一建議入口** |
 | 1 | [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) |
 | 2 | [`www-project-public-mvp-manual-qa-v1.md`](./www-project-public-mvp-manual-qa-v1.md) — **§3.10 整合主流程** |
 | 3 | [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) |

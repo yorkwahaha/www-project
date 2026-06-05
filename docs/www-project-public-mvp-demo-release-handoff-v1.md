@@ -8,6 +8,8 @@
 
 **本文件用途：** 給同事、評審或自己「照著展示」用的交接說明。不是產品規格全文；細部手動步驟見 `docs/www-project-public-mvp-manual-qa-v1.md`。
 
+**Phase 69 建議入口：** 測試者請先讀 [`www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`](./www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md)（啟動→操作順序→release readiness checklist）；本文件提供 demo 腳本與產品規則，不重複 Phase 69 的 checklist 細節。
+
 **實作性質：** Public MVP 前台以 **HTML + 共用 CSS/JS** 為主；多數預設路由仍為 **靜態／mock 展示**。`GET /explore` 為 **live** freshness-only 列表（`GET /polls/feed`）。**即時**建立／發起者 lifecycle 請用 `?live=1`、`?creator=1`（MVP dev，非 production 登入）。真實登入、通知／信任分／回饋持久化、榜單／個人化 feed **尚未實作**（見 §H）。
 
 ---
@@ -85,7 +87,7 @@
 6. **結果** `/results/<pollId>` — display-safe；收集中無票數；`?creator=1` 可測發起者 lifecycle。
 7. **`/explore`** — 若有收集中問卷，卡片連 `/vote/<pollId>`；**不**顯示票數／熱門／個人化。
 
-完整勾選表：**`www-project-public-mvp-manual-qa-v1.md` §3.10** · **`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`**。
+完整勾選表：**`www-project-public-mvp-manual-qa-v1.md` §3.10** · **release readiness：** **`www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`** · **`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`**。
 
 **展示時可強調：** 問卷靠**分享連結**流通；收集中連發起者都看不到期中結果；關閉代表統計結束並揭曉，不等於鎖定期結束。
 
@@ -199,6 +201,7 @@ npm run test:integration:local
 
 | 文件 | 用途 |
 |------|------|
+| `docs/www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md` | **Phase 69 release readiness 唯一建議入口**（啟動、操作順序、checklist） |
 | `docs/www-project-local-demo-startup-v1.md` | 本機啟動 demo（Docker、`DATABASE_URL`、`npm start`） |
 | `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` | 跨瀏覽器／實機 QA 結果記錄（模板） |
 | `docs/www-project-public-mvp-manual-qa-v1.md` | 逐步手動 QA 檢查（繁中） |

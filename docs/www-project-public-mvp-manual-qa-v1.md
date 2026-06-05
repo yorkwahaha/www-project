@@ -4,7 +4,7 @@
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
-**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`](./www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md) **demo 順序與 auth 對照** → ③ [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) lifecycle／發起者 → ④ [`www-project-phase-67-profile-eligibility-demo-qa-v1.md`](./www-project-phase-67-profile-eligibility-demo-qa-v1.md) profile／資格 → ⑤ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ⑥ **本文件**（含 §3.10 整合主流程）→ ⑦ [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
+**建議閱讀順序：** ① [`www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`](./www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md) **Phase 69 唯一建議入口（啟動→順序→checklist）** → ② [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動細節 → ③ [`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`](./www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md) demo 順序與 auth 對照 → ④ [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) lifecycle／發起者 → ⑤ [`www-project-phase-67-profile-eligibility-demo-qa-v1.md`](./www-project-phase-67-profile-eligibility-demo-qa-v1.md) profile／資格 → ⑥ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ⑦ **本文件**（含 §3.10 整合主流程）→ ⑧ [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
 **提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore`（Phase 63）消費既有 **`GET /polls/feed`**：僅列出**收集中**且可探索的問卷，依**最近發布**排序，**不**顯示票數、熱門或個人化。
 
@@ -38,7 +38,7 @@ npm run test:integration:local
 
 全部通過後再進行下方手動流程。
 
-**`smoke:public:local` 可替代的人工檢查（Phase 68）：** 路由 200、`POST /creator/polls` 建立、`vote-by-index` 成功路徑、公開 JSON 不含 `option_id`／vote token／shard、基本 CSP／CSS 路由。**仍須瀏覽器手動：** `/profile` 儲存與清除、`creator_session` vs `X-User-Id` 分離、資格不符固定文案、lifecycle 按鈕、`?creator=1` refresh、手機 RWD、Reference Answer 認知（見 §3.10）。
+**`smoke:public:local` 可替代的人工檢查（Phase 68–69）：** 路由 200、`POST /creator/polls` 建立、`vote-by-index` 成功路徑、公開 JSON 不含 `option_id`／vote token／shard、基本 CSP／CSS 路由。**仍須瀏覽器手動：** `/profile` 儲存與清除、`creator_session` vs `X-User-Id` 分離、資格不符固定文案、lifecycle 按鈕、`?creator=1` refresh、手機 RWD、Reference Answer 認知（見 §3.10）。**自動 vs 人工 vs 尚未測項：** 見 Phase 69 §6 checklist。
 
 ---
 

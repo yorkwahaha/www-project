@@ -26,6 +26,7 @@
 | `GET /polls/new?live=1` | 真實 `POST /creator/polls`（MVP dev 開關；無 `?live=1` 的 `/polls/new` 為展示用） |
 | `GET /my-polls?live=1` | 發起者即時問卷區（`GET /creator/polls`；無 `?live=1` 為 mock 表） |
 | `GET /results/:pollId?creator=1` | 發起者 lifecycle 區（MVP dev；與 Phase 60 手動 QA 一致） |
+| `GET /profile` | 投票資格欄位（`birth_year_month`、粗粒度 `residential_region`）；MVP `X-User-Id`，非 creator cookie |
 
 ### A.2 政策說明頁（靜態 HTML，無需真實 poll id）
 
@@ -74,13 +75,17 @@
 4. **依序切換** `revealed` → `locked` → `post_lock` → `cancelled` → `unpublished`（下架文案應含：「此問卷已結束公開鎖定期，並由發起者下架。」）。
 5. **`?nav=guest` / `?nav=logged-in-mock`** — 在首頁或 FAQ 切換導覽 mock（非真實登入）。
 
-### B.2 真實流程（需 DB，約 5–10 分鐘）
+### B.2 真實流程（需 DB，約 10–15 分鐘）
 
-1. **首頁** `GET /` — 建立問卷、探索、FAQ；「範例問卷」區區分 `/explore` 即時列表與靜態範例卡。
-2. **建立問卷** `/polls/new?live=1` — 2–4 選項，成功後複製 `/vote/<pollId>`（展示用請用無 `?live=1` 的 `/polls/new`）。
-3. **投票** — 無痕視窗開啟投票連結並送出（本機建議 `npm run demo:public:local`）。
-4. **結果** `/results/<pollId>` — display-safe；收集中無票數；`?creator=1` 可測發起者 lifecycle。
-5. **`/explore`** — 若有收集中問卷，卡片連 `/vote/<pollId>`；**不**顯示票數／熱門／個人化。
+1. **首頁** `GET /` — 建立問卷、探索、FAQ、個人資料；「範例問卷」區區分 `/explore` 即時列表與靜態範例卡。
+2. **建立問卷** `/polls/new?live=1` — `creator_session`；2–4 選項，成功後複製 `/vote/<pollId>`（展示用請用無 `?live=1` 的 `/polls/new`）。
+3. **個人資料** `/profile` — 填出生年／月與粗粒度地區（MVP `X-User-Id`；說明見 FAQ）。
+4. **管理** `/my-polls?live=1` — 確認剛建立的問卷與 lifecycle 按鈕。
+5. **投票** — 無痕或 `?demoVoter=b` 開啟投票連結並送出。
+6. **結果** `/results/<pollId>` — display-safe；收集中無票數；`?creator=1` 可測發起者 lifecycle。
+7. **`/explore`** — 若有收集中問卷，卡片連 `/vote/<pollId>`；**不**顯示票數／熱門／個人化。
+
+完整勾選表：**`www-project-public-mvp-manual-qa-v1.md` §3.10** · **`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`**。
 
 **展示時可強調：** 問卷靠**分享連結**流通；收集中連發起者都看不到期中結果；關閉代表統計結束並揭曉，不等於鎖定期結束。
 
@@ -118,7 +123,9 @@ npm run test:integration:local
 - `GET /polls/:id/results` 回傳 **display-safe** JSON（區間化顯示欄位，非原始計數列）。
 - `GET /explore` 僅 **freshness-only** 列表（`GET /polls/feed`）；**不**熱門／票數／個人化排序。
 - `?live=1`、`?creator=1` 為 **MVP dev** 開關；**不是** production 登入或授權。
-- 公開 MVP **沒有** login / session / JWT / OAuth 前台。
+- **`creator_session`** 僅授權 `/creator/*` 發起者寫入；**不是** profile／投票的 user auth。
+- **`/profile` 與公開投票** 使用 MVP demo-style **`X-User-Id`**；**production user-auth wiring later**。
+- 公開 MVP **沒有** production login / JWT / OAuth 前台。
 - 公開 MVP **沒有** Wonder Flow ranking、個人化 feed、榜單 UI。
 - 公開 MVP **沒有** admin UI（管理僅 API＋營運煙霧，需 Bearer token）。
 

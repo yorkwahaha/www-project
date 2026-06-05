@@ -106,6 +106,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 67 (docs + UX copy):** Profile eligibility demo QA & public UX hardening — end-to-end demo/QA handoff for `/profile`, live creator flow, vote eligibility copy, results boundaries; README index; fixed vote policy panel + copy guard tests. Frontend auth remains MVP `X-User-Id` (production auth later). No schema, evaluator, transaction order, or Reference Answer scope changes — `docs/www-project-phase-67-profile-eligibility-demo-qa-v1.md`.
 
+**Phase 68 (docs + UX copy):** Public demo polish & manual QA closure — README demo test order, integrated Phase 65–67 manual QA (creator session, profile, vote eligibility, results), FAQ/handoff updates, public page copy consistency, copy guard tests. No schema, auth, evaluator, or Reference Answer scope changes — `docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -218,11 +220,27 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 **Local demo startup (Traditional Chinese):** preferred: `npm run demo:public:local` → open `http://127.0.0.1:3000/`. Manual path: session `DATABASE_URL` on `www_test`, seed demo users, migrate, build, `npm start`. Step-by-step: **`docs/www-project-local-demo-startup-v1.md`** (not for production deploy). Public MVP UI is a functional CSS skeleton; full visual redesign is a later UI Phase.
 
+### Public demo test order (Phase 68 — for manual QA)
+
+**Automated pre-check:** `npm test` + `npm run smoke:public:local` (HTTP routes, creator create, `vote-by-index`, JSON privacy — **not** a substitute for full browser QA).
+
+| Step | Route / action | Auth |
+|------|----------------|------|
+| 1 | `npm run demo:public:local` | Seeds demo voters on `www_test` |
+| 2 | `/polls/new?live=1` → share `/vote/<pollId>` | **`creator_session`** only (local-test issuer on localhost) |
+| 3 | `/my-polls?live=1` | Same creator cookie — **not** user login |
+| 4 | `/profile` | **MVP demo `X-User-Id`** — **production auth later**; no `creator_session` |
+| 5 | `/vote/<pollId>` | `X-User-Id` + `vote-by-index`; ineligible → fixed copy (no option/index leak) |
+| 6 | `/results/<pollId>` | Collecting = counter-free; revealed = display-safe aggregate |
+| 7 | `/results/<pollId>?creator=1` | Creator lifecycle panel (UI not authorization) |
+
+**Reference Answer** does **not** use profile eligibility (regression: `reference-answer-hardening` tests). Full checklist: **`docs/www-project-public-mvp-manual-qa-v1.md`** §3.10 · closure index: **`docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`**.
+
 ### Public MVP current status (Phase 49 — demo handoff)
 
 **Baseline commit (Phase 48):** `630baea` — FAQ, trust-level matrix, mobile readability polish.
 
-The public browser surface remains **share-link first**. Default routes stay **static/demo-facing** for policy UX; **creator lifecycle management** is available only with MVP dev query switches (`?live=1`, `?creator=1`) and the Phase 65A creator cookie — not production login UX. Visitors vote with `X-User-Id`; results follow backend `public_lifecycle_state`. There is still **no** production credential verifier, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization.
+The public browser surface remains **share-link first**. Default routes stay **static/demo-facing** for policy UX; **creator lifecycle management** is available only with MVP dev query switches (`?live=1`, `?creator=1`) and the Phase 65A **`creator_session` cookie** (scoped to `/creator/*` only — **not** general user auth). Visitors vote and edit profile with **MVP demo-style `X-User-Id`**; **production user-auth wiring later**. Results follow backend `public_lifecycle_state`. There is still **no** production credential verifier, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization.
 
 | Page | Route | Notes |
 |------|-------|--------|
@@ -248,7 +266,7 @@ The public browser surface remains **share-link first**. Default routes stay **s
 | `nav` | `guest`, `logged-in-mock` | Toggle header/nav mock on static pages (not real auth) |
 | `ui_state` | `collecting`, `revealed`, `locked`, `post_lock`, `cancelled`, `unpublished`, … | Preview lifecycle copy on `/vote/demo`, `/results/demo`, etc. |
 
-Lifecycle manual QA and live creator flow: **`docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`**. Full demo URL list and product rules: **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
+Lifecycle manual QA and live creator flow: **`docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`**. Profile eligibility demo QA: **`docs/www-project-phase-67-profile-eligibility-demo-qa-v1.md`**. Integrated manual QA closure (Phase 65–67): **`docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`** + **`docs/www-project-public-mvp-manual-qa-v1.md`** §3.10. Full demo URL list and product rules: **`docs/www-project-public-mvp-demo-release-handoff-v1.md`**.
 
 **Collecting-stage privacy (product rule, MVP UI + future API):** While a poll is **collecting**, do **not** show vote counts, percentages, totals, ranking, trends, or progress — including to the **creator**. **Close** ends the voting/statistical period and reveals aggregate results; it does **not** mean the public lock period ends (MVP may use close time as reveal time). **Public lock period (MVP draft):** ~5 days after reveal — during lock, creator cannot unpublish/delete/edit/reopen/hide results; after lock, creator may unpublish. **Cancel** stops collecting (not “unpublish”); unpublish copy: 「此問卷已結束公開鎖定期，並由發起者下架。」 Ineligible users may see basic info, cannot vote, cannot see collecting results, but may **follow results** (MVP = in-app notification placeholder; email/push future). **Skip voting, view results** remains future.
 

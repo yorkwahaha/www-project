@@ -4,7 +4,7 @@
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
-**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) **lifecycle／發起者 QA** → ③ [`www-project-phase-67-profile-eligibility-demo-qa-v1.md`](./www-project-phase-67-profile-eligibility-demo-qa-v1.md) **profile／投票資格 demo QA** → ④ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ⑤ 本文件訪客逐步 QA → ⑥ 實機結果填寫 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
+**建議閱讀順序：** ① [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動 → ② [`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`](./www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md) **demo 順序與 auth 對照** → ③ [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) lifecycle／發起者 → ④ [`www-project-phase-67-profile-eligibility-demo-qa-v1.md`](./www-project-phase-67-profile-eligibility-demo-qa-v1.md) profile／資格 → ⑤ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ⑥ **本文件**（含 §3.10 整合主流程）→ ⑦ [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
 **提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore`（Phase 63）消費既有 **`GET /polls/feed`**：僅列出**收集中**且可探索的問卷，依**最近發布**排序，**不**顯示票數、熱門或個人化。
 
@@ -36,7 +36,9 @@ npm run smoke:admin:local
 npm run test:integration:local
 ```
 
-全部通過後再進行下方手動流程。`smoke:public:local` 不取代瀏覽器操作，但可確認 `GET /`、`/polls/new`、`/explore`、`/vote/:pollId`、`/results/:pollId` 與 creator `POST /creator/polls`、public `vote-by-index`、公開 JSON 未洩漏 `option_id`、vote token、shard 等欄位（以煙霧內建 HTTP 檢查代替長駐 server 時可用）。
+全部通過後再進行下方手動流程。
+
+**`smoke:public:local` 可替代的人工檢查（Phase 68）：** 路由 200、`POST /creator/polls` 建立、`vote-by-index` 成功路徑、公開 JSON 不含 `option_id`／vote token／shard、基本 CSP／CSS 路由。**仍須瀏覽器手動：** `/profile` 儲存與清除、`creator_session` vs `X-User-Id` 分離、資格不符固定文案、lifecycle 按鈕、`?creator=1` refresh、手機 RWD、Reference Answer 認知（見 §3.10）。
 
 ---
 
@@ -123,6 +125,59 @@ npm run test:integration:local
 - 使用螢幕閱讀器或瀏覽器無障礙檢查：建立中／錯誤／成功訊息應能被讀出（`aria-live`／`role="status"` 等）。
 - 僅鍵盤操作：從「跳到主要內容」連結開始，應能完成建立與投票主流程。
 
+### 3.10 Phase 65–67 整合主流程（建議一般測試者照此順序）
+
+**Auth 對照（測前必讀）：**
+
+| 操作 | 使用 | **不是** |
+|------|------|----------|
+| `/polls/new?live=1`、`/my-polls?live=1`、lifecycle | `creator_session`（本機 cookie） | `X-User-Id` 當發起者權限 |
+| `/profile`、`/vote/:id` 投票 | MVP **`X-User-Id`** | `creator_session`、production 登入 |
+| `?nav=logged-in-mock` | 導覽展示 | 真實帳號 |
+
+**前置：** `npm run demo:public:local`（或 Phase 32 等價啟動）。
+
+#### A. Creator session 與建立（Phase 65）
+
+- [ ] `/polls/new?live=1` 建立問卷（≥2 選項）；成功後有 `/vote/<pollId>` 完整 URL
+- [ ] DevTools → Application：有 `creator_session` Cookie（`Path=/creator`）；**投票頁請求不應**帶此 Cookie 作 profile 授權
+- [ ] `/my-polls?live=1` 即時區塊出現剛建立的問卷；可複製投票連結
+- [ ] `POST /polls`（legacy）若手動測試應 **410** `LEGACY_CREATOR_WRITE_RETIRED`（可選）
+
+#### B. Profile（Phase 66E-A / 66F）
+
+- [ ] `GET /profile` 僅出生年月、粗粒度地區；**無**性別／地址／GPS
+- [ ] 儲存 `1998-07` + `TW-TPE`；重新整理後保留
+- [ ] 清除欄位 → 儲存成功（null）
+- [ ] Network：`GET`/`PUT /users/me/profile` 僅 header `X-User-Id`；`credentials: omit`
+
+#### C. 合格投票（Phase 66C evaluator 已接上）
+
+- [ ] `/vote/<pollId>` 選項 → 送出成功 → 結果頁連結
+- [ ] 收集中 `/results/<pollId>` **無**票數／百分比（counter-free）
+- [ ] 投票頁政策區有「前往個人資料」；**非**「資格尚未開放」
+
+#### D. 不合格投票（進階或 `/vote/demo?ui_state=ineligible`）
+
+- [ ] 真實 DB：依 Phase 67 §9 插入 `poll_eligibility_rules` 後，profile 不符時投票失敗
+- [ ] UI 顯示固定句：**你目前不符合此問卷的投票資格。**（或同等 `POLICY_UI_COPY`）
+- [ ] 文案**不含** `option_index`、`option_id`、具體年齡門檻、「此選項不存在」
+- [ ] `?ui_state=ineligible` 僅展示、不寫 DB
+
+#### E. Reference Answer（scope 不變）
+
+- [ ] **認知／回歸：** Reference Answer **不因** profile 欄位額外阻擋（以 `npm test` 中 `reference-answer-hardening` 為準；本手動 QA 不要求瀏覽器測 RA UI）
+
+#### F. 結果頁與 lifecycle（Phase 57–60 + 65C-A）
+
+- [ ] `/results/<pollId>?creator=1`：收集中無 aggregate；「結束收集並公開結果」後顯示區間化統計
+- [ ] 「取消問卷」→ unavailable shell（非整頁 stack）
+- [ ] lifecycle 成功後主區 refresh（或安全提示請重新整理）
+
+#### G. 手機可讀性（≤390px）
+
+- [ ] `/profile`、`/vote/<pollId>`、`/results/<pollId>` 無橫向溢出；按鈕可點
+
 ---
 
 ## 4. 本文件**不是**本 Phase 範圍
@@ -131,7 +186,8 @@ npm run test:integration:local
 
 | 項目 | 說明 |
 |------|------|
-| 登入／註冊／Session／JWT／OAuth | 公開流程無使用者登入 |
+| Production 登入／註冊／JWT／OAuth | **尚未**實作；profile／vote 僅 MVP `X-User-Id` demo |
+| `creator_session` 當一般登入 | 僅 `/creator/*` 發起者寫入 |
 | Feed／探索列表 UI | Phase 63：`GET /explore` 消費 `GET /polls/feed`（freshness-only、收集中）；無熱門／個人化／票數排序 |
 | Ranking／Wonder Flow／個人化推薦 | 禁止以答案方向訊號排序 |
 | Admin UI | 管理流程僅 API + 煙霧，無公開管理介面 |
@@ -152,7 +208,9 @@ npm run test:integration:local
 ## 6. 相關文件
 
 - `README.md` — 指令與 API 總覽
+- `docs/www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md` — **Phase 68 demo 順序與 auth 封板**
 - `docs/www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md` — **Lifecycle 手動 QA 與即時發起者交接（Phase 60）**
+- `docs/www-project-phase-67-profile-eligibility-demo-qa-v1.md` — **Profile／資格 demo QA（Phase 67）**
 - `docs/www-project-local-demo-startup-v1.md` — 本機 demo 啟動（Phase 32）
 - `docs/www-project-public-mvp-cross-browser-qa-log-v1.md` — 跨瀏覽器／實機 QA 結果記錄表（Phase 34）
 - `docs/www-project-public-mvp-demo-release-handoff-v1.md` — Demo／release 展示與邊界交接（Phase 31）

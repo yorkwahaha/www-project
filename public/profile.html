@@ -16,10 +16,14 @@
         ·
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
+      <p class="mvp-mock-banner" role="note">
+        <strong>MVP 展示身分</strong>：本機以固定 <code>X-User-Id</code> 讀寫個人資料，<strong>不是</strong>正式登入（production auth later）。
+        此頁<strong>不使用</strong> <code>creator_session</code>（發起者 cookie 僅服務 <code>/creator/*</code>）。
+      </p>
       <p class="mvp-brand">個人資料</p>
       <h1>投票資格資料</h1>
       <p class="mvp-lead">
-        此資料只用於判斷你是否符合部分問卷投票資格。
+        此資料只用於判斷你是否符合部分問卷的 Official Vote 資格。本頁僅可填寫出生年／月與粗粒度地區兩類欄位。
       </p>
 
       <div class="mvp-form-card">

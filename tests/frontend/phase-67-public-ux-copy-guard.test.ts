@@ -8,6 +8,7 @@ const FORBIDDEN_COPY =
 
 const PUBLIC_COPY_FILES = [
   'public/profile.html',
+  'public/faq.html',
   'public/frontend/profile-page.js',
   'public/frontend/public-mvp-ui.js',
   'public/frontend/policy-ui-placeholders.js',

@@ -97,15 +97,31 @@
         </details>
 
         <details class="mvp-policy-panel mvp-faq-item">
+          <summary class="mvp-faq-question">為什麼要填出生年月與居住地區？</summary>
+          <div class="mvp-faq-answer">
+            <ul class="policy-field-list">
+              <li>部分問卷僅限特定年齡區間或粗粒度地區的參與者投票（Official Vote）。</li>
+              <li>請在 <a href="/profile">個人資料</a> 填寫<strong>出生年／月</strong>（不含日期）與<strong>粗粒度地區代碼</strong>（例如 TW-TPE）。</li>
+              <li>資料只用於資格判斷，不對外公開個人投票紀錄，也不做公開統計分群展示。</li>
+              <li>本頁個人資料表單<strong>僅</strong>包含出生年／月與粗粒度地區，不含其他敏感定位或身份欄位。</li>
+            </ul>
+            <p class="policy-panel-text policy-panel-muted mvp-faq-note">
+              公開 MVP 以本機 demo 的 <code>X-User-Id</code> 示範，非正式登入；production user-auth wiring later。
+            </p>
+          </div>
+        </details>
+
+        <details class="mvp-policy-panel mvp-faq-item">
           <summary class="mvp-faq-question">沒有投票資格怎麼辦？</summary>
           <div class="mvp-faq-answer">
             <ul class="policy-field-list">
               <li>仍可查看問卷標題、說明、狀態、公開時間等基本資訊。</li>
               <li>不能作答，也看不到中途數字。</li>
-              <li>可「關注結果」，結果公開後收到站內通知。</li>
+              <li>頁面會顯示固定說明（例如「你目前不符合此問卷的投票資格。」），<strong>不會</strong>告訴你哪個選項有效或哪條規則未過。</li>
+              <li>可「關注結果」，結果公開後收到站內通知（通知持久化尚未開放）。</li>
             </ul>
             <p class="policy-panel-text policy-panel-muted mvp-faq-note">
-              Email 與推播通知屬未來規劃，目前尚未開放。「放棄投票、只看結果」也不在 MVP 範圍內。
+              Email 與推播通知屬未來規劃。「放棄投票、只看結果」也不在 MVP 範圍內。Reference Answer 目前<strong>不</strong>依 profile 欄位額外限制。
             </p>
           </div>
         </details>

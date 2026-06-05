@@ -18,7 +18,9 @@ describe('profile page frontend', () => {
     expect(html).toContain('type="month"');
     expect(html).toContain('name="residential_region"');
     expect(html).toContain('TW-TPE');
-    expect(html).toContain('此資料只用於判斷你是否符合部分問卷投票資格');
+    expect(html).toMatch(/此資料只用於判斷你是否符合部分問卷.*資格/);
+    expect(html).toContain('X-User-Id');
+    expect(html).toContain('creator_session');
     expect(html).not.toMatch(
       /gender|性別|birthday|生日|address|地址|GPS|geocode|precise location|精準位置|option_id|option_text|option_index/i,
     );

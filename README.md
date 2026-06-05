@@ -98,6 +98,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 66E-A:** Profile update API foundation — `GET /users/me/profile` and `PUT /users/me/profile` read/update only `birth_year_month` and coarse `residential_region` through user auth. No gender, exact birthday, migration, frontend UX, Reference Answer eligibility, ranking, result, feed, notice, scheduler, personalization, demographic breakdown, vote-time snapshot, backfill, or historical recalculation was added.
 
+**Phase 66F-P (docs):** Profile UX / onboarding plan — future profile UI may collect only `birth_year_month` and coarse `residential_region` for Official Vote eligibility prompts; no gender, exact birthday, precise location, runtime/frontend/API/schema, Reference Answer, ranking, personalization, demographic, snapshot, backfill, or recalculation behavior changes — `docs/www-project-phase-66f-profile-ux-onboarding-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

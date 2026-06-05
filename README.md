@@ -104,6 +104,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 66 (docs):** Final profile eligibility checkpoint — summarizes 66A–66F (boundary spec, schema, evaluator, route tests, profile API, profile UX), vote-by-index ordering, Reference Answer exclusion, Raw Option Linkage Ban, manual QA checklist, and MVP `X-User-Id` auth limitation — `docs/www-project-phase-66-final-profile-eligibility-checkpoint-v1.md`.
 
+**Phase 67 (docs + UX copy):** Profile eligibility demo QA & public UX hardening — end-to-end demo/QA handoff for `/profile`, live creator flow, vote eligibility copy, results boundaries; README index; fixed vote policy panel + copy guard tests. Frontend auth remains MVP `X-User-Id` (production auth later). No schema, evaluator, transaction order, or Reference Answer scope changes — `docs/www-project-phase-67-profile-eligibility-demo-qa-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -230,6 +232,7 @@ The public browser surface remains **share-link first**. Default routes stay **s
 | Create poll | `/polls/new` | Default: demo preview (no DB write). **`?live=1`:** real `POST /creator/polls`, share vote link, lifecycle controls |
 | My polls | `/my-polls` | Default: static mock table (inert). **`?live=1`:** live creator management from `GET /creator/polls` |
 | Vote | `/vote/:pollId` | Submits `option_index` via `vote-by-index` |
+| Profile | `/profile` | MVP `X-User-Id` only; `birth_year_month` + coarse `residential_region` for Official Vote eligibility (see Phase 67 QA doc) |
 | Vote (demo) | `/vote/demo` | Static policy shell; optional `?ui_state=` for QA |
 | Results | `/results/:pollId` | Read-only display-safe results per lifecycle; collecting stays counter-free |
 | Results (creator) | `/results/:pollId?creator=1` | Creator lifecycle panel (cancel / close-reveal / unpublish) + post-transition refresh; **UI is not authorization** |

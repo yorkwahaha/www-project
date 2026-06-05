@@ -56,9 +56,8 @@ export const POLICY_UI_COPY = {
   followButtonLong: '結果公開時以站內通知提醒我',
   followMockNote:
     '這項功能會在登入與通知系統完成後開放；目前不會儲存關注或發送通知。',
-  profileFutureTitle: '個人資料與資格（尚未開放）',
-  profileFutureFields:
-    '未來將需要：暱稱、出生年／月（不含日期）、粗粒度居住地區。這些資料只用於投票資格判斷。',
+  profileHelpFields:
+    '請至「個人資料」填寫出生年／月（不含日期）與粗粒度居住地區；僅用於部分問卷的 Official Vote 資格判斷。',
 };
 
 function appendParagraph(parent, text, className = 'policy-panel-text') {
@@ -200,8 +199,8 @@ export function renderLifecyclePolicyPanel(parent) {
 export function renderEligibilityPlaceholderPanel(parent) {
   const doc = parent.ownerDocument;
   const { section } = createPolicyPanel(doc, {
-    title: '投票資格（範例）',
-    badge: '尚未開放',
+    title: '投票資格說明',
+    badge: 'Official Vote',
     badgeClass: 'mvp-badge mvp-badge-muted',
     mascotVariant: 'idle',
     titleHelp: {
@@ -213,9 +212,9 @@ export function renderEligibilityPlaceholderPanel(parent) {
   const list = doc.createElement('ul');
   list.className = 'policy-field-list';
   for (const item of [
-    '年齡：未設定（示範：12–15、18–30、65+ 等區間，依自行填寫的出生年／月判斷）',
-    '地區：未設定（示範：可限制特定縣市）',
-    '你的狀態：範例展示 — 真實資格判斷尚未開放',
+    '年齡：依個人資料中的出生年／月與問卷規則比對（自行填寫，非官方驗證）',
+    '地區：依個人資料中的粗粒度居住地區代碼',
+    '不符合資格時，投票頁顯示固定提示，不揭露選項或條件細節',
   ]) {
     const li = doc.createElement('li');
     li.textContent = item;
@@ -224,7 +223,14 @@ export function renderEligibilityPlaceholderPanel(parent) {
   section.append(list);
 
   appendParagraph(section, POLICY_UI_COPY.eligibilitySelfReport);
+  appendParagraph(section, POLICY_UI_COPY.profileHelpFields);
   appendParagraph(section, POLICY_UI_COPY.eligibilityIneligible, 'policy-panel-text policy-panel-muted');
+
+  const profileLink = doc.createElement('a');
+  profileLink.className = 'mvp-action-link';
+  profileLink.href = '/profile';
+  profileLink.textContent = '前往個人資料';
+  section.append(profileLink);
 
   parent.append(section);
   return section;

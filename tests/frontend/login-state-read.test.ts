@@ -78,16 +78,33 @@ describe('login state read hook', () => {
 
   it('renders only display_name in the header indicator', async () => {
     const { applyLoginStateIndicator } = await loadLoginStateUiModule();
+    const doc = {
+      createElement(tagName: string) {
+        return {
+          tagName: tagName.toUpperCase(),
+          className: '',
+          textContent: '',
+          attributes: new Map<string, string>(),
+          setAttribute(name: string, value: string) {
+            this.attributes.set(name, value);
+          },
+        };
+      },
+    };
     const mount = {
       className: '',
       id: '',
       textContent: '',
       hidden: false,
+      ownerDocument: doc,
       attributes: new Map<string, string>(),
       children: [] as unknown[],
       replaceChildren() {
         this.children = [];
         this.textContent = '';
+      },
+      append(...nodes: unknown[]) {
+        this.children.push(...nodes);
       },
       setAttribute(name: string, value: string) {
         this.attributes.set(name, value);
@@ -108,13 +125,16 @@ describe('login state read hook', () => {
       display_name: 'Header User',
     });
 
-    expect(mount.textContent).toBe('Header User');
+    const nameEl = mount.children.find(
+      (child: { className?: string }) => child.className === 'mvp-login-state-name',
+    ) as { textContent: string } | undefined;
+    expect(nameEl?.textContent).toBe('Header User');
     expect(mount.textContent).not.toContain('11111111');
     expect(mount.attributes.get('aria-label')).toBe('已登入：Header User');
     expect(mount.classList.classes.has('mvp-login-state--signed-in')).toBe(true);
 
     applyLoginStateIndicator(mount, { status: 'anonymous' });
     expect(mount.hidden).toBe(true);
-    expect(mount.textContent).toBe('');
+    expect(mount.children).toHaveLength(0);
   });
 });

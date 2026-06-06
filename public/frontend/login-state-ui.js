@@ -1,5 +1,6 @@
 /**
  * Phase 83 — minimal header login-state display (display_name only).
+ * Phase 84 — logout button beside display_name when signed in.
  */
 
 import {
@@ -7,8 +8,14 @@ import {
   LOGIN_STATE_AUTHENTICATED,
   readLoginState,
 } from './login-state-read.js';
+import {
+  LOGIN_LOGOUT_FAILURE_MESSAGE,
+  requestLogoutSession,
+} from './login-state-logout.js';
 
 export const LOGIN_STATE_MOUNT_ID = 'mvp-login-state';
+export const LOGIN_STATE_LOGOUT_CLASS = 'mvp-login-state-logout';
+export const LOGIN_STATE_ERROR_CLASS = 'mvp-login-state-error';
 
 /**
  * @param {HTMLElement} mount
@@ -30,15 +37,32 @@ export function applyLoginStateIndicator(mount, state) {
   if (state.status !== LOGIN_STATE_AUTHENTICATED || !state.display_name) {
     mount.hidden = true;
     mount.setAttribute('aria-hidden', 'true');
-    mount.textContent = '';
     return;
   }
 
+  const doc = mount.ownerDocument;
   mount.hidden = false;
   mount.classList.add('mvp-login-state--signed-in');
-  mount.setAttribute('role', 'status');
-  mount.textContent = state.display_name;
+  mount.setAttribute('role', 'group');
   mount.setAttribute('aria-label', `已登入：${state.display_name}`);
+
+  if (doc && typeof doc.createElement === 'function') {
+    const nameEl = doc.createElement('span');
+    nameEl.className = 'mvp-login-state-name';
+    nameEl.setAttribute('role', 'status');
+    nameEl.textContent = state.display_name;
+
+    const logoutBtn = doc.createElement('button');
+    logoutBtn.type = 'button';
+    logoutBtn.className = LOGIN_STATE_LOGOUT_CLASS;
+    logoutBtn.textContent = '登出';
+    logoutBtn.setAttribute('aria-label', '登出');
+
+    mount.append(nameEl, logoutBtn);
+    return;
+  }
+
+  mount.textContent = state.display_name;
 }
 
 /**
@@ -59,10 +83,78 @@ export function syncAuthStateChipsForLoginRead(actions, authenticated) {
       guestChip.removeAttribute('aria-hidden');
     }
   }
-  if (demoChip && authenticated) {
-    demoChip.hidden = true;
-    demoChip.setAttribute('aria-hidden', 'true');
+  if (demoChip) {
+    if (authenticated) {
+      demoChip.hidden = true;
+      demoChip.setAttribute('aria-hidden', 'true');
+    } else {
+      demoChip.hidden = false;
+      demoChip.removeAttribute('aria-hidden');
+    }
   }
+}
+
+/**
+ * @param {HTMLElement} mount
+ * @param {string} message
+ */
+export function showLoginStateLogoutError(mount, message = LOGIN_LOGOUT_FAILURE_MESSAGE) {
+  if (!mount || mount.hidden) {
+    return;
+  }
+  const doc = mount.ownerDocument;
+  if (!doc || typeof doc.createElement !== 'function') {
+    return;
+  }
+  let errorEl = mount.querySelector(`.${LOGIN_STATE_ERROR_CLASS}`);
+  if (!errorEl) {
+    errorEl = doc.createElement('span');
+    errorEl.className = LOGIN_STATE_ERROR_CLASS;
+    errorEl.setAttribute('role', 'status');
+    mount.append(errorEl);
+  }
+  errorEl.textContent = message;
+}
+
+/**
+ * @param {HTMLElement} mount
+ */
+export function clearLoginStateLogoutError(mount) {
+  mount?.querySelector?.(`.${LOGIN_STATE_ERROR_CLASS}`)?.remove?.();
+}
+
+/**
+ * @param {HTMLElement} mount
+ * @param {HTMLElement | null | undefined} actions
+ * @param {{ fetchImpl?: typeof fetch }} [options]
+ */
+export async function handleLoginStateLogout(mount, actions, options = {}) {
+  const fetchImpl = options.fetchImpl ?? mount?.ownerDocument?.defaultView?.fetch;
+  const result = await requestLogoutSession({ fetchImpl });
+  if (result.ok) {
+    clearLoginStateLogoutError(mount);
+    applyLoginStateIndicator(mount, { status: LOGIN_STATE_ANONYMOUS });
+    syncAuthStateChipsForLoginRead(actions, false);
+    return { ok: true };
+  }
+  showLoginStateLogoutError(mount);
+  return { ok: false };
+}
+
+/**
+ * @param {HTMLElement} mount
+ * @param {HTMLElement | null | undefined} actions
+ * @param {{ fetchImpl?: typeof fetch }} [options]
+ */
+export function wireLoginStateLogout(mount, actions, options = {}) {
+  const logoutBtn = mount?.querySelector?.(`.${LOGIN_STATE_LOGOUT_CLASS}`);
+  if (!logoutBtn || logoutBtn.dataset.logoutWired === 'true') {
+    return;
+  }
+  logoutBtn.dataset.logoutWired = 'true';
+  logoutBtn.addEventListener('click', () => {
+    void handleLoginStateLogout(mount, actions, options);
+  });
 }
 
 /**
@@ -101,5 +193,8 @@ export async function mountLoginStateRead(documentObject, options = {}) {
     actions,
     state.status === LOGIN_STATE_AUTHENTICATED,
   );
+  if (state.status === LOGIN_STATE_AUTHENTICATED) {
+    wireLoginStateLogout(mount, actions, options);
+  }
   return state;
 }

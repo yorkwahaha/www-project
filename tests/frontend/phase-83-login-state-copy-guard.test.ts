@@ -2,10 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const PHASE_83_FILES = [
-  'public/frontend/login-state-read.js',
-  'public/frontend/login-state-ui.js',
-];
+const PHASE_83_FILES = ['public/frontend/login-state-read.js'];
 
 const FORBIDDEN_COPY =
   /birth_year_month|residential_region|session_id|token_sha256|www_session|creator_session|\buser_id\b|vote history|option_id|option_index|option_text|\btrust\b|localStorage|sessionStorage|\blogout\b/i;

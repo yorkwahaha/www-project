@@ -152,6 +152,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 83:** Frontend login state read / minimal UI hook — site chrome calls `GET /users/me` with `credentials: 'same-origin'` and shows only `display_name` in the header when authenticated; logged-out state stays quiet. No login/registration form UI, logout button, backend auth/session behavior change, profile update UI change, or protected API behavior change — `docs/www-project-phase-83-frontend-login-state-read-v1.md`.
 
+**Phase 84:** Frontend logout UI hook — when Phase 83 read shows a signed-in `display_name`, a small **登出** control calls `DELETE /login/session` with `credentials: 'same-origin'`; success hides the signed-in display and restores guest/demo auth chips, failure shows a neutral message only. No login/registration form UI, backend auth/session behavior change, `GET /users/me` response shape change, or protected API behavior change — `docs/www-project-phase-84-frontend-logout-ui-hook-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

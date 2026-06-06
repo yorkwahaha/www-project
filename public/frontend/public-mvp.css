@@ -1307,7 +1307,9 @@ button:disabled {
 .mvp-login-state--signed-in {
   display: inline-flex;
   align-items: center;
-  max-width: 10rem;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.45rem;
+  max-width: 14rem;
   padding: 0.28rem 0.55rem;
   border-radius: 999px;
   font-size: 0.78rem;
@@ -1316,9 +1318,40 @@ button:disabled {
   background: var(--mvp-accent-soft);
   border: 1px solid var(--mvp-border);
   color: var(--mvp-accent);
+}
+
+.mvp-login-state-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 8rem;
+}
+
+.mvp-login-state-logout {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0.12rem 0.4rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--mvp-accent);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 650;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.mvp-login-state-logout:hover {
+  border-color: var(--mvp-accent);
+  background: var(--mvp-accent-soft);
+}
+
+.mvp-login-state-error {
+  flex-basis: 100%;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--mvp-danger, #a33);
 }
 
 .mvp-quality-feedback-preview {

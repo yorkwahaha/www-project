@@ -1824,6 +1824,23 @@ button:disabled {
   }
 }
 
+/* Phase 74 — production login UI shell (static only) */
+.mvp-login-shell .mvp-auth-state-grid {
+  margin-bottom: 1rem;
+}
+
+.mvp-login-form-card .mvp-auth-disabled-form input:disabled,
+.mvp-login-form-card .mvp-auth-disabled-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.mvp-login-shell-status {
+  margin-top: 0.75rem;
+  color: var(--mvp-muted, #5c6470);
+  font-size: 0.95rem;
+}
+
 /* Phase 46 — policy info pages (FAQ, trust levels) */
 .mvp-info-page {
   max-width: 42rem;

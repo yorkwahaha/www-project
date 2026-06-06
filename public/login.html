@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登入｜What We Wonder</title>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
+  </head>
+  <body class="mvp-body">
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <header id="site-header" data-nav="guest" data-active="login"></header>
+    <main id="main-content" class="mvp-page mvp-info-page mvp-login-shell" aria-labelledby="login-heading">
+      <p class="mvp-demo-nav-switch" role="note">
+        切換瀏覽身分（展示用）：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
+
+      <p class="mvp-mock-banner" role="note">
+        <strong>正式登入尚未啟用</strong>：此頁為 production login UI shell，僅說明未來登入流程與身分邊界。
+        目前<strong>沒有</strong>帳號核發、session cookie、OAuth 或登入 API。
+      </p>
+
+      <header class="mvp-info-hero">
+        <h1 id="login-heading">登入帳號</h1>
+        <p class="mvp-lead">
+          正式環境中，個人資料、Official Vote、依序投票與發起者操作須透過已核准的 production 憑證；
+          若後端無法驗證身分，系統會 <strong>fail closed</strong>（例如 <code>401 AUTH_REQUIRED</code>），
+          <strong>不會</strong>退回 MVP 測試用 <code>X-User-Id</code> 或 <code>creator_session</code>。
+        </p>
+      </header>
+
+      <section class="mvp-value-grid mvp-auth-state-grid" aria-label="身分狀態說明">
+        <article class="mvp-value-card">
+          <h2>Production（正式）</h2>
+          <p>須有已核准的 production credential verifier；缺少時 protected routes 一律拒絕。</p>
+        </article>
+        <article class="mvp-value-card">
+          <h2>Local demo（本機展示）</h2>
+          <p>
+            訪客投票與 <a href="/profile">個人資料</a> 使用明確標記的 MVP <code>X-User-Id</code> 測試身份；
+            發起者流程使用 <code>creator_session</code>（僅 <code>/creator/*</code>，非一般 user auth）。
+          </p>
+        </article>
+        <article class="mvp-value-card">
+          <h2>Reference Answer</h2>
+          <p>尚未接入 production login；亦不接 profile eligibility（見 Phase 70 邊界）。</p>
+        </article>
+      </section>
+
+      <div class="mvp-form-card mvp-login-form-card">
+        <form id="login-shell-form" class="mvp-form mvp-auth-disabled-form" novalidate aria-describedby="login-shell-message">
+          <p class="mvp-form-hint">
+            以下欄位僅供版面預覽；送出按鈕已停用，不會呼叫登入 API 或寫入瀏覽器儲存。
+          </p>
+          <label for="login-email">電子郵件（預留）</label>
+          <input
+            id="login-email"
+            name="email"
+            type="email"
+            autocomplete="username"
+            disabled
+            aria-disabled="true"
+            placeholder="正式登入啟用後才會開放"
+          >
+
+          <label for="login-password">密碼（預留）</label>
+          <input
+            id="login-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            disabled
+            aria-disabled="true"
+            placeholder="正式登入啟用後才會開放"
+          >
+
+          <div class="mvp-form-actions">
+            <button id="login-shell-submit" type="submit" class="mvp-btn-primary" disabled aria-disabled="true">
+              登入（尚未開放）
+            </button>
+            <a class="mvp-btn mvp-btn-secondary" href="/">返回首頁</a>
+          </div>
+        </form>
+      </div>
+
+      <p id="login-shell-message" class="mvp-login-shell-status" role="status" aria-live="polite"></p>
+
+      <p class="mvp-meta mvp-preview-links">
+        規劃依據：
+        <a href="/faq">常見問題</a>
+        ·
+        <a href="/trust-levels">權限與信任等級</a>
+        ·
+        Phase 73 login/session UX plan（文件）
+      </p>
+    </main>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
+    <script type="module" src="/frontend/login-page.js"></script>
+  </body>
+</html>

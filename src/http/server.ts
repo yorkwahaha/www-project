@@ -411,6 +411,16 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/login') {
+    await sendPublicFile(res, 'login.html', 'text/html; charset=utf-8');
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/login-page.js') {
+    await sendPublicFile(res, 'frontend/login-page.js', 'text/javascript; charset=utf-8');
+    return;
+  }
+
   if (method === 'GET' && path === '/explore') {
     await sendPublicFile(res, 'explore.html', 'text/html; charset=utf-8');
     return;

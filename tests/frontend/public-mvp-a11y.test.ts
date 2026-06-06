@@ -43,6 +43,12 @@ describe('public MVP accessibility', () => {
     const explorePage = await readFile(join(process.cwd(), 'public/explore.html'), 'utf8');
     const faqPage = await readFile(join(process.cwd(), 'public/faq.html'), 'utf8');
     const trustPage = await readFile(join(process.cwd(), 'public/trust-levels.html'), 'utf8');
+    const loginPage = await readFile(join(process.cwd(), 'public/login.html'), 'utf8');
+
+    expect(loginPage).toContain('skip-link');
+    expect(loginPage).toContain('id="main-content"');
+    expect(loginPage).toContain('role="status"');
+    expect(loginPage).toContain('aria-live="polite"');
 
     expect(faqPage).toContain('skip-link');
     expect(faqPage).toContain('id="main-content"');

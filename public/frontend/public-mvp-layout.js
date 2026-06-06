@@ -2,8 +2,6 @@
  * Phase 42A — shared public chrome (static visual only; no auth/persistence).
  */
 
-import { showDemoOnlyFeedback } from './public-mvp-demo.js';
-
 export const HELP_COPY = {
   collectingHidden:
     '收集中不顯示票數、百分比、總計、排名、趨勢或進度；發起者亦同，避免影響後續投票者。',
@@ -177,34 +175,19 @@ export function renderSiteHeader(mount, options = {}) {
   } else {
     const login = doc.createElement('a');
     login.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
-    login.href = '#login-mock';
+    login.href = '/login';
     login.textContent = '登入';
 
     const signup = doc.createElement('a');
     signup.className = 'mvp-btn mvp-btn-primary mvp-btn-sm';
-    signup.href = '#signup-mock';
+    signup.href = '/login';
     signup.textContent = '註冊 / 開始使用';
 
-    wireMockAuthLink(login);
-    wireMockAuthLink(signup);
     actions.append(login, signup);
   }
 
   inner.append(brand, nav, actions);
   mount.append(inner);
-}
-
-function wireMockAuthLink(link) {
-  link.addEventListener('click', (event) => {
-    if (!link.getAttribute('href')?.startsWith('#')) {
-      return;
-    }
-    event.preventDefault();
-    showDemoOnlyFeedback(
-      link,
-      '登入與註冊尚未開放。請使用頁面上方「登入後」切換，查看登入後的導覽與流程展示。',
-    );
-  });
 }
 
 export function renderDemoNavBanner(parent, navMode) {

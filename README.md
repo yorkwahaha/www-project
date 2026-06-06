@@ -172,6 +172,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 93:** Registration UI runtime review / hardening — reviewed `GET /registration`, `registration-page.js`, form fields, submit behavior, success/failure copy, credential proof transport, and mobile/accessibility basics. A minimal page-level guard now disables shared login-state reads on `/registration`, preventing `/users/me` calls from registration chrome while preserving normal login-state behavior elsewhere. No backend registration behavior, login/session, `UserAuthResolver`, `/users/me` shape, schema, vote, Reference Answer, ranking, analytics, gender, exact birthday, precise location, or extra profile-field changes — `docs/www-project-phase-93-registration-ui-runtime-review-hardening-v1.md`.
 
+**Phase 94:** Registration/login navigation & copy polish — clarifies that registration creates account data only, does not log users in, and should be followed by `/login`, while login controls signed-in header state. Updates homepage, header auth chips, auth banner, `/login`, and `/registration` links/copy only. No backend auth/session, `POST /registration`, `UserAuthResolver`, `/users/me` shape, registration login-state-read opt-out removal, or schema changes — `docs/www-project-phase-94-registration-login-navigation-copy-polish-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

@@ -1,23 +1,28 @@
 /**
  * Phase 75 — shared auth state navigation copy (static UX only; no auth runtime).
+ * Phase 94 — registration/login navigation and flow copy polish.
  */
 
 export const AUTH_STATE_COPY = {
-  guestChipLabel: '正式登入尚未啟用',
-  guestChipAriaLabel: '正式登入尚未啟用，前往登入說明頁',
+  guestChipLabel: '未登入',
+  guestChipAriaLabel: '尚未登入，前往登入頁',
   guestChipTitle:
-    'Production 受保護功能須已核准憑證；缺少時 fail closed。此連結僅開啟登入說明 shell。',
+    '登入後頁首才會顯示帳號名稱。註冊只建立帳號資料，不會自動登入。',
   demoIdentityChipLabel: 'MVP 測試身份',
   demoIdentityChipAriaLabel:
     '目前為 MVP 測試身份展示，非正式登入或 creator_session',
   demoIdentityChipTitle:
     '本機以 X-User-Id 示範個人資料與投票；發起者流程請用 creator_session（?live=1）',
-  guestPrimaryCta: '了解登入狀態',
+  guestPrimaryCta: '註冊',
+  guestPrimaryCtaAriaLabel: '前往註冊頁建立帳號',
   guestSecondaryCta: '登入',
+  guestSecondaryCtaAriaLabel: '前往登入頁',
   bannerAriaLabel: '身分與登入狀態說明',
-  bannerGuestLead: '正式登入尚未啟用',
+  bannerGuestLead: '正式帳號流程',
   bannerGuestBody:
-    'Production 受保護路由須已核准憑證，缺少時 fail closed，不會退回 MVP X-User-Id 或 creator_session。',
+    '註冊只建立帳號資料，不會自動登入；完成註冊後請到登入頁。登入後才會在頁首顯示帳號名稱。缺少已核准憑證時，受保護功能 fail closed，不會退回 MVP X-User-Id 或 creator_session。',
+  bannerLoginLinkLabel: '登入',
+  bannerRegistrationLinkLabel: '註冊',
   bannerLocalDemoTitle: '本機 demo 測試身份',
   bannerLocalDemoBody:
     '個人資料與投票使用 MVP X-User-Id；發起問卷請用 ?live=1 的 creator_session（僅 /creator/*，非一般 user auth）。',

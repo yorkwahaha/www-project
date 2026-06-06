@@ -133,9 +133,8 @@ describe('public mvp layout demo nav', () => {
     const labels = actionNodes.map((node) => node.textContent);
     expect(labels).toContain(AUTH_STATE_COPY.guestSecondaryCta);
     expect(labels).toContain(AUTH_STATE_COPY.guestPrimaryCta);
-    expect(
-      actionNodes.filter((node) => node.href === '/login').length,
-    ).toBeGreaterThanOrEqual(2);
+    expect(actionNodes.some((node) => node.href === '/registration')).toBe(true);
+    expect(actionNodes.some((node) => node.href === '/login')).toBe(true);
   });
 
   it('renders demo identity chip instead of avatar for logged-in-mock nav', async () => {

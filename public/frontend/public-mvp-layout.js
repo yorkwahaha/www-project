@@ -209,13 +209,13 @@ export function renderSiteHeader(mount, options = {}) {
     login.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
     login.href = '/login';
     login.textContent = AUTH_STATE_COPY.guestSecondaryCta;
-    login.setAttribute('aria-label', '前往登入說明頁');
+    login.setAttribute('aria-label', AUTH_STATE_COPY.guestSecondaryCtaAriaLabel);
 
     const signup = doc.createElement('a');
     signup.className = 'mvp-btn mvp-btn-primary mvp-btn-sm';
-    signup.href = '/login';
+    signup.href = '/registration';
     signup.textContent = AUTH_STATE_COPY.guestPrimaryCta;
-    signup.setAttribute('aria-label', '了解正式登入狀態與本機 demo 身分邊界');
+    signup.setAttribute('aria-label', AUTH_STATE_COPY.guestPrimaryCtaAriaLabel);
 
     actions.append(login, signup);
   }
@@ -248,22 +248,29 @@ export function renderAuthStateBanner(parent, navMode) {
   leadStrong.textContent = AUTH_STATE_COPY.bannerGuestLead;
   lead.append(leadStrong, '：', AUTH_STATE_COPY.bannerGuestBody);
 
+  const account = doc.createElement('p');
+  account.className = 'mvp-auth-state-banner-account';
+  const registrationLink = doc.createElement('a');
+  registrationLink.href = '/registration';
+  registrationLink.textContent = AUTH_STATE_COPY.bannerRegistrationLinkLabel;
+  const loginLink = doc.createElement('a');
+  loginLink.href = '/login';
+  loginLink.textContent = AUTH_STATE_COPY.bannerLoginLinkLabel;
+  account.append(
+    '正式帳號：',
+    registrationLink,
+    ' · ',
+    loginLink,
+    '。',
+  );
+
   const local = doc.createElement('p');
   local.className = 'mvp-auth-state-banner-local';
   const localStrong = doc.createElement('strong');
   localStrong.textContent = AUTH_STATE_COPY.bannerLocalDemoTitle;
-  local.append(
-    localStrong,
-    '：',
-    AUTH_STATE_COPY.bannerLocalDemoBody,
-    ' ',
-  );
-  const loginLink = doc.createElement('a');
-  loginLink.href = '/login';
-  loginLink.textContent = '登入說明';
-  local.append(loginLink, '。');
+  local.append(localStrong, '：', AUTH_STATE_COPY.bannerLocalDemoBody);
 
-  banner.append(lead, local);
+  banner.append(lead, account, local);
 
   if (navMode === 'logged-in-mock') {
     const navNote = doc.createElement('p');

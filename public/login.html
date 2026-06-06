@@ -25,6 +25,10 @@
       <header class="mvp-info-hero">
         <h1 id="login-heading">登入帳號</h1>
         <p class="mvp-lead">
+          登入會建立瀏覽器工作階段，並在頁首顯示帳號名稱。
+          若你還沒有帳號，請先到 <a href="/registration">註冊頁</a> 建立資料；註冊不會自動登入。
+        </p>
+        <p class="mvp-lead">
           正式環境中，個人資料、Official Vote、依序投票與發起者操作須透過已核准的 production 憑證；
           若後端無法驗證身分，系統會 <strong>fail closed</strong>（例如 <code>401 AUTH_REQUIRED</code>），
           <strong>不會</strong>退回 MVP 測試用 <code>X-User-Id</code> 或 <code>creator_session</code>。
@@ -53,6 +57,7 @@
         <form id="login-shell-form" class="mvp-form mvp-production-login-form" novalidate aria-describedby="login-shell-hint login-shell-message">
           <p class="mvp-form-hint">
             請輸入已核准的 production credential proof。登入成功後，頁首只會顯示帳號顯示名稱。
+            尚未註冊？請先前往 <a href="/registration">註冊頁</a> 建立帳號。
           </p>
           <label for="login-credential">Production credential proof</label>
           <input

@@ -160,7 +160,8 @@ describe('login page frontend shell', () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it('points guest header auth actions to /login', async () => {
+  it('links login page copy to /registration and guest header signup to /registration', async () => {
+    const html = await readFile(join(process.cwd(), 'public/login.html'), 'utf8');
     const layout = await readFile(
       join(process.cwd(), 'public/frontend/public-mvp-layout.js'),
       'utf8',
@@ -170,11 +171,13 @@ describe('login page frontend shell', () => {
       'utf8',
     );
 
+    expect(html).toContain('href="/registration"');
+    expect(html).toContain('註冊不會自動登入');
     expect(layout).toContain("chip.href = '/login'");
     expect(layout).toContain("login.href = '/login'");
-    expect(layout).toContain("signup.href = '/login'");
+    expect(layout).toContain("signup.href = '/registration'");
     expect(layout).toContain('AUTH_STATE_COPY.guestPrimaryCta');
-    expect(copy).toContain('了解登入狀態');
+    expect(copy).toContain("guestPrimaryCta: '註冊'");
     expect(layout).not.toContain('#login-mock');
   });
 });

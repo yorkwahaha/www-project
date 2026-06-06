@@ -33,7 +33,7 @@ describe('Phase 75 auth state navigation copy guard', () => {
   it('documents the three-way auth identity split in shared copy', async () => {
     const { AUTH_STATE_COPY } = await loadAuthStateCopyModule();
 
-    expect(AUTH_STATE_COPY.guestChipLabel).toContain('正式登入尚未啟用');
+    expect(AUTH_STATE_COPY.guestChipLabel).toContain('未登入');
     expect(AUTH_STATE_COPY.demoIdentityChipLabel).toMatch(/MVP/);
     expect(AUTH_STATE_COPY.bannerLocalDemoBody).toContain('X-User-Id');
     expect(AUTH_STATE_COPY.bannerLocalDemoBody).toContain('creator_session');
@@ -49,7 +49,7 @@ describe('Phase 75 auth state navigation copy guard', () => {
 
     expect(layout).toContain("chip.href = '/login'");
     expect(layout).toContain('AUTH_STATE_COPY.guestPrimaryCta');
-    expect(AUTH_STATE_COPY.guestPrimaryCta).toBe('了解登入狀態');
+    expect(AUTH_STATE_COPY.guestPrimaryCta).toBe('註冊');
     expect(layout).not.toContain('#login-mock');
     expect(layout).not.toContain('註冊 / 開始使用');
   });

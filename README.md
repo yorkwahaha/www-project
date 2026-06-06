@@ -154,6 +154,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 84:** Frontend logout UI hook — when Phase 83 read shows a signed-in `display_name`, a small **登出** control calls `DELETE /login/session` with `credentials: 'same-origin'`; success hides the signed-in display and restores guest/demo auth chips, failure shows a neutral message only. No login/registration form UI, backend auth/session behavior change, `GET /users/me` response shape change, or protected API behavior change — `docs/www-project-phase-84-frontend-logout-ui-hook-v1.md`.
 
+**Phase 85 (docs):** Production login UI plan — defines the future minimal production login form UX that will call existing `POST /login/session`, refresh Phase 83 state with `GET /users/me`, preserve Phase 84 logout behavior, and keep production session identity separate from local/demo/test `X-User-Id` and `creator_session`. No runtime, frontend form implementation, backend auth/session behavior, `UserAuthResolver`, `GET /users/me` response shape, Official Vote, Reference Answer, profile eligibility, ranking, analytics, vote token schema, or counter schema changes — `docs/www-project-phase-85-production-login-ui-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

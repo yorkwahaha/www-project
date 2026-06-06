@@ -1,4 +1,5 @@
 import { createUserAuthResolverFromEnv } from './auth/user-auth-resolver.js';
+import { createProductionCredentialVerifierFromEnv } from './auth/production-credential-verifier.js';
 import { createAdminCorrectionServices } from './admin/create-admin-correction-services.js';
 import { createCreatorSessionConfigFromEnv } from './creator-sessions/config.js';
 import { createPgCreatorSessionRepository } from './creator-sessions/repository.js';
@@ -12,6 +13,8 @@ import { createPollService } from './polls/service.js';
 import type { PollService } from './polls/service.js';
 import { createPgPublicNoticeRepository } from './public-notices/repository.js';
 import { createPublicNoticeService } from './public-notices/service.js';
+import { createLoginSessionConfigFromEnv } from './http/login-session-routes.js';
+import { createPgUserSessionRepository } from './user-sessions/repository.js';
 
 export type WwwApp = {
   health(): HealthStatus;
@@ -25,6 +28,7 @@ export function createApp(): WwwApp {
     },
     startHttpServer(port = Number(process.env.PORT ?? 3000)) {
       const pool = getPool();
+      const trustedCredentialVerifier = createProductionCredentialVerifierFromEnv();
       const pollService = createPollService(createPgPollRepository(pool));
       const publicNoticeService = createPublicNoticeService(
         createPgPublicNoticeRepository(pool),
@@ -36,6 +40,13 @@ export function createApp(): WwwApp {
         adminCorrection: createAdminCorrectionServices(pool),
         adminAuth: createAdminAuthFromEnv(),
         publicNoticeService,
+        loginSession: trustedCredentialVerifier
+          ? {
+              repository: createPgUserSessionRepository(pool),
+              trustedCredentialVerifier,
+              config: createLoginSessionConfigFromEnv(),
+            }
+          : undefined,
         creatorSession: {
           config: creatorSessionConfig,
           service: createCreatorSessionService(

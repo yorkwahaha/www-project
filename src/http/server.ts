@@ -21,6 +21,10 @@ import {
 import { createUserProfileRouteHandlers } from './user-profile-routes.js';
 import type { CreatorSessionConfig } from '../creator-sessions/config.js';
 import type { CreatorSessionService } from '../creator-sessions/service.js';
+import {
+  createLoginSessionRouteHandlers,
+  type LoginSessionRouteOptions,
+} from './login-session-routes.js';
 
 export type { AdminCorrectionServices } from './admin-routes.js';
 
@@ -44,6 +48,7 @@ export type HttpServerOptions = {
     service: CreatorSessionService;
     config: CreatorSessionConfig;
   };
+  loginSession?: LoginSessionRouteOptions;
 };
 
 export function createHttpServer(options: HttpServerOptions) {
@@ -78,6 +83,9 @@ export function createHttpServer(options: HttpServerOptions) {
         userAuthResolver,
       )
     : null;
+  const loginSessionRoutes = options.loginSession
+    ? createLoginSessionRouteHandlers(options.loginSession)
+    : null;
 
   return createServer(async (req, res) => {
     try {
@@ -91,6 +99,7 @@ export function createHttpServer(options: HttpServerOptions) {
         publicNoticeRoutes,
         creatorSessionRoutes,
         creatorPollRoutes,
+        loginSessionRoutes,
       );
     } catch {
       sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'Internal server error' });
@@ -108,6 +117,7 @@ async function routeRequest(
   publicNoticeRoutes: ReturnType<typeof createPublicNoticeRouteHandlers> | null,
   creatorSessionRoutes: ReturnType<typeof createCreatorSessionRouteHandlers> | null,
   creatorPollRoutes: ReturnType<typeof createCreatorPollRouteHandlers> | null,
+  loginSessionRoutes: ReturnType<typeof createLoginSessionRouteHandlers> | null,
 ): Promise<void> {
   const method = req.method ?? 'GET';
   const url = new URL(req.url ?? '/', 'http://localhost');
@@ -115,6 +125,23 @@ async function routeRequest(
 
   if (method === 'GET' && path === '/health') {
     sendJson(res, 200, getHealthStatus());
+    return;
+  }
+
+  if (path === '/login/session') {
+    if (!loginSessionRoutes) {
+      sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+      return;
+    }
+    if (method === 'POST') {
+      await loginSessionRoutes.handlePostSession(req, res);
+      return;
+    }
+    if (method === 'DELETE') {
+      await loginSessionRoutes.handleDeleteSession(req, res);
+      return;
+    }
+    sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
     return;
   }
 

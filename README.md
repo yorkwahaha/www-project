@@ -144,6 +144,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 79 (docs):** Production login submit / session cookie issuance plan — defines future login submit, raw session token handling, digest-only `token_sha256` persistence, `Set-Cookie` flags, expiration, revocation, `last_used_at`, logout/revoke, CSRF, `UserAuthResolver` / `trustedCredentialVerifier`, production vs local/demo/test identity, `creator_session`, `X-User-Id`, Reference Answer, vote, Raw Option Linkage Ban, and privacy boundaries. No runtime, route, migration, schema, cookie issuance, login submit, logout API, CSRF runtime, verifier, resolver, protected API, frontend, vote, profile, Reference Answer, ranking, analytics, logging, metrics, APM, trace, debug payload, or error payload behavior change — `docs/www-project-phase-79-production-login-session-cookie-plan-v1.md`.
 
+**Phase 80:** Production login submit runtime foundation — `POST /login/session` is available only when backed by the existing `trustedCredentialVerifier` boundary and Phase 78 `user_sessions`; successful verification issues a Secure HttpOnly SameSite=Lax `www_session` cookie while persisting only `token_sha256`. `DELETE /login/session` revokes the current valid session by digest and clears the cookie. Protected APIs, frontend login UI submit behavior, Official Vote, `vote-by-index`, profile eligibility, Reference Answer, creator-session identity, ranking, analytics, logs/metrics/APM/error payloads, vote token schema, and counter schema are unchanged — `docs/www-project-phase-80-production-login-submit-runtime-foundation-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -204,6 +206,8 @@ Legacy public poll creator-write routes no longer accept `X-User-Id` creator aut
 | `POST` | `/creator/polls` | Live creator create route using `creator_session` cookie |
 | `GET` | `/creator/polls` | Counter-free owned poll list using `creator_session` cookie |
 | `DELETE` | `/creator/polls/:id` | Creator-owned soft-delete route using `creator_session` cookie |
+| `POST` | `/login/session` | Production login submit foundation; requires configured `trustedCredentialVerifier`, stores only `user_sessions.token_sha256`, and issues `www_session` |
+| `DELETE` | `/login/session` | Revoke current valid `www_session` by digest and clear the cookie |
 | `GET` | `/users/me/profile` | Read current user's profile fields (`birth_year_month`, `residential_region`) |
 | `PUT` | `/users/me/profile` | Replace current user's profile fields; accepts only `birth_year_month` and coarse `residential_region` |
 | `GET` | `/polls/:id` | Poll detail (no vote/ranking signals) |

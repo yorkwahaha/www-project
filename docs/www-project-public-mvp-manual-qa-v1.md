@@ -4,7 +4,7 @@
 
 規範依據：`AGENTS.md` v0.2、`docs/www-project-agent-spec-v0.1.md`。
 
-**建議閱讀順序：** ① [`www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`](./www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md) **Phase 69 唯一建議入口（啟動→順序→checklist）** → ② [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動細節 → ③ [`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`](./www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md) demo 順序與 auth 對照 → ④ [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) lifecycle／發起者 → ⑤ [`www-project-phase-67-profile-eligibility-demo-qa-v1.md`](./www-project-phase-67-profile-eligibility-demo-qa-v1.md) profile／資格 → ⑥ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ⑦ **本文件**（含 §3.10 整合主流程）→ ⑧ [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
+**建議閱讀順序：** ① [`www-project-phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md`](./www-project-phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md) **Phase 76 auth UX closure（身分邊界與 demo 路由）** → ② [`www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`](./www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md) **Phase 69 啟動→順序→checklist** → ③ [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) 本機啟動細節 → ④ [`www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md`](./www-project-phase-68-public-demo-polish-manual-qa-closure-v1.md) demo 順序與 auth 對照 → ⑤ [`www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md`](./www-project-phase-60-public-mvp-lifecycle-manual-qa-handoff-v1.md) lifecycle／發起者 → ⑥ [`www-project-phase-67-profile-eligibility-demo-qa-v1.md`](./www-project-phase-67-profile-eligibility-demo-qa-v1.md) profile／資格 → ⑦ [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) demo 腳本 → ⑧ **本文件**（含 §3.10 整合主流程）→ ⑨ [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)。
 
 **提醒：** `DATABASE_URL` 只在**目前 shell／工作階段**設定，不要寫進 repo 或 commit `.env`。`GET /explore`（Phase 63）消費既有 **`GET /polls/feed`**：僅列出**收集中**且可探索的問卷，依**最近發布**排序，**不**顯示票數、熱門或個人化。
 
@@ -133,6 +133,7 @@ npm run test:integration:local
 |------|------|----------|
 | `/polls/new?live=1`、`/my-polls?live=1`、lifecycle | `creator_session`（本機 cookie） | `X-User-Id` 當發起者權限 |
 | `/profile`、`/vote/:id` 投票 | MVP **`X-User-Id`** | `creator_session`、production 登入 |
+| `GET /login` | disabled UI shell（說明 only） | 真實登入、session 核發 |
 | `?nav=logged-in-mock` | 導覽展示 | 真實帳號 |
 
 **前置：** `npm run demo:public:local`（或 Phase 32 等價啟動）。

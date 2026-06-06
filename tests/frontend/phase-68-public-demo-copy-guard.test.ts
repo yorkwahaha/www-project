@@ -27,6 +27,7 @@ describe('Phase 68–69 public demo copy guard', () => {
     const readme = await readFile(join(process.cwd(), 'README.md'), 'utf8');
 
     expect(readme).toMatch(/Phase 69/i);
+    expect(readme).toMatch(/Phase 76/i);
     expect(readme).toMatch(/Phase 68/i);
     expect(readme).toContain('creator_session');
     expect(readme).toMatch(/\/creator\/\*/);
@@ -62,7 +63,8 @@ describe('Phase 68–69 public demo copy guard', () => {
       'utf8',
     );
 
-    expect(phase69).toMatch(/唯一建議入口|recommended tester entry/i);
+    expect(phase69).toMatch(/建議入口|recommended tester entry/i);
+    expect(phase69).toContain('phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md');
     expect(phase69).toContain('creator_session');
     expect(phase69).toMatch(/不是.*user auth|只限.*\/creator/i);
     expect(phase69).toMatch(/不接.*profile eligibility/i);

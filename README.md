@@ -136,6 +136,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 75:** Auth state display / navigation UX polish — shared `auth-state-copy.js`, header auth state chips, `renderAuthStateBanner`, and clearer demo nav switch copy across home, profile, vote, and my-polls pages. Distinguishes production login-not-yet-enabled, MVP `X-User-Id` test identity, and `creator_session` creator-only demo flow; guest CTAs stay aligned with `/login`. No DB, session issuance, verifier runtime change, or protected API behavior change — `docs/www-project-phase-75-auth-state-navigation-ux-checkpoint-v1.md`.
 
+**Phase 76 (docs):** Public demo release checkpoint / auth UX QA closure — consolidates Phase 70–75 auth/login/demo UX state, demo testable routes (`/`、`/login`、`/profile`、`?live=1` creator flow、`/vote/:id`、`/results/:id`、`/explore`), production `UserAuthResolver` + Bearer verifier foundation vs disabled `/login` shell vs explicit non-production `X-User-Id` / `creator_session`, Reference Answer deferral, and sealed invariants (Official Vote transaction order, vote-by-index eligibility before option resolve, vote token / counter schema, Raw Option Linkage Ban). No runtime, frontend UX, DB, API, or verifier behavior change — `docs/www-project-phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

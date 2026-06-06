@@ -6,7 +6,7 @@
 
 **規範依據：** `AGENTS.md` v0.2。
 
-**測試者唯一建議入口（Phase 69）：** 本文件 → 依 §2 啟動 → 依 §3 操作順序 → 依 §6 checklist 勾選。細部步驟不重複於此，改指向既有專文件。
+**測試者建議入口：** Phase 76 auth UX closure → [`www-project-phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md`](./www-project-phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md)；本文件 → 依 §2 啟動 → 依 §3 操作順序 → 依 §6 checklist 勾選。細部步驟不重複於此，改指向既有專文件。
 
 ---
 
@@ -16,7 +16,8 @@
 
 | 路由 | 說明 | Auth |
 |------|------|------|
-| `GET /` | 首頁；分享連結流通、政策連結 | — |
+| `GET /` | 首頁；分享連結流通、政策連結、auth 狀態橫幅 | — |
+| `GET /login` | 正式登入 **disabled UI shell**（說明 only；無 submit） | — |
 | `GET /polls/new?live=1` | 真實建立問卷（`POST /creator/polls`） | **`creator_session`** |
 | `GET /my-polls?live=1` | 發起者即時問卷管理 | **`creator_session`** |
 | `GET /profile` | 投票資格欄位（出生年月、粗粒度地區） | **MVP `X-User-Id`** |
@@ -89,7 +90,7 @@ npm run demo:public:local
 | 限制 | 說明 |
 |------|------|
 | **MVP `X-User-Id`** | 公開 vote 與 profile API 使用 demo-style header；本機 `127.0.0.1` 固定投票者 A；`?demoVoter=b` 為 B。**不是** production 登入。 |
-| **Production auth later** | OAuth／session／JWT **尚未**實作；`?nav=logged-in-mock` 僅導覽展示。 |
+| **Production auth later** | OAuth／session／JWT **尚未**實作；`GET /login` 為 disabled shell；`?nav=logged-in-mock` 僅導覽展示。 |
 | **Scheduler 不在 `npm start`** | `npm run scheduler:lifecycle -- --limit 100` 需另行執行；無常駐 cron。 |
 | **`creator_session` ≠ user auth** | 僅授權 `/creator/*` 發起者寫入；**不得**當成 profile 或投票的「已登入帳號」。 |
 | **Cross-browser QA** | 需人工填寫 [`www-project-public-mvp-cross-browser-qa-log-v1.md`](./www-project-public-mvp-cross-browser-qa-log-v1.md)；smoke 不能取代。 |
@@ -165,7 +166,9 @@ npm run test:integration:local
 | 機制 | 服務範圍 | 說明 |
 |------|----------|------|
 | **`creator_session` cookie** | `/creator/*` 寫入 | 發起者建立／lifecycle；**不是** user auth |
-| **`X-User-Id` header** | 公開 vote、profile API | **MVP demo-style**；**production user-auth wiring later** |
+| **`X-User-Id` header** | 公開 vote、profile API | **MVP demo-style**；**explicit non-production**；**production user-auth wiring later** |
+| **`GET /login`** | 登入說明 shell | **正式登入尚未啟用**；表單 disabled |
+| **`Authorization: Bearer`** | production protected routes | Phase 72 verifier foundation；缺 verifier 時 fail-closed |
 | **`?nav=logged-in-mock`** | 導覽展示 | **不是**真實登入 |
 
 ---
@@ -174,7 +177,8 @@ npm run test:integration:local
 
 | 文件 | 用途 |
 |------|------|
-| **本文件** | **Phase 69 release readiness 唯一建議入口** |
+| [`www-project-phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md`](./www-project-phase-76-public-demo-auth-ux-qa-closure-checkpoint-v1.md) | **Phase 76 auth UX demo closure（建議入口）** |
+| **本文件** | Phase 69 release readiness（啟動、順序、checklist） |
 | [`www-project-local-demo-startup-v1.md`](./www-project-local-demo-startup-v1.md) | 本機啟動細節 |
 | [`www-project-public-mvp-manual-qa-v1.md`](./www-project-public-mvp-manual-qa-v1.md) | 逐步手動 QA（§3.10 整合主流程） |
 | [`www-project-public-mvp-demo-release-handoff-v1.md`](./www-project-public-mvp-demo-release-handoff-v1.md) | Demo 腳本、產品規則、out-of-scope |

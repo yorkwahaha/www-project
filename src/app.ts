@@ -30,7 +30,8 @@ export function createApp(): WwwApp {
       const pool = getPool();
       const trustedCredentialVerifier = createProductionCredentialVerifierFromEnv();
       const userSessionRepository = createPgUserSessionRepository(pool);
-      const pollService = createPollService(createPgPollRepository(pool));
+      const pollRepository = createPgPollRepository(pool);
+      const pollService = createPollService(pollRepository);
       const publicNoticeService = createPublicNoticeService(
         createPgPublicNoticeRepository(pool),
       );
@@ -46,6 +47,13 @@ export function createApp(): WwwApp {
         loginSession: trustedCredentialVerifier
           ? {
               repository: userSessionRepository,
+              trustedCredentialVerifier,
+              config: createLoginSessionConfigFromEnv(),
+            }
+          : undefined,
+        registration: trustedCredentialVerifier
+          ? {
+              repository: pollRepository,
               trustedCredentialVerifier,
               config: createLoginSessionConfigFromEnv(),
             }

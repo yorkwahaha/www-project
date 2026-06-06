@@ -162,6 +162,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 88 (docs):** Registration / profile setup plan — defines a future production account setup flow requiring `display_name`, `birth_year_month`, and coarse `residential_region`, while excluding gender, exact birthday, precise location, registration runtime, profile setup UI, schema changes, login/session behavior changes, Official Vote transaction changes, Reference Answer integration, ranking personalization, demographic breakdowns, and analytics linkage — `docs/www-project-phase-88-registration-profile-setup-plan-v1.md`.
 
+**Phase 89:** Registration runtime foundation — adds verifier-backed `POST /registration` to prepare a production user with `display_name`, month-granular `birth_year_month`, and coarse `residential_region`. It does not issue `www_session`; successful responses return `{ registered: true, login_required: true }` and the browser must still use existing `POST /login/session` for session issuance. No schema, `/users/me`, login/session, Official Vote, `vote-by-index`, Reference Answer, ranking, analytics, gender, exact birthday, precise location, or extra profile-field behavior changes — `docs/www-project-phase-89-registration-runtime-foundation-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -222,6 +224,7 @@ Legacy public poll creator-write routes no longer accept `X-User-Id` creator aut
 | `POST` | `/creator/polls` | Live creator create route using `creator_session` cookie |
 | `GET` | `/creator/polls` | Counter-free owned poll list using `creator_session` cookie |
 | `DELETE` | `/creator/polls/:id` | Creator-owned soft-delete route using `creator_session` cookie |
+| `POST` | `/registration` | Production registration foundation; verifier-backed account/profile setup only, no session cookie |
 | `POST` | `/login/session` | Production login submit foundation; requires configured `trustedCredentialVerifier`, stores only `user_sessions.token_sha256`, and issues `www_session` |
 | `DELETE` | `/login/session` | Revoke current valid `www_session` by digest and clear the cookie |
 | `GET` | `/users/me` | Read minimal authenticated identity (`user_id`, `display_name`) through `UserAuthResolver` |

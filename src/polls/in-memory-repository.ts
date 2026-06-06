@@ -116,6 +116,25 @@ export function createInMemoryPollRepository(): PollRepository & {
       return user;
     },
 
+    async createRegisteredUser(input) {
+      if (users.has(input.userId)) {
+        return null;
+      }
+      const now = new Date();
+      const user: UserRow = {
+        id: input.userId,
+        display_name: input.displayName,
+        trust_level: 'low',
+        status: 'active',
+        birth_year_month: input.birthYearMonth,
+        residential_region: input.residentialRegion,
+        created_at: now,
+        updated_at: now,
+      };
+      users.set(input.userId, user);
+      return user;
+    },
+
     async updateUserProfile(userId, input) {
       const user = users.get(userId);
       if (!user) {

@@ -39,6 +39,12 @@ import { isOfficialVoteUser } from './trust.js';
 
 export type PollRepository = {
   ensureUser(userId: string, displayName: string): Promise<UserRow>;
+  createRegisteredUser(input: {
+    userId: string;
+    displayName: string;
+    birthYearMonth: Date;
+    residentialRegion: string;
+  }): Promise<UserRow | null>;
   findUserById(userId: string): Promise<UserRow | null>;
   updateUserProfile(userId: string, input: UpdateUserProfileInput): Promise<UserRow | null>;
   createPollWithOptions(input: CreatePollInput): Promise<PollRow>;
@@ -79,6 +85,7 @@ export type PollRepository = {
 export function createPgPollRepository(pool: Pool): PollRepository {
   return {
     ensureUser: (userId, displayName) => ensureUser(pool, userId, displayName),
+    createRegisteredUser: (input) => createRegisteredUser(pool, input),
     findUserById: (userId) => findUserById(pool, userId),
     updateUserProfile: (userId, input) => updateUserProfile(pool, userId, input),
     createPollWithOptions: (input) => createPollWithOptions(pool, input),
@@ -359,6 +366,38 @@ async function ensureUser(
     [userId, displayName],
   );
   return inserted.rows[0]!;
+}
+
+async function createRegisteredUser(
+  pool: Pool,
+  input: {
+    userId: string;
+    displayName: string;
+    birthYearMonth: Date;
+    residentialRegion: string;
+  },
+): Promise<UserRow | null> {
+  const inserted = await pool.query<UserRow>(
+    `INSERT INTO users (
+       id,
+       display_name,
+       birth_year_month,
+       residential_region
+     )
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (id) DO NOTHING
+     RETURNING
+       id, display_name, trust_level, status,
+       birth_year_month, residential_region,
+       created_at, updated_at`,
+    [
+      input.userId,
+      input.displayName,
+      input.birthYearMonth,
+      input.residentialRegion,
+    ],
+  );
+  return inserted.rows[0] ?? null;
 }
 
 async function createPollWithOptions(

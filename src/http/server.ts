@@ -25,6 +25,10 @@ import {
   createLoginSessionRouteHandlers,
   type LoginSessionRouteOptions,
 } from './login-session-routes.js';
+import {
+  createRegistrationRouteHandlers,
+  type RegistrationRouteOptions,
+} from './registration-routes.js';
 
 export type { AdminCorrectionServices } from './admin-routes.js';
 
@@ -49,6 +53,7 @@ export type HttpServerOptions = {
     config: CreatorSessionConfig;
   };
   loginSession?: LoginSessionRouteOptions;
+  registration?: RegistrationRouteOptions;
 };
 
 export function createHttpServer(options: HttpServerOptions) {
@@ -86,6 +91,9 @@ export function createHttpServer(options: HttpServerOptions) {
   const loginSessionRoutes = options.loginSession
     ? createLoginSessionRouteHandlers(options.loginSession)
     : null;
+  const registrationRoutes = options.registration
+    ? createRegistrationRouteHandlers(options.registration)
+    : null;
 
   return createServer(async (req, res) => {
     try {
@@ -100,6 +108,7 @@ export function createHttpServer(options: HttpServerOptions) {
         creatorSessionRoutes,
         creatorPollRoutes,
         loginSessionRoutes,
+        registrationRoutes,
       );
     } catch {
       sendJson(res, 500, { error: 'INTERNAL_ERROR', message: 'Internal server error' });
@@ -118,6 +127,7 @@ async function routeRequest(
   creatorSessionRoutes: ReturnType<typeof createCreatorSessionRouteHandlers> | null,
   creatorPollRoutes: ReturnType<typeof createCreatorPollRouteHandlers> | null,
   loginSessionRoutes: ReturnType<typeof createLoginSessionRouteHandlers> | null,
+  registrationRoutes: ReturnType<typeof createRegistrationRouteHandlers> | null,
 ): Promise<void> {
   const method = req.method ?? 'GET';
   const url = new URL(req.url ?? '/', 'http://localhost');
@@ -139,6 +149,19 @@ async function routeRequest(
     }
     if (method === 'DELETE') {
       await loginSessionRoutes.handleDeleteSession(req, res);
+      return;
+    }
+    sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
+    return;
+  }
+
+  if (path === '/registration') {
+    if (!registrationRoutes) {
+      sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
+      return;
+    }
+    if (method === 'POST') {
+      await registrationRoutes.handlePostRegistration(req, res);
       return;
     }
     sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });

@@ -49,6 +49,7 @@ describe('registration page frontend', () => {
     expect(html).toContain('name="residential_region"');
     expect(html).toContain('name="credential"');
     expect(html).toContain('TW-TPE');
+    expect(html).toContain('data-login-state-read="disabled"');
     expect(html).toContain('/frontend/registration-page.js');
     expect(html).toContain('href="/login"');
     expect(html).toContain('aria-live="polite"');

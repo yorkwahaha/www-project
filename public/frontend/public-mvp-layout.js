@@ -114,6 +114,13 @@ export function resolveDemoNavMode(headerEl, search = '') {
 }
 
 /**
+ * @param {HTMLElement | null | undefined} headerEl
+ */
+export function shouldReadLoginState(headerEl) {
+  return headerEl?.dataset?.loginStateRead !== 'disabled';
+}
+
+/**
  * @param {Document} doc
  * @param {'guest'|'logged-in-mock'} navMode
  */
@@ -392,7 +399,9 @@ export function mountSiteChrome(documentObject, options = {}) {
     } else {
       header.removeAttribute('data-nav-demo');
     }
-    void mountLoginStateRead(documentObject, options);
+    if (shouldReadLoginState(header)) {
+      void mountLoginStateRead(documentObject, options);
+    }
   }
   const navMode = header
     ? resolveDemoNavMode(header, search)

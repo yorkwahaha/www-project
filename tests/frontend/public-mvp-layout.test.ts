@@ -94,6 +94,18 @@ describe('public mvp layout demo nav', () => {
     expect(resolveDemoNavMode(null, '')).toBe('guest');
   });
 
+  it('allows pages to opt out of shared login-state reads', async () => {
+    const { shouldReadLoginState } = await loadLayoutModule();
+
+    expect(shouldReadLoginState({ dataset: { loginStateRead: 'disabled' } })).toBe(
+      false,
+    );
+    expect(shouldReadLoginState({ dataset: { loginStateRead: 'enabled' } })).toBe(
+      true,
+    );
+    expect(shouldReadLoginState(null)).toBe(true);
+  });
+
   it('renders guest auth chip and /login CTAs in the site header', async () => {
     const {
       AUTH_STATE_COPY,

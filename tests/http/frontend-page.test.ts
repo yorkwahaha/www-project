@@ -207,6 +207,7 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('name="birth_year_month"');
       expect(pageBody).toContain('name="residential_region"');
       expect(pageBody).toContain('name="credential"');
+      expect(pageBody).toContain('data-login-state-read="disabled"');
       expect(pageBody).toContain('/frontend/registration-page.js');
       expect(pageBody).toContain('href="/login"');
       expect(pageBody).not.toMatch(/credential_proof|option_id|selected_option_index|token_sha256|www_session/i);

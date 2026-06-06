@@ -11,6 +11,7 @@ import type { PollRepository } from './repository.js';
 import type {
   CreatePollInput,
   CreatePollResult,
+  CurrentUserIdentity,
   CreatorOwnedPollListResult,
   CancelPollResult,
   DeletePollResult,
@@ -52,6 +53,7 @@ export type PollService = {
   getPollById(pollId: string): Promise<PollDetail>;
   getPollResults(pollId: string): Promise<PollResultDisplay>;
   getPublicFeed(query?: PublicFeedQuery): Promise<PublicFeedResult>;
+  getCurrentUserIdentity(userId: string): Promise<CurrentUserIdentity>;
   getUserProfile(userId: string): Promise<UserProfile>;
   updateUserProfile(userId: string, input: UpdateUserProfileInput): Promise<UserProfile>;
   deletePoll(pollId: string, creatorId: string): Promise<DeletePollResult>;
@@ -140,6 +142,14 @@ export function createPollService(
             ? encodeFeedCursor(lastRow.published_at, lastRow.id)
             : null,
       };
+    },
+
+    async getCurrentUserIdentity(userId) {
+      const user = await repository.findUserById(userId);
+      if (!user || user.status !== 'active') {
+        throw new PollForbiddenError('Active user is required');
+      }
+      return toCurrentUserIdentity(user);
     },
 
     async getUserProfile(userId) {
@@ -360,6 +370,16 @@ function toUserProfile(user: {
       ? formatBirthYearMonth(user.birth_year_month)
       : null,
     residential_region: user.residential_region,
+  };
+}
+
+function toCurrentUserIdentity(user: {
+  id: string;
+  display_name: string;
+}): CurrentUserIdentity {
+  return {
+    user_id: user.id,
+    display_name: user.display_name,
   };
 }
 

@@ -21,6 +21,15 @@ export function createUserProfileRouteHandlers(
   userAuthResolver: UserAuthResolver,
 ) {
   return {
+    async handleGetMe(req: IncomingMessage, res: ServerResponse): Promise<void> {
+      try {
+        const userId = await requireAuthenticatedUserId(req, userAuthResolver);
+        sendJson(res, 200, await pollService.getCurrentUserIdentity(userId));
+      } catch (err) {
+        handleProfileRouteError(res, err);
+      }
+    },
+
     async handleGetProfile(req: IncomingMessage, res: ServerResponse): Promise<void> {
       try {
         const userId = await requireAuthenticatedUserId(req, userAuthResolver);

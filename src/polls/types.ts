@@ -69,6 +69,11 @@ export type UserProfile = {
   residential_region: string | null;
 };
 
+export type CurrentUserIdentity = {
+  user_id: string;
+  display_name: string;
+};
+
 export type UpdateUserProfileInput = {
   birth_year_month: Date | null;
   residential_region: string | null;

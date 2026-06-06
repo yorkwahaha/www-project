@@ -145,6 +145,15 @@ async function routeRequest(
     return;
   }
 
+  if (path === '/users/me') {
+    if (method === 'GET') {
+      await userProfileRoutes.handleGetMe(req, res);
+      return;
+    }
+    sendJson(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' });
+    return;
+  }
+
   if (path === '/users/me/profile') {
     if (method === 'GET') {
       await userProfileRoutes.handleGetProfile(req, res);

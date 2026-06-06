@@ -148,6 +148,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 81:** UserAuthResolver session read integration — when configured with the Phase 78 repository, `UserAuthResolver` can resolve production identity from `www_session` by hashing the raw cookie token and looking up `user_sessions.token_sha256`; missing, malformed, unknown, expired, revoked, and inactive-user sessions fail closed, and `last_used_at` updates only after successful verification. Non-production `X-User-Id` compatibility is unchanged; `creator_session` remains separate local/demo/test creator flow only. Official Vote, `vote-by-index`, Reference Answer, profile eligibility, frontend login UI, ranking, analytics, vote token schema, and counter schema are unchanged — `docs/www-project-phase-81-user-auth-resolver-session-read-integration-v1.md`.
 
+**Phase 82:** Authenticated me endpoint foundation — `GET /users/me` resolves identity through `UserAuthResolver` and returns only `user_id` and `display_name`. Production identity follows Phase 81 `www_session` behavior; development/test preserve explicit `X-User-Id` compatibility. No session internals, token/cookie values, profile eligibility fields, vote or option data, frontend login UI, Reference Answer, Official Vote, ranking, analytics, vote token schema, or counter schema changes — `docs/www-project-phase-82-authenticated-me-endpoint-foundation-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -210,6 +212,7 @@ Legacy public poll creator-write routes no longer accept `X-User-Id` creator aut
 | `DELETE` | `/creator/polls/:id` | Creator-owned soft-delete route using `creator_session` cookie |
 | `POST` | `/login/session` | Production login submit foundation; requires configured `trustedCredentialVerifier`, stores only `user_sessions.token_sha256`, and issues `www_session` |
 | `DELETE` | `/login/session` | Revoke current valid `www_session` by digest and clear the cookie |
+| `GET` | `/users/me` | Read minimal authenticated identity (`user_id`, `display_name`) through `UserAuthResolver` |
 | `GET` | `/users/me/profile` | Read current user's profile fields (`birth_year_month`, `residential_region`) |
 | `PUT` | `/users/me/profile` | Replace current user's profile fields; accepts only `birth_year_month` and coarse `residential_region` |
 | `GET` | `/polls/:id` | Poll detail (no vote/ranking signals) |

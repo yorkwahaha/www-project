@@ -1,4 +1,5 @@
 import type { IncomingMessage } from 'node:http';
+import { createProductionCredentialVerifierFromEnv } from './production-credential-verifier.js';
 
 export type UserAuthSource = 'production' | 'local_demo' | 'test';
 
@@ -29,9 +30,7 @@ export type UserAuthResolverOptions =
 export function createUserAuthResolver(options: UserAuthResolverOptions): UserAuthResolver {
   return {
     async resolveUserAuth(req: IncomingMessage): Promise<AuthenticatedUserContext | null> {
-      const verified = options.trustedCredentialVerifier
-        ? await options.trustedCredentialVerifier(req)
-        : null;
+      const verified = await resolveTrustedCredential(req, options.trustedCredentialVerifier);
       if (verified !== null) {
         const userId = normalizeUserId(verified.user_id);
         return userId === null ? null : { user_id: userId, source: 'production' };
@@ -72,12 +71,30 @@ export function createUserAuthResolverFromEnv(
 ): UserAuthResolver {
   const appEnv = parseAppEnvironment(env.APP_ENV);
   if (appEnv === 'production') {
-    return createUserAuthResolver({ mode: 'production' });
+    const trustedCredentialVerifier = createProductionCredentialVerifierFromEnv(env);
+    return createUserAuthResolver({
+      mode: 'production',
+      ...(trustedCredentialVerifier === undefined ? {} : { trustedCredentialVerifier }),
+    });
   }
   return createUserAuthResolver({
     mode: appEnv === 'test' ? 'test' : 'local_demo',
     allowMvpUserIdHeader: true,
   });
+}
+
+async function resolveTrustedCredential(
+  req: IncomingMessage,
+  verifier: TrustedCredentialVerifier | undefined,
+): Promise<{ user_id: string } | null> {
+  if (verifier === undefined) {
+    return null;
+  }
+  try {
+    return await verifier(req);
+  } catch {
+    return null;
+  }
 }
 
 function parseAppEnvironment(

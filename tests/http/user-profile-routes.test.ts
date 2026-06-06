@@ -1,6 +1,13 @@
 import type { Server } from 'node:http';
 import { describe, expect, it } from 'vitest';
-import { createUserAuthResolver } from '../../src/auth/user-auth-resolver.js';
+import {
+  sha256UserCredentialToken,
+  USER_AUTH_CREDENTIALS_ENV,
+} from '../../src/auth/production-credential-verifier.js';
+import {
+  createUserAuthResolver,
+  createUserAuthResolverFromEnv,
+} from '../../src/auth/user-auth-resolver.js';
 import { createHttpServer } from '../../src/http/server.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import { createPollService } from '../../src/polls/service.js';
@@ -153,6 +160,55 @@ describe('User profile HTTP routes', () => {
         body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
       });
       expect(readBack).toEqual(updated);
+    });
+  });
+
+  it('accepts production env Bearer credential and ignores spoofed X-User-Id', async () => {
+    const token = 'profile-production-token';
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(userId, 'Profile User');
+    await repository.ensureUser(otherUserId, 'Other Profile User');
+    const service = createPollService(repository);
+    const productionResolver = createUserAuthResolverFromEnv({
+      APP_ENV: 'production',
+      [USER_AUTH_CREDENTIALS_ENV]: JSON.stringify([
+        {
+          token_sha256: sha256UserCredentialToken(token),
+          user_id: userId,
+          expires_at: '2099-01-01T00:00:00.000Z',
+        },
+      ]),
+    });
+    const server = createHttpServer({
+      pollService: service,
+      userAuthResolver: productionResolver,
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const updated = await request(baseUrl, 'PUT', '/users/me/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-User-Id': otherUserId,
+          Cookie: 'creator_session=ignored-public-cookie',
+        },
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      const otherReadBack = await request(baseUrl, 'GET', '/users/me/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-User-Id': otherUserId,
+        },
+      });
+
+      expect(updated).toEqual({
+        status: 200,
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      expect(otherReadBack).toEqual(updated);
+      expect((await service.getUserProfile(otherUserId))).toEqual({
+        birth_year_month: null,
+        residential_region: null,
+      });
     });
   });
 

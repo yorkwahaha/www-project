@@ -37,6 +37,17 @@ describe('UserAuthResolver foundation', () => {
     });
   });
 
+  it('fails closed when a trusted verifier throws', async () => {
+    const resolver = createUserAuthResolver({
+      mode: 'production',
+      trustedCredentialVerifier: () => {
+        throw new Error('verifier unavailable');
+      },
+    });
+
+    await expect(resolver.resolveUserAuth(req())).resolves.toBeNull();
+  });
+
   it('allows MVP X-User-Id in local demo only when explicitly configured', async () => {
     const disabled = createUserAuthResolver({ mode: 'local_demo' });
     const enabled = createUserAuthResolver({

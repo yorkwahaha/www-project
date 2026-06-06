@@ -1299,6 +1299,28 @@ button:disabled {
   color: var(--mvp-accent);
 }
 
+/* Phase 83 — authenticated me read (display_name only) */
+.mvp-login-state {
+  display: none;
+}
+
+.mvp-login-state--signed-in {
+  display: inline-flex;
+  align-items: center;
+  max-width: 10rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.25;
+  background: var(--mvp-accent-soft);
+  border: 1px solid var(--mvp-border);
+  color: var(--mvp-accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .mvp-quality-feedback-preview {
   margin: 0.85rem 0 0;
   padding: 0.75rem 0.85rem;

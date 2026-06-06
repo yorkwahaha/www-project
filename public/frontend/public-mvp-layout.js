@@ -4,6 +4,7 @@
  */
 
 import { AUTH_STATE_COPY } from './auth-state-copy.js';
+import { mountLoginStateRead } from './login-state-ui.js';
 
 export { AUTH_STATE_COPY };
 
@@ -375,7 +376,7 @@ function mountSiteFooter(documentObject) {
   renderSiteFooter(footer);
 }
 
-export function mountSiteChrome(documentObject) {
+export function mountSiteChrome(documentObject, options = {}) {
   const search =
     typeof documentObject.defaultView?.location?.search === 'string'
       ? documentObject.defaultView.location.search
@@ -391,6 +392,7 @@ export function mountSiteChrome(documentObject) {
     } else {
       header.removeAttribute('data-nav-demo');
     }
+    void mountLoginStateRead(documentObject, options);
   }
   const navMode = header
     ? resolveDemoNavMode(header, search)

@@ -11,10 +11,10 @@ async function loadLoginPageModule() {
 }
 
 describe('login page frontend shell', () => {
-  it('documents production fail-closed and local demo test identity on the static page', async () => {
+  it('documents production fail-closed and local demo test identity on the login page', async () => {
     const html = await readFile(join(process.cwd(), 'public/login.html'), 'utf8');
 
-    expect(html).toContain('正式登入尚未啟用');
+    expect(html).toContain('正式登入表單基礎已開放');
     expect(html).toContain('fail closed');
     expect(html).toContain('AUTH_REQUIRED');
     expect(html).toContain('X-User-Id');
@@ -22,32 +22,142 @@ describe('login page frontend shell', () => {
     expect(html).toContain('/creator/*');
     expect(html).toContain('Reference Answer');
     expect(html).toContain('login-shell-form');
-    expect(html).toContain('disabled');
+    expect(html).toContain('name="credential"');
+    expect(html).toContain('aria-live="polite"');
     expect(html).not.toMatch(/localStorage|sessionStorage|IndexedDB/i);
     expect(html).not.toMatch(
       /gender|性別|address|地址|GPS|geocode|precise location|精準位置|option_id|option_text|option_index/i,
     );
   });
 
-  it('blocks login form submit without calling fetch', async () => {
-    const { wireLoginShellForm, LOGIN_SHELL_SUBMIT_BLOCKED_MESSAGE } =
+  it('submits POST /login/session with credentials same-origin and refreshes login state', async () => {
+    const { submitProductionLoginForm, LOGIN_FORM_SUCCESS_MESSAGE } =
       await loadLoginPageModule();
-    const form = {
-      addEventListener: vi.fn((event, handler) => {
-        if (event === 'submit') {
-          form._submit = handler;
-        }
-      }),
-      querySelectorAll: () => [],
+    const status = { textContent: '' };
+    const credential = {
+      tagName: 'INPUT',
+      value: ' approved-proof ',
+      disabled: false,
+      attributes: new Map<string, string>(),
+      setAttribute(name: string, value: string) {
+        this.attributes.set(name, value);
+      },
+      removeAttribute(name: string) {
+        this.attributes.delete(name);
+      },
+      focus: vi.fn(),
     };
-    const announce = vi.fn();
+    const submit = {
+      tagName: 'BUTTON',
+      disabled: false,
+      textContent: '登入',
+      attributes: new Map<string, string>(),
+      setAttribute(name: string, value: string) {
+        this.attributes.set(name, value);
+      },
+    };
+    const form = {
+      ownerDocument: {
+        getElementById: (id: string) => (id === 'login-shell-message' ? status : null),
+      },
+      querySelector: (selector: string) => {
+        if (selector === '[name="credential"]') return credential;
+        if (selector === '#login-shell-submit') return submit;
+        return null;
+      },
+    };
+    const fetchImpl = vi.fn(async () => ({ ok: true, status: 201 }));
+    const refreshLoginState = vi.fn(async () => ({
+      status: 'authenticated',
+      display_name: 'Cookie User',
+    }));
 
-    wireLoginShellForm(form, announce);
-    const event = { preventDefault: vi.fn() };
-    form._submit(event);
+    await expect(
+      submitProductionLoginForm(form, {
+        fetchImpl,
+        refreshLoginState,
+      }),
+    ).resolves.toEqual({ ok: true });
 
-    expect(event.preventDefault).toHaveBeenCalled();
-    expect(announce).toHaveBeenCalledWith(form, LOGIN_SHELL_SUBMIT_BLOCKED_MESSAGE);
+    expect(fetchImpl).toHaveBeenCalledWith('/login/session', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        Authorization: 'Bearer approved-proof',
+      },
+    });
+    expect(refreshLoginState).toHaveBeenCalledWith(form.ownerDocument, { fetchImpl });
+    expect(credential.value).toBe('');
+    expect(status.textContent).toBe(LOGIN_FORM_SUCCESS_MESSAGE);
+    expect(JSON.stringify({ text: status.textContent })).not.toMatch(
+      /user_id|birth_year_month|residential_region|token_sha256|session_id|option_id|option_text|option_index/i,
+    );
+  });
+
+  it('uses neutral failure copy without exposing backend or session details', async () => {
+    const {
+      submitProductionLoginCredential,
+      messageForLoginFailure,
+      LOGIN_FORM_FAILURE_MESSAGE,
+      LOGIN_FORM_ORIGIN_FAILURE_MESSAGE,
+      LOGIN_FORM_NETWORK_FAILURE_MESSAGE,
+    } = await loadLoginPageModule();
+    const rejectedFetch = vi.fn(async () => ({
+      ok: false,
+      status: 401,
+      json: async () => ({
+        error: 'LOGIN_AUTH_REQUIRED',
+        message: 'Login credential verification failed',
+        session_id: 'hidden',
+        token_sha256: 'hidden',
+      }),
+    }));
+    const originFetch = vi.fn(async () => ({ ok: false, status: 403 }));
+    const networkFetch = vi.fn(async () => {
+      throw new Error('network');
+    });
+
+    await expect(
+      submitProductionLoginCredential({
+        credential: 'bad-proof',
+        fetchImpl: rejectedFetch,
+      }),
+    ).resolves.toEqual({ ok: false, reason: 'rejected' });
+    await expect(
+      submitProductionLoginCredential({
+        credential: 'bad-origin',
+        fetchImpl: originFetch,
+      }),
+    ).resolves.toEqual({ ok: false, reason: 'origin' });
+    await expect(
+      submitProductionLoginCredential({
+        credential: 'network',
+        fetchImpl: networkFetch,
+      }),
+    ).resolves.toEqual({ ok: false, reason: 'network' });
+
+    expect(messageForLoginFailure('rejected')).toBe(LOGIN_FORM_FAILURE_MESSAGE);
+    expect(messageForLoginFailure('origin')).toBe(LOGIN_FORM_ORIGIN_FAILURE_MESSAGE);
+    expect(messageForLoginFailure('network')).toBe(LOGIN_FORM_NETWORK_FAILURE_MESSAGE);
+    for (const message of [
+      LOGIN_FORM_FAILURE_MESSAGE,
+      LOGIN_FORM_ORIGIN_FAILURE_MESSAGE,
+      LOGIN_FORM_NETWORK_FAILURE_MESSAGE,
+    ]) {
+      expect(message).not.toMatch(
+        /LOGIN_AUTH_REQUIRED|session_id|token_sha256|www_session|cookie|user_id|option_id|option_text|option_index/i,
+      );
+    }
+  });
+
+  it('does not submit empty credential proof', async () => {
+    const { submitProductionLoginCredential } = await loadLoginPageModule();
+    const fetchImpl = vi.fn();
+
+    await expect(
+      submitProductionLoginCredential({ credential: '   ', fetchImpl }),
+    ).resolves.toEqual({ ok: false, reason: 'missing' });
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it('points guest header auth actions to /login', async () => {

@@ -1928,21 +1928,27 @@ button:disabled {
   }
 }
 
-/* Phase 74 — production login UI shell (static only) */
+/* Phase 86 — production login form runtime */
 .mvp-login-shell .mvp-auth-state-grid {
   margin-bottom: 1rem;
 }
 
-.mvp-login-form-card .mvp-auth-disabled-form input:disabled,
-.mvp-login-form-card .mvp-auth-disabled-form button:disabled {
+.mvp-login-form-card .mvp-production-login-form input:disabled,
+.mvp-login-form-card .mvp-production-login-form button:disabled {
   cursor: not-allowed;
   opacity: 0.72;
+}
+
+.mvp-login-form-card .mvp-production-login-form input[aria-invalid="true"] {
+  border-color: #b42318;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.12);
 }
 
 .mvp-login-shell-status {
   margin-top: 0.75rem;
   color: var(--mvp-muted, #5c6470);
   font-size: 0.95rem;
+  min-height: 1.4rem;
 }
 
 /* Phase 46 — policy info pages (FAQ, trust levels) */

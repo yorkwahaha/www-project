@@ -222,7 +222,7 @@ describe('frontend static routes', () => {
     });
   });
 
-  it('serves the production login UI shell page and login-page script', async () => {
+  it('serves the production login form page and login-page script', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),
     });
@@ -235,14 +235,15 @@ describe('frontend static routes', () => {
       expect(page.status).toBe(200);
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
-      expect(pageBody).toContain('正式登入尚未啟用');
+      expect(pageBody).toContain('正式登入表單基礎已開放');
       expect(pageBody).toContain('fail closed');
       expect(pageBody).toContain('login-shell-form');
+      expect(pageBody).toContain('name="credential"');
       expect(pageBody).toContain('/frontend/login-page.js');
       expect(pageBody).not.toMatch(/localStorage|sessionStorage/i);
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
-      expect(await script.text()).toContain('LOGIN_SHELL_NOT_ENABLED_MESSAGE');
+      expect(await script.text()).toContain('submitProductionLoginCredential');
     });
   });
 

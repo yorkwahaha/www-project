@@ -1,37 +1,221 @@
 /**
- * Phase 74 — production login UI shell (static UX only; no auth API, no persistence).
+ * Phase 86 — minimal production login form runtime; refreshes GET /users/me
+ * through the existing login-state hook.
  */
 
-import { announceToStatusRegion } from './public-mvp-ui.js';
+import {
+  announceToStatusRegion,
+  setBusySubmitButton,
+} from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
+import { mountLoginStateRead } from './login-state-ui.js';
 
-export const LOGIN_SHELL_NOT_ENABLED_MESSAGE =
-  '正式登入尚未啟用。Production 環境在缺少已核准憑證時會 fail closed，不會使用測試用 X-User-Id 或 creator_session。';
+export const LOGIN_FORM_READY_MESSAGE =
+  '請輸入已核准的 production credential proof。登入狀態會由伺服器驗證後更新。';
 
 export const LOGIN_SHELL_DEMO_HINT_MESSAGE =
   '本機展示請使用 /profile 與投票頁的 MVP 測試身份，或 localhost 的 creator_session 發起流程（?live=1）。';
 
-export const LOGIN_SHELL_SUBMIT_BLOCKED_MESSAGE =
-  '此頁不會送出登入請求。請等待未來 production credential verifier 與正式登入流程上線。';
+export const LOGIN_FORM_MISSING_CREDENTIAL_MESSAGE =
+  '請輸入登入憑證。';
+
+export const LOGIN_FORM_LOADING_MESSAGE =
+  '正在登入，請稍候。';
+
+export const LOGIN_FORM_SUCCESS_MESSAGE =
+  '登入成功。';
+
+export const LOGIN_FORM_VERIFY_STATE_FAILURE_MESSAGE =
+  '登入已送出，但目前無法確認登入狀態，請重新整理後再試。';
+
+export const LOGIN_FORM_FAILURE_MESSAGE =
+  '登入失敗，請確認憑證後再試。';
+
+export const LOGIN_FORM_ORIGIN_FAILURE_MESSAGE =
+  '無法從此頁完成登入，請重新整理後再試。';
+
+export const LOGIN_FORM_NETWORK_FAILURE_MESSAGE =
+  '網路連線失敗，請稍後再試。';
+
+const LOGIN_SUBMIT_IDLE_LABEL = '登入';
+const LOGIN_SUBMIT_BUSY_LABEL = '登入中';
+
+/**
+ * @param {unknown} value
+ * @returns {value is HTMLInputElement}
+ */
+function isInputElement(value) {
+  return (
+    (typeof HTMLInputElement !== 'undefined' && value instanceof HTMLInputElement) ||
+    (
+      !!value &&
+      typeof value === 'object' &&
+      /** @type {{ tagName?: unknown }} */ (value).tagName === 'INPUT'
+    )
+  );
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is HTMLButtonElement}
+ */
+function isButtonElement(value) {
+  return (
+    (typeof HTMLButtonElement !== 'undefined' && value instanceof HTMLButtonElement) ||
+    (
+      !!value &&
+      typeof value === 'object' &&
+      /** @type {{ tagName?: unknown }} */ (value).tagName === 'BUTTON'
+    )
+  );
+}
+
+/**
+ * @param {{ credential: string, fetchImpl?: typeof fetch }} options
+ * @returns {Promise<{ ok: true } | { ok: false, reason: 'missing' | 'origin' | 'rejected' | 'network' }>}
+ */
+export async function submitProductionLoginCredential({
+  credential,
+  fetchImpl = globalThis.fetch,
+}) {
+  const proof = typeof credential === 'string' ? credential.trim() : '';
+  if (!proof) {
+    return { ok: false, reason: 'missing' };
+  }
+  if (typeof fetchImpl !== 'function') {
+    return { ok: false, reason: 'network' };
+  }
+
+  try {
+    const response = await fetchImpl('/login/session', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        Authorization: `Bearer ${proof}`,
+      },
+    });
+    if (response.status === 201) {
+      return { ok: true };
+    }
+    if (response.status === 403) {
+      return { ok: false, reason: 'origin' };
+    }
+    return { ok: false, reason: 'rejected' };
+  } catch {
+    return { ok: false, reason: 'network' };
+  }
+}
+
+/**
+ * @param {'missing' | 'origin' | 'rejected' | 'network'} reason
+ */
+export function messageForLoginFailure(reason) {
+  if (reason === 'missing') {
+    return LOGIN_FORM_MISSING_CREDENTIAL_MESSAGE;
+  }
+  if (reason === 'origin') {
+    return LOGIN_FORM_ORIGIN_FAILURE_MESSAGE;
+  }
+  if (reason === 'network') {
+    return LOGIN_FORM_NETWORK_FAILURE_MESSAGE;
+  }
+  return LOGIN_FORM_FAILURE_MESSAGE;
+}
+
+/**
+ * @param {HTMLFormElement} form
+ * @param {boolean} busy
+ */
+function setLoginFormBusy(form, busy) {
+  const submitButton = form.querySelector('#login-shell-submit');
+  if (isButtonElement(submitButton)) {
+    setBusySubmitButton(submitButton, {
+      busy,
+      idleLabel: LOGIN_SUBMIT_IDLE_LABEL,
+      busyLabel: LOGIN_SUBMIT_BUSY_LABEL,
+    });
+  }
+  const credentialInput = form.querySelector('[name="credential"]');
+  if (isInputElement(credentialInput)) {
+    credentialInput.disabled = busy;
+    credentialInput.setAttribute('aria-busy', busy ? 'true' : 'false');
+  }
+}
+
+/**
+ * @param {HTMLFormElement} form
+ * @param {{
+ *   fetchImpl?: typeof fetch,
+ *   documentObject?: Document,
+ *   refreshLoginState?: typeof mountLoginStateRead,
+ *   announce?: typeof announceToStatusRegion
+ * }} [options]
+ * @returns {Promise<{ ok: true } | { ok: false }>}
+ */
+export async function submitProductionLoginForm(form, options = {}) {
+  const credentialInput = form.querySelector('[name="credential"]');
+  const status = form.ownerDocument?.getElementById('login-shell-message');
+  const announce = options.announce ?? announceToStatusRegion;
+  if (!isInputElement(credentialInput)) {
+    return { ok: false };
+  }
+
+  const credential = credentialInput.value;
+  if (!credential.trim()) {
+    credentialInput.setAttribute('aria-invalid', 'true');
+    announce(status, LOGIN_FORM_MISSING_CREDENTIAL_MESSAGE);
+    credentialInput.focus?.();
+    return { ok: false };
+  }
+
+  credentialInput.removeAttribute('aria-invalid');
+  setLoginFormBusy(form, true);
+  announce(status, LOGIN_FORM_LOADING_MESSAGE);
+  const result = await submitProductionLoginCredential({
+    credential,
+    fetchImpl: options.fetchImpl,
+  });
+
+  if (!result.ok) {
+    setLoginFormBusy(form, false);
+    credentialInput.setAttribute('aria-invalid', 'true');
+    announce(status, messageForLoginFailure(result.reason));
+    return { ok: false };
+  }
+
+  credentialInput.value = '';
+  credentialInput.removeAttribute('aria-invalid');
+  const documentObject = options.documentObject ?? form.ownerDocument;
+  const refreshLoginState = options.refreshLoginState ?? mountLoginStateRead;
+  const state = await refreshLoginState(documentObject, {
+    fetchImpl: options.fetchImpl,
+  });
+  setLoginFormBusy(form, false);
+  if (state?.status === 'authenticated') {
+    announce(status, LOGIN_FORM_SUCCESS_MESSAGE);
+    return { ok: true };
+  }
+  announce(status, LOGIN_FORM_VERIFY_STATE_FAILURE_MESSAGE);
+  return { ok: false };
+}
 
 /**
  * @param {HTMLFormElement | null} form
- * @param {(message: string) => void} [announce]
+ * @param {{
+ *   fetchImpl?: typeof fetch,
+ *   documentObject?: Document,
+ *   refreshLoginState?: typeof mountLoginStateRead,
+ *   announce?: typeof announceToStatusRegion
+ * }} [options]
  */
-export function wireLoginShellForm(form, announce = announceToStatusRegion) {
+export function wireLoginShellForm(form, options = {}) {
   if (!form) {
     return;
   }
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    announce(form, LOGIN_SHELL_SUBMIT_BLOCKED_MESSAGE);
+    void submitProductionLoginForm(form, options);
   });
-  for (const control of form.querySelectorAll('input, button')) {
-    if (control instanceof HTMLInputElement || control instanceof HTMLButtonElement) {
-      control.disabled = true;
-      control.setAttribute('aria-disabled', 'true');
-    }
-  }
 }
 
 /**
@@ -43,10 +227,10 @@ export function mountLoginShellPage(documentObject = document) {
   if (!(form instanceof HTMLFormElement)) {
     return;
   }
-  wireLoginShellForm(form);
+  wireLoginShellForm(form, { documentObject });
   const status = documentObject.getElementById('login-shell-message');
   if (status) {
-    announceToStatusRegion(status, LOGIN_SHELL_NOT_ENABLED_MESSAGE);
+    announceToStatusRegion(status, LOGIN_FORM_READY_MESSAGE);
   }
 }
 

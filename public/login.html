@@ -18,8 +18,8 @@
       </p>
 
       <p class="mvp-mock-banner" role="note">
-        <strong>正式登入尚未啟用</strong>：此頁為 production login UI shell，僅說明未來登入流程與身分邊界。
-        目前<strong>沒有</strong>帳號核發、session cookie、OAuth 或登入 API。
+        <strong>正式登入表單基礎已開放</strong>：此頁只送出已核准的 production credential proof。
+        若後端未設定 verifier 或來源不被允許，系統會 fail closed，且不會退回 MVP 測試身份。
       </p>
 
       <header class="mvp-info-hero">
@@ -50,35 +50,27 @@
       </section>
 
       <div class="mvp-form-card mvp-login-form-card">
-        <form id="login-shell-form" class="mvp-form mvp-auth-disabled-form" novalidate aria-describedby="login-shell-message">
+        <form id="login-shell-form" class="mvp-form mvp-production-login-form" novalidate aria-describedby="login-shell-hint login-shell-message">
           <p class="mvp-form-hint">
-            以下欄位僅供版面預覽；送出按鈕已停用，不會呼叫登入 API 或寫入瀏覽器儲存。
+            請輸入已核准的 production credential proof。登入成功後，頁首只會顯示帳號顯示名稱。
           </p>
-          <label for="login-email">電子郵件（預留）</label>
+          <label for="login-credential">Production credential proof</label>
           <input
-            id="login-email"
-            name="email"
-            type="email"
-            autocomplete="username"
-            disabled
-            aria-disabled="true"
-            placeholder="正式登入啟用後才會開放"
-          >
-
-          <label for="login-password">密碼（預留）</label>
-          <input
-            id="login-password"
-            name="password"
+            id="login-credential"
+            name="credential"
             type="password"
             autocomplete="current-password"
-            disabled
-            aria-disabled="true"
-            placeholder="正式登入啟用後才會開放"
+            required
+            aria-describedby="login-shell-hint"
+            placeholder="輸入已核准的登入憑證"
           >
+          <p id="login-shell-hint" class="mvp-form-hint">
+            不要輸入 <code>X-User-Id</code>、creator 身分、個人資料或任何問卷選項資料。
+          </p>
 
           <div class="mvp-form-actions">
-            <button id="login-shell-submit" type="submit" class="mvp-btn-primary" disabled aria-disabled="true">
-              登入（尚未開放）
+            <button id="login-shell-submit" type="submit" class="mvp-btn-primary">
+              登入
             </button>
             <a class="mvp-btn mvp-btn-secondary" href="/">返回首頁</a>
           </div>

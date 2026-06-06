@@ -160,6 +160,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 87:** Production login runtime review / hardening — reviewed Phase 78-86 `user_sessions`, `POST`/`DELETE /login/session`, `UserAuthResolver` `www_session` verification, `GET /users/me`, frontend login-state read/logout UI, and `/login` form. No runtime defect requiring schema, migration, API, Official Vote, `vote-by-index`, Reference Answer, profile eligibility, ranking, logging, metrics, APM, trace, debug payload, analytics, or error payload changes was found; documentation now records the auth/privacy boundary confirmation — `docs/www-project-phase-87-production-login-runtime-review-hardening-v1.md`.
 
+**Phase 88 (docs):** Registration / profile setup plan — defines a future production account setup flow requiring `display_name`, `birth_year_month`, and coarse `residential_region`, while excluding gender, exact birthday, precise location, registration runtime, profile setup UI, schema changes, login/session behavior changes, Official Vote transaction changes, Reference Answer integration, ranking personalization, demographic breakdowns, and analytics linkage — `docs/www-project-phase-88-registration-profile-setup-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

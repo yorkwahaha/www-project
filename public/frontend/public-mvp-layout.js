@@ -1,6 +1,11 @@
 /**
  * Phase 42A — shared public chrome (static visual only; no auth/persistence).
+ * Phase 75 — auth state indicator + navigation copy polish.
  */
+
+import { AUTH_STATE_COPY } from './auth-state-copy.js';
+
+export { AUTH_STATE_COPY };
 
 export const HELP_COPY = {
   collectingHidden:
@@ -108,6 +113,30 @@ export function resolveDemoNavMode(headerEl, search = '') {
 }
 
 /**
+ * @param {Document} doc
+ * @param {'guest'|'logged-in-mock'} navMode
+ */
+export function createAuthStateChip(doc, navMode) {
+  if (navMode === 'logged-in-mock') {
+    const chip = doc.createElement('span');
+    chip.className = 'mvp-auth-state-chip mvp-auth-state-chip--demo';
+    chip.setAttribute('role', 'status');
+    chip.textContent = AUTH_STATE_COPY.demoIdentityChipLabel;
+    chip.setAttribute('aria-label', AUTH_STATE_COPY.demoIdentityChipAriaLabel);
+    chip.title = AUTH_STATE_COPY.demoIdentityChipTitle;
+    return chip;
+  }
+
+  const chip = doc.createElement('a');
+  chip.className = 'mvp-auth-state-chip mvp-auth-state-chip--guest';
+  chip.href = '/login';
+  chip.textContent = AUTH_STATE_COPY.guestChipLabel;
+  chip.setAttribute('aria-label', AUTH_STATE_COPY.guestChipAriaLabel);
+  chip.title = AUTH_STATE_COPY.guestChipTitle;
+  return chip;
+}
+
+/**
  * @param {HTMLElement} mount
  * @param {{ nav?: 'guest'|'logged-in-mock', active?: string }} [options]
  */
@@ -148,6 +177,7 @@ export function renderSiteHeader(mount, options = {}) {
 
   const actions = doc.createElement('div');
   actions.className = 'mvp-site-actions';
+  actions.append(createAuthStateChip(doc, navMode));
 
   if (navMode === 'logged-in-mock') {
     const myPolls = doc.createElement('a');
@@ -165,23 +195,19 @@ export function renderSiteHeader(mount, options = {}) {
     create.href = '/polls/new';
     create.textContent = '發起提問';
 
-    const avatar = doc.createElement('span');
-    avatar.className = 'mvp-avatar';
-    avatar.title = '使用者選單（展示用）';
-    avatar.setAttribute('aria-hidden', 'true');
-    avatar.textContent = 'Y';
-
-    actions.append(myPolls, profile, create, avatar);
+    actions.append(myPolls, profile, create);
   } else {
     const login = doc.createElement('a');
     login.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
     login.href = '/login';
-    login.textContent = '登入';
+    login.textContent = AUTH_STATE_COPY.guestSecondaryCta;
+    login.setAttribute('aria-label', '前往登入說明頁');
 
     const signup = doc.createElement('a');
     signup.className = 'mvp-btn mvp-btn-primary mvp-btn-sm';
     signup.href = '/login';
-    signup.textContent = '註冊 / 開始使用';
+    signup.textContent = AUTH_STATE_COPY.guestPrimaryCta;
+    signup.setAttribute('aria-label', '了解正式登入狀態與本機 demo 身分邊界');
 
     actions.append(login, signup);
   }
@@ -190,21 +216,90 @@ export function renderSiteHeader(mount, options = {}) {
   mount.append(inner);
 }
 
-export function renderDemoNavBanner(parent, navMode) {
-  if (!parent || navMode !== 'logged-in-mock') {
+/**
+ * @param {HTMLElement} parent
+ * @param {'guest'|'logged-in-mock'} navMode
+ */
+export function renderAuthStateBanner(parent, navMode) {
+  if (!parent || !VALID_DEMO_NAV_MODES.includes(navMode)) {
     return null;
   }
   const doc = parent.ownerDocument;
-  if (parent.querySelector('.mvp-demo-nav-banner')) {
+  if (parent.querySelector('.mvp-auth-state-banner')) {
     return null;
   }
-  const banner = doc.createElement('p');
-  banner.className = 'mvp-demo-nav-banner';
+
+  const banner = doc.createElement('aside');
+  banner.className = 'mvp-auth-state-banner';
   banner.setAttribute('role', 'note');
-  banner.textContent =
-    '目前為公開展示版：上方「登入後」僅切換導覽列外觀，並非真實登入或帳號狀態。';
+  banner.setAttribute('aria-label', AUTH_STATE_COPY.bannerAriaLabel);
+
+  const lead = doc.createElement('p');
+  lead.className = 'mvp-auth-state-banner-lead';
+  const leadStrong = doc.createElement('strong');
+  leadStrong.textContent = AUTH_STATE_COPY.bannerGuestLead;
+  lead.append(leadStrong, '：', AUTH_STATE_COPY.bannerGuestBody);
+
+  const local = doc.createElement('p');
+  local.className = 'mvp-auth-state-banner-local';
+  const localStrong = doc.createElement('strong');
+  localStrong.textContent = AUTH_STATE_COPY.bannerLocalDemoTitle;
+  local.append(
+    localStrong,
+    '：',
+    AUTH_STATE_COPY.bannerLocalDemoBody,
+    ' ',
+  );
+  const loginLink = doc.createElement('a');
+  loginLink.href = '/login';
+  loginLink.textContent = '登入說明';
+  local.append(loginLink, '。');
+
+  banner.append(lead, local);
+
+  if (navMode === 'logged-in-mock') {
+    const navNote = doc.createElement('p');
+    navNote.className = 'mvp-auth-state-banner-nav';
+    navNote.textContent = AUTH_STATE_COPY.bannerNavDemoNote;
+    banner.append(navNote);
+  }
+
   parent.prepend(banner);
   return banner;
+}
+
+/** @deprecated Use renderAuthStateBanner */
+export function renderDemoNavBanner(parent, navMode) {
+  return renderAuthStateBanner(parent, navMode);
+}
+
+/**
+ * @param {Document} documentObject
+ */
+export function enhanceDemoNavSwitch(documentObject) {
+  if (typeof documentObject?.querySelector !== 'function') {
+    return null;
+  }
+  const block = documentObject.querySelector('.mvp-demo-nav-switch');
+  if (!block) {
+    return null;
+  }
+  block.setAttribute('role', 'note');
+  block.replaceChildren();
+
+  const label = documentObject.createTextNode(`${AUTH_STATE_COPY.demoNavSwitchLabel}：`);
+  const guest = documentObject.createElement('a');
+  guest.href = '?nav=guest';
+  guest.textContent = AUTH_STATE_COPY.demoNavGuestLink;
+
+  const sep = documentObject.createTextNode(' · ');
+
+  const loggedIn = documentObject.createElement('a');
+  loggedIn.href = '?nav=logged-in-mock';
+  loggedIn.textContent = AUTH_STATE_COPY.demoNavLoggedInLink;
+
+  block.append(label, guest, sep, loggedIn);
+  return block;
 }
 
 const FOOTER_LINKS = [
@@ -247,6 +342,19 @@ export function renderSiteFooter(mount) {
   mount.append(inner);
 }
 
+function elementHasClass(element, className) {
+  if (!element) {
+    return false;
+  }
+  if (typeof element.classList?.contains === 'function') {
+    return element.classList.contains(className);
+  }
+  return (
+    typeof element.className === 'string' &&
+    element.className.split(/\s+/).includes(className)
+  );
+}
+
 function mountSiteFooter(documentObject) {
   if (typeof documentObject?.getElementById !== 'function') {
     return;
@@ -284,10 +392,14 @@ export function mountSiteChrome(documentObject) {
       header.removeAttribute('data-nav-demo');
     }
   }
+  const navMode = header
+    ? resolveDemoNavMode(header, search)
+    : parseDemoNavMode(search) ?? 'guest';
   const main = documentObject.getElementById('main-content');
-  if (main && parseDemoNavMode(search) === 'logged-in-mock') {
-    renderDemoNavBanner(main, 'logged-in-mock');
+  if (main && !elementHasClass(main, 'mvp-login-shell')) {
+    renderAuthStateBanner(main, navMode);
   }
+  enhanceDemoNavSwitch(documentObject);
   mountSiteFooter(documentObject);
 }
 

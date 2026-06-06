@@ -51,7 +51,7 @@ describe('trust level preview copy (phase 45)', () => {
     expect(html).toMatch(/Lv\.1 註冊用戶/);
     expect(html).toMatch(/政治／高風險/);
     expect(html).toMatch(/公開展示版/);
-    expect(html).toMatch(/不會儲存/);
+    expect(html).toMatch(/不儲存|不會儲存/);
     expect(html).not.toMatch(/尚未連線 API|demo only|靜態示意/i);
   });
 
@@ -62,7 +62,7 @@ describe('trust level preview copy (phase 45)', () => {
     expect(html).toMatch(/不顯示.*票數、百分比、總計、排名、趨勢或進度/s);
     expect(html).toMatch(/關注結果/);
     expect(html).toMatch(/非單純按讚|不是單純按讚/);
-    expect(html).toMatch(/公開展示版/);
+    expect(html).toMatch(/投票身分|MVP/);
     expect(html).not.toMatch(/尚未連線|不呼叫 API/i);
   });
 

@@ -104,10 +104,13 @@ function createDocument() {
   return { documentObject, tbody };
 }
 
-function collectText(element: ReturnType<typeof createDocument>['tbody']): string {
+function collectText(element: {
+  textContent?: string;
+  children?: { textContent?: string; children?: unknown[] }[];
+}): string {
   return [
     element.textContent,
-    ...element.children.map((child) => collectText(child)),
+    ...(element.children ?? []).map((child) => collectText(child)),
   ]
     .filter(Boolean)
     .join(' ');

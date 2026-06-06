@@ -1240,7 +1240,8 @@ button:disabled {
   min-width: 0;
 }
 
-.mvp-demo-nav-banner {
+.mvp-demo-nav-banner,
+.mvp-auth-state-banner {
   margin: 0 0 1rem;
   padding: 0.55rem 0.75rem;
   border-radius: var(--mvp-radius-sm);
@@ -1248,6 +1249,54 @@ button:disabled {
   border: 1px dashed #e8c89a;
   font-size: 0.88rem;
   color: #7a4e12;
+}
+
+.mvp-auth-state-banner p {
+  margin: 0 0 0.45rem;
+}
+
+.mvp-auth-state-banner p:last-child {
+  margin-bottom: 0;
+}
+
+.mvp-auth-state-banner-lead strong,
+.mvp-auth-state-banner-local strong {
+  color: #5a3810;
+}
+
+.mvp-auth-state-banner-nav {
+  font-style: italic;
+}
+
+.mvp-auth-state-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 11rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-decoration: none;
+  white-space: normal;
+  text-align: center;
+}
+
+.mvp-auth-state-chip--guest {
+  background: #fff8ef;
+  border: 1px dashed #e8c89a;
+  color: #7a4e12;
+}
+
+.mvp-auth-state-chip--guest:hover {
+  border-color: var(--mvp-accent);
+  color: var(--mvp-accent);
+}
+
+.mvp-auth-state-chip--demo {
+  background: var(--mvp-accent-soft);
+  border: 1px solid var(--mvp-border);
+  color: var(--mvp-accent);
 }
 
 .mvp-quality-feedback-preview {

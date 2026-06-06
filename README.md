@@ -134,6 +134,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 74:** Production login UI shell / auth state UX foundation — adds static `GET /login` page and `login-page.js` shell explaining that **正式登入尚未啟用**, production protected routes **fail closed** without an approved verifier, and local/demo continues explicit MVP `X-User-Id` / `creator_session` test identity. Guest header links route to `/login`; form controls are disabled and do not call login APIs or browser credential storage. No DB, session issuance, `UserAuthResolver`/verifier runtime change, or protected API behavior change — `docs/www-project-phase-74-production-login-ui-shell-checkpoint-v1.md`.
 
+**Phase 75:** Auth state display / navigation UX polish — shared `auth-state-copy.js`, header auth state chips, `renderAuthStateBanner`, and clearer demo nav switch copy across home, profile, vote, and my-polls pages. Distinguishes production login-not-yet-enabled, MVP `X-User-Id` test identity, and `creator_session` creator-only demo flow; guest CTAs stay aligned with `/login`. No DB, session issuance, verifier runtime change, or protected API behavior change — `docs/www-project-phase-75-auth-state-navigation-ux-checkpoint-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

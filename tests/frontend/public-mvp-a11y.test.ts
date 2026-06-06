@@ -24,6 +24,13 @@ async function loadVotePageModule() {
   return import(/* @vite-ignore */ url);
 }
 
+async function loadLayoutModule() {
+  const url = pathToFileURL(
+    join(process.cwd(), 'public/frontend/public-mvp-layout.js'),
+  ).href;
+  return import(/* @vite-ignore */ url);
+}
+
 function createSubmitButton() {
   return {
     disabled: false,
@@ -68,6 +75,45 @@ describe('public MVP accessibility', () => {
     expect(votePage).toContain('id="form-message"');
     expect(votePage).toContain('role="alert"');
     expect(resultsPage).toContain('aria-label="投票結果統計"');
+
+    const profilePage = await readFile(join(process.cwd(), 'public/profile.html'), 'utf8');
+    const voteShell = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
+    const myPollsPage = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
+    const indexPage = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
+
+    expect(profilePage).toContain('role="note"');
+    expect(voteShell).toContain('role="note"');
+    expect(myPollsPage).toContain('role="note"');
+    expect(indexPage).toContain('href="/login"');
+  });
+
+  it('labels auth state chips for assistive tech', async () => {
+    const { AUTH_STATE_COPY, createAuthStateChip } = await loadLayoutModule();
+    const doc = {
+      createElement(tagName: string) {
+        return {
+          tagName: tagName.toUpperCase(),
+          className: '',
+          href: '',
+          textContent: '',
+          attributes: new Map<string, string>(),
+          setAttribute(name: string, value: string) {
+            this.attributes.set(name, value);
+          },
+        };
+      },
+    };
+
+    const guestChip = createAuthStateChip(doc, 'guest');
+    expect(guestChip.attributes.get('aria-label')).toBe(
+      AUTH_STATE_COPY.guestChipAriaLabel,
+    );
+
+    const demoChip = createAuthStateChip(doc, 'logged-in-mock');
+    expect(demoChip.attributes.get('aria-label')).toBe(
+      AUTH_STATE_COPY.demoIdentityChipAriaLabel,
+    );
+    expect(demoChip.attributes.get('role')).toBe('status');
   });
 
   it('updates submit button busy state for assistive tech', async () => {

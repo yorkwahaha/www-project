@@ -55,9 +55,16 @@ describe('login page frontend shell', () => {
       join(process.cwd(), 'public/frontend/public-mvp-layout.js'),
       'utf8',
     );
+    const copy = await readFile(
+      join(process.cwd(), 'public/frontend/auth-state-copy.js'),
+      'utf8',
+    );
 
+    expect(layout).toContain("chip.href = '/login'");
     expect(layout).toContain("login.href = '/login'");
     expect(layout).toContain("signup.href = '/login'");
+    expect(layout).toContain('AUTH_STATE_COPY.guestPrimaryCta');
+    expect(copy).toContain('了解登入狀態');
     expect(layout).not.toContain('#login-mock');
   });
 });

@@ -124,6 +124,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 70D-I-B:** Creator route adapter UserAuth cutover — production `/creator/polls` and production `GET /creator/session` now resolve creator identity via `UserAuthResolver` instead of `creator_session` or raw `X-User-Id`. Production (`APP_ENV=production`) fail-closed unless a trusted credential verifier is configured; `POST /creator/session` issuance remains fail-closed. Local/demo/test keep explicit `creator_session` compatibility (non-production identity). `creator_session` does not authorize public vote, vote-by-index, profile, or Reference Answer. Service ownership checks, Origin gate, and owned-list counter-free behavior are unchanged. Plan: `docs/www-project-phase-70d-creator-route-adapter-userauth-cutover-plan-v1.md`.
 
+**Phase 70 (final checkpoint):** Production auth boundary cutover checkpoint — consolidates Phase 70 plan, 70A resolver foundation, 70B profile cutover, 70C Official Vote / vote-by-index cutover, and 70D creator_session strategy + `/creator/*` cutover. Production route adapters for profile, vote, vote-by-index, and creator-owned polls use `UserAuthResolver`; raw `X-User-Id` is not production identity; `creator_session` remains local/demo/test-only and does not authorize public vote, profile, or Reference Answer. Reference Answer is not cut over to `UserAuthResolver`. Remaining work: production credential verifier, formal user session integration, and frontend production login UX — `docs/www-project-phase-70-final-production-auth-boundary-checkpoint-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).
@@ -238,7 +240,7 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 ### Demo release readiness (Phase 69)
 
-**Status:** MVP demo is **showcase-ready** for local handoff — creator flow, profile eligibility, public vote/results, and integrated manual QA are documented and guarded. This is **not** production-ready: there is **no** production user login; visitors vote and edit profile with **MVP demo-style `X-User-Id`**; creators use **`creator_session`** scoped to `/creator/*` only. **Production user-auth wiring later.**
+**Status:** MVP demo is **showcase-ready** for local handoff — creator flow, profile eligibility, public vote/results, and integrated manual QA are documented and guarded. **Phase 70 route adapters** now resolve production identity through `UserAuthResolver` (fail-closed without a trusted credential verifier). This is still **not** production-deploy-ready: there is **no** production credential verifier or login UX yet; local/demo visitors still use **MVP demo-style `X-User-Id`** and creators use **`creator_session`** (non-production identity). **Production user-auth wiring later** (credential verifier + frontend login). See **`docs/www-project-phase-70-final-production-auth-boundary-checkpoint-v1.md`**.
 
 **Recommended tester entry:** **`docs/www-project-phase-69-mvp-demo-release-readiness-handoff-v1.md`** → startup → operation order → release readiness checklist. Detailed steps: manual QA §3.10 · demo handoff · Phase 60/67/68 docs (cross-linked, not duplicated).
 
@@ -262,7 +264,7 @@ Cross-browser QA log (Traditional Chinese, PASS/WARN/FAIL tables for real device
 
 **Baseline commit (Phase 48):** `630baea` — FAQ, trust-level matrix, mobile readability polish.
 
-The public browser surface remains **share-link first**. Default routes stay **static/demo-facing** for policy UX; **creator lifecycle management** is available only with MVP dev query switches (`?live=1`, `?creator=1`) and the Phase 65A **`creator_session` cookie** (scoped to `/creator/*` only — **not** general user auth). Visitors vote and edit profile with **MVP demo-style `X-User-Id`**; **production user-auth wiring later**. Results follow backend `public_lifecycle_state`. There is still **no** production credential verifier, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization.
+The public browser surface remains **share-link first**. Default routes stay **static/demo-facing** for policy UX; **creator lifecycle management** is available only with MVP dev query switches (`?live=1`, `?creator=1`) and the Phase 65A **`creator_session` cookie** (local/demo/test only — **not** production public identity). Backend route adapters for profile, Official Vote, vote-by-index, and creator-owned polls use **`UserAuthResolver`** in production mode; the browser still sends **MVP demo-style `X-User-Id`** until frontend production login is implemented. Results follow backend `public_lifecycle_state`. There is still **no** production credential verifier, notification persistence, trust scoring persistence, feedback persistence, or production ranking/feed personalization. Auth boundary summary: **`docs/www-project-phase-70-final-production-auth-boundary-checkpoint-v1.md`**.
 
 | Page | Route | Notes |
 |------|-------|--------|

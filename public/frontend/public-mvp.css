@@ -1951,6 +1951,27 @@ button:disabled {
   min-height: 1.4rem;
 }
 
+/* Phase 92 — production registration form runtime */
+.mvp-registration-success {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius);
+  background: var(--mvp-surface-elevated);
+}
+
+.mvp-registration-success h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.mvp-registration-status {
+  margin-top: 0.75rem;
+  color: var(--mvp-muted, #5c6470);
+  font-size: 0.95rem;
+  min-height: 1.4rem;
+}
+
 /* Phase 46 — policy info pages (FAQ, trust levels) */
 .mvp-info-page {
   max-width: 42rem;

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>註冊帳號｜What We Wonder</title>
+    <link rel="stylesheet" href="/frontend/public-mvp.css">
+  </head>
+  <body class="mvp-body">
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <header id="site-header" data-nav="guest" data-active="login"></header>
+    <main id="main-content" class="mvp-page mvp-info-page mvp-registration-shell" aria-labelledby="registration-heading">
+      <p class="mvp-demo-nav-switch" role="note">
+        切換瀏覽身分（展示用）：
+        <a href="?nav=guest">訪客</a>
+        ·
+        <a href="?nav=logged-in-mock">登入後</a>
+      </p>
+
+      <p class="mvp-mock-banner" role="note">
+        <strong>正式註冊表單基礎已開放</strong>：此頁只送出顯示名稱、出生年月、粗粒度地區與已核准的 production credential proof。
+        註冊完成後仍須前往登入頁，不會自動建立瀏覽器工作階段。
+      </p>
+
+      <header class="mvp-info-hero">
+        <h1 id="registration-heading">註冊帳號</h1>
+        <p class="mvp-lead">
+          建立帳號資料後，請使用相同憑證到 <a href="/login">登入頁</a> 完成登入。
+          本表單不會要求生日日期、地址、精確位置或問卷選項資料。
+        </p>
+      </header>
+
+      <div class="mvp-form-card mvp-registration-form-card">
+        <form id="registration-form" class="mvp-form mvp-production-registration-form" novalidate aria-describedby="registration-form-message">
+          <label for="registration-display-name">顯示名稱</label>
+          <input
+            id="registration-display-name"
+            name="display_name"
+            type="text"
+            autocomplete="name"
+            maxlength="80"
+            required
+            placeholder="輸入顯示名稱"
+          >
+          <p class="mvp-form-hint">此名稱會作為帳號顯示名稱；最多 80 個字元。</p>
+
+          <label for="registration-birth-year-month">出生年月（僅到月份）</label>
+          <input
+            id="registration-birth-year-month"
+            name="birth_year_month"
+            type="month"
+            inputmode="numeric"
+            autocomplete="bday-month"
+            required
+            placeholder="YYYY-MM"
+          >
+          <p class="mvp-form-hint">官方投票會依產品規則檢查年齡資格；只收集到年／月。</p>
+
+          <label for="registration-residential-region">居住地區（粗粒度代碼）</label>
+          <select id="registration-residential-region" name="residential_region" required>
+            <option value="">請選擇</option>
+            <option value="TW-TPE">TW-TPE 台北市</option>
+            <option value="TW-NWT">TW-NWT 新北市</option>
+            <option value="TW-TAO">TW-TAO 桃園市</option>
+            <option value="TW-TXG">TW-TXG 台中市</option>
+            <option value="TW-TNN">TW-TNN 台南市</option>
+            <option value="TW-KHH">TW-KHH 高雄市</option>
+            <option value="TW-HSZ">TW-HSZ 新竹市</option>
+            <option value="TW-CYI">TW-CYI 嘉義市</option>
+            <option value="TW-ILA">TW-ILA 宜蘭縣</option>
+            <option value="TW-HUA">TW-HUA 花蓮縣</option>
+            <option value="TW-TTT">TW-TTT 台東縣</option>
+            <option value="TW-PEN">TW-PEN 澎湖縣</option>
+          </select>
+          <p class="mvp-form-hint">只使用粗粒度地區代碼，不要求地址、街道或精確位置。</p>
+
+          <label for="registration-credential">Production credential proof</label>
+          <input
+            id="registration-credential"
+            name="credential"
+            type="password"
+            autocomplete="off"
+            required
+            placeholder="輸入已核准的註冊憑證"
+          >
+          <p class="mvp-form-hint">
+            憑證只會以 Authorization Bearer 傳送，不會放入註冊資料 JSON。
+          </p>
+
+          <div class="mvp-form-actions">
+            <button id="registration-submit" type="submit" class="mvp-btn-primary">
+              註冊
+            </button>
+            <a class="mvp-btn mvp-btn-secondary" href="/login">已有帳號，前往登入</a>
+          </div>
+        </form>
+      </div>
+
+      <section id="registration-success" class="mvp-registration-success" hidden aria-labelledby="registration-success-heading">
+        <h2 id="registration-success-heading">註冊完成</h2>
+        <p>你的帳號資料已建立。請前往登入頁使用相同憑證完成登入；註冊不會自動建立瀏覽器工作階段。</p>
+        <div class="mvp-form-actions">
+          <a class="mvp-btn-primary" href="/login">前往登入</a>
+          <a class="mvp-btn mvp-btn-secondary" href="/">返回首頁</a>
+        </div>
+      </section>
+
+      <p id="registration-form-message" class="mvp-registration-status" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="/frontend/public-mvp-layout.js"></script>
+    <script type="module" src="/frontend/registration-page.js"></script>
+  </body>
+</html>

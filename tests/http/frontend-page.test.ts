@@ -189,6 +189,32 @@ describe('frontend static routes', () => {
     });
   });
 
+  it('serves the registration page and registration-page script without requiring registration API wiring', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const page = await fetch(`${baseUrl}/registration`);
+      const pageBody = await page.text();
+      const script = await fetch(`${baseUrl}/frontend/registration-page.js`);
+
+      expect(page.status).toBe(200);
+      expect(page.headers.get('content-type')).toContain('text/html');
+      expect(page.headers.get('cache-control')).toBe('no-store');
+      expect(pageBody).toContain('registration-form');
+      expect(pageBody).toContain('name="display_name"');
+      expect(pageBody).toContain('name="birth_year_month"');
+      expect(pageBody).toContain('name="residential_region"');
+      expect(pageBody).toContain('name="credential"');
+      expect(pageBody).toContain('/frontend/registration-page.js');
+      expect(pageBody).toContain('href="/login"');
+      expect(pageBody).not.toMatch(/credential_proof|option_id|selected_option_index|token_sha256|www_session/i);
+      expect(script.status).toBe(200);
+      expect(script.headers.get('content-type')).toContain('text/javascript');
+    });
+  });
+
   it('serves the shared public MVP stylesheet', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),

@@ -156,6 +156,10 @@ async function routeRequest(
   }
 
   if (path === '/registration') {
+    if (method === 'GET') {
+      await sendPublicFile(res, 'registration.html', 'text/html; charset=utf-8');
+      return;
+    }
     if (!registrationRoutes) {
       sendJson(res, 404, { error: 'NOT_FOUND', message: 'Not found' });
       return;
@@ -477,6 +481,15 @@ async function routeRequest(
 
   if (method === 'GET' && path === '/frontend/login-page.js') {
     await sendPublicFile(res, 'frontend/login-page.js', 'text/javascript; charset=utf-8');
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/registration-page.js') {
+    await sendPublicFile(
+      res,
+      'frontend/registration-page.js',
+      'text/javascript; charset=utf-8',
+    );
     return;
   }
 

@@ -42,6 +42,10 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('href="/polls/new"');
       expect(pageBody).toContain('href="/explore"');
       expect(pageBody).toContain('href="/faq"');
+      expect(pageBody).toContain('href="/registration"');
+      expect(pageBody).toContain('href="/login"');
+      expect(pageBody).toContain('不會自動登入');
+      expect(pageBody).toContain('登入後頁首才顯示帳號名稱');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('class="mvp-body"');
       expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
@@ -210,9 +214,12 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('data-login-state-read="disabled"');
       expect(pageBody).toContain('/frontend/registration-page.js');
       expect(pageBody).toContain('href="/login"');
+      expect(pageBody).toMatch(/不會.*自動登入/);
+      expect(pageBody).toContain('前往登入');
       expect(pageBody).not.toMatch(/credential_proof|option_id|selected_option_index|token_sha256|www_session/i);
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
+      expect(await script.text()).not.toMatch(/\/users\/me|\/login\/session|mountLoginStateRead/);
     });
   });
 
@@ -266,11 +273,17 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('fail closed');
       expect(pageBody).toContain('login-shell-form');
       expect(pageBody).toContain('name="credential"');
+      expect(pageBody).toContain('href="/registration"');
+      expect(pageBody).toContain('註冊不會自動登入');
       expect(pageBody).toContain('/frontend/login-page.js');
       expect(pageBody).not.toMatch(/localStorage|sessionStorage/i);
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
-      expect(await script.text()).toContain('submitProductionLoginCredential');
+      const scriptBody = await script.text();
+      expect(scriptBody).toContain('submitProductionLoginCredential');
+      expect(scriptBody).toContain('mountLoginStateRead');
+      expect(scriptBody).toContain('/login/session');
+      expect(scriptBody).not.toMatch(/birth_year_month|residential_region|option_id|option_text|option_index/);
     });
   });
 

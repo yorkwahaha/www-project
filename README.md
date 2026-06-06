@@ -174,6 +174,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 94:** Registration/login navigation & copy polish — clarifies that registration creates account data only, does not log users in, and should be followed by `/login`, while login controls signed-in header state. Updates homepage, header auth chips, auth banner, `/login`, and `/registration` links/copy only. No backend auth/session, `POST /registration`, `UserAuthResolver`, `/users/me` shape, registration login-state-read opt-out removal, or schema changes — `docs/www-project-phase-94-registration-login-navigation-copy-polish-v1.md`.
 
+**Phase 95:** Registration/login full flow smoke coverage — adds frontend unit tests, HTTP flow tests, static route assertions, and `smoke:public:local` checks for guest auth navigation, registration login-state-read opt-out, registration-to-login-only success behavior, login `GET /users/me` refresh with `display_name` only, and logout guest/demo chip restoration. No backend auth/session, `POST /registration`, `UserAuthResolver`, `/users/me` shape, registration login-state-read opt-out removal, or schema changes — `docs/www-project-phase-95-registration-login-full-flow-smoke-coverage-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

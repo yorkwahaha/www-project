@@ -17,6 +17,8 @@ import {
 const { Client } = pg;
 
 const creatorId = '11111111-1111-4111-8111-111111111111';
+const smokeAuthUserId = '99999999-9999-4999-8999-999999999999';
+const smokeAuthToken = 'FAKE-LOCAL-REGISTRATION-LOGIN-SMOKE-ONLY';
 
 const BUSINESS_TABLES = [
   'admin_decision_logs',
@@ -137,6 +139,14 @@ try {
   process.env.CREATOR_SESSION_ALLOW_INSECURE_COOKIE = 'true';
   process.env.CREATOR_SESSION_LOCAL_TEST_ISSUER_ENABLED = 'true';
   process.env.CREATOR_SESSION_ALLOWED_ORIGINS_JSON = JSON.stringify([baseUrl]);
+  process.env.LOGIN_SESSION_ALLOWED_ORIGINS_JSON = JSON.stringify([baseUrl]);
+  process.env.USER_AUTH_CREDENTIALS_JSON = JSON.stringify([
+    {
+      token_sha256: tokenDigest(smokeAuthToken),
+      user_id: smokeAuthUserId,
+      expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ]);
   const { createApp } = await import('../dist/app.js');
   ({ closePool } = await import('../dist/db/client.js'));
   server = createApp().startHttpServer(port);
@@ -168,7 +178,66 @@ try {
     if (!body.includes('/frontend/public-mvp.css')) {
       throw new Error('Landing page missing shared public MVP stylesheet');
     }
+    if (!body.includes('href="/registration"') || !body.includes('href="/login"')) {
+      throw new Error('Landing page missing registration/login auth navigation links');
+    }
+    if (!body.includes('不會自動登入') || !body.includes('登入後頁首才顯示帳號名稱')) {
+      throw new Error('Landing page missing registration/login flow copy');
+    }
     pass('GET / links /polls/new and /explore with live-feed copy');
+    pass('GET / exposes registration/login auth navigation copy');
+  }
+
+  {
+    const { response, body } = await requestText(baseUrl, '/registration');
+    expectStatus('GET /registration page', response, 200);
+    if (!body.includes('data-login-state-read="disabled"')) {
+      throw new Error('Registration page missing login-state-read opt-out marker');
+    }
+    if (!body.includes('registration-form') || !body.includes('/frontend/registration-page.js')) {
+      throw new Error('Registration page missing registration form runtime');
+    }
+    if (!body.includes('href="/login"') || !body.match(/不會.*自動登入/)) {
+      throw new Error('Registration page missing login guidance copy');
+    }
+    pass('GET /registration serves opt-out registration shell');
+  }
+
+  {
+    const registrationScript = await requestText(baseUrl, '/frontend/registration-page.js');
+    expectStatus('GET /frontend/registration-page.js', registrationScript.response, 200);
+    if (/\/users\/me|\/login\/session|mountLoginStateRead/i.test(registrationScript.body)) {
+      throw new Error('Registration page script references forbidden session/login-state calls');
+    }
+    pass('GET /frontend/registration-page.js avoids session/login-state reads');
+  }
+
+  {
+    const { response, body } = await requestText(baseUrl, '/login');
+    expectStatus('GET /login page', response, 200);
+    if (!body.includes('login-shell-form') || !body.includes('/frontend/login-page.js')) {
+      throw new Error('Login page missing production login shell');
+    }
+    if (!body.includes('href="/registration"') || !body.includes('註冊不會自動登入')) {
+      throw new Error('Login page missing registration guidance copy');
+    }
+    pass('GET /login serves production login shell');
+  }
+
+  {
+    const loginScript = await requestText(baseUrl, '/frontend/login-page.js');
+    expectStatus('GET /frontend/login-page.js', loginScript.response, 200);
+    if (
+      !loginScript.body.includes('submitProductionLoginCredential') ||
+      !loginScript.body.includes('mountLoginStateRead') ||
+      !loginScript.body.includes('/login/session')
+    ) {
+      throw new Error('Login page script missing production login submit + state refresh wiring');
+    }
+    if (/birth_year_month|residential_region|option_id|option_text|option_index/i.test(loginScript.body)) {
+      throw new Error('Login page script references forbidden profile or option fields');
+    }
+    pass('GET /frontend/login-page.js wires login submit and users/me refresh');
   }
 
   {
@@ -261,6 +330,107 @@ try {
       throw new Error('Share panel helper references forbidden public fields');
     }
     pass('Public MVP UI includes share/copy helpers with safe URLs');
+  }
+
+  {
+    const registration = await requestJson(baseUrl, '/registration', {
+      method: 'POST',
+      headers: {
+        Origin: baseUrl,
+        Authorization: `Bearer ${smokeAuthToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        display_name: 'Public Smoke Registered User',
+        birth_year_month: '1998-07',
+        residential_region: 'TW-TPE',
+      }),
+    });
+    expectStatus('POST /registration creates account without session', registration.response, 201);
+    if (registration.response.headers.get('set-cookie')) {
+      throw new Error('POST /registration must not issue Set-Cookie');
+    }
+    if (
+      registration.body?.registered !== true ||
+      registration.body?.login_required !== true
+    ) {
+      throw new Error('POST /registration returned unexpected success body');
+    }
+    pass('POST /registration returns login_required without Set-Cookie');
+  }
+
+  {
+    const anonymousMe = await requestJson(baseUrl, '/users/me');
+    expectStatus('GET /users/me before login stays anonymous', anonymousMe.response, 401);
+    if (anonymousMe.body?.error !== 'AUTH_REQUIRED') {
+      throw new Error('GET /users/me before login did not fail closed');
+    }
+    pass('GET /users/me before login is anonymous');
+  }
+
+  let loginCookie;
+  {
+    const login = await requestJson(baseUrl, '/login/session', {
+      method: 'POST',
+      headers: {
+        Origin: baseUrl,
+        Authorization: `Bearer ${smokeAuthToken}`,
+      },
+    });
+    expectStatus('POST /login/session issues session after registration', login.response, 201);
+    loginCookie = login.response.headers.get('set-cookie')?.split(';', 1)[0];
+    if (!loginCookie) {
+      throw new Error('POST /login/session did not set a session cookie');
+    }
+    pass('POST /login/session issues www_session cookie');
+  }
+
+  {
+  // APP_ENV=test keeps creator_session + X-User-Id smoke paths available; session-cookie
+  // GET /users/me is covered by tests/http/phase-95-registration-login-full-flow.test.ts.
+    const { rows } = await client.query(
+      `SELECT u.display_name,
+              EXISTS (
+                SELECT 1
+                FROM user_sessions us
+                WHERE us.user_id = u.id
+                  AND us.revoked_at IS NULL
+                  AND us.expires_at > NOW()
+              ) AS has_active_session
+       FROM users u
+       WHERE u.id = $1`,
+      [smokeAuthUserId],
+    );
+    if (rows.length !== 1) {
+      throw new Error('Registration/login smoke user missing from users table');
+    }
+    if (rows[0].display_name !== 'Public Smoke Registered User') {
+      throw new Error('Registration/login smoke user missing expected display_name');
+    }
+    if (!rows[0].has_active_session) {
+      throw new Error('POST /login/session did not persist an active user session row');
+    }
+    pass('POST /login/session persisted active session for registered user display_name');
+  }
+
+  {
+    const logout = await fetch(`${baseUrl}/login/session`, {
+      method: 'DELETE',
+      headers: {
+        Origin: baseUrl,
+        Cookie: loginCookie,
+      },
+    });
+    expectStatus('DELETE /login/session after login', logout, 204);
+    pass('DELETE /login/session revokes session');
+  }
+
+  {
+    const anonymousMe = await requestJson(baseUrl, '/users/me', {
+      headers: { Cookie: loginCookie },
+    });
+    expectStatus('GET /users/me after logout stays anonymous', anonymousMe.response, 401);
+    pass('GET /users/me after logout is anonymous again');
   }
 
   let pollId;
@@ -389,5 +559,7 @@ try {
   await client.end();
 }
 
-console.log('\nPublic flow local smoke passed (/ → /polls/new → /creator/polls → /vote → /results).');
+console.log(
+  '\nPublic flow local smoke passed (/ → registration/login flow → /polls/new → /creator/polls → /vote → /results).',
+);
 console.log('Docker test container remains running for the next rerun.');

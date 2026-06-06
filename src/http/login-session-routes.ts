@@ -1,15 +1,21 @@
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { TrustedCredentialVerifier } from '../auth/user-auth-resolver.js';
+import {
+  readUserSessionCookie,
+  sha256UserSessionToken,
+  USER_SESSION_COOKIE_NAME,
+  USER_SESSION_TOKEN_PATTERN,
+} from '../auth/session-cookie.js';
 import type { UserSessionRepository } from '../user-sessions/repository.js';
 import { sendJson } from './json.js';
 
-export const LOGIN_SESSION_COOKIE_NAME = 'www_session';
+export const LOGIN_SESSION_COOKIE_NAME = USER_SESSION_COOKIE_NAME;
 export const LOGIN_SESSION_ALLOWED_ORIGINS_ENV =
   'LOGIN_SESSION_ALLOWED_ORIGINS_JSON';
+export const sha256SessionToken = sha256UserSessionToken;
 
 const RAW_SESSION_TOKEN_BYTES = 32;
-const SESSION_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 const DEFAULT_SESSION_TTL_SECONDS = 12 * 60 * 60;
 
 export type LoginSessionConfig = {
@@ -60,13 +66,13 @@ export function createLoginSessionRouteHandlers(options: LoginSessionRouteOption
         const now = options.now?.() ?? new Date();
         const expiresAt = new Date(now.getTime() + sessionTtlSeconds * 1000);
         const rawToken = options.generateToken?.() ?? generateRawSessionToken();
-        if (!SESSION_TOKEN_PATTERN.test(rawToken)) {
+        if (!USER_SESSION_TOKEN_PATTERN.test(rawToken)) {
           throw new Error('Generated login session token is invalid');
         }
 
         await options.repository.insertSession({
           session_id: randomUUID(),
-          token_sha256: sha256SessionToken(rawToken),
+          token_sha256: sha256UserSessionToken(rawToken),
           user_id: user.id,
           created_at: now,
           expires_at: expiresAt,
@@ -90,11 +96,11 @@ export function createLoginSessionRouteHandlers(options: LoginSessionRouteOption
     async handleDeleteSession(req: IncomingMessage, res: ServerResponse): Promise<void> {
       try {
         assertLoginSessionMutationOrigin(req, options.config);
-        const rawToken = readLoginSessionCookie(req);
+        const rawToken = readUserSessionCookie(req);
         if (rawToken !== null) {
           const now = options.now?.() ?? new Date();
           const session = await options.repository.findSessionByDigest(
-            sha256SessionToken(rawToken),
+            sha256UserSessionToken(rawToken),
           );
           if (
             session !== null &&
@@ -116,10 +122,6 @@ export function createLoginSessionRouteHandlers(options: LoginSessionRouteOption
   };
 }
 
-export function sha256SessionToken(token: string): Buffer {
-  return createHash('sha256').update(token, 'utf8').digest();
-}
-
 export function createLoginSessionConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): LoginSessionConfig {
@@ -130,29 +132,6 @@ export function createLoginSessionConfigFromEnv(
 
 function generateRawSessionToken(): string {
   return randomBytes(RAW_SESSION_TOKEN_BYTES).toString('base64url');
-}
-
-function readLoginSessionCookie(req: IncomingMessage): string | null {
-  const raw = req.headers.cookie;
-  if (raw === undefined || Array.isArray(raw)) {
-    return null;
-  }
-
-  const matches: string[] = [];
-  for (const segment of raw.split(';')) {
-    const trimmed = segment.trim();
-    const separator = trimmed.indexOf('=');
-    if (separator < 1) {
-      continue;
-    }
-    if (trimmed.slice(0, separator) === LOGIN_SESSION_COOKIE_NAME) {
-      matches.push(trimmed.slice(separator + 1));
-    }
-  }
-  if (matches.length !== 1 || !SESSION_TOKEN_PATTERN.test(matches[0]!)) {
-    return null;
-  }
-  return matches[0]!;
 }
 
 function serializeLoginSessionCookie(token: string, maxAgeSeconds: number): string {

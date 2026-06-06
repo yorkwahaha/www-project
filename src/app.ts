@@ -29,6 +29,7 @@ export function createApp(): WwwApp {
     startHttpServer(port = Number(process.env.PORT ?? 3000)) {
       const pool = getPool();
       const trustedCredentialVerifier = createProductionCredentialVerifierFromEnv();
+      const userSessionRepository = createPgUserSessionRepository(pool);
       const pollService = createPollService(createPgPollRepository(pool));
       const publicNoticeService = createPublicNoticeService(
         createPgPublicNoticeRepository(pool),
@@ -36,13 +37,15 @@ export function createApp(): WwwApp {
       const creatorSessionConfig = createCreatorSessionConfigFromEnv();
       const server = createHttpServer({
         pollService,
-        userAuthResolver: createUserAuthResolverFromEnv(),
+        userAuthResolver: createUserAuthResolverFromEnv(process.env, {
+          userSessionRepository,
+        }),
         adminCorrection: createAdminCorrectionServices(pool),
         adminAuth: createAdminAuthFromEnv(),
         publicNoticeService,
         loginSession: trustedCredentialVerifier
           ? {
-              repository: createPgUserSessionRepository(pool),
+              repository: userSessionRepository,
               trustedCredentialVerifier,
               config: createLoginSessionConfigFromEnv(),
             }

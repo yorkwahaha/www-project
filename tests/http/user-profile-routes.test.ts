@@ -8,14 +8,20 @@ import {
   createUserAuthResolver,
   createUserAuthResolverFromEnv,
 } from '../../src/auth/user-auth-resolver.js';
+import {
+  sha256UserSessionToken,
+  USER_SESSION_COOKIE_NAME,
+} from '../../src/auth/session-cookie.js';
 import { createHttpServer } from '../../src/http/server.js';
 import { createInMemoryPollRepository } from '../../src/polls/in-memory-repository.js';
 import { createPollService } from '../../src/polls/service.js';
 import type { PollEligibilityRuleRow } from '../../src/polls/types.js';
+import { createInMemoryUserSessionRepository } from '../../src/user-sessions/in-memory-repository.js';
 
 const userId = '11111111-1111-4111-8111-111111111111';
 const otherUserId = '33333333-3333-4333-8333-333333333333';
 const lowTrustUserId = '22222222-2222-4222-8222-222222222222';
+const rawSessionToken = 'p'.repeat(43);
 const AUTH_REQUIRED = {
   error: 'AUTH_REQUIRED',
   message: 'User authentication is required',
@@ -139,6 +145,7 @@ describe('User profile HTTP routes', () => {
   it('accepts trusted verifier identity in production mode', async () => {
     const repository = createInMemoryPollRepository();
     await repository.ensureUser(userId, 'Profile User');
+    await repository.ensureUser(otherUserId, 'Other Profile User');
     const service = createPollService(repository);
     const productionResolver = createUserAuthResolver({
       mode: 'production',
@@ -209,6 +216,63 @@ describe('User profile HTTP routes', () => {
         birth_year_month: null,
         residential_region: null,
       });
+    });
+  });
+
+  it('accepts a valid production www_session cookie through UserAuthResolver', async () => {
+    const repository = createInMemoryPollRepository();
+    await repository.ensureUser(userId, 'Profile User');
+    await repository.ensureUser(otherUserId, 'Other Profile User');
+    const sessionRepository = createInMemoryUserSessionRepository();
+    sessionRepository.seedUser(userId);
+    await sessionRepository.insertSession({
+      session_id: '44444444-4444-4444-8444-444444444444',
+      token_sha256: sha256UserSessionToken(rawSessionToken),
+      user_id: userId,
+      created_at: new Date('2026-06-06T00:00:00.000Z'),
+      expires_at: new Date('2026-06-06T01:00:00.000Z'),
+      revoked_at: null,
+      last_used_at: null,
+    });
+    const service = createPollService(repository);
+    const productionResolver = createUserAuthResolver({
+      mode: 'production',
+      userSessionRepository: sessionRepository,
+      now: () => new Date('2026-06-06T00:15:00.000Z'),
+    });
+    const server = createHttpServer({
+      pollService: service,
+      userAuthResolver: productionResolver,
+    });
+
+    await withServer(server, async (baseUrl) => {
+      const updated = await request(baseUrl, 'PUT', '/users/me/profile', {
+        headers: {
+          Cookie: `${USER_SESSION_COOKIE_NAME}=${rawSessionToken}`,
+          'X-User-Id': otherUserId,
+        },
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      const readBack = await request(baseUrl, 'GET', '/users/me/profile', {
+        headers: { Cookie: `${USER_SESSION_COOKIE_NAME}=${rawSessionToken}` },
+      });
+
+      expect(updated).toEqual({
+        status: 200,
+        body: { birth_year_month: '1998-07', residential_region: 'TW-TPE' },
+      });
+      expect(readBack).toEqual(updated);
+      expect((await service.getUserProfile(otherUserId))).toEqual({
+        birth_year_month: null,
+        residential_region: null,
+      });
+      expect(
+        (
+          await sessionRepository.findSessionByDigest(
+            sha256UserSessionToken(rawSessionToken),
+          )
+        )?.last_used_at,
+      ).toEqual(new Date('2026-06-06T00:15:00.000Z'));
     });
   });
 

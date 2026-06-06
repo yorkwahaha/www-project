@@ -5,7 +5,6 @@ import { describe, expect, it } from 'vitest';
 describe('production session protected-route source guard', () => {
   it('does not wire user session storage directly into protected route adapters or domain services', async () => {
     for (const file of [
-      'src/auth/user-auth-resolver.ts',
       'src/auth/production-credential-verifier.ts',
       'src/http/user-profile-routes.ts',
       'src/http/poll-routes.ts',

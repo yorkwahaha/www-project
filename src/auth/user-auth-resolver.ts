@@ -1,5 +1,10 @@
 import type { IncomingMessage } from 'node:http';
 import { createProductionCredentialVerifierFromEnv } from './production-credential-verifier.js';
+import {
+  readUserSessionCookie,
+  sha256UserSessionToken,
+} from './session-cookie.js';
+import type { UserSessionRepository } from '../user-sessions/repository.js';
 
 export type UserAuthSource = 'production' | 'local_demo' | 'test';
 
@@ -20,11 +25,15 @@ export type UserAuthResolverOptions =
   | {
       mode: 'production';
       trustedCredentialVerifier?: TrustedCredentialVerifier;
+      userSessionRepository?: UserSessionRepository;
+      now?: () => Date;
     }
   | {
       mode: 'local_demo' | 'test';
       allowMvpUserIdHeader?: boolean;
       trustedCredentialVerifier?: TrustedCredentialVerifier;
+      userSessionRepository?: UserSessionRepository;
+      now?: () => Date;
     };
 
 export function createUserAuthResolver(options: UserAuthResolverOptions): UserAuthResolver {
@@ -36,7 +45,18 @@ export function createUserAuthResolver(options: UserAuthResolverOptions): UserAu
         return userId === null ? null : { user_id: userId, source: 'production' };
       }
 
-      if (options.mode === 'production' || options.allowMvpUserIdHeader !== true) {
+      if (options.mode === 'production') {
+        const sessionUserId = await resolveUserSession(
+          req,
+          options.userSessionRepository,
+          options.now?.() ?? new Date(),
+        );
+        return sessionUserId === null
+          ? null
+          : { user_id: sessionUserId, source: 'production' };
+      }
+
+      if (options.allowMvpUserIdHeader !== true) {
         return null;
       }
 
@@ -68,6 +88,10 @@ export function createDefaultTestUserAuthResolver(): UserAuthResolver {
 
 export function createUserAuthResolverFromEnv(
   env: NodeJS.ProcessEnv = process.env,
+  options: {
+    userSessionRepository?: UserSessionRepository;
+    now?: () => Date;
+  } = {},
 ): UserAuthResolver {
   const appEnv = parseAppEnvironment(env.APP_ENV);
   if (appEnv === 'production') {
@@ -75,6 +99,10 @@ export function createUserAuthResolverFromEnv(
     return createUserAuthResolver({
       mode: 'production',
       ...(trustedCredentialVerifier === undefined ? {} : { trustedCredentialVerifier }),
+      ...(options.userSessionRepository === undefined
+        ? {}
+        : { userSessionRepository: options.userSessionRepository }),
+      ...(options.now === undefined ? {} : { now: options.now }),
     });
   }
   return createUserAuthResolver({
@@ -95,6 +123,34 @@ async function resolveTrustedCredential(
   } catch {
     return null;
   }
+}
+
+async function resolveUserSession(
+  req: IncomingMessage,
+  repository: UserSessionRepository | undefined,
+  now: Date,
+): Promise<string | null> {
+  if (repository === undefined) {
+    return null;
+  }
+
+  const rawToken = readUserSessionCookie(req);
+  if (rawToken === null) {
+    return null;
+  }
+
+  const session = await repository.findSessionByDigest(sha256UserSessionToken(rawToken));
+  if (
+    session === null ||
+    session.user_status !== 'active' ||
+    session.revoked_at !== null ||
+    session.expires_at.getTime() <= now.getTime()
+  ) {
+    return null;
+  }
+
+  const markedUsed = await repository.markSessionUsed(session.session_id, now);
+  return markedUsed ? session.user_id : null;
 }
 
 function parseAppEnvironment(

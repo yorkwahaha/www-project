@@ -241,6 +241,38 @@ try {
   }
 
   {
+    const { response, body } = await requestText(baseUrl, '/profile');
+    expectStatus('GET /profile page', response, 200);
+    if (!body.includes('profile-unauthenticated') || !body.includes('/frontend/profile-page.js')) {
+      throw new Error('Profile page missing production profile shell');
+    }
+    if (!body.includes('href="/login"') || !body.includes('name="birth_year_month"')) {
+      throw new Error('Profile page missing login guidance or profile fields');
+    }
+  }
+  pass('GET /profile serves production profile shell');
+
+  {
+    const profileScript = await requestText(baseUrl, '/frontend/profile-page.js');
+    expectStatus('GET /frontend/profile-page.js', profileScript.response, 200);
+    if (
+      !profileScript.body.includes('readLoginState') ||
+      !profileScript.body.includes("credentials: 'same-origin'") ||
+      !profileScript.body.includes('/users/me/profile')
+    ) {
+      throw new Error('Profile page script missing session profile load/save wiring');
+    }
+    if (
+      /X-User-Id|\/login\/session|\/registration|\/vote|reference-answer|option_id|option_text|option_index/i.test(
+        profileScript.body,
+      )
+    ) {
+      throw new Error('Profile page script references forbidden auth/vote/option paths');
+    }
+    pass('GET /frontend/profile-page.js wires session profile load/save only');
+  }
+
+  {
     const { response, body } = await requestText(baseUrl, '/explore');
     expectStatus('GET /explore feed page', response, 200);
     if (!body.includes('explore-feed') || !body.includes('/frontend/public-mvp.css')) {

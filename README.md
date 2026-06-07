@@ -182,6 +182,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 98:** Minimal profile setup UI runtime — adds post-login `GET /profile` and `profile-page.js` that call existing `GET`/`PUT /users/me/profile` with `credentials: 'same-origin'` for `birth_year_month` and coarse `residential_region` only. Unauthenticated visitors see neutral copy and `/login` guidance without mounting the form or calling the profile API; signed-in users can load, save, or clear both fields through full-replacement PUT. Shared chrome still uses `GET /users/me` for `display_name` only. No API, schema, login/session, registration, `UserAuthResolver`, `/users/me` shape, Official Vote, Reference Answer, or vote token/counter behavior changes — `docs/www-project-phase-98-minimal-profile-setup-ui-runtime-v1.md`.
 
+**Phase 99:** Profile setup UI runtime review / hardening — reviews Phase 98 `/profile` runtime, shared chrome/login-state boundaries, and `GET`/`PUT /users/me/profile` call paths; adds focused source guards and `smoke:public:local` static checks confirming unauthenticated gating, same-origin two-field profile load/save, and exclusion of registration/login/session/vote/reference linkage. No runtime/API/schema behavior changed — `docs/www-project-phase-99-profile-setup-ui-runtime-review-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

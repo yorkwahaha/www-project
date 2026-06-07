@@ -273,6 +273,46 @@ try {
   }
 
   {
+    const layoutScript = await requestText(baseUrl, '/frontend/public-mvp-layout.js');
+    expectStatus('GET /frontend/public-mvp-layout.js', layoutScript.response, 200);
+    if (
+      !layoutScript.body.includes('mountProfileCompletionPrompt') ||
+      !layoutScript.body.includes('shouldReadLoginState') ||
+      !layoutScript.body.includes("pathname === '/'")
+    ) {
+      throw new Error('Shared layout missing homepage-only profile completion prompt hook');
+    }
+    if (/users\/me\/profile|birth_year_month|residential_region/i.test(layoutScript.body)) {
+      throw new Error('Shared layout must not read profile fields directly');
+    }
+    pass('GET /frontend/public-mvp-layout.js wires homepage-only profile completion prompt hook');
+  }
+
+  {
+    const promptScript = await requestText(
+      baseUrl,
+      '/frontend/profile-completion-prompt.js',
+    );
+    expectStatus('GET /frontend/profile-completion-prompt.js', promptScript.response, 200);
+    if (
+      !promptScript.body.includes('/users/me/profile') ||
+      !promptScript.body.includes("credentials: 'same-origin'") ||
+      !promptScript.body.includes('birth_year_month') ||
+      !promptScript.body.includes('residential_region')
+    ) {
+      throw new Error('Profile completion prompt script missing profile read wiring');
+    }
+    if (
+      /\/registration|\/login\/session|\/vote|reference-answer|option_id|option_text|option_index|window\.location|display_name/i.test(
+        promptScript.body,
+      )
+    ) {
+      throw new Error('Profile completion prompt script references forbidden auth/vote/option paths');
+    }
+    pass('GET /frontend/profile-completion-prompt.js wires profile completeness prompt only');
+  }
+
+  {
     const { response, body } = await requestText(baseUrl, '/explore');
     expectStatus('GET /explore feed page', response, 200);
     if (!body.includes('explore-feed') || !body.includes('/frontend/public-mvp.css')) {

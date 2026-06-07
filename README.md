@@ -184,6 +184,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 99:** Profile setup UI runtime review / hardening — reviews Phase 98 `/profile` runtime, shared chrome/login-state boundaries, and `GET`/`PUT /users/me/profile` call paths; adds focused source guards and `smoke:public:local` static checks confirming unauthenticated gating, same-origin two-field profile load/save, and exclusion of registration/login/session/vote/reference linkage. No runtime/API/schema behavior changed — `docs/www-project-phase-99-profile-setup-ui-runtime-review-v1.md`.
 
+**Phase 100 (checkpoint):** Registration / login / profile milestone checkpoint — consolidates Phases 89–99 into the stable registration → login → profile setup baseline: `POST /registration` without session/`Set-Cookie`, explicit `POST /login/session`, `GET /users/me` limited to `user_id` + `display_name`, post-login `GET /profile` with `GET`/`PUT /users/me/profile` for two nullable eligibility fields only, and preserved vote/eligibility/Reference Answer/Raw Option Linkage Ban boundaries. Docs/checkpoint only; no runtime/API/schema behavior changed — `docs/www-project-phase-100-registration-login-profile-milestone-checkpoint-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

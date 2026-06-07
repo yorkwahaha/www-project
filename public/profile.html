@@ -8,28 +8,39 @@
   </head>
   <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
-    <header id="site-header" data-nav="logged-in-mock" data-active="profile"></header>
-    <main id="main-content" class="mvp-page mvp-shell">
+    <header id="site-header" data-nav="guest" data-active="profile"></header>
+    <main id="main-content" class="mvp-page mvp-shell mvp-profile-shell" aria-labelledby="profile-heading">
       <p class="mvp-demo-nav-switch" role="note">
         切換瀏覽身分（展示用）：
         <a href="?nav=guest">訪客</a>
         ·
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
-      <p class="mvp-mock-banner" role="note">
-        <strong>MVP 測試身份</strong>：本機以固定 <code>X-User-Id</code> 讀寫個人資料，<strong>不是</strong>正式登入。
-        此頁<strong>不使用</strong> <code>creator_session</code>（發起者 cookie 僅 <code>/creator/*</code>）。
-        正式登入狀態見 <a href="/login">登入說明</a>。
-      </p>
-      <p class="mvp-brand">個人資料</p>
-      <h1>投票資格資料</h1>
-      <p class="mvp-lead">
-        此資料只用於判斷你是否符合部分問卷的 Official Vote 資格。本頁僅可填寫出生年／月與粗粒度地區兩類欄位。
-      </p>
 
-      <div class="mvp-form-card">
+      <header class="mvp-info-hero">
+        <p class="mvp-brand">個人資料</p>
+        <h1 id="profile-heading">投票資格資料</h1>
+        <p class="mvp-lead">
+          此資料只用於判斷你是否符合部分問卷的 Official Vote 資格。本頁僅可填寫出生年／月與粗粒度地區兩類欄位。
+        </p>
+      </header>
+
+      <section
+        id="profile-unauthenticated"
+        class="mvp-profile-unauthenticated mvp-form-card"
+        aria-labelledby="profile-unauth-heading"
+      >
+        <h2 id="profile-unauth-heading">需要登入</h2>
+        <p>編輯個人資料前請先登入。登入後可檢視、更新或清除出生年月與居住地區。</p>
+        <div class="mvp-form-actions">
+          <a class="mvp-btn-primary" href="/login">前往登入</a>
+          <a class="mvp-btn mvp-btn-secondary" href="/registration">尚未註冊？建立帳號</a>
+        </div>
+      </section>
+
+      <div id="profile-signed-in-panel" class="mvp-form-card" hidden>
         <form id="profile-form" class="mvp-form" novalidate aria-describedby="profile-form-message">
-          <label for="profile-birth-year-month">出生年月</label>
+          <label for="profile-birth-year-month">出生年月（僅到月份）</label>
           <input
             id="profile-birth-year-month"
             name="birth_year_month"
@@ -38,9 +49,11 @@
             autocomplete="bday-month"
             placeholder="YYYY-MM"
           >
-          <p class="mvp-form-hint">只填年份與月份，例如 1998-07；可留空。</p>
+          <p class="mvp-form-hint">
+            官方投票會在投票當下依產品規則檢查年齡資格。我們只收集到「年／月」，不會要求具體日期或年齡天數。可留空或清除。
+          </p>
 
-          <label for="profile-residential-region">居住地區</label>
+          <label for="profile-residential-region">居住地區（粗粒度代碼）</label>
           <select id="profile-residential-region" name="residential_region">
             <option value="">未填寫</option>
             <option value="TW-TPE">TW-TPE 台北市</option>
@@ -56,7 +69,9 @@
             <option value="TW-TTT">TW-TTT 台東縣</option>
             <option value="TW-PEN">TW-PEN 澎湖縣</option>
           </select>
-          <p class="mvp-form-hint">請選擇粗粒度地區代碼；可留空。</p>
+          <p class="mvp-form-hint">
+            官方投票會在投票當下依產品規則檢查地區資格。我們只收集粗粒度地區代碼（例如 <code>TW-TPE</code>），不會要求街道、門牌或精確位置。可留空或清除。
+          </p>
 
           <div class="mvp-form-actions">
             <button id="profile-submit" type="submit" class="mvp-btn-primary">儲存</button>
@@ -65,7 +80,7 @@
         </form>
       </div>
 
-      <p id="profile-form-message" role="status" aria-live="polite"></p>
+      <p id="profile-form-message" class="mvp-profile-status" role="status" aria-live="polite"></p>
     </main>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>
     <script type="module" src="/frontend/profile-page.js"></script>

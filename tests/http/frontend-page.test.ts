@@ -305,12 +305,23 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('投票資格資料');
       expect(pageBody).toContain('name="birth_year_month"');
       expect(pageBody).toContain('name="residential_region"');
+      expect(pageBody).toContain('id="profile-unauthenticated"');
+      expect(pageBody).toContain('href="/login"');
+      expect(pageBody).toContain('id="profile-signed-in-panel"');
+      expect(pageBody).toMatch(/id="profile-signed-in-panel"[^>]*\bhidden\b/);
       expect(pageBody).toContain('/frontend/profile-page.js');
       expect(pageBody).not.toMatch(
-        /gender|性別|birthday|生日|address|地址|GPS|geocode|precise location|精準位置|option_id|option_text|option_index/i,
+        /gender|性別|birthday|生日|address|地址|GPS|geocode|precise location|精準位置|option_id|option_text|option_index|X-User-Id|creator_session/i,
       );
       expect(script.status).toBe(200);
       expect(script.headers.get('content-type')).toContain('text/javascript');
+      const scriptBody = await script.text();
+      expect(scriptBody).toContain('readLoginState');
+      expect(scriptBody).toContain("credentials: 'same-origin'");
+      expect(scriptBody).toContain('/users/me/profile');
+      expect(scriptBody).not.toMatch(
+        /X-User-Id|\/login\/session|\/registration|option_id|option_text|option_index/i,
+      );
     });
   });
 

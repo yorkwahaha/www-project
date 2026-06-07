@@ -1972,6 +1972,27 @@ button:disabled {
   min-height: 1.4rem;
 }
 
+.mvp-profile-shell .mvp-info-hero {
+  margin-bottom: 0.75rem;
+}
+
+.mvp-profile-unauthenticated h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.mvp-profile-unauthenticated p {
+  margin: 0 0 1rem;
+  color: var(--mvp-muted, #5c6470);
+}
+
+.mvp-profile-status {
+  margin-top: 0.75rem;
+  color: var(--mvp-muted, #5c6470);
+  font-size: 0.95rem;
+  min-height: 1.4rem;
+}
+
 /* Phase 46 — policy info pages (FAQ, trust levels) */
 .mvp-info-page {
   max-width: 42rem;

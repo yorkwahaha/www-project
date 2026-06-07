@@ -1,10 +1,17 @@
+/**
+ * Phase 98 — minimal production profile setup/edit runtime.
+ */
+
 import {
   announceToStatusRegion,
   markRegionBusy,
-  resolvePublicMvpUserId,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
+import {
+  LOGIN_STATE_AUTHENTICATED,
+  readLoginState,
+} from './login-state-read.js';
 
 export const PROFILE_REGION_OPTIONS = [
   'TW-TPE',
@@ -21,13 +28,43 @@ export const PROFILE_REGION_OPTIONS = [
   'TW-PEN',
 ];
 
-const SAFE_PROFILE_LOAD_FAILURE_MESSAGE = '目前無法載入個人資料，請稍後再試。';
-const SAFE_PROFILE_SAVE_FAILURE_MESSAGE = '目前無法儲存個人資料，請稍後再試。';
-const PROFILE_VALIDATION_MESSAGE = '請確認出生年月與居住地區格式。';
-const PROFILE_SAVED_MESSAGE = '個人資料已儲存。';
+export const PROFILE_UNAUTHENTICATED_MESSAGE =
+  '編輯個人資料前請先登入。';
+export const PROFILE_LOADING_MESSAGE = '載入中…';
+export const PROFILE_SAVING_MESSAGE = '儲存中…';
+export const PROFILE_SAVED_MESSAGE = '個人資料已儲存。';
+export const PROFILE_VALIDATION_MESSAGE = '請確認出生年月與居住地區格式。';
+export const PROFILE_UNAUTHENTICATED_EDIT_MESSAGE =
+  '請先登入後再編輯個人資料。';
+export const PROFILE_LOAD_FAILURE_MESSAGE =
+  '目前無法載入個人資料，請稍後再試。';
+export const PROFILE_SAVE_FAILURE_MESSAGE =
+  '目前無法儲存個人資料，請稍後再試。';
+
 const SUBMIT_IDLE_LABEL = '儲存';
 const SUBMIT_BUSY_LABEL = '儲存中…';
 
+/**
+ * @param {unknown} value
+ * @returns {value is HTMLFormElement}
+ */
+function isFormElement(value) {
+  return (
+    (typeof HTMLFormElement !== 'undefined' && value instanceof HTMLFormElement) ||
+    (
+      !!value &&
+      typeof value === 'object' &&
+      /** @type {{ tagName?: unknown }} */ (value).tagName === 'FORM'
+    )
+  );
+}
+
+/**
+ * @param {{
+ *   birthYearMonth: string,
+ *   residentialRegion: string,
+ * }} input
+ */
 export function normalizeProfileFormInput({
   birthYearMonth,
   residentialRegion,
@@ -46,6 +83,33 @@ export function normalizeProfileFormInput({
   };
 }
 
+/**
+ * @param {Response} response
+ * @returns {'validation' | 'unauthenticated' | 'server'}
+ */
+export function reasonForProfileResponse(response) {
+  if (response.status === 400) return 'validation';
+  if (response.status === 401) return 'unauthenticated';
+  return 'server';
+}
+
+/**
+ * @param {'validation' | 'unauthenticated' | 'network' | 'server'} reason
+ * @param {'load' | 'save'} context
+ */
+export function messageForProfileFailure(reason, context = 'save') {
+  if (reason === 'validation') return PROFILE_VALIDATION_MESSAGE;
+  if (reason === 'unauthenticated') return PROFILE_UNAUTHENTICATED_EDIT_MESSAGE;
+  if (reason === 'network') {
+    return context === 'load'
+      ? PROFILE_LOAD_FAILURE_MESSAGE
+      : PROFILE_SAVE_FAILURE_MESSAGE;
+  }
+  return context === 'load'
+    ? PROFILE_LOAD_FAILURE_MESSAGE
+    : PROFILE_SAVE_FAILURE_MESSAGE;
+}
+
 async function readSafeProfileJson(response, fallbackMessage) {
   try {
     return await response.json();
@@ -54,134 +118,229 @@ async function readSafeProfileJson(response, fallbackMessage) {
   }
 }
 
+/**
+ * @param {{ fetchImpl?: typeof fetch }} [options]
+ */
 export async function loadUserProfile({
-  userId,
   fetchImpl = globalThis.fetch,
-}) {
+} = {}) {
+  if (typeof fetchImpl !== 'function') {
+    throw new Error(PROFILE_LOAD_FAILURE_MESSAGE);
+  }
   let response;
   try {
     response = await fetchImpl('/users/me/profile', {
       method: 'GET',
-      headers: { 'X-User-Id': userId },
-      credentials: 'omit',
+      credentials: 'same-origin',
       cache: 'no-store',
     });
   } catch {
-    throw new Error(SAFE_PROFILE_LOAD_FAILURE_MESSAGE);
+    throw new Error(PROFILE_LOAD_FAILURE_MESSAGE);
   }
   if (!response.ok) {
-    throw new Error(SAFE_PROFILE_LOAD_FAILURE_MESSAGE);
+    throw new Error(
+      messageForProfileFailure(reasonForProfileResponse(response), 'load'),
+    );
   }
-  const body = await readSafeProfileJson(response, SAFE_PROFILE_LOAD_FAILURE_MESSAGE);
+  const body = await readSafeProfileJson(
+    response,
+    PROFILE_LOAD_FAILURE_MESSAGE,
+  );
   return {
     birth_year_month:
       typeof body.birth_year_month === 'string' ? body.birth_year_month : null,
     residential_region:
-      typeof body.residential_region === 'string' ? body.residential_region : null,
+      typeof body.residential_region === 'string'
+        ? body.residential_region
+        : null,
   };
 }
 
+/**
+ * @param {{
+ *   profile: { birth_year_month: string | null, residential_region: string | null },
+ *   fetchImpl?: typeof fetch,
+ * }} options
+ */
 export async function saveUserProfile({
-  userId,
   profile,
   fetchImpl = globalThis.fetch,
 }) {
+  if (typeof fetchImpl !== 'function') {
+    throw new Error(PROFILE_SAVE_FAILURE_MESSAGE);
+  }
   let response;
   try {
     response = await fetchImpl('/users/me/profile', {
       method: 'PUT',
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': userId,
       },
-      body: JSON.stringify(profile),
-      credentials: 'omit',
+      body: JSON.stringify({
+        birth_year_month: profile.birth_year_month,
+        residential_region: profile.residential_region,
+      }),
     });
   } catch {
-    throw new Error(SAFE_PROFILE_SAVE_FAILURE_MESSAGE);
+    throw new Error(PROFILE_SAVE_FAILURE_MESSAGE);
   }
   if (!response.ok) {
-    throw new Error(SAFE_PROFILE_SAVE_FAILURE_MESSAGE);
+    throw new Error(
+      messageForProfileFailure(reasonForProfileResponse(response), 'save'),
+    );
   }
-  return readSafeProfileJson(response, SAFE_PROFILE_SAVE_FAILURE_MESSAGE);
+  return readSafeProfileJson(response, PROFILE_SAVE_FAILURE_MESSAGE);
 }
 
+/**
+ * @param {HTMLFormElement} form
+ * @param {{ birth_year_month: string | null, residential_region: string | null }} profile
+ */
 export function applyProfileToForm(form, profile) {
   form.elements.birth_year_month.value = profile.birth_year_month ?? '';
   form.elements.residential_region.value = profile.residential_region ?? '';
 }
 
-export async function bootstrapProfilePage({
-  documentObject = globalThis.document,
-  fetchImpl = globalThis.fetch,
-  uuidFactory = () => globalThis.crypto.randomUUID(),
-} = {}) {
-  const form = documentObject.getElementById('profile-form');
-  const message = documentObject.getElementById('profile-form-message');
-  const submitButton = documentObject.getElementById('profile-submit');
-  const clearButton = documentObject.getElementById('profile-clear');
-  if (!form || !message || !submitButton || !clearButton) {
-    return;
+/**
+ * @param {Document} documentObject
+ * @param {boolean} authenticated
+ */
+export function setProfilePageAuthVisibility(documentObject, authenticated) {
+  const unauthenticated = documentObject.getElementById('profile-unauthenticated');
+  const signedInPanel = documentObject.getElementById('profile-signed-in-panel');
+  if (unauthenticated) {
+    unauthenticated.hidden = authenticated;
   }
-
-  mountSiteChrome(documentObject);
-
-  const userId = resolvePublicMvpUserId(uuidFactory);
-  markRegionBusy(form, true);
-  announceToStatusRegion(message, '載入中…');
-  try {
-    applyProfileToForm(form, await loadUserProfile({ userId, fetchImpl }));
-    announceToStatusRegion(message, '');
-  } catch (error) {
-    announceToStatusRegion(
-      message,
-      error instanceof Error ? error.message : SAFE_PROFILE_LOAD_FAILURE_MESSAGE,
-    );
-  } finally {
-    markRegionBusy(form, false);
+  if (signedInPanel) {
+    signedInPanel.hidden = !authenticated;
   }
+}
 
-  clearButton.addEventListener('click', () => {
+/**
+ * @param {HTMLFormElement} form
+ * @param {boolean} busy
+ */
+function setProfileFormBusy(form, busy) {
+  markRegionBusy(form, busy);
+  const submitButton = form.ownerDocument?.getElementById('profile-submit');
+  if (submitButton) {
+    setBusySubmitButton(submitButton, {
+      busy,
+      idleLabel: SUBMIT_IDLE_LABEL,
+      busyLabel: SUBMIT_BUSY_LABEL,
+    });
+  }
+  for (const name of ['birth_year_month', 'residential_region']) {
+    const field = form.elements.namedItem(name);
+    if (
+      field &&
+      typeof field === 'object' &&
+      'disabled' in field &&
+      typeof field.disabled === 'boolean'
+    ) {
+      field.disabled = busy;
+    }
+  }
+}
+
+/**
+ * @param {HTMLFormElement} form
+ * @param {{
+ *   fetchImpl?: typeof fetch,
+ *   announce?: typeof announceToStatusRegion,
+ * }} [options]
+ */
+export function wireProfileForm(form, options = {}) {
+  const message = form.ownerDocument?.getElementById('profile-form-message');
+  const clearButton = form.ownerDocument?.getElementById('profile-clear');
+  const announce = options.announce ?? announceToStatusRegion;
+  const fetchImpl = options.fetchImpl;
+
+  clearButton?.addEventListener('click', () => {
     applyProfileToForm(form, {
       birth_year_month: null,
       residential_region: null,
     });
-    announceToStatusRegion(message, '');
+    announce(message, '');
   });
 
-  form.addEventListener('submit', async (event) => {
+  form.addEventListener('submit', (event) => {
     event.preventDefault();
-    setBusySubmitButton(submitButton, {
-      busy: true,
-      idleLabel: SUBMIT_IDLE_LABEL,
-      busyLabel: SUBMIT_BUSY_LABEL,
-    });
-    announceToStatusRegion(message, '儲存中…');
-    try {
-      const profile = normalizeProfileFormInput({
-        birthYearMonth: form.elements.birth_year_month.value,
-        residentialRegion: form.elements.residential_region.value,
-      });
-      applyProfileToForm(
-        form,
-        await saveUserProfile({ userId, profile, fetchImpl }),
-      );
-      announceToStatusRegion(message, PROFILE_SAVED_MESSAGE);
-    } catch (error) {
-      announceToStatusRegion(
-        message,
-        error instanceof Error ? error.message : SAFE_PROFILE_SAVE_FAILURE_MESSAGE,
-      );
-    } finally {
-      setBusySubmitButton(submitButton, {
-        busy: false,
-        idleLabel: SUBMIT_IDLE_LABEL,
-        busyLabel: SUBMIT_BUSY_LABEL,
-      });
-    }
+    void (async () => {
+      setProfileFormBusy(form, true);
+      announce(message, PROFILE_SAVING_MESSAGE);
+      try {
+        const profile = normalizeProfileFormInput({
+          birthYearMonth: form.elements.birth_year_month.value,
+          residentialRegion: form.elements.residential_region.value,
+        });
+        applyProfileToForm(
+          form,
+          await saveUserProfile({ profile, fetchImpl }),
+        );
+        announce(message, PROFILE_SAVED_MESSAGE);
+      } catch (error) {
+        announce(
+          message,
+          error instanceof Error
+            ? error.message
+            : PROFILE_SAVE_FAILURE_MESSAGE,
+        );
+      } finally {
+        setProfileFormBusy(form, false);
+      }
+    })();
   });
 }
 
-if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  void bootstrapProfilePage();
+/**
+ * @param {Document} documentObject
+ * @param {{
+ *   fetchImpl?: typeof fetch,
+ *   readLoginStateImpl?: typeof readLoginState,
+ *   announce?: typeof announceToStatusRegion,
+ * }} [options]
+ */
+export async function mountProfilePage(documentObject = document, options = {}) {
+  mountSiteChrome(documentObject, options);
+
+  const form = documentObject.getElementById('profile-form');
+  const message = documentObject.getElementById('profile-form-message');
+  const announce = options.announce ?? announceToStatusRegion;
+  const readLoginStateImpl = options.readLoginStateImpl ?? readLoginState;
+  const fetchImpl = options.fetchImpl;
+
+  if (!isFormElement(form) || !message) {
+    return { status: 'missing-shell' };
+  }
+
+  const loginState = await readLoginStateImpl({ fetchImpl });
+  if (loginState.status !== LOGIN_STATE_AUTHENTICATED) {
+    setProfilePageAuthVisibility(documentObject, false);
+    announce(message, PROFILE_UNAUTHENTICATED_MESSAGE);
+    return { status: 'unauthenticated' };
+  }
+
+  setProfilePageAuthVisibility(documentObject, true);
+  setProfileFormBusy(form, true);
+  announce(message, PROFILE_LOADING_MESSAGE);
+  try {
+    applyProfileToForm(form, await loadUserProfile({ fetchImpl }));
+    announce(message, '');
+  } catch (error) {
+    announce(
+      message,
+      error instanceof Error ? error.message : PROFILE_LOAD_FAILURE_MESSAGE,
+    );
+  } finally {
+    setProfileFormBusy(form, false);
+  }
+
+  wireProfileForm(form, { fetchImpl, announce });
+  return { status: 'authenticated' };
+}
+
+if (typeof document !== 'undefined') {
+  void mountProfilePage(document);
 }

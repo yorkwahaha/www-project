@@ -178,6 +178,8 @@ Milestone summaries: `docs/www-project-milestone-phase-0-5b-handoff-v1.md` (thro
 
 **Phase 96:** Registration runtime/profile boundary review — reviews Phase 89–95 registration/login/profile flow, confirms registration still does not issue a session or call `/users/me`, confirms `/users/me` remains limited to `user_id` and `display_name`, and adds focused docs/source guards. No runtime/API/schema behavior changed — `docs/www-project-phase-96-registration-runtime-profile-boundary-review-v1.md`.
 
+**Phase 97 (docs):** Minimal profile setup UI plan — defines a future post-login profile setup/edit UI that reads and writes existing `GET`/`PUT /users/me/profile` for `birth_year_month` and coarse `residential_region` only, requires sign-in with unauthenticated users guided to `/login`, uses full-replacement PUT with nullable fields, and excludes gender, exact birthday, precise location, auto-vote, vote recalculation, historical eligibility backfill, demographic breakdowns, ranking personalization, and analytics linkage. No runtime, frontend, API, schema, login/session, registration, `UserAuthResolver`, `/users/me` shape, Official Vote, Reference Answer, or vote token/counter behavior changes — `docs/www-project-phase-97-minimal-profile-setup-ui-plan-v1.md`.
+
 **Quality question incentive draft (docs, policy only — not implemented):** Creator levels, daily poll limits, quality signals, abuse rules, MVP “document and mock UI first” — `docs/www-project-quality-question-incentive-policy-draft-v1.md`. No scoring schema or API in this draft.
 
 **Phase 28:** Shared lightweight stylesheet `public/frontend/public-mvp.css` for all public MVP pages (mobile-friendly layout; no UI framework).

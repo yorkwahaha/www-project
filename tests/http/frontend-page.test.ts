@@ -33,6 +33,10 @@ describe('frontend static routes', () => {
     await withServer(server, async (baseUrl) => {
       const page = await fetch(`${baseUrl}/`);
       const pageBody = await page.text();
+      const layoutScript = await fetch(`${baseUrl}/frontend/public-mvp-layout.js`);
+      const promptScript = await fetch(
+        `${baseUrl}/frontend/profile-completion-prompt.js`,
+      );
 
       expect(page.status).toBe(200);
       expect(page.headers.get('content-type')).toContain('text/html');
@@ -48,6 +52,16 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('登入後頁首才顯示帳號名稱');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('class="mvp-body"');
+      expect(layoutScript.status).toBe(200);
+      expect(await layoutScript.text()).toContain('mountProfileCompletionPrompt');
+      expect(promptScript.status).toBe(200);
+      expect(promptScript.headers.get('content-type')).toContain('text/javascript');
+      const promptBody = await promptScript.text();
+      expect(promptBody).toContain('/users/me/profile');
+      expect(promptBody).toContain("credentials: 'same-origin'");
+      expect(promptBody).not.toMatch(
+        /\/login\/session|\/registration|\/vote|reference-answer|option_id|option_text|option_index/i,
+      );
       expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
 
       const stylesheet = await fetch(`${baseUrl}/frontend/public-mvp.css`);

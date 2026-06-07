@@ -5,6 +5,7 @@
 
 import { AUTH_STATE_COPY } from './auth-state-copy.js';
 import { mountLoginStateRead } from './login-state-ui.js';
+import { mountProfileCompletionPrompt } from './profile-completion-prompt.js';
 
 export { AUTH_STATE_COPY };
 
@@ -407,7 +408,19 @@ export function mountSiteChrome(documentObject, options = {}) {
       header.removeAttribute('data-nav-demo');
     }
     if (shouldReadLoginState(header)) {
-      void mountLoginStateRead(documentObject, options);
+      const pathname =
+        typeof documentObject.defaultView?.location?.pathname === 'string'
+          ? documentObject.defaultView.location.pathname
+          : '';
+      void (async () => {
+        const loginState = await mountLoginStateRead(documentObject, options);
+        if (pathname === '/' || pathname === '') {
+          await mountProfileCompletionPrompt(documentObject, {
+            ...options,
+            loginState,
+          });
+        }
+      })();
     }
   }
   const navMode = header

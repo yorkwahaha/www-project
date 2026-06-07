@@ -1268,6 +1268,28 @@ button:disabled {
   font-style: italic;
 }
 
+.mvp-profile-completion-prompt-mount {
+  margin: 0 0 1rem;
+}
+
+.mvp-profile-completion-prompt {
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--mvp-radius-sm);
+  background: #f4f8fc;
+  border: 1px solid #c9d9ea;
+  font-size: 0.88rem;
+  color: #2f4a66;
+}
+
+.mvp-profile-completion-prompt-message {
+  margin: 0 0 0.45rem;
+}
+
+.mvp-profile-completion-prompt-actions {
+  margin: 0;
+}
+
 .mvp-auth-state-chip {
   display: inline-flex;
   align-items: center;

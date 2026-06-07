@@ -464,6 +464,15 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/profile-completion-prompt.js') {
+    await sendPublicFile(
+      res,
+      'frontend/profile-completion-prompt.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   if (method === 'GET' && path === '/polls/new') {
     await sendPublicFile(res, 'create-poll.html', 'text/html; charset=utf-8');
     return;

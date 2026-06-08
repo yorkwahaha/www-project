@@ -23,18 +23,16 @@
           <p id="poll-description"></p>
 
           <p class="mvp-mock-banner" role="note">
-            <strong>投票身分</strong>：即時投票使用 MVP <code>X-User-Id</code> 測試身份（見
-            <a href="/profile">個人資料</a>），<strong>不是</strong>正式登入；
-            <code>creator_session</code> 僅供發起者 <code>?live=1</code> 流程。
+            <strong>投票提醒</strong>：正式投票可能需要登入，並會在送出當下由系統處理。
             範例問卷（如 <code>/vote/demo</code>）僅展示 UI，不儲存票數。
           </p>
 
           <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="投票須知">
             <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0 0 0.35rem">投票須知</h2>
             <ul class="mvp-form-hint-list" style="margin:0">
-              <li><strong>Lv.1 註冊</strong>且符合資格者可投票；訪客請先註冊／登入（<a href="/trust-levels">說明</a>）</li>
+              <li>正式投票可能需要登入；送出時才由系統判定是否可計票（<a href="/trust-levels">說明</a>）</li>
               <li>收集中<strong>不顯示</strong>票數、百分比、總計、排名、趨勢或進度；發起者亦同（<a href="/faq">常見問題</a>）</li>
-              <li>不符合資格或暫不投票者，可<strong>關注結果</strong>，於公開後查看彙總</li>
+              <li>暫不投票或稍後再試時，可<strong>關注結果</strong>，於公開後查看彙總</li>
               <li>投票後可協助回饋題目品質；優質題目非單純按讚，亦非正式檢舉</li>
             </ul>
           </aside>
@@ -48,6 +46,13 @@
               不顯示票數、百分比、總計、排名、趨勢或進度；結果於統計結束後公開。
             </p>
           </div>
+
+          <aside
+            id="official-vote-pre-vote-hint"
+            class="mvp-official-vote-pre-vote-hint"
+            aria-label="正式投票提醒"
+            hidden
+          ></aside>
 
           <div id="vote-policy-panels" class="vote-policy-panels" hidden></div>
 
@@ -75,13 +80,13 @@
           ></section>
         </div>
 
-        <aside class="mvp-side-panel mvp-side-panel-compact" aria-label="資格與關注" id="vote-side-panel">
+        <aside class="mvp-side-panel mvp-side-panel-compact" aria-label="關注結果" id="vote-side-panel">
           <div class="mvp-mascot mvp-mascot--followed" style="width:3rem;height:3rem;margin-bottom:0.5rem" aria-hidden="true">
             <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
           </div>
           <h2>關注結果</h2>
           <p class="mvp-meta" style="margin:0 0 0.5rem">
-            不符合資格或暫不投票時，可關注結果公開通知（不含 Email／推播）。
+            暫不投票或稍後再試時，可關注結果公開通知（不含 Email／推播）。
           </p>
           <button type="button" class="mvp-btn-mock" disabled aria-disabled="true" title="這項功能會在登入與通知系統完成後開放">關注結果</button>
           <p class="mvp-follow-mock-note" style="margin:0.35rem 0 0;font-size:0.82rem;color:var(--mvp-muted);font-style:italic">
@@ -89,7 +94,7 @@
           </p>
           <p class="mvp-meta" style="margin:0.5rem 0 0.25rem">其他狀態範例：</p>
           <ul class="mvp-preview-links">
-            <li><a href="?ui_state=ineligible">不符合資格</a></li>
+            <li><a href="?ui_state=ineligible">暫不投票</a></li>
             <li><a href="?ui_state=followed">已關注結果</a></li>
             <li><a href="?ui_state=cancelled">已取消</a></li>
           </ul>

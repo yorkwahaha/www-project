@@ -165,10 +165,10 @@ describe('public voting page', () => {
         userId: 'runtime-user-id',
         fetchImpl,
       }),
-    ).rejects.toThrow('目前無法送出投票，請稍後再試。');
+    ).rejects.toThrow('目前無法完成這次投票。');
   });
 
-  it('shows fixed profile eligibility failures without option details', async () => {
+  it('shows neutral vote denial failures without option details', async () => {
     const { submitVoteByIndex } = await loadVotePageModule();
     const fetchImpl = vi.fn(async () => ({
       ok: false,
@@ -186,7 +186,7 @@ describe('public voting page', () => {
         userId: 'runtime-user-id',
         fetchImpl,
       }),
-    ).rejects.toThrow('你目前不符合此問卷的投票資格。');
+    ).rejects.toThrow('目前無法完成這次投票。');
   });
 
   it('maps poll-not-found load failures to a friendly message', async () => {
@@ -202,7 +202,7 @@ describe('public voting page', () => {
     );
   });
 
-  it('maps duplicate vote responses to a result-page hint', async () => {
+  it('maps duplicate vote responses to the same neutral failure copy', async () => {
     const { submitVoteByIndex } = await loadVotePageModule();
     const fetchImpl = vi.fn(async () => ({
       ok: false,
@@ -220,7 +220,7 @@ describe('public voting page', () => {
         userId: 'runtime-user-id',
         fetchImpl,
       }),
-    ).rejects.toThrow('您已在此問卷投過票');
+    ).rejects.toThrow('目前無法完成這次投票。');
   });
 
   it('renders preview-only success copy when demo mode', async () => {

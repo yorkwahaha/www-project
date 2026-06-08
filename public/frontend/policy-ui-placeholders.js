@@ -9,7 +9,7 @@ export const TRUST_LEVEL_PREVIEW_COPY = {
   createLead:
     'Lv.1 註冊用戶可發起一般問卷；政治／高風險類別需更高信任並經事前審核。目前為公開展示版，送出僅檢查欄位，不會儲存資料。',
   voteLead:
-    'Lv.1 註冊且符合資格者可投票；收集中不顯示期中結果。投票後可協助回饋題目品質（登入與計分完成後開放）。',
+    '正式投票可能需要登入；收集中不顯示期中結果。投票是否計票以送出當下系統判定為準。',
   myPollsLead:
     '發起額度與品質點數目前以範例資料展示，非真實帳號數值；優質題目看的是多種品質訊號，不是單純按讚。',
 };
@@ -47,9 +47,9 @@ export const POLICY_UI_COPY = {
   unpublishAfterLock:
     '此問卷已結束公開鎖定期，並由發起者下架。',
   eligibilitySelfReport:
-    '年齡資格依你在個人資料中自行填寫的出生年／月計算，並非官方驗證。',
+    '送出投票後，系統會依該投票的規則在當下處理；頁面不預先顯示條件細節。',
   eligibilityIneligible:
-    '你目前不符合此問卷的投票資格。你可以關注此問卷，並在結果公開後查看公開彙總統計。',
+    '目前無法完成這次投票。請確認已登入並完成必要的個人資料後再試；若問題持續，請稍後再試。',
   followWhileCollecting:
     '暫不投票或尚未投票時，可關注此問卷；結果公開後可查看彙總統計（站內通知完成後開放，目前不會儲存）。',
   followButton: '關注結果',
@@ -57,7 +57,7 @@ export const POLICY_UI_COPY = {
   followMockNote:
     '這項功能會在登入與通知系統完成後開放；目前不會儲存關注或發送通知。',
   profileHelpFields:
-    '請至「個人資料」填寫出生年／月（不含日期）與粗粒度居住地區；僅用於部分問卷的 Official Vote 資格判斷。',
+    '若需要補充正式投票可能使用的基本個人資料，可前往「個人資料」更新；此提示不代表一定可以完成投票。',
 };
 
 function appendParagraph(parent, text, className = 'policy-panel-text') {
@@ -199,12 +199,12 @@ export function renderLifecyclePolicyPanel(parent) {
 export function renderEligibilityPlaceholderPanel(parent) {
   const doc = parent.ownerDocument;
   const { section } = createPolicyPanel(doc, {
-    title: '投票資格說明',
+    title: '正式投票提醒',
     badge: 'Official Vote',
     badgeClass: 'mvp-badge mvp-badge-muted',
     mascotVariant: 'idle',
     titleHelp: {
-      label: '資格如何判斷',
+      label: '投票如何處理',
       text: HELP_COPY.eligibility,
     },
   });
@@ -212,9 +212,9 @@ export function renderEligibilityPlaceholderPanel(parent) {
   const list = doc.createElement('ul');
   list.className = 'policy-field-list';
   for (const item of [
-    '年齡：依個人資料中的出生年／月與問卷規則比對（自行填寫，非官方驗證）',
-    '地區：依個人資料中的粗粒度居住地區代碼',
-    '不符合資格時，投票頁顯示固定提示，不揭露選項或條件細節',
+    '送出投票後才由系統在當下處理。',
+    '頁面不預先顯示條件細節或判定結果。',
+    '若需要補充基本個人資料，可從個人資料頁更新。',
   ]) {
     const li = doc.createElement('li');
     li.textContent = item;
@@ -356,7 +356,7 @@ const UI_MOCK_STATE_LABELS = {
   post_lock: '鎖定期已結束',
   cancelled: '已取消',
   unpublished: '已下架',
-  ineligible: '不符合資格',
+  ineligible: '暫不投票',
   followed: '已關注結果',
 };
 
@@ -386,8 +386,8 @@ const UI_MOCK_STATE_PANEL_CONFIG = {
     mascot: 'idle',
   },
   ineligible: {
-    title: '不符合投票資格',
-    badge: '無法投票',
+    title: '暫不投票',
+    badge: '請稍後再試',
     badgeClass: 'mvp-badge mvp-badge-muted',
     mascot: 'idle',
   },
@@ -656,11 +656,11 @@ export function renderVotePagePolicyPanels(parent, options = {}) {
   if (mockState === 'ineligible') {
     const doc = parent.ownerDocument;
     const { section } = createPolicyPanel(doc, {
-      title: '投票資格',
-      badge: '不符合資格',
+      title: '正式投票提醒',
+      badge: '中性提示',
       badgeClass: 'mvp-badge mvp-badge-muted',
       mascotVariant: 'idle',
-      titleHelp: { label: '資格說明', text: HELP_COPY.eligibility },
+      titleHelp: { label: '投票說明', text: HELP_COPY.eligibility },
     });
     appendParagraph(section, POLICY_UI_COPY.eligibilitySelfReport);
     appendParagraph(section, POLICY_UI_COPY.eligibilityIneligible);
@@ -684,7 +684,7 @@ export function renderVotePagePolicyPanels(parent, options = {}) {
   if (mockState === 'followed') {
     appendParagraph(
       followSection,
-      '已關注結果公開通知（站內，範例）。不符合資格時仍無法投票。',
+      '已關注結果公開通知（站內，範例）。暫不投票時仍可等待結果公開。',
     );
     const chip = doc.createElement('p');
     chip.className = 'ui-mock-followed-chip';

@@ -18,6 +18,7 @@ import {
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
+import { mountOfficialVotePreVoteHint } from './official-vote-pre-vote-hints.js';
 import {
   applyVotePageUiMockState,
   mountUiMockPreviewChrome,
@@ -224,7 +225,7 @@ export async function bootstrapVotePage({
     return;
   }
 
-  mountSiteChrome(documentObject);
+  mountSiteChrome(documentObject, { fetchImpl });
 
   const uiMockState = parseUiMockState(windowObject.location.search);
   mountUiMockPreviewChrome(documentObject, uiMockState);
@@ -305,6 +306,7 @@ export async function bootstrapVotePage({
       collectingNotice.hidden = Boolean(policyPanels && !policyPanels.hidden);
     }
     form.hidden = false;
+    void mountOfficialVotePreVoteHint(documentObject, { fetchImpl });
     applyVotePageUiMockState({
       mockState: uiMockState,
       form,

@@ -29,15 +29,18 @@ describe('Phase 67 public profile eligibility UX copy guard', () => {
     }
   });
 
-  it('maps vote eligibility failures to fixed frontend copy without option hints', async () => {
+  it('maps vote denials to fixed neutral frontend copy without option hints', async () => {
     const { messageForVoteSubmitFailure } = await import(
       pathToFileURL(join(process.cwd(), 'public/frontend/public-mvp-ui.js')).href
     );
     const { POLICY_UI_COPY } = await loadPolicyUiModule();
 
     const fixed = POLICY_UI_COPY.eligibilityIneligible;
-    expect(fixed).toBe('你目前不符合此問卷的投票資格。你可以關注此問卷，並在結果公開後查看公開彙總統計。');
+    expect(fixed).toBe(
+      '目前無法完成這次投票。請確認已登入並完成必要的個人資料後再試；若問題持續，請稍後再試。',
+    );
     expect(fixed).not.toMatch(/option_index|option_id|選項/);
+    expect(fixed).not.toMatch(/符合資格|不符合資格/);
 
     expect(
       messageForVoteSubmitFailure({
@@ -45,7 +48,7 @@ describe('Phase 67 public profile eligibility UX copy guard', () => {
         errorCode: 'POLL_FORBIDDEN',
         message: 'Official Vote requires an eligible official-trust user.',
       }),
-    ).toBe('你目前不符合此問卷的投票資格。');
+    ).toBe(POLICY_UI_COPY.eligibilityIneligible);
 
     expect(
       messageForVoteSubmitFailure({
@@ -53,19 +56,20 @@ describe('Phase 67 public profile eligibility UX copy guard', () => {
         errorCode: 'PROFILE_INELIGIBLE',
         message: 'any backend detail',
       }),
-    ).toBe('你目前不符合此問卷的投票資格。');
+    ).toBe(POLICY_UI_COPY.eligibilityIneligible);
   });
 
-  it('describes live vote eligibility guidance with profile link, not "not yet open"', async () => {
+  it('describes live vote guidance with profile link, not "not yet open"', async () => {
     const source = await readFile(
       join(process.cwd(), 'public/frontend/policy-ui-placeholders.js'),
       'utf8',
     );
 
-    expect(source).toContain('投票資格說明');
+    expect(source).toContain('正式投票提醒');
     expect(source).toContain("profileLink.href = '/profile'");
     expect(source).toContain('profileHelpFields');
     expect(source).not.toContain('真實資格判斷尚未開放');
+    expect(source).not.toMatch(/符合資格|不符合資格/);
     expect(source).not.toMatch(FORBIDDEN_COPY);
   });
 

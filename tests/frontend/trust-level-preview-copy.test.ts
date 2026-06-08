@@ -15,7 +15,8 @@ describe('trust level preview copy (phase 45)', () => {
     const { TRUST_LEVEL_PREVIEW_COPY } = await loadPolicyModule();
     expect(TRUST_LEVEL_PREVIEW_COPY.createLead).toMatch(/Lv\.1/);
     expect(TRUST_LEVEL_PREVIEW_COPY.createLead).toMatch(/不會儲存/);
-    expect(TRUST_LEVEL_PREVIEW_COPY.voteLead).toMatch(/投票後可協助回饋/);
+    expect(TRUST_LEVEL_PREVIEW_COPY.voteLead).toMatch(/正式投票可能需要登入/);
+    expect(TRUST_LEVEL_PREVIEW_COPY.voteLead).toMatch(/送出當下系統判定/);
     expect(TRUST_LEVEL_PREVIEW_COPY.myPollsLead).toMatch(/不是單純按讚/);
   });
 
@@ -58,11 +59,11 @@ describe('trust level preview copy (phase 45)', () => {
   it('vote page shows trust policy and collecting privacy', async () => {
     const html = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
     expect(html).toMatch(/投票須知/);
-    expect(html).toMatch(/Lv\.1 註冊/);
+    expect(html).toMatch(/正式投票可能需要登入/);
     expect(html).toMatch(/不顯示.*票數、百分比、總計、排名、趨勢或進度/s);
     expect(html).toMatch(/關注結果/);
     expect(html).toMatch(/非單純按讚|不是單純按讚/);
-    expect(html).toMatch(/投票身分|MVP/);
+    expect(html).toMatch(/投票提醒/);
     expect(html).not.toMatch(/尚未連線|不呼叫 API/i);
   });
 

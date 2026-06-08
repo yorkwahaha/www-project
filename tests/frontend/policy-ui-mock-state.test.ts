@@ -159,6 +159,6 @@ describe('policy ui mock state', () => {
 
     const text = collectText(root).join(' ');
     expect(text).toMatch(/展示用，不儲存|範例資料|不代表真實問卷/);
-    expect(text).toMatch(/不符合資格/);
+    expect(text).toMatch(/暫不投票/);
   });
 });

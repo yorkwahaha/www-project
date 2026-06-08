@@ -14,6 +14,8 @@ export function isPublicMvpPagePollId(pollId) {
 }
 
 const GENERIC_LOAD_FAILURE = '目前無法載入，請稍後再試。';
+export const GENERIC_VOTE_SUBMIT_FAILURE =
+  '目前無法完成這次投票。請確認已登入並完成必要的個人資料後再試；若問題持續，請稍後再試。';
 
 export function setBusySubmitButton(
   button,
@@ -102,27 +104,8 @@ export function messageForPollLoadFailure({ status, errorCode, message } = {}) {
   return GENERIC_LOAD_FAILURE;
 }
 
-export function messageForVoteSubmitFailure({ status, errorCode, message } = {}) {
-  if (errorCode === 'OFFICIAL_VOTE_DUPLICATE') {
-    return '您已在此問卷投過票，可前往結果頁查看。';
-  }
-  if (errorCode === 'PROFILE_REQUIRED') {
-    return '請先完成個人資料後再投票。';
-  }
-  if (errorCode === 'PROFILE_INELIGIBLE') {
-    return '你目前不符合此問卷的投票資格。';
-  }
-  if (errorCode === 'POLL_FORBIDDEN' || status === 403) {
-    return '你目前不符合此問卷的投票資格。';
-  }
-  if (errorCode === 'POLL_NOT_FOUND' || status === 404) {
-    return '找不到此問卷，無法送出投票。';
-  }
-  const loadLike = messageForPollLoadFailure({ status, errorCode, message });
-  if (loadLike !== GENERIC_LOAD_FAILURE) {
-    return loadLike;
-  }
-  return '目前無法送出投票，請稍後再試。';
+export function messageForVoteSubmitFailure() {
+  return GENERIC_VOTE_SUBMIT_FAILURE;
 }
 
 export function renderPublicNav(root) {

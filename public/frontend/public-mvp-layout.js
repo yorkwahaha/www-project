@@ -16,7 +16,7 @@ export const HELP_COPY = {
   lockPeriod:
     '結果公開後約 5 天為公開鎖定期；期間發起者無法編輯、下架、刪除或隱藏結果。',
   eligibility:
-    '年齡依個人檔案自行填寫的出生年／月判斷，非政府驗證。',
+    '正式投票在送出當下由系統處理；頁面不預先顯示條件細節。',
   followNotify:
     '站內通知將在登入與通知系統完成後開放；目前不會儲存追蹤狀態。',
   cancelVsUnpublish:

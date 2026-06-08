@@ -1290,6 +1290,24 @@ button:disabled {
   margin: 0;
 }
 
+.mvp-official-vote-pre-vote-hint {
+  margin: 0.75rem 0 1rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--mvp-radius-sm);
+  background: #f4f8fc;
+  border: 1px solid #c9d9ea;
+  font-size: 0.9rem;
+  color: #2f4a66;
+}
+
+.mvp-official-vote-pre-vote-hint-message {
+  margin: 0 0 0.5rem;
+}
+
+.mvp-official-vote-pre-vote-hint-actions {
+  margin: 0;
+}
+
 .mvp-auth-state-chip {
   display: inline-flex;
   align-items: center;

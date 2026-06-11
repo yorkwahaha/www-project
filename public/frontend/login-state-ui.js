@@ -8,7 +8,11 @@ import {
   LOGIN_STATE_AUTHENTICATED,
   readLoginState,
 } from './login-state-read.js';
-import { setBusySubmitButton } from './public-mvp-ui.js';
+import {
+  PUBLIC_AUTH_LOGOUT_STATUS_LABEL,
+  PUBLIC_AUTH_SIGNED_IN_STATUS_ARIA_PREFIX,
+  setBusySubmitButton,
+} from './public-mvp-ui.js';
 import {
   LOGIN_LOGOUT_FAILURE_MESSAGE,
   requestLogoutSession,
@@ -47,7 +51,10 @@ export function applyLoginStateIndicator(mount, state) {
   mount.hidden = false;
   mount.classList.add('mvp-login-state--signed-in');
   mount.setAttribute('role', 'group');
-  mount.setAttribute('aria-label', `已登入：${state.display_name}`);
+  mount.setAttribute(
+    'aria-label',
+    `${PUBLIC_AUTH_SIGNED_IN_STATUS_ARIA_PREFIX}：${state.display_name}`,
+  );
 
   if (doc && typeof doc.createElement === 'function') {
     const nameEl = doc.createElement('span');
@@ -58,8 +65,8 @@ export function applyLoginStateIndicator(mount, state) {
     const logoutBtn = doc.createElement('button');
     logoutBtn.type = 'button';
     logoutBtn.className = LOGIN_STATE_LOGOUT_CLASS;
-    logoutBtn.textContent = '登出';
-    logoutBtn.setAttribute('aria-label', '登出');
+    logoutBtn.textContent = PUBLIC_AUTH_LOGOUT_STATUS_LABEL;
+    logoutBtn.setAttribute('aria-label', PUBLIC_AUTH_LOGOUT_STATUS_LABEL);
 
     mount.append(nameEl, logoutBtn);
     return;
@@ -134,7 +141,7 @@ export function clearLoginStateLogoutError(mount) {
 export async function handleLoginStateLogout(mount, actions, options = {}) {
   const fetchImpl = options.fetchImpl ?? mount?.ownerDocument?.defaultView?.fetch;
   const logoutBtn = mount?.querySelector?.(`.${LOGIN_STATE_LOGOUT_CLASS}`);
-  const idleLabel = '登出';
+  const idleLabel = PUBLIC_AUTH_LOGOUT_STATUS_LABEL;
   if (logoutBtn) {
     setBusySubmitButton(logoutBtn, {
       busy: true,

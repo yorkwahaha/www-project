@@ -1,9 +1,14 @@
 import {
   buildPublicVotePath,
   PUBLIC_CTA_GO_TO_VOTE_LABEL,
+  PUBLIC_EXPLORE_COLLECTING_STATUS_HINT,
+  PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL,
   PUBLIC_EXPLORE_EMPTY_MESSAGE,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
 } from './public-mvp-ui.js';
+
+export const EXPLORE_COLLECTING_STATUS_LABEL = PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL;
+export const EXPLORE_COLLECTING_STATUS_HINT = PUBLIC_EXPLORE_COLLECTING_STATUS_HINT;
 
 export const EXPLORE_FEED_PATH = '/polls/feed';
 export const EXPLORE_FEED_DEFAULT_LIMIT = 20;
@@ -129,7 +134,7 @@ export function renderExplorePollCard(documentObject, poll) {
 
   const badge = documentObject.createElement('span');
   badge.className = 'mvp-badge mvp-badge-collecting';
-  badge.textContent = '收集中';
+  badge.textContent = EXPLORE_COLLECTING_STATUS_LABEL;
 
   top.append(title, badge);
 
@@ -139,7 +144,7 @@ export function renderExplorePollCard(documentObject, poll) {
 
   const hint = documentObject.createElement('p');
   hint.className = 'mvp-poll-card-hint';
-  hint.textContent = '收集中 · 不顯示票數';
+  hint.textContent = EXPLORE_COLLECTING_STATUS_HINT;
 
   const footer = documentObject.createElement('div');
   footer.className = 'mvp-poll-card-footer';

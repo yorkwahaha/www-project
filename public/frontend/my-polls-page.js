@@ -20,6 +20,8 @@ import {
   PUBLIC_CTA_VIEW_RESULTS_LABEL,
   PUBLIC_CTA_VIEW_UNPUBLISHED_EXPLAINER_LABEL,
   PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
+  PUBLIC_POLL_LIFECYCLE_STATUS_LABELS,
+  formatPublicPollLifecycleStatusLabel,
 } from './public-mvp-ui.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
@@ -64,16 +66,6 @@ export const CREATOR_OWNED_POLL_ALLOWED_KEYS = [
   'unpublished_at',
 ];
 
-const MY_POLLS_LIFECYCLE_LABELS = {
-  draft: '草稿',
-  collecting: '收集中',
-  revealed: '已公開',
-  locked: '公開鎖定期',
-  post_lock: '鎖定期已結束',
-  cancelled: '已取消',
-  unpublished: '已下架',
-};
-
 const MY_POLLS_LIFECYCLE_BADGE_CLASSES = {
   draft: 'mvp-badge mvp-badge-muted',
   collecting: 'mvp-badge mvp-badge-collecting',
@@ -85,10 +77,7 @@ const MY_POLLS_LIFECYCLE_BADGE_CLASSES = {
 };
 
 export function formatMyPollsLifecycleLabel(lifecycleState) {
-  return (
-    MY_POLLS_LIFECYCLE_LABELS[lifecycleState] ??
-    MY_POLLS_LIFECYCLE_LABELS.draft
-  );
+  return formatPublicPollLifecycleStatusLabel(lifecycleState);
 }
 
 export function lifecycleBadgeClassForMyPolls(lifecycleState) {
@@ -113,7 +102,7 @@ export function isCreatorOwnedPollSafe(poll) {
     typeof poll.poll_id === 'string' &&
     typeof poll.title === 'string' &&
     typeof poll.category === 'string' &&
-    Object.hasOwn(MY_POLLS_LIFECYCLE_LABELS, poll.public_lifecycle_state) &&
+    Object.hasOwn(PUBLIC_POLL_LIFECYCLE_STATUS_LABELS, poll.public_lifecycle_state) &&
     typeof poll.closes_at === 'string' &&
     (poll.revealed_at === null || typeof poll.revealed_at === 'string') &&
     (poll.public_lock_ends_at === null ||

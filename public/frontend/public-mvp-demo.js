@@ -2,7 +2,18 @@
  * Phase 44 — shared public MVP demo/static helpers (no API, no persistence).
  */
 
-import { buildPublicResultPath, buildPublicVotePath } from './public-mvp-ui.js';
+import {
+  PUBLIC_DEMO_UI_STATE_PREVIEW_ARIA_LABEL,
+  PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
+  PUBLIC_POLL_LIFECYCLE_CANCELLED_STATUS_LABEL,
+  PUBLIC_POLL_LIFECYCLE_COLLECTING_STATUS_LABEL,
+  PUBLIC_POLL_LIFECYCLE_LOCKED_STATUS_LABEL,
+  PUBLIC_POLL_LIFECYCLE_POST_LOCK_STATUS_LABEL,
+  PUBLIC_POLL_LIFECYCLE_REVEALED_STATUS_LABEL,
+  PUBLIC_POLL_LIFECYCLE_UNPUBLISHED_STATUS_LABEL,
+  buildPublicResultPath,
+  buildPublicVotePath,
+} from './public-mvp-ui.js';
 
 /** Stable slug for clickable demo vote/result routes (not a backend poll id). */
 export const DEMO_POLL_SLUG = 'demo';
@@ -128,12 +139,15 @@ export function showDemoOnlyFeedback(target, message) {
 }
 
 export const RESULT_UI_STATE_PREVIEW_LINKS = [
-  { uiState: 'collecting', label: '收集中' },
-  { uiState: 'revealed', label: '已公開' },
-  { uiState: 'locked', label: '公開鎖定期' },
-  { uiState: 'post_lock', label: '鎖定期已結束' },
-  { uiState: 'cancelled', label: '已取消' },
-  { uiState: 'unpublished', label: '已下架' },
+  { uiState: 'collecting', label: PUBLIC_POLL_LIFECYCLE_COLLECTING_STATUS_LABEL },
+  { uiState: 'revealed', label: PUBLIC_POLL_LIFECYCLE_REVEALED_STATUS_LABEL },
+  { uiState: 'locked', label: PUBLIC_POLL_LIFECYCLE_LOCKED_STATUS_LABEL },
+  { uiState: 'post_lock', label: PUBLIC_POLL_LIFECYCLE_POST_LOCK_STATUS_LABEL },
+  { uiState: 'cancelled', label: PUBLIC_POLL_LIFECYCLE_CANCELLED_STATUS_LABEL },
+  {
+    uiState: 'unpublished',
+    label: PUBLIC_POLL_LIFECYCLE_UNPUBLISHED_STATUS_LABEL,
+  },
 ];
 
 export function renderResultUiStatePreviewLinks(root, pollId) {
@@ -142,11 +156,11 @@ export function renderResultUiStatePreviewLinks(root, pollId) {
   const wrap = doc.createElement('div');
   wrap.className = 'mvp-preview-links-block';
   wrap.setAttribute('role', 'navigation');
-  wrap.setAttribute('aria-label', '問卷狀態範例');
+  wrap.setAttribute('aria-label', PUBLIC_DEMO_UI_STATE_PREVIEW_ARIA_LABEL);
 
   const lead = doc.createElement('p');
   lead.className = 'mvp-meta';
-  lead.textContent = '切換不同狀態範例（不代表真實問卷）：';
+  lead.textContent = PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD;
   wrap.append(lead);
 
   const list = doc.createElement('ul');

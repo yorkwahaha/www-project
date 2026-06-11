@@ -6,7 +6,15 @@ import {
   LOGIN_STATE_AUTHENTICATED,
   readLoginState,
 } from './login-state-read.js';
-import { PUBLIC_CTA_GO_TO_PROFILE_LABEL } from './public-mvp-ui.js';
+import {
+  PUBLIC_CTA_GO_TO_PROFILE_LABEL,
+  PUBLIC_PROFILE_COMPLETION_PROMPT_LOADING_STATUS_ARIA_LABEL,
+  PUBLIC_PROFILE_COMPLETION_PROMPT_STATUS_ARIA_LABEL,
+  PUBLIC_INCOMPLETE_USER_DATA_STATUS_LABEL,
+} from './public-mvp-ui.js';
+
+export const PROFILE_COMPLETION_INCOMPLETE_STATUS_LABEL =
+  PUBLIC_INCOMPLETE_USER_DATA_STATUS_LABEL;
 
 export const PROFILE_COMPLETION_PROMPT_MOUNT_ID =
   'profile-completion-prompt-mount';
@@ -135,11 +143,17 @@ export function renderProfileCompletionPrompt(
   if (loading) {
     mount.setAttribute('aria-busy', 'true');
     mount.setAttribute('role', 'status');
-    mount.setAttribute('aria-label', '個人資料提示載入中');
+    mount.setAttribute(
+      'aria-label',
+      PUBLIC_PROFILE_COMPLETION_PROMPT_LOADING_STATUS_ARIA_LABEL,
+    );
   } else {
     mount.removeAttribute('aria-busy');
     mount.setAttribute('role', 'note');
-    mount.setAttribute('aria-label', '個人資料提示');
+    mount.setAttribute(
+      'aria-label',
+      PUBLIC_PROFILE_COMPLETION_PROMPT_STATUS_ARIA_LABEL,
+    );
   }
   mount.replaceChildren();
 
@@ -153,6 +167,13 @@ export function renderProfileCompletionPrompt(
 
   const prompt = documentObject.createElement('div');
   prompt.className = PROFILE_COMPLETION_PROMPT_CLASS;
+
+  if (!showLoadFailure) {
+    const status = documentObject.createElement('p');
+    status.className = `${PROFILE_COMPLETION_PROMPT_CLASS}-status`;
+    status.textContent = PROFILE_COMPLETION_INCOMPLETE_STATUS_LABEL;
+    prompt.append(status);
+  }
 
   const message = documentObject.createElement('p');
   message.className = `${PROFILE_COMPLETION_PROMPT_CLASS}-message`;

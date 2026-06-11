@@ -4,6 +4,8 @@
  */
 
 import {
+  PUBLIC_AUTH_DEMO_IDENTITY_CHIP_STATUS_LABEL,
+  PUBLIC_AUTH_GUEST_CHIP_STATUS_LABEL,
   PUBLIC_AUTH_GUEST_SIGN_IN_CTA_ARIA_LABEL,
   PUBLIC_CTA_GO_TO_LOGIN_ARIA_LABEL,
   PUBLIC_CTA_GO_TO_REGISTER_ARIA_LABEL,
@@ -12,11 +14,11 @@ import {
 } from './public-mvp-ui.js';
 
 export const AUTH_STATE_COPY = {
-  guestChipLabel: '未登入',
+  guestChipLabel: PUBLIC_AUTH_GUEST_CHIP_STATUS_LABEL,
   guestChipAriaLabel: PUBLIC_AUTH_GUEST_SIGN_IN_CTA_ARIA_LABEL,
   guestChipTitle:
     '登入後頁首才會顯示帳號名稱。註冊只建立帳號資料，不會自動登入。',
-  demoIdentityChipLabel: 'MVP 測試身份',
+  demoIdentityChipLabel: PUBLIC_AUTH_DEMO_IDENTITY_CHIP_STATUS_LABEL,
   demoIdentityChipAriaLabel:
     '目前為 MVP 測試身份展示，非正式登入或 creator_session',
   demoIdentityChipTitle:

@@ -13,7 +13,9 @@ import {
   PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
   PUBLIC_CREATE_POLL_DEMO_SUBMIT_LABEL,
   PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE,
+  PUBLIC_CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL,
   PUBLIC_CREATE_POLL_SUCCESS_MESSAGE,
+  PUBLIC_CREATE_POLL_SUCCESS_PANEL_ARIA_LABEL,
   renderPollSharePanel,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
@@ -51,7 +53,9 @@ export const CREATE_POLL_DEMO_VOTE_CTA_LABEL = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
 export const CREATE_POLL_DEMO_MY_POLLS_CTA_LABEL = PUBLIC_CTA_GO_TO_MY_POLLS_LABEL;
 export const CREATE_POLL_DEMO_COLLECTING_RESULTS_CTA_LABEL =
   PUBLIC_CTA_VIEW_COLLECTING_RESULTS_LABEL;
-const SUBMIT_IDLE_LABEL_LIVE = '建立問卷';
+const SUBMIT_IDLE_LABEL_LIVE = PUBLIC_CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL;
+export const CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL =
+  PUBLIC_CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL;
 export const CREATE_POLL_SUBMIT_PENDING_MESSAGE = '建立中，請稍候。';
 export const CREATE_POLL_SUCCESS_MESSAGE = PUBLIC_CREATE_POLL_SUCCESS_MESSAGE;
 export const CREATE_POLL_DEMO_SUCCESS_MESSAGE =
@@ -155,7 +159,7 @@ export function renderCreatePollDemoSuccess(root) {
   root.replaceChildren();
   root.hidden = false;
   root.setAttribute('role', 'region');
-  root.setAttribute('aria-label', '問卷建立成功');
+  root.setAttribute('aria-label', PUBLIC_CREATE_POLL_SUCCESS_PANEL_ARIA_LABEL);
 
   const hint = root.ownerDocument.createElement('p');
   hint.className = 'panel-message';

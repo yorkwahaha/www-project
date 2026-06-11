@@ -173,6 +173,7 @@ describe('profile completion prompt runtime', () => {
   it('shows prompt and /profile link when either field is null', async () => {
     const {
       mountProfileCompletionPrompt,
+      PROFILE_COMPLETION_INCOMPLETE_STATUS_LABEL,
       PROFILE_COMPLETION_PROMPT_CTA_HREF,
       PROFILE_COMPLETION_PROMPT_MESSAGE,
     } = await loadProfileCompletionPromptModule();
@@ -196,8 +197,11 @@ describe('profile completion prompt runtime', () => {
     const prompt = mount?.children[0] as {
       children: Array<{ textContent: string; href?: string }>;
     };
-    expect(prompt?.children[0]?.textContent).toBe(PROFILE_COMPLETION_PROMPT_MESSAGE);
-    const link = prompt?.children[1]?.children?.[0] as { href?: string } | undefined;
+    expect(prompt?.children[0]?.textContent).toBe(
+      PROFILE_COMPLETION_INCOMPLETE_STATUS_LABEL,
+    );
+    expect(prompt?.children[1]?.textContent).toBe(PROFILE_COMPLETION_PROMPT_MESSAGE);
+    const link = prompt?.children[2]?.children?.[0] as { href?: string } | undefined;
     expect(link?.href).toBe(PROFILE_COMPLETION_PROMPT_CTA_HREF);
   });
 

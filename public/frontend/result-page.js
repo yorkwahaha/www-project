@@ -17,6 +17,11 @@ import {
   PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY,
   PUBLIC_RESULTS_UNPUBLISHED_MESSAGE,
   PUBLIC_RESULTS_UNPUBLISHED_TITLE,
+  PUBLIC_RESULTS_COLLECTING_STATUS_ARIA_LABEL,
+  PUBLIC_RESULTS_DEMO_READONLY_TITLE,
+  PUBLIC_RESULTS_PUBLIC_READONLY_TITLE,
+  PUBLIC_RESULTS_REFRESH_NOTICE_ARIA_LABEL,
+  PUBLIC_RESULTS_UNAVAILABLE_STATUS_ARIA_LABEL,
   PUBLIC_CTA_CREATOR_RESULTS_LABEL,
   PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL,
   PUBLIC_CTA_MY_POLLS_LABEL,
@@ -234,7 +239,7 @@ export function renderCollectingStatusBlock(root) {
   const block = root.ownerDocument.createElement('section');
   block.className = 'result-collecting-status';
   block.setAttribute('role', 'status');
-  block.setAttribute('aria-label', '收集中狀態說明');
+  block.setAttribute('aria-label', PUBLIC_RESULTS_COLLECTING_STATUS_ARIA_LABEL);
 
   appendText(block, 'h2', RESULTS_COLLECTING_TITLE, 'result-collecting-title');
   appendText(
@@ -271,7 +276,7 @@ export function renderUnavailableStatusBlock(
   const block = root.ownerDocument.createElement('section');
   block.className = 'result-unavailable-status';
   block.setAttribute('role', 'status');
-  block.setAttribute('aria-label', '結果不可用說明');
+  block.setAttribute('aria-label', PUBLIC_RESULTS_UNAVAILABLE_STATUS_ARIA_LABEL);
 
   appendText(block, 'h2', unavailableStatusTitle(lifecycleState), 'result-unavailable-title');
   appendText(
@@ -484,13 +489,13 @@ function paintResultPageFromPayload(pageContext, result) {
   const apiLifecycle = getPublicLifecycleState(result);
   if (pageTitle) {
     if (uiMockState === 'cancelled' || apiLifecycle === 'cancelled') {
-      pageTitle.textContent = '問卷已取消';
+      pageTitle.textContent = RESULTS_CANCELLED_TITLE;
     } else if (uiMockState === 'unpublished' || apiLifecycle === 'unpublished') {
       pageTitle.textContent = RESULTS_UNPUBLISHED_TITLE;
     } else if (demoOnly) {
-      pageTitle.textContent = '示範結果頁（唯讀）';
+      pageTitle.textContent = PUBLIC_RESULTS_DEMO_READONLY_TITLE;
     } else {
-      pageTitle.textContent = '公開結果（唯讀）';
+      pageTitle.textContent = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
     }
     pageTitle.removeAttribute('aria-busy');
   }
@@ -548,7 +553,7 @@ export function renderResultRefreshFailureNotice(root) {
   notice.className = 'result-refresh-failure-notice';
   notice.setAttribute('role', 'status');
   notice.setAttribute('aria-live', 'polite');
-  notice.setAttribute('aria-label', '結果顯示更新提示');
+  notice.setAttribute('aria-label', PUBLIC_RESULTS_REFRESH_NOTICE_ARIA_LABEL);
   appendText(
     notice,
     'p',

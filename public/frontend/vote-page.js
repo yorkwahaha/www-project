@@ -25,6 +25,7 @@ import {
   PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL,
   PUBLIC_VOTE_SUCCESS_RESULT_HINT,
   PUBLIC_VOTE_SUCCESS_MESSAGE,
+  PUBLIC_VOTE_SUCCESS_PANEL_ARIA_LABEL,
   PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
   PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
   renderPublicErrorPanel,
@@ -158,7 +159,7 @@ export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
   root.replaceChildren();
   root.hidden = false;
   root.setAttribute('role', 'region');
-  root.setAttribute('aria-label', '投票成功');
+  root.setAttribute('aria-label', PUBLIC_VOTE_SUCCESS_PANEL_ARIA_LABEL);
 
   const message = root.ownerDocument.createElement('p');
   message.className = 'panel-message';

@@ -414,7 +414,7 @@ function lifecycleFeedbackElement(host, fallback) {
   return fallback;
 }
 
-function lifecycleNoteForState(lifecycleState) {
+export function lifecycleNoteForState(lifecycleState) {
   if (lifecycleState === 'revealed' || lifecycleState === 'locked') {
     return PUBLIC_LIFECYCLE_LOCKED_ACTION_UNAVAILABLE_MESSAGE;
   }

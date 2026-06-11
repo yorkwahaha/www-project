@@ -61,6 +61,106 @@ export const PUBLIC_PENDING_USER_MESSAGES = [
   '載入個人資料提示中，請稍候。',
 ];
 
+/** Frontend-owned login success copy. */
+export const PUBLIC_LOGIN_SUCCESS_MESSAGE =
+  '登入成功。頁首登入狀態已更新。';
+
+/** Frontend-owned registration success copy. */
+export const PUBLIC_REGISTRATION_SUCCESS_MESSAGE =
+  '註冊成功。請前往登入頁完成登入；註冊不會自動登入。';
+
+/** Frontend-owned profile save success copy. */
+export const PUBLIC_PROFILE_SAVE_SUCCESS_MESSAGE = '個人資料已儲存。';
+
+/** Frontend-owned live create-poll form success status copy. */
+export const PUBLIC_CREATE_POLL_SUCCESS_MESSAGE = '問卷已建立。';
+
+/** Frontend-owned demo create-poll form success status copy. */
+export const PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE =
+  '表單通過檢查（展示用），資料不會儲存。';
+
+/** Frontend-owned demo create-poll success panel lead copy. */
+export const PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD =
+  '此流程展示未來的使用方式：表單已通過檢查，資料不會儲存。可繼續體驗下列頁面：';
+
+/** Frontend-owned create-poll share panel lead copy. */
+export const PUBLIC_CREATE_POLL_SHARE_SUCCESS_LEAD =
+  '問卷已建立。下方為可分享的完整網址（僅含問卷識別碼）。請將投票連結傳給參與者；結果連結為公開唯讀統計頁。收集中不顯示票數或百分比，發起者亦看不到中間結果。';
+
+/** Frontend-owned vote success panel copy. */
+export const PUBLIC_VOTE_SUCCESS_MESSAGE = '投票已送出，感謝參與。';
+
+/** Frontend-owned vote success form status copy. */
+export const PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE = '投票已送出。';
+
+/** Frontend-owned demo vote success status copy. */
+export const PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE =
+  '投票流程已展示（不會儲存）。';
+
+/** Frontend-owned demo vote success panel copy. */
+export const PUBLIC_VOTE_DEMO_SUCCESS_MESSAGE =
+  '此流程展示未來的使用方式，投票不會儲存。';
+
+/** Frontend-owned vote success result-page hint copy. */
+export const PUBLIC_VOTE_SUCCESS_RESULT_HINT =
+  '收集中結果頁不顯示票數或百分比。結果公開後可查看彙總統計：';
+
+/** Frontend-owned demo vote success result-page hint copy. */
+export const PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT =
+  '收集中結果頁不顯示票數或百分比。可前往結果頁查看收集中說明：';
+
+/** Frontend-owned lifecycle cancel success copy. */
+export const PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE =
+  '問卷已取消，不會產生公開結果。';
+
+/** Frontend-owned lifecycle close success copy. */
+export const PUBLIC_LIFECYCLE_CLOSE_SUCCESS_MESSAGE =
+  '問卷已公開結果，進入公開鎖定期。';
+
+/** Frontend-owned lifecycle unpublish success copy. */
+export const PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE = '問卷已下架。';
+
+/** Frontend-owned lifecycle success when result refresh is deferred. */
+export const PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE =
+  '狀態已更新。結果顯示暫時無法重新載入，請重新整理頁面。';
+
+/** Frontend-owned share-link copy success copy. */
+export const PUBLIC_SHARE_LINK_COPIED_MESSAGE = '已複製連結。';
+
+/** Frontend-owned share-link manual prompt copy. */
+export const PUBLIC_SHARE_LINK_PROMPT_MESSAGE =
+  '瀏覽器無法自動複製，已顯示手動複製提示；亦可選取上方完整網址。';
+
+/** Frontend-owned share-link manual fallback copy. */
+export const PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE =
+  '無法自動複製，請手動選取上方完整網址。';
+
+/** Allowlist of safe user-visible success / completion messages across public surfaces. */
+export const PUBLIC_SUCCESS_USER_MESSAGES = [
+  PUBLIC_LOGIN_SUCCESS_MESSAGE,
+  PUBLIC_REGISTRATION_SUCCESS_MESSAGE,
+  PUBLIC_PROFILE_SAVE_SUCCESS_MESSAGE,
+  PUBLIC_CREATE_POLL_SUCCESS_MESSAGE,
+  PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE,
+  PUBLIC_CREATE_POLL_SHARE_SUCCESS_LEAD,
+  PUBLIC_VOTE_SUCCESS_MESSAGE,
+  PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
+  PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE,
+  PUBLIC_VOTE_DEMO_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_CLOSE_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE,
+  PUBLIC_SHARE_LINK_COPIED_MESSAGE,
+  PUBLIC_SHARE_LINK_PROMPT_MESSAGE,
+  PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE,
+  '問卷已建立。請先複製並分享「投票連結」給參與者；收集中不顯示票數或百分比。',
+  '可在下方變更問卷狀態，或前往「我的問卷」與「結果頁（發起者）」繼續管理。',
+  PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
+  PUBLIC_VOTE_SUCCESS_RESULT_HINT,
+  PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
+];
+
 const GENERIC_LOAD_FAILURE = VOTE_PAGE_LOAD_FAILURE;
 
 /**
@@ -368,12 +468,11 @@ function appendCopyButton(parent, { label, url, statusTarget, ariaLabel }) {
     const result = await copyTextToClipboard(url);
     if (statusTarget) {
       if (result.ok) {
-        statusTarget.textContent = '已複製連結。';
+        statusTarget.textContent = PUBLIC_SHARE_LINK_COPIED_MESSAGE;
       } else if (result.method === 'prompt') {
-        statusTarget.textContent =
-          '瀏覽器無法自動複製，已顯示手動複製提示；亦可選取上方完整網址。';
+        statusTarget.textContent = PUBLIC_SHARE_LINK_PROMPT_MESSAGE;
       } else {
-        statusTarget.textContent = '無法自動複製，請手動選取上方完整網址。';
+        statusTarget.textContent = PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE;
       }
     }
   });
@@ -396,8 +495,7 @@ export function renderPollSharePanel(root, pollId, {
 
   const hint = root.ownerDocument.createElement('p');
   hint.className = 'panel-message';
-  hint.textContent =
-    '問卷已建立。下方為可分享的完整網址（僅含問卷識別碼）。請將投票連結傳給參與者；結果連結為公開唯讀統計頁。收集中不顯示票數或百分比，發起者亦看不到中間結果。';
+  hint.textContent = PUBLIC_CREATE_POLL_SHARE_SUCCESS_LEAD;
   root.append(hint);
 
   const copyStatus = root.ownerDocument.createElement('p');

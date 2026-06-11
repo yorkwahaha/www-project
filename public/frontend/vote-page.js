@@ -16,6 +16,12 @@ import {
   messageForVoteSubmitFailure,
   parsePollApiError,
   PUBLIC_POLL_LOAD_USER_MESSAGES,
+  PUBLIC_VOTE_DEMO_SUCCESS_MESSAGE,
+  PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
+  PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE,
+  PUBLIC_VOTE_SUCCESS_RESULT_HINT,
+  PUBLIC_VOTE_SUCCESS_MESSAGE,
+  PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
   PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
   renderPublicErrorPanel,
   renderPublicNav,
@@ -36,8 +42,10 @@ import {
   renderVoteSuccessPolicyExtras,
 } from './policy-ui-placeholders.js';
 
-export const VOTE_SUCCESS_MESSAGE = '投票已送出，感謝參與。';
-export const VOTE_SUCCESS_STATUS_MESSAGE = '投票已送出。';
+export const VOTE_SUCCESS_MESSAGE = PUBLIC_VOTE_SUCCESS_MESSAGE;
+export const VOTE_SUCCESS_STATUS_MESSAGE = PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE;
+export const VOTE_DEMO_SUCCESS_STATUS_MESSAGE =
+  PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE;
 export const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
 
 export const VOTE_PAGE_LOAD_USER_MESSAGES = PUBLIC_POLL_LOAD_USER_MESSAGES;
@@ -150,14 +158,14 @@ export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
   const message = root.ownerDocument.createElement('p');
   message.className = 'panel-message';
   message.textContent = demoOnly
-    ? '此流程展示未來的使用方式，投票不會儲存。'
+    ? PUBLIC_VOTE_DEMO_SUCCESS_MESSAGE
     : VOTE_SUCCESS_MESSAGE;
   root.append(message);
 
   const hint = root.ownerDocument.createElement('p');
   hint.textContent = demoOnly
-    ? '收集中結果頁不顯示票數或百分比。可前往結果頁查看收集中說明：'
-    : '收集中結果頁不顯示票數或百分比。結果公開後可查看彙總統計：';
+    ? PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT
+    : PUBLIC_VOTE_SUCCESS_RESULT_HINT;
   root.append(hint);
 
   renderVoteQualityFeedbackPreview(root);
@@ -414,7 +422,7 @@ export async function bootstrapVotePage({
       voteCompleted = true;
       announceToStatusRegion(
         message,
-        demoOnly ? '投票流程已展示（不會儲存）。' : VOTE_SUCCESS_STATUS_MESSAGE,
+        demoOnly ? VOTE_DEMO_SUCCESS_STATUS_MESSAGE : VOTE_SUCCESS_STATUS_MESSAGE,
       );
       form.hidden = true;
       renderVoteSuccess(success, pollId, { demoOnly });

@@ -39,7 +39,9 @@ describe('Phase 106 official vote pre-vote eligibility copy guard', () => {
     expect(uiSource).toContain('目前無法完成這次投票');
     expect(uiSource).not.toMatch(/PROFILE_INELIGIBLE[\s\S]*不符合|POLL_FORBIDDEN[\s\S]*不符合/);
 
-    expect(voteSource).toContain('投票已送出，感謝參與。');
+    expect(voteSource).toMatch(
+      /投票已送出，感謝參與。|PUBLIC_VOTE_SUCCESS_MESSAGE/,
+    );
     expect(voteSource).not.toMatch(/option_id|vote_token|token_sha256|counter|shard_id/);
   });
 

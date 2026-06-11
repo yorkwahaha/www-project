@@ -5,6 +5,7 @@
 
 import {
   announceToStatusRegion,
+  PUBLIC_LOGIN_SUCCESS_MESSAGE,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
@@ -21,8 +22,7 @@ export const LOGIN_FORM_MISSING_CREDENTIAL_MESSAGE =
 
 export const LOGIN_FORM_LOADING_MESSAGE = '登入中，請稍候。';
 
-export const LOGIN_FORM_SUCCESS_MESSAGE =
-  '登入成功。';
+export const LOGIN_FORM_SUCCESS_MESSAGE = PUBLIC_LOGIN_SUCCESS_MESSAGE;
 
 export const LOGIN_FORM_VERIFY_STATE_FAILURE_MESSAGE =
   '登入已送出，但目前無法確認登入狀態，請重新整理後再試。';

@@ -13,6 +13,10 @@ import {
   parsePollApiError,
   POLL_ID_PATTERN,
   PUBLIC_ACTION_PENDING_MESSAGE,
+  PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_CLOSE_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
@@ -24,8 +28,8 @@ export const LIFECYCLE_ACTION_PENDING_MESSAGE = PUBLIC_ACTION_PENDING_MESSAGE;
 
 export const LIFECYCLE_GENERIC_FAILURE = '目前無法更新問卷狀態，請稍後再試。';
 const GENERIC_FAILURE = LIFECYCLE_GENERIC_FAILURE;
-const LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS =
-  '狀態已更新。結果顯示暫時無法重新載入，請重新整理頁面。';
+export const LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS =
+  PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE;
 export const CREATOR_SESSION_FAILURE = '目前無法確認發起者身分，請稍後再試。';
 export const CREATOR_SESSION_ERROR_NAME = 'CreatorSessionFailureError';
 
@@ -66,7 +70,7 @@ export const LIFECYCLE_TRANSITION_COPY = {
     label: '取消問卷',
     confirm:
       '確定要取消此問卷嗎？取消後不會產生公開結果，且無法恢復為收集中狀態。',
-    success: '問卷已取消，不會產生公開結果。',
+    success: PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE,
     className: 'mvp-btn mvp-btn-sm mvp-btn-accent-outline',
   },
   close: {
@@ -74,7 +78,7 @@ export const LIFECYCLE_TRANSITION_COPY = {
     label: '結束收集並公開結果',
     confirm:
       '確定要結束收集並公開結果嗎？之後將進入公開鎖定期；收集中不會顯示票數或百分比。',
-    success: '問卷已公開結果，進入公開鎖定期。',
+    success: PUBLIC_LIFECYCLE_CLOSE_SUCCESS_MESSAGE,
     className: 'mvp-btn mvp-btn-sm mvp-btn-primary',
   },
   unpublish: {
@@ -82,7 +86,7 @@ export const LIFECYCLE_TRANSITION_COPY = {
     label: '下架問卷',
     confirm:
       '確定要下架此問卷嗎？下架後訪客將無法再查看公開結果頁（鎖定期須已結束）。',
-    success: '問卷已下架。',
+    success: PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE,
     className: 'mvp-btn mvp-btn-sm mvp-btn-secondary',
   },
 };

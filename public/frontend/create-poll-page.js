@@ -7,6 +7,9 @@ import {
 import {
   announceToStatusRegion,
   focusFirstFocusable,
+  PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
+  PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE,
+  PUBLIC_CREATE_POLL_SUCCESS_MESSAGE,
   renderPollSharePanel,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
@@ -41,6 +44,9 @@ export const CREATE_POLL_USER_ERROR_MESSAGES = [
 const SUBMIT_IDLE_LABEL = '建立問卷（展示用，不儲存）';
 const SUBMIT_IDLE_LABEL_LIVE = '建立問卷';
 export const CREATE_POLL_SUBMIT_PENDING_MESSAGE = '建立中，請稍候。';
+export const CREATE_POLL_SUCCESS_MESSAGE = PUBLIC_CREATE_POLL_SUCCESS_MESSAGE;
+export const CREATE_POLL_DEMO_SUCCESS_MESSAGE =
+  PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE;
 const SUBMIT_BUSY_LABEL = CREATE_POLL_SUBMIT_PENDING_MESSAGE;
 
 export function normalizeCreatePollForm({ title, description = '', options }) {
@@ -144,8 +150,7 @@ export function renderCreatePollDemoSuccess(root) {
 
   const hint = root.ownerDocument.createElement('p');
   hint.className = 'panel-message';
-  hint.textContent =
-    '此流程展示未來的使用方式：表單已通過檢查，資料不會儲存。可繼續體驗下列頁面：';
+  hint.textContent = PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD;
   root.append(hint);
 
   const voteLink = root.ownerDocument.createElement('a');
@@ -237,7 +242,7 @@ export function bootstrapCreatePollPage({
         : submitCreatePollDemo({ formValues });
       announceToStatusRegion(
         message,
-        useLiveApi ? '問卷已建立。' : '表單通過檢查（展示用），資料不會儲存。',
+        useLiveApi ? CREATE_POLL_SUCCESS_MESSAGE : CREATE_POLL_DEMO_SUCCESS_MESSAGE,
       );
       renderCreatePollSuccess(success, created, {
         demoStatic: !useLiveApi,

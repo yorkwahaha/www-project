@@ -4,6 +4,7 @@
 
 import {
   announceToStatusRegion,
+  PUBLIC_REGISTRATION_SUCCESS_MESSAGE,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
@@ -32,8 +33,7 @@ export const REGISTRATION_BIRTH_YEAR_MONTH_MESSAGE =
 export const REGISTRATION_REGION_MESSAGE = '請選擇居住地區。';
 export const REGISTRATION_CREDENTIAL_MESSAGE = '請輸入註冊憑證。';
 export const REGISTRATION_LOADING_MESSAGE = '註冊中，請稍候。';
-export const REGISTRATION_SUCCESS_MESSAGE =
-  '註冊成功。請前往登入頁完成登入；註冊不會自動登入。';
+export const REGISTRATION_SUCCESS_MESSAGE = PUBLIC_REGISTRATION_SUCCESS_MESSAGE;
 export const REGISTRATION_VALIDATION_FAILURE_MESSAGE =
   '請確認顯示名稱、出生年月與居住地區格式。';
 export const REGISTRATION_AUTH_FAILURE_MESSAGE =

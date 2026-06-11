@@ -173,8 +173,7 @@ describe('public result page', () => {
 
     renderResultDisplay(root, { options: null });
 
-    expect(collectText(root)).toContain('目前尚無可顯示的總票數區間。');
-    expect(collectText(root)).toContain('目前尚無可顯示的選項統計。');
+    expect(collectText(root)).toContain('目前沒有可顯示的聚合結果');
   });
 
   it('renders backend-provided display strings without deriving precision', async () => {
@@ -203,14 +202,13 @@ describe('public result page', () => {
     renderResultDisplay(root, collectingResult);
 
     const text = collectText(root).join(' ');
-    expect(text).toMatch(/目前仍在收集中/);
-    expect(text).toMatch(/不代表投票失敗/);
+    expect(text).toMatch(/結果尚未公開/);
     expect(text).toMatch(/不顯示總票數、選項票數、百分比/);
     expect(text).toMatch(/目前公開的選項/);
-    expect(text).toMatch(/狀態：收集中/);
     expect(text).toContain('選項甲');
     expect(text).toContain('選項乙');
     expect(text).toMatch(/關注結果|站內通知/);
+    expect(text).not.toMatch(/不代表投票失敗|狀態：收集中/);
     expect(text).not.toMatch(/0\s*票|0%/);
     expect(text).not.toMatch(/option_id|shard|token/i);
   });
@@ -245,7 +243,7 @@ describe('public result page', () => {
     const root = createRoot();
     renderResultDisplay(root, revealedSubThreshold);
     const text = collectText(root).join(' ');
-    expect(text).not.toMatch(/目前仍在收集中/);
+    expect(text).not.toMatch(/結果尚未公開/);
     expect(text).toContain('收集中');
     expect(text).toContain('選項 A');
     expect(text).not.toMatch(/約\s*\d+%/);
@@ -254,18 +252,18 @@ describe('public result page', () => {
   it.each([
     {
       public_lifecycle_state: 'cancelled',
-      user_message: '問卷已取消，不會產生公開結果。',
+      user_message: '此問卷已取消，不會產生可公開顯示的聚合結果。',
       title: '問卷已取消',
     },
     {
       public_lifecycle_state: 'unpublished',
-      user_message: '此問卷已結束公開鎖定期，並由發起者下架。',
-      title: '問卷已下架',
+      user_message: '此問卷目前無法查看，頁面不顯示聚合結果。',
+      title: '問卷目前無法查看',
     },
     {
       public_lifecycle_state: 'draft',
-      user_message: '此問卷目前沒有可公開顯示的結果。',
-      title: '目前沒有可公開顯示的結果',
+      user_message: '問卷目前無法使用',
+      title: '問卷目前無法使用',
     },
   ] as const)(
     'renders unavailable lifecycle shells with safe user_message for %s',
@@ -315,9 +313,8 @@ describe('public result page', () => {
     renderResultDisplay(root, payload);
 
     const text = collectText(root).join(' ');
-    expect(text).toMatch(/目前仍在收集中/);
-    expect(text).toMatch(/狀態：收集中/);
-    expect(text).not.toMatch(/30–99|100–499/);
+    expect(text).toMatch(/結果尚未公開/);
+    expect(text).not.toMatch(/狀態：收集中|30–99|100–499/);
   });
 
   it('uses a safe fallback when unavailable lifecycle omits user_message', async () => {
@@ -331,15 +328,11 @@ describe('public result page', () => {
       options: [],
     };
 
-    expect(resolveUnavailableUserMessage(payload)).toBe(
-      '此問卷目前沒有可公開顯示的結果。',
-    );
+    expect(resolveUnavailableUserMessage(payload)).toBe('問卷目前無法使用');
 
     const root = createRoot();
     renderResultDisplay(root, payload);
-    expect(collectText(root).join(' ')).toContain(
-      '此問卷目前沒有可公開顯示的結果。',
-    );
+    expect(collectText(root).join(' ')).toContain('問卷目前無法使用');
   });
 
   it('renders identical content for direct visits and post-vote redirects', async () => {
@@ -409,7 +402,7 @@ describe('public result page', () => {
 
     await expect(
       loadResultDisplay({ pollId: displaySafeResult.poll_id, fetchImpl }),
-    ).rejects.toThrow('找不到此問卷');
+    ).rejects.toThrow('問卷目前無法使用');
   });
 
   it('keeps result content visible when public notice loading fails', async () => {
@@ -494,7 +487,7 @@ describe('public result page', () => {
       display_mode: 'unavailable',
       total_votes_display: '結果不可用',
       collecting: false,
-      user_message: '問卷已取消，不會產生公開結果。',
+      user_message: 'backend-only cancelled detail must not echo',
       options: collectingResult.options,
     };
     const fetchImpl = vi
@@ -524,14 +517,14 @@ describe('public result page', () => {
 
     const firstRefresh = await refreshResultPageDisplay(pageContext);
     expect(firstRefresh.refreshed).toBe(true);
-    expect(collectText(resultRoot).join(' ')).toMatch(/目前仍在收集中/);
+    expect(collectText(resultRoot).join(' ')).toMatch(/結果尚未公開/);
 
     const secondRefresh = await refreshResultPageDisplay(pageContext);
     expect(secondRefresh.refreshed).toBe(true);
     const text = collectText(resultRoot).join(' ');
     expect(text).toContain('問卷已取消');
-    expect(text).toContain('問卷已取消，不會產生公開結果。');
-    expect(text).not.toMatch(/目前仍在收集中/);
+    expect(text).toContain('此問卷已取消，不會產生可公開顯示的聚合結果。');
+    expect(text).not.toMatch(/結果尚未公開|backend-only cancelled detail/);
     expect(introRoot.hidden).toBe(true);
     expect(pageTitle.textContent).toBe('問卷已取消');
     expect(fetchImpl).toHaveBeenCalledTimes(2);
@@ -577,7 +570,7 @@ describe('public result page', () => {
     const text = collectText(resultRoot).join(' ');
     expect(text).toContain(displaySafeResult.total_votes_display);
     expect(text).toContain('約 43%');
-    expect(text).not.toMatch(/目前仍在收集中/);
+    expect(text).not.toMatch(/結果尚未公開/);
     expect(pageTitle.textContent).toBe('公開結果（唯讀）');
   });
 
@@ -597,7 +590,7 @@ describe('public result page', () => {
       display_mode: 'unavailable',
       total_votes_display: '結果不可用',
       collecting: false,
-      user_message: '此問卷已結束公開鎖定期，並由發起者下架。',
+      user_message: 'backend-only unpublished detail must not echo',
       options: collectingResult.options,
     };
     const fetchImpl = vi
@@ -630,11 +623,11 @@ describe('public result page', () => {
     expect(outcome.refreshed).toBe(true);
 
     const text = collectText(resultRoot).join(' ');
-    expect(text).toContain('問卷已下架');
-    expect(text).toContain('此問卷已結束公開鎖定期，並由發起者下架。');
-    expect(text).not.toMatch(/目前仍在收集中|約\s*\d+%/);
+    expect(text).toContain('問卷目前無法查看');
+    expect(text).toContain('此問卷目前無法查看，頁面不顯示聚合結果。');
+    expect(text).not.toMatch(/結果尚未公開|約\s*\d+%|backend-only unpublished detail/);
     expect(introRoot.hidden).toBe(true);
-    expect(pageTitle.textContent).toBe('問卷已下架');
+    expect(pageTitle.textContent).toBe('問卷目前無法查看');
   });
 
   it('shows a safe notice when refresh fails after transition without leaking API payload', async () => {
@@ -685,7 +678,7 @@ describe('public result page', () => {
 
     const text = collectText(resultRoot).join(' ');
     expect(text).toContain(RESULT_DISPLAY_REFRESH_FAILURE_MESSAGE);
-    expect(text).toMatch(/目前仍在收集中/);
+    expect(text).toMatch(/結果尚未公開/);
     expect(text).not.toContain('secret-option-id');
     expect(text).not.toContain('poll_option_vote_counters');
     expect(text).not.toContain('database connection leaked');

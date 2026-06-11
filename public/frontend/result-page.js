@@ -7,7 +7,6 @@ import {
   isPublicMvpPagePollId,
   buildPublicVotePath,
   markRegionBusy,
-  messageForPollLoadFailure,
   parsePollApiError,
   renderPublicErrorPanel,
   renderPublicNav,
@@ -36,7 +35,19 @@ function appendText(parent, tagName, text, className) {
 }
 
 const PUBLIC_NOTICE_TYPE = 'suspended_typo_correction_applied';
-const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
+export const RESULTS_COLLECTING_TITLE = '結果尚未公開';
+export const RESULTS_COLLECTING_SUMMARY =
+  '本問卷仍在收集中。此頁不顯示總票數、選項票數、百分比、排名或趨勢。';
+export const RESULTS_CANCELLED_TITLE = '問卷已取消';
+export const RESULTS_CANCELLED_MESSAGE =
+  '此問卷已取消，不會產生可公開顯示的聚合結果。';
+export const RESULTS_UNPUBLISHED_TITLE = '問卷目前無法查看';
+export const RESULTS_UNPUBLISHED_MESSAGE =
+  '此問卷目前無法查看，頁面不顯示聚合結果。';
+export const RESULTS_POLL_UNAVAILABLE_MESSAGE = '問卷目前無法使用';
+export const RESULTS_EMPTY_AGGREGATE_MESSAGE = '目前沒有可顯示的聚合結果';
+export const RESULTS_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
+const SAFE_LOAD_FAILURE_MESSAGE = RESULTS_LOAD_FAILURE_MESSAGE;
 /** Shown when lifecycle POST succeeded but GET /results refresh failed (Phase 58D). */
 export const RESULT_DISPLAY_REFRESH_FAILURE_MESSAGE =
   '問卷狀態已更新，但結果顯示暫時無法重新載入。請重新整理頁面查看最新內容。';
@@ -51,8 +62,17 @@ const PUBLIC_LIFECYCLE_STATES = [
 ];
 const LIFECYCLE_AGGREGATE_STATES = new Set(['revealed', 'locked', 'post_lock']);
 const LIFECYCLE_UNAVAILABLE_STATES = new Set(['draft', 'cancelled', 'unpublished']);
-const UNAVAILABLE_RESULT_FALLBACK_MESSAGE =
-  '此問卷目前沒有可公開顯示的結果。';
+export function messageForResultLoadFailure({ status, errorCode } = {}) {
+  if (
+    status === 404 ||
+    errorCode === 'POLL_NOT_FOUND' ||
+    errorCode === 'INVALID_POLL_ID' ||
+    errorCode === 'POLL_VALIDATION'
+  ) {
+    return RESULTS_POLL_UNAVAILABLE_MESSAGE;
+  }
+  return RESULTS_LOAD_FAILURE_MESSAGE;
+}
 
 export function getPollIdFromResultPath(pathname) {
   const match = pathname.match(/^\/results\/([^/]+)$/);
@@ -60,19 +80,24 @@ export function getPollIdFromResultPath(pathname) {
 }
 
 export async function loadResultDisplay({ pollId, fetchImpl = globalThis.fetch }) {
-  const response = await fetchImpl(`/polls/${encodeURIComponent(pollId)}/results`, {
-    method: 'GET',
-    credentials: 'omit',
-    cache: 'no-store',
-  });
+  let response;
+  try {
+    response = await fetchImpl(`/polls/${encodeURIComponent(pollId)}/results`, {
+      method: 'GET',
+      credentials: 'omit',
+      cache: 'no-store',
+    });
+  } catch {
+    throw new Error(RESULTS_LOAD_FAILURE_MESSAGE);
+  }
   if (!response.ok) {
     const apiError = await parsePollApiError(response);
-    throw new Error(messageForPollLoadFailure(apiError));
+    throw new Error(messageForResultLoadFailure(apiError));
   }
   try {
     return await response.json();
   } catch {
-    throw new Error(SAFE_LOAD_FAILURE_MESSAGE);
+    throw new Error(RESULTS_LOAD_FAILURE_MESSAGE);
   }
 }
 
@@ -132,22 +157,14 @@ export function isCollectingResult(result) {
 }
 
 export function resolveUnavailableUserMessage(result) {
-  if (
-    result &&
-    typeof result === 'object' &&
-    typeof result.user_message === 'string' &&
-    result.user_message.trim()
-  ) {
-    return result.user_message.trim();
-  }
   const lifecycle = getPublicLifecycleState(result);
   if (lifecycle === 'cancelled') {
-    return '問卷已取消，不會產生公開結果。';
+    return RESULTS_CANCELLED_MESSAGE;
   }
   if (lifecycle === 'unpublished') {
-    return '此問卷已結束公開鎖定期，並由發起者下架。';
+    return RESULTS_UNPUBLISHED_MESSAGE;
   }
-  return UNAVAILABLE_RESULT_FALLBACK_MESSAGE;
+  return RESULTS_POLL_UNAVAILABLE_MESSAGE;
 }
 
 export function resolveResultRenderMode(result) {
@@ -188,7 +205,7 @@ export function normalizeDisplaySafeResult(result) {
     total_votes_display:
       typeof result.total_votes_display === 'string'
         ? result.total_votes_display
-        : '目前尚無可顯示的總票數區間。',
+        : '',
     updated_display:
       typeof result.updated_display === 'string' ? result.updated_display : '',
     options,
@@ -201,17 +218,11 @@ export function renderCollectingStatusBlock(root) {
   block.setAttribute('role', 'status');
   block.setAttribute('aria-label', '收集中狀態說明');
 
-  appendText(block, 'h2', '目前仍在收集中', 'result-collecting-title');
+  appendText(block, 'h2', RESULTS_COLLECTING_TITLE, 'result-collecting-title');
   appendText(
     block,
     'p',
-    '若你剛完成投票，系統已收到你的選擇；這不代表投票失敗。',
-    'result-collecting-vote-ok',
-  );
-  appendText(
-    block,
-    'p',
-    '本問卷仍在統計期間。收集中不顯示總票數、選項票數、百分比、排名、趨勢或任何進度訊號。',
+    RESULTS_COLLECTING_SUMMARY,
     'result-collecting-summary',
   );
   appendText(
@@ -227,12 +238,12 @@ export function renderCollectingStatusBlock(root) {
 
 function unavailableStatusTitle(lifecycleState) {
   if (lifecycleState === 'cancelled') {
-    return '問卷已取消';
+    return RESULTS_CANCELLED_TITLE;
   }
   if (lifecycleState === 'unpublished') {
-    return '問卷已下架';
+    return RESULTS_UNPUBLISHED_TITLE;
   }
-  return '目前沒有可公開顯示的結果';
+  return RESULTS_POLL_UNAVAILABLE_MESSAGE;
 }
 
 export function renderUnavailableStatusBlock(
@@ -248,7 +259,7 @@ export function renderUnavailableStatusBlock(
   appendText(
     block,
     'p',
-    userMessage || UNAVAILABLE_RESULT_FALLBACK_MESSAGE,
+    userMessage || RESULTS_POLL_UNAVAILABLE_MESSAGE,
     'result-unavailable-message',
   );
   appendText(
@@ -315,23 +326,13 @@ export function renderResultDisplay(
   root.replaceChildren();
   const normalized = normalizeDisplaySafeResult(result);
   if (!normalized) {
-    appendText(root, 'p', '目前無法顯示統計，請稍後再試。', 'result-empty');
+    appendText(root, 'p', RESULTS_LOAD_FAILURE_MESSAGE, 'result-empty');
     return;
   }
 
   if (normalized.mode === 'collecting') {
     renderCollectingStatusBlock(root);
-    appendText(
-      root,
-      'p',
-      `狀態：${normalized.total_votes_display}`,
-      'result-status-label',
-    );
-    if (normalized.updated_display) {
-      appendText(root, 'p', normalized.updated_display, 'result-updated');
-    }
     if (normalized.options.length === 0) {
-      appendText(root, 'p', '目前尚無可顯示的選項。', 'result-empty');
       if (attachPolicyExtras) {
         renderResultPagePolicyExtras(root, { collecting: true });
       }
@@ -352,7 +353,6 @@ export function renderResultDisplay(
       lifecycleState: normalized.public_lifecycle_state,
     });
     if (normalized.options.length === 0) {
-      appendText(root, 'p', '目前尚無可顯示的選項。', 'result-empty');
       if (attachPolicyExtras) {
         renderResultPagePolicyExtras(root, { collecting: false });
       }
@@ -367,13 +367,15 @@ export function renderResultDisplay(
     return;
   }
 
-  appendText(root, 'p', normalized.total_votes_display, 'result-total');
+  if (normalized.total_votes_display) {
+    appendText(root, 'p', normalized.total_votes_display, 'result-total');
+  }
   if (normalized.updated_display) {
     appendText(root, 'p', normalized.updated_display, 'result-updated');
   }
 
   if (normalized.options.length === 0) {
-    appendText(root, 'p', '目前尚無可顯示的選項統計。', 'result-empty');
+    appendText(root, 'p', RESULTS_EMPTY_AGGREGATE_MESSAGE, 'result-empty');
     if (attachPolicyExtras) {
       renderResultPagePolicyExtras(root, { collecting: false });
     }
@@ -466,7 +468,7 @@ function paintResultPageFromPayload(pageContext, result) {
     if (uiMockState === 'cancelled' || apiLifecycle === 'cancelled') {
       pageTitle.textContent = '問卷已取消';
     } else if (uiMockState === 'unpublished' || apiLifecycle === 'unpublished') {
-      pageTitle.textContent = '問卷已下架';
+      pageTitle.textContent = RESULTS_UNPUBLISHED_TITLE;
     } else if (demoOnly) {
       pageTitle.textContent = '示範結果頁（唯讀）';
     } else {

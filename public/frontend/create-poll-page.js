@@ -40,7 +40,8 @@ export const CREATE_POLL_USER_ERROR_MESSAGES = [
 
 const SUBMIT_IDLE_LABEL = '建立問卷（展示用，不儲存）';
 const SUBMIT_IDLE_LABEL_LIVE = '建立問卷';
-const SUBMIT_BUSY_LABEL = '處理中…';
+export const CREATE_POLL_SUBMIT_PENDING_MESSAGE = '建立中，請稍候。';
+const SUBMIT_BUSY_LABEL = CREATE_POLL_SUBMIT_PENDING_MESSAGE;
 
 export function normalizeCreatePollForm({ title, description = '', options }) {
   const normalizedTitle = title.trim();
@@ -208,7 +209,7 @@ export function bootstrapCreatePollPage({
       idleLabel: useLiveApi ? SUBMIT_IDLE_LABEL_LIVE : SUBMIT_IDLE_LABEL,
       busyLabel: SUBMIT_BUSY_LABEL,
     });
-    announceToStatusRegion(message, '建立中…');
+    announceToStatusRegion(message, CREATE_POLL_SUBMIT_PENDING_MESSAGE);
     success.hidden = true;
     success.replaceChildren();
 
@@ -255,11 +256,14 @@ export function bootstrapCreatePollPage({
           CREATE_POLL_USER_ERROR_MESSAGES,
         ),
       );
-      setBusySubmitButton(submitButton, {
-        busy: false,
-        idleLabel: useLiveApi ? SUBMIT_IDLE_LABEL_LIVE : SUBMIT_IDLE_LABEL,
-        busyLabel: SUBMIT_BUSY_LABEL,
-      });
+    } finally {
+      if (!form.hidden) {
+        setBusySubmitButton(submitButton, {
+          busy: false,
+          idleLabel: useLiveApi ? SUBMIT_IDLE_LABEL_LIVE : SUBMIT_IDLE_LABEL,
+          busyLabel: SUBMIT_BUSY_LABEL,
+        });
+      }
     }
   });
 }

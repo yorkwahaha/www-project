@@ -18,6 +18,8 @@ export const PROFILE_COMPLETION_PROMPT_CTA_LABEL = '前往個人資料';
 export const PROFILE_COMPLETION_PROMPT_CTA_HREF = '/profile';
 export const PROFILE_COMPLETION_PROMPT_LOAD_FAILURE_MESSAGE =
   '目前無法載入個人資料提示，請稍後再試。';
+export const PROFILE_COMPLETION_PROMPT_LOADING_MESSAGE =
+  '載入個人資料提示中，請稍候。';
 
 /**
  * @param {{ birth_year_month: string | null, residential_region: string | null }} profile
@@ -95,6 +97,7 @@ export function clearProfileCompletionPrompt(mount) {
   mount.replaceChildren();
   mount.removeAttribute('role');
   mount.removeAttribute('aria-label');
+  mount.removeAttribute('aria-busy');
 }
 
 /**
@@ -104,7 +107,7 @@ export function clearProfileCompletionPrompt(mount) {
  */
 export function renderProfileCompletionPrompt(
   documentObject,
-  { showLoadFailure = false } = {},
+  { showLoadFailure = false, loading = false } = {},
 ) {
   const main = documentObject.getElementById('main-content');
   if (!main || typeof documentObject.createElement !== 'function') {
@@ -128,9 +131,24 @@ export function renderProfileCompletionPrompt(
 
   mount.hidden = false;
   mount.className = `${PROFILE_COMPLETION_PROMPT_CLASS}-mount`;
-  mount.setAttribute('role', 'note');
-  mount.setAttribute('aria-label', '個人資料提示');
+  if (loading) {
+    mount.setAttribute('aria-busy', 'true');
+    mount.setAttribute('role', 'status');
+    mount.setAttribute('aria-label', '個人資料提示載入中');
+  } else {
+    mount.removeAttribute('aria-busy');
+    mount.setAttribute('role', 'note');
+    mount.setAttribute('aria-label', '個人資料提示');
+  }
   mount.replaceChildren();
+
+  if (loading) {
+    const loadingMessage = documentObject.createElement('p');
+    loadingMessage.className = `${PROFILE_COMPLETION_PROMPT_CLASS}-loading`;
+    loadingMessage.textContent = PROFILE_COMPLETION_PROMPT_LOADING_MESSAGE;
+    mount.append(loadingMessage);
+    return mount;
+  }
 
   const prompt = documentObject.createElement('div');
   prompt.className = PROFILE_COMPLETION_PROMPT_CLASS;
@@ -179,15 +197,19 @@ export async function mountProfileCompletionPrompt(
       : { status: 'anonymous' });
 
   const main = documentObject.getElementById('main-content');
-  const mount = main?.querySelector?.(`#${PROFILE_COMPLETION_PROMPT_MOUNT_ID}`);
 
   if (loginState.status !== LOGIN_STATE_AUTHENTICATED) {
-    clearProfileCompletionPrompt(mount);
+    clearProfileCompletionPrompt(
+      main?.querySelector?.(`#${PROFILE_COMPLETION_PROMPT_MOUNT_ID}`),
+    );
     return { status: 'anonymous' };
   }
 
+  renderProfileCompletionPrompt(documentObject, { loading: true });
+
   try {
     const profile = await loadProfileForPrompt({ fetchImpl });
+    const mount = main?.querySelector?.(`#${PROFILE_COMPLETION_PROMPT_MOUNT_ID}`);
     if (!isProfileIncomplete(profile)) {
       clearProfileCompletionPrompt(mount);
       return { status: 'complete' };

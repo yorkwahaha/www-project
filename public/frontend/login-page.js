@@ -19,8 +19,7 @@ export const LOGIN_SHELL_DEMO_HINT_MESSAGE =
 export const LOGIN_FORM_MISSING_CREDENTIAL_MESSAGE =
   '請輸入登入憑證。';
 
-export const LOGIN_FORM_LOADING_MESSAGE =
-  '正在登入，請稍候。';
+export const LOGIN_FORM_LOADING_MESSAGE = '登入中，請稍候。';
 
 export const LOGIN_FORM_SUCCESS_MESSAGE =
   '登入成功。';
@@ -38,7 +37,7 @@ export const LOGIN_FORM_NETWORK_FAILURE_MESSAGE =
   '網路連線失敗，請稍後再試。';
 
 const LOGIN_SUBMIT_IDLE_LABEL = '登入';
-const LOGIN_SUBMIT_BUSY_LABEL = '登入中';
+export const LOGIN_SUBMIT_BUSY_LABEL = LOGIN_FORM_LOADING_MESSAGE;
 
 /**
  * @param {unknown} value

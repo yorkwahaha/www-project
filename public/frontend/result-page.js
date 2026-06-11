@@ -48,6 +48,7 @@ export const RESULTS_UNPUBLISHED_MESSAGE =
 export const RESULTS_POLL_UNAVAILABLE_MESSAGE = '問卷目前無法使用。';
 export const RESULTS_EMPTY_AGGREGATE_MESSAGE = '目前沒有可顯示的聚合結果。';
 export const RESULTS_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
+export const RESULT_PAGE_LOADING_MESSAGE = '載入結果中，請稍候。';
 const SAFE_LOAD_FAILURE_MESSAGE = RESULTS_LOAD_FAILURE_MESSAGE;
 
 export const RESULT_PAGE_LOAD_USER_MESSAGES = [
@@ -655,12 +656,12 @@ export async function bootstrapResultPage({
   }
 
   if (pageTitle) {
-    pageTitle.textContent = '載入結果中…';
+    pageTitle.textContent = RESULT_PAGE_LOADING_MESSAGE;
     pageTitle.setAttribute('aria-busy', 'true');
   }
   root.replaceChildren();
   const loading = root.ownerDocument.createElement('p');
-  loading.textContent = '載入中…';
+  loading.textContent = RESULT_PAGE_LOADING_MESSAGE;
   root.append(loading);
   markRegionBusy(root, true);
 

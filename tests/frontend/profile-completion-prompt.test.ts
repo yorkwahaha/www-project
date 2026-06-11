@@ -228,7 +228,8 @@ describe('profile completion prompt runtime', () => {
 
     expect(result).toEqual({ status: 'complete' });
     const mount = documentObject.getElementById('profile-completion-prompt-mount');
-    expect(mount).toBeNull();
+    expect(mount?.hidden).toBe(true);
+    expect(mount?.children.length).toBe(0);
   });
 
   it('shows neutral load failure copy without technical details', async () => {

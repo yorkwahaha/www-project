@@ -306,7 +306,7 @@ describe('Phase 129 creator poll creation runtime review checkpoint', () => {
       '建立問卷',
       '表單通過檢查（展示用），資料不會儲存。',
       '問卷已建立。',
-      '建立中…',
+      '建立中，請稍候。',
       '請填寫問卷標題。',
       '請至少填寫兩個選項。',
       ...Object.values(LIFECYCLE_TRANSITION_COPY).map((copy) => copy.success),

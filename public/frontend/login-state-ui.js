@@ -8,10 +8,13 @@ import {
   LOGIN_STATE_AUTHENTICATED,
   readLoginState,
 } from './login-state-read.js';
+import { setBusySubmitButton } from './public-mvp-ui.js';
 import {
   LOGIN_LOGOUT_FAILURE_MESSAGE,
   requestLogoutSession,
 } from './login-state-logout.js';
+
+export const LOGIN_LOGOUT_PENDING_MESSAGE = '登出中，請稍候。';
 
 export const LOGIN_STATE_MOUNT_ID = 'mvp-login-state';
 export const LOGIN_STATE_LOGOUT_CLASS = 'mvp-login-state-logout';
@@ -130,15 +133,37 @@ export function clearLoginStateLogoutError(mount) {
  */
 export async function handleLoginStateLogout(mount, actions, options = {}) {
   const fetchImpl = options.fetchImpl ?? mount?.ownerDocument?.defaultView?.fetch;
-  const result = await requestLogoutSession({ fetchImpl });
-  if (result.ok) {
-    clearLoginStateLogoutError(mount);
-    applyLoginStateIndicator(mount, { status: LOGIN_STATE_ANONYMOUS });
-    syncAuthStateChipsForLoginRead(actions, false);
-    return { ok: true };
+  const logoutBtn = mount?.querySelector?.(`.${LOGIN_STATE_LOGOUT_CLASS}`);
+  const idleLabel = '登出';
+  if (logoutBtn) {
+    setBusySubmitButton(logoutBtn, {
+      busy: true,
+      idleLabel,
+      busyLabel: LOGIN_LOGOUT_PENDING_MESSAGE,
+    });
   }
-  showLoginStateLogoutError(mount);
-  return { ok: false };
+  try {
+    const result = await requestLogoutSession({ fetchImpl });
+    if (result.ok) {
+      clearLoginStateLogoutError(mount);
+      applyLoginStateIndicator(mount, { status: LOGIN_STATE_ANONYMOUS });
+      syncAuthStateChipsForLoginRead(actions, false);
+      return { ok: true };
+    }
+    showLoginStateLogoutError(mount);
+    return { ok: false };
+  } finally {
+    const currentLogoutBtn = mount?.querySelector?.(
+      `.${LOGIN_STATE_LOGOUT_CLASS}`,
+    );
+    if (currentLogoutBtn) {
+      setBusySubmitButton(currentLogoutBtn, {
+        busy: false,
+        idleLabel,
+        busyLabel: LOGIN_LOGOUT_PENDING_MESSAGE,
+      });
+    }
+  }
 }
 
 /**

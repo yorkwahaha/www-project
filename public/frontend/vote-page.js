@@ -47,8 +47,11 @@ export const VOTE_PAGE_SUBMIT_USER_MESSAGES = [
   MISSING_SELECTION_MESSAGE,
 ];
 
+export const VOTE_PAGE_LOADING_MESSAGE = '載入問卷中，請稍候。';
+export const VOTE_SUBMIT_PENDING_MESSAGE = '送出中，請稍候。';
+
 const SUBMIT_IDLE_LABEL = '送出投票';
-const SUBMIT_BUSY_LABEL = '送出中…';
+const SUBMIT_BUSY_LABEL = VOTE_SUBMIT_PENDING_MESSAGE;
 
 export function getPollIdFromVotePath(pathname) {
   const match = pathname.match(/^\/vote\/([^/]+)$/);
@@ -311,8 +314,9 @@ export async function bootstrapVotePage({
   }
 
   const demoOnly = isDemoPollRouteId(pollId);
-  title.textContent = demoOnly ? '範例問卷' : '載入問卷中…';
+  title.textContent = demoOnly ? '範例問卷' : VOTE_PAGE_LOADING_MESSAGE;
   title.setAttribute('aria-busy', 'true');
+  markRegionBusy(form, true);
   announceToStatusRegion(message, '');
 
   const controller = createVotePageController({
@@ -390,7 +394,7 @@ export async function bootstrapVotePage({
       idleLabel: SUBMIT_IDLE_LABEL,
       busyLabel: SUBMIT_BUSY_LABEL,
     });
-    announceToStatusRegion(message, '送出中…');
+    announceToStatusRegion(message, VOTE_SUBMIT_PENDING_MESSAGE);
     success.hidden = true;
     success.replaceChildren();
     try {

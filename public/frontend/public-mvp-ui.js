@@ -37,6 +37,30 @@ export const PUBLIC_VOTE_SUBMIT_USER_MESSAGES = [
   VOTE_SUBMIT_TRANSPORT_FAILURE,
 ];
 
+/** Frontend-owned generic action pending copy (submit / transition / logout). */
+export const PUBLIC_ACTION_PENDING_MESSAGE = '處理中，請稍候。';
+
+/** Frontend-owned generic loading pending copy (initial page / region fetch). */
+export const PUBLIC_LOADING_PENDING_MESSAGE = '載入中，請稍候。';
+
+/** Allowlist of safe user-visible loading / pending messages across public surfaces. */
+export const PUBLIC_PENDING_USER_MESSAGES = [
+  PUBLIC_ACTION_PENDING_MESSAGE,
+  PUBLIC_LOADING_PENDING_MESSAGE,
+  '登入中，請稍候。',
+  '註冊中，請稍候。',
+  '儲存中，請稍候。',
+  '送出中，請稍候。',
+  '建立中，請稍候。',
+  '登出中，請稍候。',
+  '載入探索列表中，請稍候。',
+  '載入更多中，請稍候。',
+  '載入問卷中，請稍候。',
+  '載入結果中，請稍候。',
+  '載入你的問卷中，請稍候。',
+  '載入個人資料提示中，請稍候。',
+];
+
 const GENERIC_LOAD_FAILURE = VOTE_PAGE_LOAD_FAILURE;
 
 /**

@@ -12,11 +12,15 @@ import {
   isLocalDemoHostname,
   parsePollApiError,
   POLL_ID_PATTERN,
+  PUBLIC_ACTION_PENDING_MESSAGE,
   resolvePublicErrorUserMessage,
+  setBusySubmitButton,
 } from './public-mvp-ui.js';
 
 /** Seeded creator for localhost manual / smoke flows (matches scripts/smoke-public-local.mjs). */
 export const LOCAL_DEMO_CREATOR_USER_ID = '11111111-1111-4111-8111-111111111111';
+
+export const LIFECYCLE_ACTION_PENDING_MESSAGE = PUBLIC_ACTION_PENDING_MESSAGE;
 
 export const LIFECYCLE_GENERIC_FAILURE = '目前無法更新問卷狀態，請稍後再試。';
 const GENERIC_FAILURE = LIFECYCLE_GENERIC_FAILURE;
@@ -417,8 +421,13 @@ async function runLifecycleTransition({
     return;
   }
   const copy = LIFECYCLE_TRANSITION_COPY[action];
-  button.disabled = true;
-  status.textContent = '處理中…';
+  const idleLabel = copy.label;
+  setBusySubmitButton(button, {
+    busy: true,
+    idleLabel,
+    busyLabel: LIFECYCLE_ACTION_PENDING_MESSAGE,
+  });
+  status.textContent = LIFECYCLE_ACTION_PENDING_MESSAGE;
   try {
     const body = await postPollLifecycleTransition(
       pollId,
@@ -454,7 +463,11 @@ async function runLifecycleTransition({
         GENERIC_FAILURE,
         LIFECYCLE_USER_ERROR_MESSAGES,
       );
-    button.disabled = false;
+    setBusySubmitButton(button, {
+      busy: false,
+      idleLabel,
+      busyLabel: LIFECYCLE_ACTION_PENDING_MESSAGE,
+    });
   }
 }
 

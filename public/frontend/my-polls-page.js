@@ -25,7 +25,7 @@ export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE = '請先登入後查看你建立
 export const MY_POLLS_LOAD_FAILURE_MESSAGE = '目前無法載入你建立的問卷，請稍後再試。';
 export const MY_POLLS_EMPTY_MESSAGE = '你目前還沒有建立問卷。';
 export const MY_POLLS_EMPTY_SUMMARY = '你可以先建立一則問卷並分享投票連結。';
-export const MY_POLLS_LOADING_MESSAGE = '載入你的問卷…';
+export const MY_POLLS_LOADING_MESSAGE = '載入你的問卷中，請稍候。';
 const MY_POLLS_SIGN_IN_REQUIRED_ERROR = 'MyPollsSignInRequiredError';
 
 function createMyPollsSignInRequiredError() {

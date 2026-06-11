@@ -5,6 +5,7 @@
 import {
   announceToStatusRegion,
   markRegionBusy,
+  PUBLIC_LOADING_PENDING_MESSAGE,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
@@ -31,8 +32,8 @@ export const PROFILE_REGION_OPTIONS = [
 
 export const PROFILE_UNAUTHENTICATED_MESSAGE =
   '編輯個人資料前請先登入。';
-export const PROFILE_LOADING_MESSAGE = '載入中…';
-export const PROFILE_SAVING_MESSAGE = '儲存中…';
+export const PROFILE_LOADING_MESSAGE = PUBLIC_LOADING_PENDING_MESSAGE;
+export const PROFILE_SAVING_MESSAGE = '儲存中，請稍候。';
 export const PROFILE_SAVED_MESSAGE = '個人資料已儲存。';
 export const PROFILE_VALIDATION_MESSAGE = '請確認出生年月與居住地區格式。';
 export const PROFILE_UNAUTHENTICATED_EDIT_MESSAGE =
@@ -50,7 +51,7 @@ export const PROFILE_USER_ERROR_MESSAGES = [
 ];
 
 const SUBMIT_IDLE_LABEL = '儲存';
-const SUBMIT_BUSY_LABEL = '儲存中…';
+const SUBMIT_BUSY_LABEL = PROFILE_SAVING_MESSAGE;
 
 /**
  * @param {unknown} value

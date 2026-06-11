@@ -65,7 +65,7 @@ export const REGISTRATION_USER_ERROR_MESSAGES = [
 
 const DISPLAY_NAME_MAX_LENGTH = 80;
 const SUBMIT_IDLE_LABEL = '註冊';
-const SUBMIT_BUSY_LABEL = '註冊中…';
+const SUBMIT_BUSY_LABEL = REGISTRATION_LOADING_MESSAGE;
 
 /**
  * @param {unknown} value

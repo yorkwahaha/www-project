@@ -13,9 +13,22 @@ export function isPublicMvpPagePollId(pollId) {
   );
 }
 
-const GENERIC_LOAD_FAILURE = '目前無法載入，請稍後再試。';
+export const VOTE_PAGE_LOAD_FAILURE = '目前無法載入問卷，請稍後再試。';
+export const VOTE_SUBMIT_TRANSPORT_FAILURE = '目前無法送出投票，請稍後再試。';
 export const GENERIC_VOTE_SUBMIT_FAILURE =
   '目前無法完成這次投票。請確認已登入並完成必要的個人資料後再試；若問題持續，請稍後再試。';
+
+const GENERIC_LOAD_FAILURE = VOTE_PAGE_LOAD_FAILURE;
+
+const PUBLIC_POLL_LIFECYCLE_STATES = [
+  'draft',
+  'collecting',
+  'cancelled',
+  'revealed',
+  'locked',
+  'post_lock',
+  'unpublished',
+];
 
 export function setBusySubmitButton(
   button,
@@ -106,6 +119,68 @@ export function messageForPollLoadFailure({ status, errorCode, message } = {}) {
 
 export function messageForVoteSubmitFailure() {
   return GENERIC_VOTE_SUBMIT_FAILURE;
+}
+
+/**
+ * @param {unknown} detail
+ * @returns {string | null}
+ */
+export function getPublicLifecycleStateFromPoll(detail) {
+  if (!detail || typeof detail !== 'object' || Array.isArray(detail)) {
+    return null;
+  }
+  const state = /** @type {{ public_lifecycle_state?: unknown }} */ (detail)
+    .public_lifecycle_state;
+  if (
+    typeof state === 'string' &&
+    PUBLIC_POLL_LIFECYCLE_STATES.includes(state)
+  ) {
+    return state;
+  }
+  return null;
+}
+
+/**
+ * @param {unknown} detail
+ */
+export function isPollAcceptingVotes(detail) {
+  const lifecycle = getPublicLifecycleStateFromPoll(detail);
+  if (lifecycle !== null) {
+    return lifecycle === 'collecting';
+  }
+  if (detail && typeof detail === 'object' && !Array.isArray(detail)) {
+    const status = /** @type {{ status?: unknown }} */ (detail).status;
+    return status === 'active';
+  }
+  return false;
+}
+
+/**
+ * @param {unknown} detail
+ */
+export function messageForPollVotingBlocked(detail) {
+  const lifecycle = getPublicLifecycleStateFromPoll(detail);
+  if (
+    lifecycle === 'cancelled' ||
+    lifecycle === 'unpublished' ||
+    lifecycle === 'draft'
+  ) {
+    return '此問卷目前無法使用。';
+  }
+  if (
+    lifecycle === 'revealed' ||
+    lifecycle === 'locked' ||
+    lifecycle === 'post_lock'
+  ) {
+    return '此問卷已結束。';
+  }
+  if (detail && typeof detail === 'object' && !Array.isArray(detail)) {
+    const status = /** @type {{ status?: unknown }} */ (detail).status;
+    if (status === 'closed') {
+      return '此問卷已截止，無法再投票。';
+    }
+  }
+  return '此問卷目前不接受投票。';
 }
 
 export function renderPublicNav(root) {

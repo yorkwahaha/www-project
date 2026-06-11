@@ -68,6 +68,7 @@ export function getDemoPollDetail() {
   return {
     title: DEMO_POLL_TITLE,
     description: DEMO_POLL_DESCRIPTION,
+    public_lifecycle_state: 'collecting',
     options: DEMO_POLL_OPTION_LABELS.map((label, option_index) => ({
       option_index,
       label,

@@ -4,18 +4,23 @@ import {
   submitVoteDemo,
 } from './public-mvp-demo.js';
 import {
+  GENERIC_VOTE_SUBMIT_FAILURE,
   isPublicMvpPagePollId,
   announceToStatusRegion,
   buildPublicResultPath,
   focusFirstFocusable,
+  isPollAcceptingVotes,
   markRegionBusy,
   messageForPollLoadFailure,
+  messageForPollVotingBlocked,
   messageForVoteSubmitFailure,
   parsePollApiError,
   renderPublicErrorPanel,
   renderPublicNav,
   resolvePublicMvpUserId,
   setBusySubmitButton,
+  VOTE_PAGE_LOAD_FAILURE,
+  VOTE_SUBMIT_TRANSPORT_FAILURE,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import { mountOfficialVotePreVoteHint } from './official-vote-pre-vote-hints.js';
@@ -28,9 +33,9 @@ import {
   renderVoteSuccessPolicyExtras,
 } from './policy-ui-placeholders.js';
 
-const SAFE_LOAD_FAILURE_MESSAGE = '目前無法載入問卷，請稍後再試。';
-const SAFE_SUBMIT_FAILURE_MESSAGE = '目前無法送出投票，請稍後再試。';
-const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
+export const VOTE_SUCCESS_MESSAGE = '投票已送出，感謝參與。';
+export const VOTE_SUCCESS_STATUS_MESSAGE = '投票已送出。';
+export const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
 const SUBMIT_IDLE_LABEL = '送出投票';
 const SUBMIT_BUSY_LABEL = '送出中…';
 
@@ -52,7 +57,7 @@ export async function loadPollDetail({ pollId, fetchImpl = globalThis.fetch }) {
   try {
     return await response.json();
   } catch {
-    throw new Error(SAFE_LOAD_FAILURE_MESSAGE);
+    throw new Error(VOTE_PAGE_LOAD_FAILURE);
   }
 }
 
@@ -80,11 +85,11 @@ export async function submitVoteByIndex({
       },
     );
   } catch {
-    throw new Error(SAFE_SUBMIT_FAILURE_MESSAGE);
+    throw new Error(VOTE_SUBMIT_TRANSPORT_FAILURE);
   }
   if (!response.ok) {
-    const apiError = await parsePollApiError(response);
-    throw new Error(messageForVoteSubmitFailure(apiError));
+    await parsePollApiError(response);
+    throw new Error(messageForVoteSubmitFailure());
   }
   return response;
 }
@@ -132,7 +137,7 @@ export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
   message.className = 'panel-message';
   message.textContent = demoOnly
     ? '此流程展示未來的使用方式，投票不會儲存。'
-    : '投票已送出，感謝參與。';
+    : VOTE_SUCCESS_MESSAGE;
   root.append(message);
 
   const hint = root.ownerDocument.createElement('p');
@@ -195,6 +200,35 @@ export function createVotePageController({
     clearRuntimeMemory,
     hasSensitiveRuntimeState: () => selectedOptionIndex !== null,
   };
+}
+
+/**
+ * @param {{
+ *   detail: unknown;
+ *   submitButton: HTMLButtonElement | null;
+ *   message: HTMLElement | null;
+ *   collectingNotice?: HTMLElement | null;
+ * }} input
+ */
+export function applyVotePageVotingAvailability({
+  detail,
+  submitButton,
+  message,
+  collectingNotice = null,
+}) {
+  if (isPollAcceptingVotes(detail)) {
+    return { votingAllowed: true, blockedMessage: null };
+  }
+  const blockedMessage = messageForPollVotingBlocked(detail);
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.setAttribute('aria-disabled', 'true');
+  }
+  announceToStatusRegion(message, blockedMessage);
+  if (collectingNotice) {
+    collectingNotice.hidden = true;
+  }
+  return { votingAllowed: false, blockedMessage };
 }
 
 export async function bootstrapVotePage({
@@ -285,6 +319,8 @@ export async function bootstrapVotePage({
     },
   });
 
+  let votingAllowed = true;
+
   try {
     const detail = demoOnly
       ? getDemoPollDetail()
@@ -306,6 +342,12 @@ export async function bootstrapVotePage({
       collectingNotice.hidden = Boolean(policyPanels && !policyPanels.hidden);
     }
     form.hidden = false;
+    ({ votingAllowed } = applyVotePageVotingAvailability({
+      detail,
+      submitButton,
+      message,
+      collectingNotice,
+    }));
     void mountOfficialVotePreVoteHint(documentObject, { fetchImpl });
     applyVotePageUiMockState({
       mockState: uiMockState,
@@ -316,7 +358,8 @@ export async function bootstrapVotePage({
     });
     markRegionBusy(form, false);
   } catch (error) {
-    const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;
+    const body =
+      error instanceof Error ? error.message : VOTE_PAGE_LOAD_FAILURE;
     showRouteError('無法載入問卷', body);
     return;
   }
@@ -325,7 +368,7 @@ export async function bootstrapVotePage({
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (voteCompleted || submitButton.disabled) {
+    if (voteCompleted || submitButton.disabled || !votingAllowed) {
       return;
     }
     setBusySubmitButton(submitButton, {
@@ -353,16 +396,15 @@ export async function bootstrapVotePage({
       voteCompleted = true;
       announceToStatusRegion(
         message,
-        demoOnly ? '投票流程已展示（不會儲存）。' : '投票已送出。',
+        demoOnly ? '投票流程已展示（不會儲存）。' : VOTE_SUCCESS_STATUS_MESSAGE,
       );
       form.hidden = true;
       renderVoteSuccess(success, pollId, { demoOnly });
       focusFirstFocusable(success);
     } catch (error) {
-      announceToStatusRegion(
-        message,
-        error instanceof Error ? error.message : SAFE_SUBMIT_FAILURE_MESSAGE,
-      );
+      const failureMessage =
+        error instanceof Error ? error.message : GENERIC_VOTE_SUBMIT_FAILURE;
+      announceToStatusRegion(message, failureMessage);
       setBusySubmitButton(submitButton, {
         busy: false,
         idleLabel: SUBMIT_IDLE_LABEL,

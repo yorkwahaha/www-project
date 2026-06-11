@@ -6,19 +6,20 @@ import {
   LOGIN_STATE_AUTHENTICATED,
   readLoginState,
 } from './login-state-read.js';
+import {
+  PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT,
+  PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT,
+  PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
+} from './public-mvp-ui.js';
 
 export const PRE_VOTE_HINT_MOUNT_ID = 'official-vote-pre-vote-hint';
 export const PRE_VOTE_HINT_CLASS = 'mvp-official-vote-pre-vote-hint';
 
 export const PRE_VOTE_HINT_COPY = {
-  anonymous:
-    '正式投票可能需要登入。若你尚未登入，可前往登入頁完成登入後再嘗試投票。',
-  incompleteProfile:
-    '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；此提示不代表一定可以完成投票。',
-  completeProfile:
-    '送出投票後，系統會依該投票的規則在當下判定是否可計票。此提示不代表一定可以完成投票。',
-  profileLoadFailed:
-    '送出投票後，系統會依該投票的規則在當下判定是否可計票。此提示不代表一定可以完成投票。',
+  anonymous: PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT,
+  incompleteProfile: PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT,
+  completeProfile: PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
+  profileLoadFailed: PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
 };
 
 export const PRE_VOTE_HINT_LINKS = {

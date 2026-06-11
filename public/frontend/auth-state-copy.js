@@ -3,9 +3,11 @@
  * Phase 94 — registration/login navigation and flow copy polish.
  */
 
+import { PUBLIC_AUTH_GUEST_SIGN_IN_CTA_ARIA_LABEL } from './public-mvp-ui.js';
+
 export const AUTH_STATE_COPY = {
   guestChipLabel: '未登入',
-  guestChipAriaLabel: '尚未登入，前往登入頁',
+  guestChipAriaLabel: PUBLIC_AUTH_GUEST_SIGN_IN_CTA_ARIA_LABEL,
   guestChipTitle:
     '登入後頁首才會顯示帳號名稱。註冊只建立帳號資料，不會自動登入。',
   demoIdentityChipLabel: 'MVP 測試身份',

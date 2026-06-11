@@ -8,6 +8,15 @@ import {
   buildPublicVotePath,
   markRegionBusy,
   parsePollApiError,
+  PUBLIC_RESULTS_CANCELLED_MESSAGE,
+  PUBLIC_RESULTS_CANCELLED_TITLE,
+  PUBLIC_RESULTS_COLLECTING_SUMMARY,
+  PUBLIC_RESULTS_COLLECTING_TITLE,
+  PUBLIC_RESULTS_EMPTY_AGGREGATE_MESSAGE,
+  PUBLIC_RESULTS_POLL_UNAVAILABLE_MESSAGE,
+  PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY,
+  PUBLIC_RESULTS_UNPUBLISHED_MESSAGE,
+  PUBLIC_RESULTS_UNPUBLISHED_TITLE,
   renderPublicErrorPanel,
   renderPublicNav,
   resolvePublicErrorUserMessage,
@@ -36,17 +45,14 @@ function appendText(parent, tagName, text, className) {
 }
 
 const PUBLIC_NOTICE_TYPE = 'suspended_typo_correction_applied';
-export const RESULTS_COLLECTING_TITLE = '結果尚未公開';
-export const RESULTS_COLLECTING_SUMMARY =
-  '本問卷仍在收集中。此頁不顯示總票數、選項票數、百分比、排名或趨勢。';
-export const RESULTS_CANCELLED_TITLE = '問卷已取消';
-export const RESULTS_CANCELLED_MESSAGE =
-  '此問卷已取消，不會產生可公開顯示的聚合結果。';
-export const RESULTS_UNPUBLISHED_TITLE = '問卷目前無法查看';
-export const RESULTS_UNPUBLISHED_MESSAGE =
-  '此問卷目前無法查看，頁面不顯示聚合結果。';
-export const RESULTS_POLL_UNAVAILABLE_MESSAGE = '問卷目前無法使用。';
-export const RESULTS_EMPTY_AGGREGATE_MESSAGE = '目前沒有可顯示的聚合結果。';
+export const RESULTS_COLLECTING_TITLE = PUBLIC_RESULTS_COLLECTING_TITLE;
+export const RESULTS_COLLECTING_SUMMARY = PUBLIC_RESULTS_COLLECTING_SUMMARY;
+export const RESULTS_CANCELLED_TITLE = PUBLIC_RESULTS_CANCELLED_TITLE;
+export const RESULTS_CANCELLED_MESSAGE = PUBLIC_RESULTS_CANCELLED_MESSAGE;
+export const RESULTS_UNPUBLISHED_TITLE = PUBLIC_RESULTS_UNPUBLISHED_TITLE;
+export const RESULTS_UNPUBLISHED_MESSAGE = PUBLIC_RESULTS_UNPUBLISHED_MESSAGE;
+export const RESULTS_POLL_UNAVAILABLE_MESSAGE = PUBLIC_RESULTS_POLL_UNAVAILABLE_MESSAGE;
+export const RESULTS_EMPTY_AGGREGATE_MESSAGE = PUBLIC_RESULTS_EMPTY_AGGREGATE_MESSAGE;
 export const RESULTS_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
 export const RESULT_PAGE_LOADING_MESSAGE = '載入結果中，請稍候。';
 const SAFE_LOAD_FAILURE_MESSAGE = RESULTS_LOAD_FAILURE_MESSAGE;
@@ -272,7 +278,7 @@ export function renderUnavailableStatusBlock(
   appendText(
     block,
     'p',
-    '此頁不顯示總票數、選項票數、百分比、排名、趨勢或任何進度訊號。',
+    PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY,
     'result-unavailable-summary',
   );
 

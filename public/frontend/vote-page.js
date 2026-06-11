@@ -16,6 +16,9 @@ import {
   messageForVoteSubmitFailure,
   parsePollApiError,
   PUBLIC_POLL_LOAD_USER_MESSAGES,
+  PUBLIC_VOTE_ROUTE_INVALID_ID_MESSAGE,
+  PUBLIC_VOTE_ROUTE_MISSING_ID_MESSAGE,
+  PUBLIC_VOTE_ROUTE_UNAVAILABLE_TITLE,
   PUBLIC_VOTE_DEMO_SUCCESS_MESSAGE,
   PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
   PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE,
@@ -307,16 +310,16 @@ export async function bootstrapVotePage({
 
   if (!pollId) {
     showRouteError(
-      '無法開啟投票頁',
-      '網址缺少問卷識別碼，請從建立問卷頁取得正確的投票連結。',
+      PUBLIC_VOTE_ROUTE_UNAVAILABLE_TITLE,
+      PUBLIC_VOTE_ROUTE_MISSING_ID_MESSAGE,
     );
     return;
   }
 
   if (!isPublicMvpPagePollId(pollId)) {
     showRouteError(
-      '無法開啟投票頁',
-      '網址中的問卷識別碼格式不正確，請確認連結是否完整。',
+      PUBLIC_VOTE_ROUTE_UNAVAILABLE_TITLE,
+      PUBLIC_VOTE_ROUTE_INVALID_ID_MESSAGE,
     );
     return;
   }

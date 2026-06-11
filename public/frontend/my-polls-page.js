@@ -10,6 +10,7 @@ import {
   buildPublicVotePath,
   copyTextToClipboard,
   isLocalDemoHostname,
+  PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
 } from './public-mvp-ui.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
@@ -21,7 +22,8 @@ import {
 
 const MOCK_SHARE_MSG = '已複製範例投票連結，可分享給他人體驗流程。';
 
-export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE = '請先登入後查看你建立的問卷。';
+export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE =
+  PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE;
 export const MY_POLLS_LOAD_FAILURE_MESSAGE = '目前無法載入你建立的問卷，請稍後再試。';
 export const MY_POLLS_EMPTY_MESSAGE = '你目前還沒有建立問卷。';
 export const MY_POLLS_EMPTY_SUMMARY = '你可以先建立一則問卷並分享投票連結。';

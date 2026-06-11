@@ -13,10 +13,27 @@ import {
   parsePollApiError,
   POLL_ID_PATTERN,
   PUBLIC_ACTION_PENDING_MESSAGE,
+  PUBLIC_LIFECYCLE_ALREADY_CANCELLED_MESSAGE,
+  PUBLIC_LIFECYCLE_ALREADY_UNPUBLISHED_MESSAGE,
+  PUBLIC_LIFECYCLE_AUTH_REQUIRED_MESSAGE,
+  PUBLIC_LIFECYCLE_CANCELLED_NOTE_MESSAGE,
   PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE,
   PUBLIC_LIFECYCLE_CLOSE_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_DELETE_LOCKED_MESSAGE,
+  PUBLIC_LIFECYCLE_FORBIDDEN_MESSAGE,
+  PUBLIC_LIFECYCLE_GENERIC_ACTION_UNAVAILABLE_MESSAGE,
+  PUBLIC_LIFECYCLE_INCOMPLETE_STATE_MESSAGE,
+  PUBLIC_LIFECYCLE_INVALID_STATE_ACTION_MESSAGE,
+  PUBLIC_LIFECYCLE_LOCKED_ACTION_UNAVAILABLE_MESSAGE,
+  PUBLIC_LIFECYCLE_NO_ACTION_AVAILABLE_MESSAGE,
+  PUBLIC_LIFECYCLE_NOT_COLLECTING_MESSAGE,
+  PUBLIC_LIFECYCLE_POLL_CLOSED_MESSAGE,
+  PUBLIC_LIFECYCLE_POLL_NOT_FOUND_MESSAGE,
   PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_REVEAL_TOO_EARLY_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISH_LOCKED_MESSAGE,
   PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISHED_VISITOR_MESSAGE,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
@@ -46,19 +63,19 @@ export function isCreatorSessionFailureError(error) {
 export const LIFECYCLE_USER_ERROR_MESSAGES = [
   LIFECYCLE_GENERIC_FAILURE,
   CREATOR_SESSION_FAILURE,
-  '公開結果期間無法刪除問卷；鎖定期結束後請使用下架。',
-  '問卷狀態資料不完整，無法推進生命週期。',
-  '目前問卷狀態無法執行此操作，請重新整理後再試。',
-  '公開鎖定期尚未結束，目前無法下架。',
-  '此問卷已取消。',
-  '此問卷已下架。',
-  '僅發起者可執行此操作。',
-  '需要發起者身分才能執行此操作。',
-  '找不到此問卷，可能已刪除或連結有誤。',
-  '尚未到預定截止時間，無法結束收集並公開結果。',
-  '問卷目前不在收集中，無法執行此操作。',
-  '此問卷已結束，無法再變更狀態。',
-  '無法執行此操作，請確認問卷狀態後再試。',
+  PUBLIC_LIFECYCLE_DELETE_LOCKED_MESSAGE,
+  PUBLIC_LIFECYCLE_INCOMPLETE_STATE_MESSAGE,
+  PUBLIC_LIFECYCLE_INVALID_STATE_ACTION_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISH_LOCKED_MESSAGE,
+  PUBLIC_LIFECYCLE_ALREADY_CANCELLED_MESSAGE,
+  PUBLIC_LIFECYCLE_ALREADY_UNPUBLISHED_MESSAGE,
+  PUBLIC_LIFECYCLE_FORBIDDEN_MESSAGE,
+  PUBLIC_LIFECYCLE_AUTH_REQUIRED_MESSAGE,
+  PUBLIC_LIFECYCLE_POLL_NOT_FOUND_MESSAGE,
+  PUBLIC_LIFECYCLE_REVEAL_TOO_EARLY_MESSAGE,
+  PUBLIC_LIFECYCLE_NOT_COLLECTING_MESSAGE,
+  PUBLIC_LIFECYCLE_POLL_CLOSED_MESSAGE,
+  PUBLIC_LIFECYCLE_GENERIC_ACTION_UNAVAILABLE_MESSAGE,
 ];
 
 /** @typedef {'cancel' | 'close' | 'unpublish'} LifecycleTransitionAction */
@@ -177,45 +194,45 @@ export function messageForLifecycleTransitionFailure(apiError = {}) {
       typeof message === 'string' &&
       message.includes('Creator delete is not allowed')
     ) {
-      return '公開結果期間無法刪除問卷；鎖定期結束後請使用下架。';
+      return PUBLIC_LIFECYCLE_DELETE_LOCKED_MESSAGE;
     }
     if (
       typeof message === 'string' &&
       message.includes('lifecycle timestamps are incomplete')
     ) {
-      return '問卷狀態資料不完整，無法推進生命週期。';
+      return PUBLIC_LIFECYCLE_INCOMPLETE_STATE_MESSAGE;
     }
-    return '目前問卷狀態無法執行此操作，請重新整理後再試。';
+    return PUBLIC_LIFECYCLE_INVALID_STATE_ACTION_MESSAGE;
   }
   if (errorCode === 'LOCKED_PERIOD_CONFLICT') {
-    return '公開鎖定期尚未結束，目前無法下架。';
+    return PUBLIC_LIFECYCLE_UNPUBLISH_LOCKED_MESSAGE;
   }
   if (errorCode === 'ALREADY_CANCELLED') {
-    return '此問卷已取消。';
+    return PUBLIC_LIFECYCLE_ALREADY_CANCELLED_MESSAGE;
   }
   if (errorCode === 'ALREADY_UNPUBLISHED') {
-    return '此問卷已下架。';
+    return PUBLIC_LIFECYCLE_ALREADY_UNPUBLISHED_MESSAGE;
   }
   if (errorCode === 'POLL_FORBIDDEN') {
-    return '僅發起者可執行此操作。';
+    return PUBLIC_LIFECYCLE_FORBIDDEN_MESSAGE;
   }
   if (errorCode === 'AUTH_REQUIRED' || status === 401) {
-    return '需要發起者身分才能執行此操作。';
+    return PUBLIC_LIFECYCLE_AUTH_REQUIRED_MESSAGE;
   }
   if (errorCode === 'POLL_NOT_FOUND' || status === 404) {
-    return '找不到此問卷，可能已刪除或連結有誤。';
+    return PUBLIC_LIFECYCLE_POLL_NOT_FOUND_MESSAGE;
   }
   if (errorCode === 'POLL_VALIDATION') {
     if (message === 'Poll cannot be revealed before closes_at') {
-      return '尚未到預定截止時間，無法結束收集並公開結果。';
+      return PUBLIC_LIFECYCLE_REVEAL_TOO_EARLY_MESSAGE;
     }
     if (message === 'Poll is not collecting responses') {
-      return '問卷目前不在收集中，無法執行此操作。';
+      return PUBLIC_LIFECYCLE_NOT_COLLECTING_MESSAGE;
     }
     if (message === 'Poll is closed') {
-      return '此問卷已結束，無法再變更狀態。';
+      return PUBLIC_LIFECYCLE_POLL_CLOSED_MESSAGE;
     }
-    return '無法執行此操作，請確認問卷狀態後再試。';
+    return PUBLIC_LIFECYCLE_GENERIC_ACTION_UNAVAILABLE_MESSAGE;
   }
   return GENERIC_FAILURE;
 }
@@ -397,15 +414,15 @@ function lifecycleFeedbackElement(host, fallback) {
 
 function lifecycleNoteForState(lifecycleState) {
   if (lifecycleState === 'revealed' || lifecycleState === 'locked') {
-    return '問卷已公開結果並處於公開鎖定期，目前無法取消、下架或修改內容。';
+    return PUBLIC_LIFECYCLE_LOCKED_ACTION_UNAVAILABLE_MESSAGE;
   }
   if (lifecycleState === 'cancelled') {
-    return '此問卷已取消，不會產生公開結果。';
+    return PUBLIC_LIFECYCLE_CANCELLED_NOTE_MESSAGE;
   }
   if (lifecycleState === 'unpublished') {
-    return '此問卷已下架，訪客無法再查看公開結果。';
+    return PUBLIC_LIFECYCLE_UNPUBLISHED_VISITOR_MESSAGE;
   }
-  return '此狀態目前沒有可執行的發起者操作。';
+  return PUBLIC_LIFECYCLE_NO_ACTION_AVAILABLE_MESSAGE;
 }
 
 async function runLifecycleTransition({

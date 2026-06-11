@@ -11,7 +11,14 @@ export const EXPLORE_FEED_ALLOWED_ITEM_KEYS = [
   'result_page_url',
 ];
 
-const EXPLORE_LOAD_FAILURE_MESSAGE = '目前無法載入探索列表，請稍後再試。';
+export const EXPLORE_LOAD_FAILURE_MESSAGE = '目前無法載入探索列表，請稍後再試';
+export const EXPLORE_LOAD_MORE_FAILURE_MESSAGE = '無法載入更多問卷，請稍後再試。';
+export const EXPLORE_FEED_EMPTY_MESSAGE = '目前沒有正在收集中的公開問卷';
+export const EXPLORE_FEED_EMPTY_SUMMARY = '你可以先發起一則問卷並分享投票連結。';
+export const EXPLORE_FEED_LIST_MESSAGE = '顯示公開問卷列表';
+export const EXPLORE_FEED_LIST_SUMMARY =
+  '依最近發布排序；非熱門、票數、個人化或榜單。';
+export const EXPLORE_FEED_LOADING_MESSAGE = '載入探索列表中…';
 const CATEGORY_LABELS = {
   general: '一般',
   life: '生活',
@@ -206,7 +213,7 @@ function mountExplorePage(documentObject, windowObject = globalThis) {
     if (reset) {
       listRoot.replaceChildren();
       nextCursor = null;
-      announce('載入探索列表中…');
+      announce(EXPLORE_FEED_LOADING_MESSAGE);
       listRoot.setAttribute('aria-busy', 'true');
     } else if (loadMoreButton) {
       loadMoreButton.setAttribute('aria-busy', 'true');
@@ -224,18 +231,16 @@ function mountExplorePage(documentObject, windowObject = globalThis) {
       const total = listRoot.children.length;
       announce(
         total === 0
-          ? '目前沒有可探索的公開問卷。'
-          : `已顯示 ${total} 則問卷（依最近發布排序，非熱門或票數）。`,
+          ? EXPLORE_FEED_EMPTY_MESSAGE
+          : `${EXPLORE_FEED_LIST_MESSAGE}（${EXPLORE_FEED_LIST_SUMMARY}）`,
       );
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : EXPLORE_LOAD_FAILURE_MESSAGE;
+    } catch {
       if (reset && listRoot.children.length === 0) {
-        showError(message);
-        announce(message);
+        showError(EXPLORE_LOAD_FAILURE_MESSAGE);
+        announce(EXPLORE_LOAD_FAILURE_MESSAGE);
       } else {
-        showError('無法載入更多問卷，請稍後再試。');
-        announce('無法載入更多問卷，請稍後再試。');
+        showError(EXPLORE_LOAD_MORE_FAILURE_MESSAGE);
+        announce(EXPLORE_LOAD_MORE_FAILURE_MESSAGE);
       }
     } finally {
       loading = false;

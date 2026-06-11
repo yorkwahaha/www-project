@@ -122,8 +122,10 @@ describe('explore page feed helpers', () => {
     expect(html).toContain('data-explore-feed="freshness-only"');
     expect(html).toContain('/frontend/explore-page.js');
     expect(html).toContain('不顯示');
+    expect(html).toContain('目前沒有正在收集中的公開問卷');
     expect(html).not.toContain('mvp-result-preview');
     expect(html).not.toContain('/vote/demo');
+    expect(html).not.toContain('data-static-examples');
   });
 
   it('homepage copy points to live explore feed without launch-delay wording', async () => {
@@ -132,6 +134,7 @@ describe('explore page feed helpers', () => {
     expect(html).toContain('最近發布');
     expect(html).toContain('收集中');
     expect(html).toContain('靜態範例');
+    expect(html).toContain('data-static-examples="true"');
     expect(html).toMatch(/依發布時間|發布時間排序/);
     expect(html).toMatch(/非熱門|票數|個人化|榜單/);
     expect(html).toMatch(/不顯示票數與結果預覽/);

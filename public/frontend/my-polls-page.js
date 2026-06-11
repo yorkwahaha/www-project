@@ -9,6 +9,7 @@ import {
   buildAbsoluteUrl,
   buildPublicVotePath,
   copyTextToClipboard,
+  isLocalDemoHostname,
 } from './public-mvp-ui.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
@@ -17,12 +18,136 @@ import {
 } from './poll-lifecycle-controls.js';
 
 const MOCK_SHARE_MSG = '已複製範例投票連結，可分享給他人體驗流程。';
-const OWNED_POLLS_LOAD_FAILURE = '目前無法載入你的問卷，請稍後再試。';
+
+export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE = '請先登入後查看你建立的問卷';
+export const MY_POLLS_LOAD_FAILURE_MESSAGE = '目前無法載入你建立的問卷，請稍後再試';
+export const MY_POLLS_EMPTY_MESSAGE = '你目前還沒有建立問卷';
+export const MY_POLLS_EMPTY_SUMMARY = '你可以先建立一則問卷並分享投票連結。';
+export const MY_POLLS_LOADING_MESSAGE = '載入你的問卷…';
+const MY_POLLS_SIGN_IN_REQUIRED_ERROR = 'MyPollsSignInRequiredError';
+
+function createMyPollsSignInRequiredError() {
+  const error = new Error(MY_POLLS_SIGN_IN_REQUIRED_MESSAGE);
+  error.name = MY_POLLS_SIGN_IN_REQUIRED_ERROR;
+  return error;
+}
+
+export function isMyPollsSignInRequiredError(error) {
+  return error instanceof Error && error.name === MY_POLLS_SIGN_IN_REQUIRED_ERROR;
+}
+
+export const CREATOR_OWNED_POLL_ALLOWED_KEYS = [
+  'poll_id',
+  'title',
+  'category',
+  'public_lifecycle_state',
+  'closes_at',
+  'revealed_at',
+  'public_lock_ends_at',
+  'cancelled_at',
+  'unpublished_at',
+];
+
+const MY_POLLS_LIFECYCLE_LABELS = {
+  draft: '草稿',
+  collecting: '收集中',
+  revealed: '已公開',
+  locked: '公開鎖定期',
+  post_lock: '鎖定期已結束',
+  cancelled: '已取消',
+  unpublished: '已下架',
+};
+
+const MY_POLLS_LIFECYCLE_BADGE_CLASSES = {
+  draft: 'mvp-badge mvp-badge-muted',
+  collecting: 'mvp-badge mvp-badge-collecting',
+  revealed: 'mvp-badge mvp-badge-revealed',
+  locked: 'mvp-badge mvp-badge-locked',
+  post_lock: 'mvp-badge mvp-badge-muted',
+  cancelled: 'mvp-badge mvp-badge-danger',
+  unpublished: 'mvp-badge mvp-badge-muted',
+};
+
+export function formatMyPollsLifecycleLabel(lifecycleState) {
+  return (
+    MY_POLLS_LIFECYCLE_LABELS[lifecycleState] ??
+    MY_POLLS_LIFECYCLE_LABELS.draft
+  );
+}
+
+export function lifecycleBadgeClassForMyPolls(lifecycleState) {
+  return (
+    MY_POLLS_LIFECYCLE_BADGE_CLASSES[lifecycleState] ??
+    MY_POLLS_LIFECYCLE_BADGE_CLASSES.draft
+  );
+}
+
+export function isCreatorOwnedPollSafe(poll) {
+  if (!poll || typeof poll !== 'object') {
+    return false;
+  }
+  const keys = Object.keys(poll);
+  if (
+    keys.length !== CREATOR_OWNED_POLL_ALLOWED_KEYS.length ||
+    !CREATOR_OWNED_POLL_ALLOWED_KEYS.every((key) => keys.includes(key))
+  ) {
+    return false;
+  }
+  return (
+    typeof poll.poll_id === 'string' &&
+    typeof poll.title === 'string' &&
+    typeof poll.category === 'string' &&
+    Object.hasOwn(MY_POLLS_LIFECYCLE_LABELS, poll.public_lifecycle_state) &&
+    typeof poll.closes_at === 'string' &&
+    (poll.revealed_at === null || typeof poll.revealed_at === 'string') &&
+    (poll.public_lock_ends_at === null ||
+      typeof poll.public_lock_ends_at === 'string') &&
+    (poll.cancelled_at === null || typeof poll.cancelled_at === 'string') &&
+    (poll.unpublished_at === null || typeof poll.unpublished_at === 'string')
+  );
+}
+
+export async function prepareMyPollsLiveSession({
+  fetchImpl = globalThis.fetch,
+  locationObject = globalThis.location,
+} = {}) {
+  let response;
+  try {
+    response = await fetchImpl('/creator/session', {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+  } catch {
+    throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
+  }
+  if (response.ok) {
+    return;
+  }
+  if (
+    response.status === 401 &&
+    locationObject?.hostname &&
+    !isLocalDemoHostname(locationObject.hostname)
+  ) {
+    throw createMyPollsSignInRequiredError();
+  }
+  try {
+    await ensureCreatorSessionForLiveMode({ fetchImpl, locationObject });
+  } catch {
+    throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
+  }
+}
 
 export function wireMyPollsDemoPage(documentObject = globalThis.document) {
   mountSiteChrome(documentObject);
 
   const useLiveApi = parseLiveApiMode(documentObject.defaultView?.location?.search ?? '');
+  const mockWrap = documentObject.querySelector('.mvp-dash-table-wrap');
+  if (mockWrap) {
+    mockWrap.setAttribute('data-mock-dashboard', 'true');
+    if (useLiveApi) {
+      mockWrap.setAttribute('aria-hidden', 'true');
+    }
+  }
   if (useLiveApi) {
     void mountLiveCreatorManagePanel(documentObject);
   }
@@ -52,16 +177,22 @@ export async function fetchCreatorOwnedPolls(fetchImpl = globalThis.fetch) {
       credentials: 'same-origin',
     });
   } catch {
-    throw new Error(OWNED_POLLS_LOAD_FAILURE);
+    throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
   }
   if (!response.ok) {
-    throw new Error(OWNED_POLLS_LOAD_FAILURE);
+    throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
   }
   try {
     const body = await response.json();
-    return Array.isArray(body.polls) ? body.polls : [];
+    if (!body || !Array.isArray(body.polls)) {
+      throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
+    }
+    if (!body.polls.every((poll) => isCreatorOwnedPollSafe(poll))) {
+      throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
+    }
+    return body.polls;
   } catch {
-    throw new Error(OWNED_POLLS_LOAD_FAILURE);
+    throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
   }
 }
 
@@ -84,6 +215,7 @@ async function mountLiveCreatorManagePanel(documentObject) {
       main.prepend(host);
     }
   }
+  host.setAttribute('data-live-owned-list', 'true');
 
   host.setAttribute('role', 'region');
   host.setAttribute('aria-label', '即時問卷管理');
@@ -93,11 +225,11 @@ async function mountLiveCreatorManagePanel(documentObject) {
   status.className = 'mvp-meta';
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
-  status.textContent = '載入你的問卷…';
+  status.textContent = MY_POLLS_LOADING_MESSAGE;
   host.append(status);
 
   try {
-    await ensureCreatorSessionForLiveMode({
+    await prepareMyPollsLiveSession({
       fetchImpl,
       locationObject: documentObject.defaultView?.location ?? globalThis.location,
     });
@@ -109,7 +241,36 @@ async function mountLiveCreatorManagePanel(documentObject) {
     }
     renderCreatorPollsList(host, documentObject, polls, fetchImpl);
   } catch (error) {
-    status.textContent = error instanceof Error ? error.message : OWNED_POLLS_LOAD_FAILURE;
+    const showLoginLink = isMyPollsSignInRequiredError(error);
+    renderMyPollsUnavailableState(host, documentObject, {
+      message: showLoginLink
+        ? MY_POLLS_SIGN_IN_REQUIRED_MESSAGE
+        : MY_POLLS_LOAD_FAILURE_MESSAGE,
+      showLoginLink,
+    });
+  }
+}
+
+function renderMyPollsUnavailableState(
+  host,
+  documentObject,
+  { message, showLoginLink = false },
+) {
+  host.replaceChildren();
+  host.setAttribute('role', 'note');
+  host.setAttribute('aria-label', '即時問卷管理說明');
+  const note = documentObject.createElement('p');
+  note.className = 'mvp-meta';
+  note.setAttribute('role', 'status');
+  note.setAttribute('aria-live', 'polite');
+  note.textContent = message;
+  host.append(note);
+  if (showLoginLink) {
+    const loginLink = documentObject.createElement('a');
+    loginLink.className = 'mvp-action-link';
+    loginLink.href = '/login';
+    loginLink.textContent = '前往登入';
+    host.append(loginLink);
   }
 }
 
@@ -118,8 +279,12 @@ function renderCreatorPollsEmptyState(host, documentObject) {
   host.setAttribute('aria-label', '即時問卷管理說明');
   const note = documentObject.createElement('p');
   note.className = 'mvp-meta';
-  note.textContent = CREATOR_FLOW_COPY.myPollsEmpty;
+  note.textContent = MY_POLLS_EMPTY_MESSAGE;
   host.append(note);
+  const summary = documentObject.createElement('p');
+  summary.className = 'mvp-meta';
+  summary.textContent = MY_POLLS_EMPTY_SUMMARY;
+  host.append(summary);
   const createLink = documentObject.createElement('a');
   createLink.className = 'mvp-action-link';
   createLink.href = '/polls/new?live=1';
@@ -144,6 +309,10 @@ function renderCreatorPollsList(host, documentObject, polls, fetchImpl) {
 }
 
 function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
+  if (!isCreatorOwnedPollSafe(poll)) {
+    throw new Error('Unsafe creator owned poll');
+  }
+
   const pollHost = documentObject.createElement('section');
   pollHost.className = 'mvp-creator-live-poll';
   host.append(pollHost);
@@ -155,7 +324,23 @@ function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
     : '即時問卷';
   pollHost.append(heading);
 
-  renderCreatorManageLinks(pollHost, { pollId: poll.poll_id });
+  const meta = documentObject.createElement('p');
+  meta.className = 'mvp-meta mvp-creator-live-poll-meta';
+  const badge = documentObject.createElement('span');
+  badge.className = lifecycleBadgeClassForMyPolls(poll.public_lifecycle_state);
+  badge.textContent = formatMyPollsLifecycleLabel(poll.public_lifecycle_state);
+  meta.append(badge);
+  if (poll.category) {
+    const category = documentObject.createElement('span');
+    category.textContent = ` · ${poll.category}`;
+    meta.append(category);
+  }
+  pollHost.append(meta);
+
+  renderCreatorManageLinks(pollHost, {
+    pollId: poll.poll_id,
+    locationObject: documentObject.defaultView?.location ?? globalThis.location,
+  });
 
   const shareRow = documentObject.createElement('p');
   shareRow.className = 'mvp-meta mvp-creator-flow-share-row';

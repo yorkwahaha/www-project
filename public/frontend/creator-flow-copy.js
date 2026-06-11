@@ -17,8 +17,7 @@ export const CREATOR_FLOW_COPY = {
     '問卷已建立。請先複製並分享「投票連結」給參與者；收集中不顯示票數或百分比。',
   createSuccessManage:
     '可在下方變更問卷狀態，或前往「我的問卷」與「結果頁（發起者）」繼續管理。',
-  myPollsEmpty:
-    '即時模式：請先到「建立問卷」頁加上 ?live=1 建立問卷；成功後此處會顯示可管理的問卷與狀態按鈕。',
+  myPollsEmpty: '你目前還沒有建立問卷',
   myPollsLead:
     '以下為發起者工作階段可管理的問卷。可分享投票連結、查看結果，或變更公開狀態。',
   resultsCreatorLead:

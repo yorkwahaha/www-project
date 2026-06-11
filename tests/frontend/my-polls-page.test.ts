@@ -190,7 +190,11 @@ describe('my polls demo page wiring', () => {
     documentObject.getElementById = (id: string) =>
       id === 'main-content' ? main : null;
     (documentObject as typeof documentObject & { defaultView: unknown }).defaultView = {
-      location: { search: '?live=1', hostname: '127.0.0.1' },
+      location: {
+        search: '?live=1',
+        hostname: '127.0.0.1',
+        origin: 'http://127.0.0.1:3000',
+      },
       fetch: fetchImpl,
       sessionStorage: {
         getItem: () => {
@@ -205,7 +209,9 @@ describe('my polls demo page wiring', () => {
     wireMyPollsDemoPage(documentObject);
 
     await vi.waitFor(() => {
-      expect(collectText(main)).toContain('即時問卷：午餐');
+      const text = collectText(main);
+      expect(text).toContain('即時問卷：午餐');
+      expect(text).toContain('收集中');
     });
     expect(fetchImpl).toHaveBeenNthCalledWith(1, '/creator/session', {
       method: 'GET',

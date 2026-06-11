@@ -39,6 +39,9 @@ import {
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 
+export const LIFECYCLE_ACTION_AREA_EMPTY_MESSAGE =
+  PUBLIC_LIFECYCLE_NO_ACTION_AVAILABLE_MESSAGE;
+
 /** Seeded creator for localhost manual / smoke flows (matches scripts/smoke-public-local.mjs). */
 export const LOCAL_DEMO_CREATOR_USER_ID = '11111111-1111-4111-8111-111111111111';
 

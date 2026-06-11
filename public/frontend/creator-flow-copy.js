@@ -11,6 +11,7 @@ import {
   PUBLIC_CTA_CREATOR_RESULTS_LABEL,
   PUBLIC_CTA_MY_POLLS_LABEL,
   PUBLIC_CTA_VOTE_PAGE_SHORT_LABEL,
+  PUBLIC_MY_POLLS_EMPTY_HEADLINE,
 } from './public-mvp-ui.js';
 
 /** @typedef {'create' | 'manage' | 'results'} CreatorFlowContext */
@@ -24,7 +25,7 @@ export const CREATOR_FLOW_COPY = {
     '問卷已建立。請先複製並分享「投票連結」給參與者；收集中不顯示票數或百分比。',
   createSuccessManage:
     '可在下方變更問卷狀態，或前往「我的問卷」與「結果頁（發起者）」繼續管理。',
-  myPollsEmpty: '你目前還沒有建立問卷',
+  myPollsEmpty: PUBLIC_MY_POLLS_EMPTY_HEADLINE,
   myPollsLead:
     '以下為發起者工作階段可管理的問卷。可分享投票連結、查看結果，或變更公開狀態。',
   resultsCreatorLead:

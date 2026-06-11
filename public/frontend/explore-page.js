@@ -3,7 +3,9 @@ import {
   PUBLIC_CTA_GO_TO_VOTE_LABEL,
   PUBLIC_EXPLORE_COLLECTING_STATUS_HINT,
   PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL,
+  PUBLIC_EXPLORE_EMPTY_CTA_LABEL,
   PUBLIC_EXPLORE_EMPTY_MESSAGE,
+  PUBLIC_EXPLORE_EMPTY_SUMMARY,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
 } from './public-mvp-ui.js';
 
@@ -26,7 +28,8 @@ export const EXPLORE_LOAD_MORE_FAILURE_MESSAGE =
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE;
 export const EXPLORE_FEED_EMPTY_MESSAGE = PUBLIC_EXPLORE_EMPTY_MESSAGE;
 export const EXPLORE_VOTE_CTA_LABEL = PUBLIC_CTA_GO_TO_VOTE_LABEL;
-export const EXPLORE_FEED_EMPTY_SUMMARY = '你可以先發起一則問卷並分享投票連結。';
+export const EXPLORE_FEED_EMPTY_SUMMARY = PUBLIC_EXPLORE_EMPTY_SUMMARY;
+export const EXPLORE_FEED_EMPTY_CTA_LABEL = PUBLIC_EXPLORE_EMPTY_CTA_LABEL;
 export const EXPLORE_FEED_LIST_MESSAGE = '顯示公開問卷列表';
 export const EXPLORE_FEED_LIST_SUMMARY =
   '依最近發布排序；非熱門、票數、個人化或榜單。';
@@ -166,7 +169,26 @@ function setExplorePanelVisible(panel, visible) {
   panel.hidden = !visible;
 }
 
+export function syncExploreEmptyStatePanel(documentObject) {
+  const emptyPanel = documentObject.getElementById('explore-empty');
+  if (!emptyPanel) {
+    return;
+  }
+  const paragraphs = emptyPanel.querySelectorAll('p');
+  if (paragraphs[0]) {
+    paragraphs[0].textContent = PUBLIC_EXPLORE_EMPTY_MESSAGE;
+  }
+  if (paragraphs[1]) {
+    paragraphs[1].textContent = PUBLIC_EXPLORE_EMPTY_SUMMARY;
+  }
+  const createLink = emptyPanel.querySelector('a[href="/polls/new?live=1"]');
+  if (createLink) {
+    createLink.textContent = PUBLIC_EXPLORE_EMPTY_CTA_LABEL;
+  }
+}
+
 function mountExplorePage(documentObject, windowObject = globalThis) {
+  syncExploreEmptyStatePanel(documentObject);
   const listRoot = documentObject.getElementById('explore-feed-list');
   const statusRegion = documentObject.getElementById('explore-status');
   const errorPanel = documentObject.getElementById('explore-error');

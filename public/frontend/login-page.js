@@ -6,6 +6,9 @@
 import {
   announceToStatusRegion,
   PUBLIC_CTA_SIGN_IN_LABEL,
+  PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL,
+  PUBLIC_FORM_LOGIN_CREDENTIAL_FIELD_HINT,
+  PUBLIC_FORM_LOGIN_CREDENTIAL_PLACEHOLDER,
   PUBLIC_LOGIN_FORM_READY_HINT,
   PUBLIC_LOGIN_SHELL_DEMO_HINT,
   PUBLIC_LOGIN_SUCCESS_MESSAGE,
@@ -17,6 +20,10 @@ import { mountLoginStateRead } from './login-state-ui.js';
 export const LOGIN_FORM_READY_MESSAGE = PUBLIC_LOGIN_FORM_READY_HINT;
 
 export const LOGIN_SHELL_DEMO_HINT_MESSAGE = PUBLIC_LOGIN_SHELL_DEMO_HINT;
+
+export const LOGIN_CREDENTIAL_LABEL = PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL;
+export const LOGIN_CREDENTIAL_PLACEHOLDER = PUBLIC_FORM_LOGIN_CREDENTIAL_PLACEHOLDER;
+export const LOGIN_CREDENTIAL_FIELD_HINT = PUBLIC_FORM_LOGIN_CREDENTIAL_FIELD_HINT;
 
 export const LOGIN_FORM_MISSING_CREDENTIAL_MESSAGE =
   '請輸入登入憑證。';
@@ -220,10 +227,32 @@ export function wireLoginShellForm(form, options = {}) {
 }
 
 /**
+ * @param {Document} documentObject
+ */
+export function syncLoginFormFieldCopy(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const credentialLabel = documentObject.querySelector('label[for="login-credential"]');
+  if (credentialLabel) {
+    credentialLabel.textContent = PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL;
+  }
+  const credentialInput = documentObject.getElementById('login-credential');
+  if (credentialInput) {
+    credentialInput.placeholder = PUBLIC_FORM_LOGIN_CREDENTIAL_PLACEHOLDER;
+  }
+  const credentialHint = documentObject.getElementById('login-shell-hint');
+  if (credentialHint) {
+    credentialHint.textContent = PUBLIC_FORM_LOGIN_CREDENTIAL_FIELD_HINT;
+  }
+}
+
+/**
  * @param {Document} [documentObject]
  */
 export function mountLoginShellPage(documentObject = document) {
   mountSiteChrome(documentObject);
+  syncLoginFormFieldCopy(documentObject);
   const form = documentObject.getElementById('login-shell-form');
   if (!(form instanceof HTMLFormElement)) {
     return;

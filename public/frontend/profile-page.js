@@ -8,6 +8,12 @@ import {
   PUBLIC_LOADING_PENDING_MESSAGE,
   PUBLIC_CTA_GO_TO_LOGIN_LABEL,
   PUBLIC_CTA_GO_TO_PROFILE_LABEL,
+  PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL,
+  PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER,
+  PUBLIC_FORM_PROFILE_BIRTH_YEAR_MONTH_HINT,
+  PUBLIC_FORM_PROFILE_RESIDENTIAL_REGION_HINT,
+  PUBLIC_FORM_REGION_EMPTY_OPTION,
+  PUBLIC_FORM_RESIDENTIAL_REGION_LABEL,
   PUBLIC_PROFILE_EDIT_SIGN_IN_REQUIRED_MESSAGE,
   PUBLIC_PROFILE_SAVE_SUCCESS_MESSAGE,
   PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE,
@@ -45,6 +51,13 @@ export const PROFILE_UNAUTHENTICATED_EDIT_MESSAGE =
   PUBLIC_PROFILE_EDIT_SIGN_IN_REQUIRED_MESSAGE;
 export const PROFILE_GO_TO_LOGIN_CTA_LABEL = PUBLIC_CTA_GO_TO_LOGIN_LABEL;
 export const PROFILE_GO_TO_PROFILE_CTA_LABEL = PUBLIC_CTA_GO_TO_PROFILE_LABEL;
+
+export const PROFILE_BIRTH_YEAR_MONTH_LABEL = PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL;
+export const PROFILE_BIRTH_YEAR_MONTH_PLACEHOLDER = PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER;
+export const PROFILE_BIRTH_YEAR_MONTH_FIELD_HINT = PUBLIC_FORM_PROFILE_BIRTH_YEAR_MONTH_HINT;
+export const PROFILE_RESIDENTIAL_REGION_LABEL = PUBLIC_FORM_RESIDENTIAL_REGION_LABEL;
+export const PROFILE_RESIDENTIAL_REGION_FIELD_HINT =
+  PUBLIC_FORM_PROFILE_RESIDENTIAL_REGION_HINT;
 export const PROFILE_LOAD_FAILURE_MESSAGE =
   '目前無法載入個人資料，請稍後再試。';
 export const PROFILE_SAVE_FAILURE_MESSAGE =
@@ -312,6 +325,44 @@ export function wireProfileForm(form, options = {}) {
   });
 }
 
+function setFormHintAfterControl(control, text) {
+  const hint = control?.nextElementSibling;
+  if (hint?.classList?.contains('mvp-form-hint')) {
+    hint.textContent = text;
+  }
+}
+
+/**
+ * @param {Document} documentObject
+ */
+export function syncProfileFormFieldCopy(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const birthLabel = documentObject.querySelector('label[for="profile-birth-year-month"]');
+  if (birthLabel) {
+    birthLabel.textContent = PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL;
+  }
+  const birthInput = documentObject.getElementById('profile-birth-year-month');
+  if (birthInput) {
+    birthInput.placeholder = PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER;
+    setFormHintAfterControl(birthInput, PUBLIC_FORM_PROFILE_BIRTH_YEAR_MONTH_HINT);
+  }
+
+  const regionLabel = documentObject.querySelector('label[for="profile-residential-region"]');
+  if (regionLabel) {
+    regionLabel.textContent = PUBLIC_FORM_RESIDENTIAL_REGION_LABEL;
+  }
+  const regionSelect = documentObject.getElementById('profile-residential-region');
+  if (regionSelect) {
+    const emptyOption = regionSelect.querySelector('option[value=""]');
+    if (emptyOption) {
+      emptyOption.textContent = PUBLIC_FORM_REGION_EMPTY_OPTION;
+    }
+    setFormHintAfterControl(regionSelect, PUBLIC_FORM_PROFILE_RESIDENTIAL_REGION_HINT);
+  }
+}
+
 /**
  * @param {Document} documentObject
  * @param {{
@@ -322,6 +373,7 @@ export function wireProfileForm(form, options = {}) {
  */
 export async function mountProfilePage(documentObject = document, options = {}) {
   mountSiteChrome(documentObject, options);
+  syncProfileFormFieldCopy(documentObject);
 
   const form = documentObject.getElementById('profile-form');
   const message = documentObject.getElementById('profile-form-message');

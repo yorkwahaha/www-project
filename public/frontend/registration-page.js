@@ -5,6 +5,18 @@
 import {
   announceToStatusRegion,
   PUBLIC_CTA_REGISTER_LABEL,
+  PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL,
+  PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER,
+  PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL,
+  PUBLIC_FORM_DISPLAY_NAME_LABEL,
+  PUBLIC_FORM_DISPLAY_NAME_PLACEHOLDER,
+  PUBLIC_FORM_REGION_SELECT_PROMPT,
+  PUBLIC_FORM_REGISTRATION_BIRTH_YEAR_MONTH_HINT,
+  PUBLIC_FORM_REGISTRATION_CREDENTIAL_FIELD_HINT,
+  PUBLIC_FORM_REGISTRATION_CREDENTIAL_PLACEHOLDER,
+  PUBLIC_FORM_REGISTRATION_DISPLAY_NAME_HINT,
+  PUBLIC_FORM_REGISTRATION_RESIDENTIAL_REGION_HINT,
+  PUBLIC_FORM_RESIDENTIAL_REGION_LABEL,
   PUBLIC_REGISTRATION_READY_HINT,
   PUBLIC_REGISTRATION_SUCCESS_MESSAGE,
   resolvePublicErrorUserMessage,
@@ -28,6 +40,20 @@ export const REGISTRATION_REGION_OPTIONS = [
 ];
 
 export const REGISTRATION_READY_MESSAGE = PUBLIC_REGISTRATION_READY_HINT;
+
+export const REGISTRATION_DISPLAY_NAME_LABEL = PUBLIC_FORM_DISPLAY_NAME_LABEL;
+export const REGISTRATION_DISPLAY_NAME_PLACEHOLDER = PUBLIC_FORM_DISPLAY_NAME_PLACEHOLDER;
+export const REGISTRATION_DISPLAY_NAME_FIELD_HINT = PUBLIC_FORM_REGISTRATION_DISPLAY_NAME_HINT;
+export const REGISTRATION_BIRTH_YEAR_MONTH_LABEL = PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL;
+export const REGISTRATION_BIRTH_YEAR_MONTH_PLACEHOLDER = PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER;
+export const REGISTRATION_BIRTH_YEAR_MONTH_FIELD_HINT =
+  PUBLIC_FORM_REGISTRATION_BIRTH_YEAR_MONTH_HINT;
+export const REGISTRATION_RESIDENTIAL_REGION_LABEL = PUBLIC_FORM_RESIDENTIAL_REGION_LABEL;
+export const REGISTRATION_RESIDENTIAL_REGION_FIELD_HINT =
+  PUBLIC_FORM_REGISTRATION_RESIDENTIAL_REGION_HINT;
+export const REGISTRATION_CREDENTIAL_LABEL = PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL;
+export const REGISTRATION_CREDENTIAL_PLACEHOLDER = PUBLIC_FORM_REGISTRATION_CREDENTIAL_PLACEHOLDER;
+export const REGISTRATION_CREDENTIAL_FIELD_HINT = PUBLIC_FORM_REGISTRATION_CREDENTIAL_FIELD_HINT;
 export const REGISTRATION_DISPLAY_NAME_MESSAGE = '請輸入顯示名稱。';
 export const REGISTRATION_BIRTH_YEAR_MONTH_MESSAGE =
   '請以 YYYY-MM 格式輸入出生年月。';
@@ -402,11 +428,74 @@ export function wireRegistrationForm(form, options = {}) {
   });
 }
 
+function setFormHintAfterControl(control, text) {
+  const hint = control?.nextElementSibling;
+  if (hint?.classList?.contains('mvp-form-hint')) {
+    hint.textContent = text;
+  }
+}
+
+/**
+ * @param {Document} documentObject
+ */
+export function syncRegistrationFormFieldCopy(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const displayNameLabel = documentObject.querySelector(
+    'label[for="registration-display-name"]',
+  );
+  if (displayNameLabel) {
+    displayNameLabel.textContent = PUBLIC_FORM_DISPLAY_NAME_LABEL;
+  }
+  const displayNameInput = documentObject.getElementById('registration-display-name');
+  if (displayNameInput) {
+    displayNameInput.placeholder = PUBLIC_FORM_DISPLAY_NAME_PLACEHOLDER;
+    setFormHintAfterControl(displayNameInput, PUBLIC_FORM_REGISTRATION_DISPLAY_NAME_HINT);
+  }
+
+  const birthLabel = documentObject.querySelector('label[for="registration-birth-year-month"]');
+  if (birthLabel) {
+    birthLabel.textContent = PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL;
+  }
+  const birthInput = documentObject.getElementById('registration-birth-year-month');
+  if (birthInput) {
+    birthInput.placeholder = PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER;
+    setFormHintAfterControl(birthInput, PUBLIC_FORM_REGISTRATION_BIRTH_YEAR_MONTH_HINT);
+  }
+
+  const regionLabel = documentObject.querySelector(
+    'label[for="registration-residential-region"]',
+  );
+  if (regionLabel) {
+    regionLabel.textContent = PUBLIC_FORM_RESIDENTIAL_REGION_LABEL;
+  }
+  const regionSelect = documentObject.getElementById('registration-residential-region');
+  if (regionSelect) {
+    const promptOption = regionSelect.querySelector('option[value=""]');
+    if (promptOption) {
+      promptOption.textContent = PUBLIC_FORM_REGION_SELECT_PROMPT;
+    }
+    setFormHintAfterControl(regionSelect, PUBLIC_FORM_REGISTRATION_RESIDENTIAL_REGION_HINT);
+  }
+
+  const credentialLabel = documentObject.querySelector('label[for="registration-credential"]');
+  if (credentialLabel) {
+    credentialLabel.textContent = PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL;
+  }
+  const credentialInput = documentObject.getElementById('registration-credential');
+  if (credentialInput) {
+    credentialInput.placeholder = PUBLIC_FORM_REGISTRATION_CREDENTIAL_PLACEHOLDER;
+    setFormHintAfterControl(credentialInput, PUBLIC_FORM_REGISTRATION_CREDENTIAL_FIELD_HINT);
+  }
+}
+
 /**
  * @param {Document} [documentObject]
  */
 export function mountRegistrationPage(documentObject = document) {
   mountSiteChrome(documentObject);
+  syncRegistrationFormFieldCopy(documentObject);
   const form = documentObject.getElementById('registration-form');
   if (!(form instanceof HTMLFormElement)) {
     return;

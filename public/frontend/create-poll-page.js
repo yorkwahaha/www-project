@@ -16,6 +16,21 @@ import {
   PUBLIC_CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL,
   PUBLIC_CREATE_POLL_SUCCESS_MESSAGE,
   PUBLIC_CREATE_POLL_SUCCESS_PANEL_ARIA_LABEL,
+  PUBLIC_FORM_POLL_CATEGORY_LABEL,
+  PUBLIC_FORM_POLL_CLOSE_AT_LABEL,
+  PUBLIC_FORM_POLL_DESCRIPTION_LABEL,
+  PUBLIC_FORM_POLL_DESCRIPTION_PLACEHOLDER,
+  PUBLIC_FORM_POLL_ELIGIBILITY_AGE_LABEL,
+  PUBLIC_FORM_POLL_ELIGIBILITY_AGE_PLACEHOLDER,
+  PUBLIC_FORM_POLL_ELIGIBILITY_REGION_LABEL,
+  PUBLIC_FORM_POLL_ELIGIBILITY_REGION_PLACEHOLDER,
+  PUBLIC_FORM_POLL_OPTION_1_LABEL,
+  PUBLIC_FORM_POLL_OPTION_2_LABEL,
+  PUBLIC_FORM_POLL_OPTION_3_LABEL,
+  PUBLIC_FORM_POLL_OPTION_4_LABEL,
+  PUBLIC_FORM_POLL_OPTIONS_LEGEND,
+  PUBLIC_FORM_POLL_TITLE_LABEL,
+  PUBLIC_FORM_POLL_TITLE_PLACEHOLDER,
   renderPollSharePanel,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
@@ -61,6 +76,12 @@ export const CREATE_POLL_SUCCESS_MESSAGE = PUBLIC_CREATE_POLL_SUCCESS_MESSAGE;
 export const CREATE_POLL_DEMO_SUCCESS_MESSAGE =
   PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE;
 const SUBMIT_BUSY_LABEL = CREATE_POLL_SUBMIT_PENDING_MESSAGE;
+
+export const CREATE_POLL_TITLE_LABEL = PUBLIC_FORM_POLL_TITLE_LABEL;
+export const CREATE_POLL_TITLE_PLACEHOLDER = PUBLIC_FORM_POLL_TITLE_PLACEHOLDER;
+export const CREATE_POLL_DESCRIPTION_LABEL = PUBLIC_FORM_POLL_DESCRIPTION_LABEL;
+export const CREATE_POLL_DESCRIPTION_PLACEHOLDER = PUBLIC_FORM_POLL_DESCRIPTION_PLACEHOLDER;
+export const CREATE_POLL_OPTIONS_LEGEND = PUBLIC_FORM_POLL_OPTIONS_LEGEND;
 
 export function normalizeCreatePollForm({ title, description = '', options }) {
   const normalizedTitle = title.trim();
@@ -185,12 +206,87 @@ export function renderCreatePollDemoSuccess(root) {
   root.append(resultLink);
 }
 
+/**
+ * @param {Document} documentObject
+ */
+export function syncCreatePollFormFieldCopy(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const titleLabel = documentObject.querySelector('label[for="poll-title"]');
+  if (titleLabel) {
+    titleLabel.textContent = PUBLIC_FORM_POLL_TITLE_LABEL;
+  }
+  const titleInput = documentObject.getElementById('poll-title');
+  if (titleInput) {
+    titleInput.placeholder = PUBLIC_FORM_POLL_TITLE_PLACEHOLDER;
+  }
+
+  const descriptionLabel = documentObject.querySelector('label[for="poll-description"]');
+  if (descriptionLabel) {
+    descriptionLabel.textContent = PUBLIC_FORM_POLL_DESCRIPTION_LABEL;
+  }
+  const descriptionInput = documentObject.getElementById('poll-description');
+  if (descriptionInput) {
+    descriptionInput.placeholder = PUBLIC_FORM_POLL_DESCRIPTION_PLACEHOLDER;
+  }
+
+  const categoryLabel = documentObject.querySelector('label[for="poll-category"]');
+  if (categoryLabel) {
+    categoryLabel.textContent = PUBLIC_FORM_POLL_CATEGORY_LABEL;
+  }
+
+  const optionsLegend = documentObject.querySelector('#create-poll-form fieldset legend');
+  if (optionsLegend) {
+    optionsLegend.textContent = PUBLIC_FORM_POLL_OPTIONS_LEGEND;
+  }
+
+  const optionLabels = [
+    ['poll-option-1', PUBLIC_FORM_POLL_OPTION_1_LABEL],
+    ['poll-option-2', PUBLIC_FORM_POLL_OPTION_2_LABEL],
+    ['poll-option-3', PUBLIC_FORM_POLL_OPTION_3_LABEL],
+    ['poll-option-4', PUBLIC_FORM_POLL_OPTION_4_LABEL],
+  ];
+  for (const [controlId, labelText] of optionLabels) {
+    const optionLabel = documentObject.querySelector(`label[for="${controlId}"]`);
+    if (optionLabel) {
+      optionLabel.textContent = labelText;
+    }
+  }
+
+  const closeAtLabel = documentObject.querySelector('label[for="poll-close-at"]');
+  if (closeAtLabel) {
+    closeAtLabel.textContent = PUBLIC_FORM_POLL_CLOSE_AT_LABEL;
+  }
+
+  const eligibilityAgeLabel = documentObject.querySelector('label[for="poll-eligibility-age"]');
+  if (eligibilityAgeLabel) {
+    eligibilityAgeLabel.textContent = PUBLIC_FORM_POLL_ELIGIBILITY_AGE_LABEL;
+  }
+  const eligibilityAgeInput = documentObject.getElementById('poll-eligibility-age');
+  if (eligibilityAgeInput) {
+    eligibilityAgeInput.placeholder = PUBLIC_FORM_POLL_ELIGIBILITY_AGE_PLACEHOLDER;
+  }
+
+  const eligibilityRegionLabel = documentObject.querySelector(
+    'label[for="poll-eligibility-region"]',
+  );
+  if (eligibilityRegionLabel) {
+    eligibilityRegionLabel.textContent = PUBLIC_FORM_POLL_ELIGIBILITY_REGION_LABEL;
+  }
+  const eligibilityRegionInput = documentObject.getElementById('poll-eligibility-region');
+  if (eligibilityRegionInput) {
+    eligibilityRegionInput.placeholder = PUBLIC_FORM_POLL_ELIGIBILITY_REGION_PLACEHOLDER;
+  }
+}
+
 export function bootstrapCreatePollPage({
   documentObject = globalThis.document,
   fetchImpl = globalThis.fetch,
   uuidFactory = () => globalThis.crypto.randomUUID(),
   now = () => new Date(),
 } = {}) {
+  syncCreatePollFormFieldCopy(documentObject);
   const form = documentObject.getElementById('create-poll-form');
   const message = documentObject.getElementById('form-message');
   const success = documentObject.getElementById('success-panel');

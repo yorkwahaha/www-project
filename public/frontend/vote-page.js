@@ -28,6 +28,7 @@ import {
   PUBLIC_VOTE_SUCCESS_PANEL_ARIA_LABEL,
   PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
   PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
+  PUBLIC_FORM_VOTE_OPTIONS_LEGEND,
   renderPublicErrorPanel,
   renderPublicNav,
   resolvePublicErrorUserMessage,
@@ -53,6 +54,7 @@ export const VOTE_RESULT_CTA_LABEL = PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL;
 export const VOTE_DEMO_SUCCESS_STATUS_MESSAGE =
   PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE;
 export const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
+export const VOTE_OPTIONS_LEGEND = PUBLIC_FORM_VOTE_OPTIONS_LEGEND;
 
 export const VOTE_PAGE_LOAD_USER_MESSAGES = PUBLIC_POLL_LOAD_USER_MESSAGES;
 
@@ -259,12 +261,26 @@ export function applyVotePageVotingAvailability({
   return { votingAllowed: false, blockedMessage };
 }
 
+/**
+ * @param {Document} documentObject
+ */
+export function syncVoteFormFieldCopy(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const legend = documentObject.querySelector('#vote-form fieldset legend');
+  if (legend) {
+    legend.textContent = PUBLIC_FORM_VOTE_OPTIONS_LEGEND;
+  }
+}
+
 export async function bootstrapVotePage({
   windowObject = globalThis.window,
   documentObject = globalThis.document,
   fetchImpl = globalThis.fetch,
   uuidFactory = () => globalThis.crypto.randomUUID(),
 } = {}) {
+  syncVoteFormFieldCopy(documentObject);
   const pollId = getPollIdFromVotePath(windowObject.location.pathname);
   const title = documentObject.getElementById('poll-title');
   const description = documentObject.getElementById('poll-description');

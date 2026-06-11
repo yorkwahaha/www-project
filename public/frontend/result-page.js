@@ -19,6 +19,9 @@ import {
   PUBLIC_RESULTS_UNPUBLISHED_TITLE,
   PUBLIC_RESULTS_COLLECTING_STATUS_ARIA_LABEL,
   PUBLIC_RESULTS_DEMO_READONLY_TITLE,
+  PUBLIC_RESULTS_INTRO_LEAD_HINT,
+  PUBLIC_RESULTS_INTRO_SCOPE_HINT,
+  PUBLIC_RESULTS_INTRO_VOTE_HINT,
   PUBLIC_RESULTS_PUBLIC_READONLY_TITLE,
   PUBLIC_RESULTS_REFRESH_NOTICE_ARIA_LABEL,
   PUBLIC_RESULTS_UNAVAILABLE_STATUS_ARIA_LABEL,
@@ -55,6 +58,9 @@ function appendText(parent, tagName, text, className) {
 const PUBLIC_NOTICE_TYPE = 'suspended_typo_correction_applied';
 export const RESULTS_COLLECTING_TITLE = PUBLIC_RESULTS_COLLECTING_TITLE;
 export const RESULTS_COLLECTING_SUMMARY = PUBLIC_RESULTS_COLLECTING_SUMMARY;
+export const RESULTS_INTRO_LEAD_HINT = PUBLIC_RESULTS_INTRO_LEAD_HINT;
+export const RESULTS_INTRO_SCOPE_HINT = PUBLIC_RESULTS_INTRO_SCOPE_HINT;
+export const RESULTS_INTRO_VOTE_HINT = PUBLIC_RESULTS_INTRO_VOTE_HINT;
 export const RESULTS_CANCELLED_TITLE = PUBLIC_RESULTS_CANCELLED_TITLE;
 export const RESULTS_CANCELLED_MESSAGE = PUBLIC_RESULTS_CANCELLED_MESSAGE;
 export const RESULTS_UNPUBLISHED_TITLE = PUBLIC_RESULTS_UNPUBLISHED_TITLE;
@@ -301,14 +307,12 @@ export function renderResultsReadOnlyIntro(root, pollId) {
 
   const lead = root.ownerDocument.createElement('p');
   lead.className = 'results-intro-lead';
-  lead.textContent =
-    '此為公開結果頁（唯讀）：可查看目前顯示安全的統計摘要，無法在此投票或編輯問卷。';
+  lead.textContent = RESULTS_INTRO_LEAD_HINT;
   root.append(lead);
 
   const scope = root.ownerDocument.createElement('p');
   scope.className = 'mvp-meta results-intro-scope';
-  scope.textContent =
-    '本頁不含登入、個人化推薦、排行榜或 feed 列表。已公開結果為顯示安全的區間化摘要，非即時原始票數。';
+  scope.textContent = RESULTS_INTRO_SCOPE_HINT;
   const privacy = root.ownerDocument.createElement('p');
   privacy.className = 'mvp-meta results-intro-privacy';
   privacy.textContent = POLICY_UI_COPY.votePrivacy;
@@ -318,7 +322,7 @@ export function renderResultsReadOnlyIntro(root, pollId) {
   if (pollId) {
     const voteHint = root.ownerDocument.createElement('p');
     voteHint.className = 'results-intro-vote-hint';
-    voteHint.textContent = '若要參與投票，請前往投票頁：';
+    voteHint.textContent = RESULTS_INTRO_VOTE_HINT;
     root.append(voteHint);
 
     const voteLink = root.ownerDocument.createElement('a');

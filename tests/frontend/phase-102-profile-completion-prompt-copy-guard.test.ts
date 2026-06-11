@@ -36,8 +36,8 @@ describe('Phase 102 profile completion prompt copy guard', () => {
     expect(promptSource).toContain("credentials: 'same-origin'");
     expect(promptSource).toContain('birth_year_month');
     expect(promptSource).toContain('residential_region');
-    expect(promptSource).toContain('部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區');
-    expect(promptSource).toContain('不代表你一定符合或不符合任何投票資格');
+    expect(promptSource).toContain('PUBLIC_PROFILE_COMPLETION_PROMPT_HINT');
+    expect(promptSource).toContain('PROFILE_COMPLETION_PROMPT_MESSAGE');
     expect(promptSource).toContain('/profile');
     expect(promptSource).not.toMatch(
       /\/login\/session|\/registration|\/vote|reference-answer|display_name/i,

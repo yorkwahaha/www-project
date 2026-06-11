@@ -6,17 +6,17 @@
 import {
   announceToStatusRegion,
   PUBLIC_CTA_SIGN_IN_LABEL,
+  PUBLIC_LOGIN_FORM_READY_HINT,
+  PUBLIC_LOGIN_SHELL_DEMO_HINT,
   PUBLIC_LOGIN_SUCCESS_MESSAGE,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import { mountLoginStateRead } from './login-state-ui.js';
 
-export const LOGIN_FORM_READY_MESSAGE =
-  '請輸入已核准的 production credential proof。登入狀態會由伺服器驗證後更新。';
+export const LOGIN_FORM_READY_MESSAGE = PUBLIC_LOGIN_FORM_READY_HINT;
 
-export const LOGIN_SHELL_DEMO_HINT_MESSAGE =
-  '本機展示請使用 /profile 與投票頁的 MVP 測試身份，或 localhost 的 creator_session 發起流程（?live=1）。';
+export const LOGIN_SHELL_DEMO_HINT_MESSAGE = PUBLIC_LOGIN_SHELL_DEMO_HINT;
 
 export const LOGIN_FORM_MISSING_CREDENTIAL_MESSAGE =
   '請輸入登入憑證。';

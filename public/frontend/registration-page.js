@@ -5,6 +5,7 @@
 import {
   announceToStatusRegion,
   PUBLIC_CTA_REGISTER_LABEL,
+  PUBLIC_REGISTRATION_READY_HINT,
   PUBLIC_REGISTRATION_SUCCESS_MESSAGE,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
@@ -26,8 +27,7 @@ export const REGISTRATION_REGION_OPTIONS = [
   'TW-PEN',
 ];
 
-export const REGISTRATION_READY_MESSAGE =
-  '請填寫帳號資料與已核准的 production credential proof。註冊完成後仍須前往登入。';
+export const REGISTRATION_READY_MESSAGE = PUBLIC_REGISTRATION_READY_HINT;
 export const REGISTRATION_DISPLAY_NAME_MESSAGE = '請輸入顯示名稱。';
 export const REGISTRATION_BIRTH_YEAR_MONTH_MESSAGE =
   '請以 YYYY-MM 格式輸入出生年月。';

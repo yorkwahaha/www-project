@@ -214,8 +214,8 @@ describe('Phase 103 profile completion prompt runtime guard', () => {
     expect(loginStateUiSource).toContain('display_name');
     expect(loginStateUiSource).not.toMatch(/birth_year_month|residential_region|users\/me\/profile/);
 
-    expect(promptSource).toContain('部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區');
-    expect(promptSource).toContain('不代表你一定符合或不符合任何投票資格');
+    expect(promptSource).toContain('PUBLIC_PROFILE_COMPLETION_PROMPT_HINT');
+    expect(promptSource).toContain('PROFILE_COMPLETION_PROMPT_MESSAGE');
     expect(promptSource).not.toMatch(/\/users\/me[^/]/);
   });
 

@@ -8,6 +8,16 @@ import {
   buildAbsoluteUrl,
   buildPublicResultPath,
   buildPublicVotePath,
+  PUBLIC_CREATOR_ACTION_CANCEL_HINT,
+  PUBLIC_CREATOR_ACTION_CLOSE_HINT,
+  PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT,
+  PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT,
+  PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
+  PUBLIC_CREATOR_LIFECYCLE_COLLECTING_LEAD_HINT,
+  PUBLIC_CREATOR_LIFECYCLE_POST_LOCK_LEAD_HINT,
+  PUBLIC_CREATOR_MY_POLLS_LEAD_HINT,
+  PUBLIC_CREATOR_RESULTS_LEAD_HINT,
+  PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX,
   PUBLIC_CTA_CREATOR_RESULTS_LABEL,
   PUBLIC_CTA_MY_POLLS_LABEL,
   PUBLIC_CTA_VOTE_PAGE_SHORT_LABEL,
@@ -21,25 +31,16 @@ export const CREATOR_FLOW_MY_POLLS_CTA_LABEL = PUBLIC_CTA_MY_POLLS_LABEL;
 export const CREATOR_FLOW_RESULTS_CTA_LABEL = PUBLIC_CTA_CREATOR_RESULTS_LABEL;
 
 export const CREATOR_FLOW_COPY = {
-  createSuccessLead:
-    '問卷已建立。請先複製並分享「投票連結」給參與者；收集中不顯示票數或百分比。',
-  createSuccessManage:
-    '可在下方變更問卷狀態，或前往「我的問卷」與「結果頁（發起者）」繼續管理。',
+  createSuccessLead: PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT,
+  createSuccessManage: PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
   myPollsEmpty: PUBLIC_MY_POLLS_EMPTY_HEADLINE,
-  myPollsLead:
-    '以下為發起者工作階段可管理的問卷。可分享投票連結、查看結果，或變更公開狀態。',
-  resultsCreatorLead:
-    '發起者操作區：須先「結束收集並公開結果」後，上方才會顯示公開的區間化統計。',
-  lifecycleLeadCollecting:
-    '收集中不顯示票數。請分享投票連結邀請參與；若要公開統計，請使用「結束收集並公開結果」。',
-  lifecycleLeadPostLock:
-    '公開鎖定期已結束。若要讓訪客無法再查看公開結果，可使用「下架問卷」。',
-  actionCancel:
-    '取消問卷：停止收集，不產生公開彙總結果，且無法恢復為收集中。',
-  actionClose:
-    '結束收集並公開結果：顯示區間化統計，並進入公開鎖定期（鎖定期內不可下架、修改或刪除）。',
-  actionUnpublish:
-    '下架問卷：訪客將無法再查看公開結果頁（須已過公開鎖定期）。',
+  myPollsLead: PUBLIC_CREATOR_MY_POLLS_LEAD_HINT,
+  resultsCreatorLead: PUBLIC_CREATOR_RESULTS_LEAD_HINT,
+  lifecycleLeadCollecting: PUBLIC_CREATOR_LIFECYCLE_COLLECTING_LEAD_HINT,
+  lifecycleLeadPostLock: PUBLIC_CREATOR_LIFECYCLE_POST_LOCK_LEAD_HINT,
+  actionCancel: PUBLIC_CREATOR_ACTION_CANCEL_HINT,
+  actionClose: PUBLIC_CREATOR_ACTION_CLOSE_HINT,
+  actionUnpublish: PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT,
   whenResultsPublic: POLICY_UI_COPY.collectingRevealHint,
 };
 
@@ -137,7 +138,7 @@ export function renderCreatorManageLinks(host, { pollId, locationObject = global
 
   const voteUrlHint = host.ownerDocument.createElement('p');
   voteUrlHint.className = 'mvp-meta mvp-creator-flow-vote-url';
-  voteUrlHint.textContent = `投票頁完整網址：${buildAbsoluteUrl(buildPublicVotePath(pollId), locationObject)}`;
+  voteUrlHint.textContent = `${PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX}${buildAbsoluteUrl(buildPublicVotePath(pollId), locationObject)}`;
   host.append(voteUrlHint);
 }
 

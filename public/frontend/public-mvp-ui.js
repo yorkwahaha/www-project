@@ -525,6 +525,89 @@ export const PUBLIC_EMPTY_STATE_LABELS = [
   PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL,
 ];
 
+/** Frontend-owned login form helper hints. */
+export const PUBLIC_LOGIN_FORM_READY_HINT =
+  '請輸入已核准的 production credential proof。登入狀態會由伺服器驗證後更新。';
+export const PUBLIC_LOGIN_SHELL_DEMO_HINT =
+  '本機展示請使用 /profile 與投票頁的 MVP 測試身份，或 localhost 的 creator_session 發起流程（?live=1）。';
+
+/** Frontend-owned registration form helper hints. */
+export const PUBLIC_REGISTRATION_READY_HINT =
+  '請填寫帳號資料與已核准的 production credential proof。註冊完成後仍須前往登入。';
+
+/** Frontend-owned profile completion prompt helper hint. */
+export const PUBLIC_PROFILE_COMPLETION_PROMPT_HINT =
+  '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；這不代表你一定符合或不符合任何投票資格。';
+
+/** Frontend-owned explore page helper hints. */
+export const PUBLIC_EXPLORE_PAGE_LEAD_HINT =
+  '依最近發布顯示目前可公開探索、仍在收集中的問卷。不提供熱門、票數、個人化或榜單排序；列表亦不顯示票數或結果百分比。';
+export const PUBLIC_EXPLORE_FEED_LIST_HINT = '顯示公開問卷列表';
+export const PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT =
+  '依最近發布排序；非熱門、票數、個人化或榜單。';
+
+/** Frontend-owned results page intro helper hints. */
+export const PUBLIC_RESULTS_INTRO_LEAD_HINT =
+  '此為公開結果頁（唯讀）：可查看目前顯示安全的統計摘要，無法在此投票或編輯問卷。';
+export const PUBLIC_RESULTS_INTRO_SCOPE_HINT =
+  '本頁不含登入、個人化推薦、排行榜或 feed 列表。已公開結果為顯示安全的區間化摘要，非即時原始票數。';
+export const PUBLIC_RESULTS_INTRO_VOTE_HINT = '若要參與投票，請前往投票頁：';
+
+/** Frontend-owned creator flow helper hints. */
+export const PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT =
+  '問卷已建立。請先複製並分享「投票連結」給參與者；收集中不顯示票數或百分比。';
+export const PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT =
+  '可在下方變更問卷狀態，或前往「我的問卷」與「結果頁（發起者）」繼續管理。';
+export const PUBLIC_CREATOR_MY_POLLS_LEAD_HINT =
+  '以下為發起者工作階段可管理的問卷。可分享投票連結、查看結果，或變更公開狀態。';
+export const PUBLIC_CREATOR_RESULTS_LEAD_HINT =
+  '發起者操作區：須先「結束收集並公開結果」後，上方才會顯示公開的區間化統計。';
+export const PUBLIC_CREATOR_LIFECYCLE_COLLECTING_LEAD_HINT =
+  '收集中不顯示票數。請分享投票連結邀請參與；若要公開統計，請使用「結束收集並公開結果」。';
+export const PUBLIC_CREATOR_LIFECYCLE_POST_LOCK_LEAD_HINT =
+  '公開鎖定期已結束。若要讓訪客無法再查看公開結果，可使用「下架問卷」。';
+export const PUBLIC_CREATOR_ACTION_CANCEL_HINT =
+  '取消問卷：停止收集，不產生公開彙總結果，且無法恢復為收集中。';
+export const PUBLIC_CREATOR_ACTION_CLOSE_HINT =
+  '結束收集並公開結果：顯示區間化統計，並進入公開鎖定期（鎖定期內不可下架、修改或刪除）。';
+export const PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT =
+  '下架問卷：訪客將無法再查看公開結果頁（須已過公開鎖定期）。';
+export const PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX = '投票頁完整網址：';
+
+/** Allowlist of safe user-visible help / hint / helper text across public surfaces. */
+export const PUBLIC_HINT_TEXT_MESSAGES = [
+  PUBLIC_LOGIN_FORM_READY_HINT,
+  PUBLIC_LOGIN_SHELL_DEMO_HINT,
+  PUBLIC_REGISTRATION_READY_HINT,
+  PUBLIC_PROFILE_COMPLETION_PROMPT_HINT,
+  PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT,
+  PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT,
+  PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
+  PUBLIC_VOTE_SUCCESS_RESULT_HINT,
+  PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
+  PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
+  PUBLIC_CREATE_POLL_SHARE_SUCCESS_LEAD,
+  PUBLIC_EXPLORE_PAGE_LEAD_HINT,
+  PUBLIC_EXPLORE_FEED_LIST_HINT,
+  PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT,
+  PUBLIC_EXPLORE_COLLECTING_STATUS_HINT,
+  PUBLIC_RESULTS_INTRO_LEAD_HINT,
+  PUBLIC_RESULTS_INTRO_SCOPE_HINT,
+  PUBLIC_RESULTS_INTRO_VOTE_HINT,
+  PUBLIC_RESULTS_COLLECTING_SUMMARY,
+  PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT,
+  PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
+  PUBLIC_CREATOR_MY_POLLS_LEAD_HINT,
+  PUBLIC_CREATOR_RESULTS_LEAD_HINT,
+  PUBLIC_CREATOR_LIFECYCLE_COLLECTING_LEAD_HINT,
+  PUBLIC_CREATOR_LIFECYCLE_POST_LOCK_LEAD_HINT,
+  PUBLIC_CREATOR_ACTION_CANCEL_HINT,
+  PUBLIC_CREATOR_ACTION_CLOSE_HINT,
+  PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT,
+  PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX,
+  PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
+];
+
 const GENERIC_LOAD_FAILURE = VOTE_PAGE_LOAD_FAILURE;
 
 /**

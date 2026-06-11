@@ -17,6 +17,9 @@ import {
   PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY,
   PUBLIC_RESULTS_UNPUBLISHED_MESSAGE,
   PUBLIC_RESULTS_UNPUBLISHED_TITLE,
+  PUBLIC_CTA_CREATOR_RESULTS_LABEL,
+  PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL,
+  PUBLIC_CTA_MY_POLLS_LABEL,
   renderPublicErrorPanel,
   renderPublicNav,
   resolvePublicErrorUserMessage,
@@ -54,6 +57,8 @@ export const RESULTS_UNPUBLISHED_MESSAGE = PUBLIC_RESULTS_UNPUBLISHED_MESSAGE;
 export const RESULTS_POLL_UNAVAILABLE_MESSAGE = PUBLIC_RESULTS_POLL_UNAVAILABLE_MESSAGE;
 export const RESULTS_EMPTY_AGGREGATE_MESSAGE = PUBLIC_RESULTS_EMPTY_AGGREGATE_MESSAGE;
 export const RESULTS_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
+export const RESULTS_VOTE_CTA_LABEL = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
+export const RESULTS_MY_POLLS_CTA_LABEL = PUBLIC_CTA_MY_POLLS_LABEL;
 export const RESULT_PAGE_LOADING_MESSAGE = '載入結果中，請稍候。';
 const SAFE_LOAD_FAILURE_MESSAGE = RESULTS_LOAD_FAILURE_MESSAGE;
 
@@ -314,7 +319,7 @@ export function renderResultsReadOnlyIntro(root, pollId) {
     const voteLink = root.ownerDocument.createElement('a');
     voteLink.className = 'mvp-action-link vote-cta-link';
     voteLink.href = buildPublicVotePath(pollId);
-    voteLink.textContent = '前往投票頁';
+    voteLink.textContent = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
     root.append(voteLink);
   }
 }
@@ -586,7 +591,7 @@ export function renderResultPageNav(root, pollId) {
     const voteLink = root.ownerDocument.createElement('a');
     voteLink.className = 'vote-cta-link';
     voteLink.href = buildPublicVotePath(pollId);
-    voteLink.textContent = '前往投票頁';
+    voteLink.textContent = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
     root.append(voteLink);
   }
 }
@@ -721,7 +726,7 @@ export async function bootstrapResultPage({
     const myPolls = bottomNav.ownerDocument.createElement('a');
     myPolls.className = 'mvp-action-link';
     myPolls.href = '/my-polls?nav=logged-in-mock';
-    myPolls.textContent = '我的問卷';
+    myPolls.textContent = PUBLIC_CTA_MY_POLLS_LABEL;
     bottomNav.append(myPolls);
   }
 }

@@ -32,6 +32,7 @@ import {
   PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE,
   PUBLIC_LIFECYCLE_REVEAL_TOO_EARLY_MESSAGE,
   PUBLIC_LIFECYCLE_UNPUBLISH_LOCKED_MESSAGE,
+  PUBLIC_CTA_CREATOR_RESULTS_LABEL,
   PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE,
   PUBLIC_LIFECYCLE_UNPUBLISHED_VISITOR_MESSAGE,
   resolvePublicErrorUserMessage,
@@ -47,6 +48,7 @@ export const LIFECYCLE_GENERIC_FAILURE = '目前無法更新問卷狀態，請�
 const GENERIC_FAILURE = LIFECYCLE_GENERIC_FAILURE;
 export const LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS =
   PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE;
+export const LIFECYCLE_CREATOR_RESULTS_CTA_LABEL = PUBLIC_CTA_CREATOR_RESULTS_LABEL;
 export const CREATOR_SESSION_FAILURE = '目前無法確認發起者身分，請稍後再試。';
 export const CREATOR_SESSION_ERROR_NAME = 'CreatorSessionFailureError';
 
@@ -398,7 +400,7 @@ export function renderCreatorLifecycleActions(host, options) {
   const resultLink = host.ownerDocument.createElement('a');
   resultLink.className = 'mvp-action-link mvp-action-link-muted';
   resultLink.href = `${buildPublicResultPath(pollId)}?creator=1`;
-  resultLink.textContent = '結果頁（發起者）';
+  resultLink.textContent = PUBLIC_CTA_CREATOR_RESULTS_LABEL;
   toolbar.append(resultLink);
 }
 

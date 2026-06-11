@@ -177,7 +177,7 @@ describe('login page frontend shell', () => {
     expect(layout).toContain("login.href = '/login'");
     expect(layout).toContain("signup.href = '/registration'");
     expect(layout).toContain('AUTH_STATE_COPY.guestPrimaryCta');
-    expect(copy).toContain("guestPrimaryCta: '註冊'");
+    expect(copy).toContain('guestPrimaryCta: PUBLIC_CTA_REGISTER_LABEL');
     expect(layout).not.toContain('#login-mock');
   });
 });

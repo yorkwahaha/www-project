@@ -1,5 +1,6 @@
 import {
   buildPublicVotePath,
+  PUBLIC_CTA_GO_TO_VOTE_LABEL,
   PUBLIC_EXPLORE_EMPTY_MESSAGE,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
 } from './public-mvp-ui.js';
@@ -19,6 +20,7 @@ export const EXPLORE_LOAD_FAILURE_MESSAGE = '目前無法載入探索列表，�
 export const EXPLORE_LOAD_MORE_FAILURE_MESSAGE =
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE;
 export const EXPLORE_FEED_EMPTY_MESSAGE = PUBLIC_EXPLORE_EMPTY_MESSAGE;
+export const EXPLORE_VOTE_CTA_LABEL = PUBLIC_CTA_GO_TO_VOTE_LABEL;
 export const EXPLORE_FEED_EMPTY_SUMMARY = '你可以先發起一則問卷並分享投票連結。';
 export const EXPLORE_FEED_LIST_MESSAGE = '顯示公開問卷列表';
 export const EXPLORE_FEED_LIST_SUMMARY =
@@ -145,7 +147,7 @@ export function renderExplorePollCard(documentObject, poll) {
   const voteLink = documentObject.createElement('a');
   voteLink.className = 'mvp-btn mvp-btn-primary';
   voteLink.href = buildPublicVotePath(poll.poll_id);
-  voteLink.textContent = '前往投票';
+  voteLink.textContent = PUBLIC_CTA_GO_TO_VOTE_LABEL;
 
   footer.append(voteLink);
   article.append(top, meta, hint, footer);

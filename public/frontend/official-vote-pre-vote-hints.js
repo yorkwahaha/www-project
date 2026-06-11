@@ -7,6 +7,8 @@ import {
   readLoginState,
 } from './login-state-read.js';
 import {
+  PUBLIC_CTA_GO_TO_LOGIN_LABEL,
+  PUBLIC_CTA_GO_TO_PROFILE_LABEL,
   PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT,
   PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT,
   PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
@@ -23,8 +25,8 @@ export const PRE_VOTE_HINT_COPY = {
 };
 
 export const PRE_VOTE_HINT_LINKS = {
-  login: { href: '/login', label: '前往登入' },
-  profile: { href: '/profile', label: '前往個人資料' },
+  login: { href: '/login', label: PUBLIC_CTA_GO_TO_LOGIN_LABEL },
+  profile: { href: '/profile', label: PUBLIC_CTA_GO_TO_PROFILE_LABEL },
 };
 
 /**

@@ -8,9 +8,16 @@ import {
   buildAbsoluteUrl,
   buildPublicResultPath,
   buildPublicVotePath,
+  PUBLIC_CTA_CREATOR_RESULTS_LABEL,
+  PUBLIC_CTA_MY_POLLS_LABEL,
+  PUBLIC_CTA_VOTE_PAGE_SHORT_LABEL,
 } from './public-mvp-ui.js';
 
 /** @typedef {'create' | 'manage' | 'results'} CreatorFlowContext */
+
+export const CREATOR_FLOW_VOTE_CTA_LABEL = PUBLIC_CTA_VOTE_PAGE_SHORT_LABEL;
+export const CREATOR_FLOW_MY_POLLS_CTA_LABEL = PUBLIC_CTA_MY_POLLS_LABEL;
+export const CREATOR_FLOW_RESULTS_CTA_LABEL = PUBLIC_CTA_CREATOR_RESULTS_LABEL;
 
 export const CREATOR_FLOW_COPY = {
   createSuccessLead:
@@ -110,17 +117,17 @@ export function renderCreatorManageLinks(host, { pollId, locationObject = global
   const vote = host.ownerDocument.createElement('a');
   vote.className = 'mvp-action-link mvp-creator-flow-link';
   vote.href = buildPublicVotePath(pollId);
-  vote.textContent = '投票頁';
+  vote.textContent = PUBLIC_CTA_VOTE_PAGE_SHORT_LABEL;
 
   const myPolls = host.ownerDocument.createElement('a');
   myPolls.className = 'mvp-action-link mvp-creator-flow-link';
   myPolls.href = '/my-polls?live=1';
-  myPolls.textContent = '我的問卷';
+  myPolls.textContent = PUBLIC_CTA_MY_POLLS_LABEL;
 
   const results = host.ownerDocument.createElement('a');
   results.className = 'mvp-action-link mvp-action-link-muted';
   results.href = `${buildPublicResultPath(pollId)}?creator=1`;
-  results.textContent = '結果頁（發起者）';
+  results.textContent = PUBLIC_CTA_CREATOR_RESULTS_LABEL;
 
   links.append(vote);
   links.append(myPolls);

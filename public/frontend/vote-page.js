@@ -22,6 +22,7 @@ import {
   PUBLIC_VOTE_DEMO_SUCCESS_MESSAGE,
   PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
   PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE,
+  PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL,
   PUBLIC_VOTE_SUCCESS_RESULT_HINT,
   PUBLIC_VOTE_SUCCESS_MESSAGE,
   PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
@@ -47,6 +48,7 @@ import {
 
 export const VOTE_SUCCESS_MESSAGE = PUBLIC_VOTE_SUCCESS_MESSAGE;
 export const VOTE_SUCCESS_STATUS_MESSAGE = PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE;
+export const VOTE_RESULT_CTA_LABEL = PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL;
 export const VOTE_DEMO_SUCCESS_STATUS_MESSAGE =
   PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE;
 export const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
@@ -177,7 +179,7 @@ export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
   const link = root.ownerDocument.createElement('a');
   link.className = 'mvp-action-link';
   link.href = buildPublicResultPath(pollId);
-  link.textContent = '查看公開結果頁';
+  link.textContent = PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL;
   root.append(link);
 }
 

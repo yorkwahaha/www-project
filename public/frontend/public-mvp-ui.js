@@ -304,6 +304,95 @@ export const PUBLIC_UNAVAILABLE_USER_MESSAGES = [
   PUBLIC_LIFECYCLE_GENERIC_ACTION_UNAVAILABLE_MESSAGE,
 ];
 
+/** Frontend-owned auth / navigation CTA link labels. */
+export const PUBLIC_CTA_SIGN_IN_LABEL = '登入';
+export const PUBLIC_CTA_REGISTER_LABEL = '註冊';
+export const PUBLIC_CTA_GO_TO_LOGIN_LABEL = '前往登入';
+export const PUBLIC_CTA_GO_TO_REGISTER_LABEL = '前往註冊';
+export const PUBLIC_CTA_GO_TO_LOGIN_ARIA_LABEL = '前往登入頁';
+export const PUBLIC_CTA_GO_TO_REGISTER_ARIA_LABEL = '前往註冊頁建立帳號';
+export const PUBLIC_CTA_CREATE_ACCOUNT_LABEL = '建立帳號';
+export const PUBLIC_CTA_GO_TO_LOGIN_FROM_REGISTRATION_LABEL = '已有帳號，前往登入';
+export const PUBLIC_CTA_GO_HOME_LABEL = '返回首頁';
+
+/** Frontend-owned site navigation CTA link labels. */
+export const PUBLIC_CTA_HOME_LABEL = '首頁';
+export const PUBLIC_CTA_EXPLORE_LABEL = '探索';
+export const PUBLIC_CTA_CREATE_POLL_NAV_LABEL = '發起提問';
+export const PUBLIC_CTA_PROFILE_NAV_LABEL = '個人資料';
+
+/** Frontend-owned profile CTA link labels. */
+export const PUBLIC_CTA_GO_TO_PROFILE_LABEL = '前往個人資料';
+
+/** Frontend-owned vote / results CTA link labels. */
+export const PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL = '前往投票頁';
+export const PUBLIC_CTA_GO_TO_VOTE_LABEL = '前往投票';
+export const PUBLIC_CTA_OPEN_VOTE_PAGE_LABEL = '開啟投票頁';
+export const PUBLIC_CTA_VOTE_PAGE_SHORT_LABEL = '投票頁';
+export const PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL = '查看公開結果頁';
+export const PUBLIC_CTA_OPEN_PUBLIC_RESULTS_LABEL = '開啟公開結果頁';
+export const PUBLIC_CTA_VIEW_COLLECTING_RESULTS_LABEL = '查看收集中結果頁';
+export const PUBLIC_CTA_VIEW_RESULTS_LABEL = '查看結果';
+export const PUBLIC_CTA_VIEW_LOCKED_RESULTS_LABEL = '查看結果（鎖定期）';
+export const PUBLIC_CTA_VIEW_CANCELLED_EXPLAINER_LABEL = '查看取消說明';
+export const PUBLIC_CTA_VIEW_UNPUBLISHED_EXPLAINER_LABEL = '查看下架說明';
+export const PUBLIC_CTA_CREATOR_RESULTS_LABEL = '結果頁（發起者）';
+
+/** Frontend-owned creator / my-polls CTA link labels. */
+export const PUBLIC_CTA_MY_POLLS_LABEL = '我的問卷';
+export const PUBLIC_CTA_GO_TO_MY_POLLS_LABEL = '前往我的問卷';
+export const PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL = '前往建立問卷（即時模式）';
+
+/** Frontend-owned share / copy CTA link labels. */
+export const PUBLIC_CTA_COPY_VOTE_LINK_LABEL = '複製投票連結';
+export const PUBLIC_CTA_COPY_RESULT_LINK_LABEL = '複製結果連結';
+export const PUBLIC_CTA_SHARE_VOTE_LINK_LABEL = '分享投票連結';
+export const PUBLIC_CTA_SHARE_VOTE_LINK_ARIA_LABEL = '複製投票頁完整網址到剪貼簿';
+export const PUBLIC_CTA_COPY_RESULT_LINK_ARIA_LABEL = '複製結果頁完整網址到剪貼簿';
+export const PUBLIC_CTA_SHARE_VOTE_URL_LABEL = '投票連結（分享給參與者）';
+export const PUBLIC_CTA_SHARE_RESULT_URL_LABEL = '結果連結（公開唯讀統計）';
+
+/** Allowlist of safe user-visible CTA / link labels across public surfaces. */
+export const PUBLIC_CTA_LINK_LABELS = [
+  PUBLIC_CTA_SIGN_IN_LABEL,
+  PUBLIC_CTA_REGISTER_LABEL,
+  PUBLIC_CTA_GO_TO_LOGIN_LABEL,
+  PUBLIC_CTA_GO_TO_REGISTER_LABEL,
+  PUBLIC_CTA_GO_TO_LOGIN_ARIA_LABEL,
+  PUBLIC_CTA_GO_TO_REGISTER_ARIA_LABEL,
+  PUBLIC_CTA_CREATE_ACCOUNT_LABEL,
+  PUBLIC_CTA_GO_TO_LOGIN_FROM_REGISTRATION_LABEL,
+  PUBLIC_CTA_GO_HOME_LABEL,
+  PUBLIC_CTA_HOME_LABEL,
+  PUBLIC_CTA_EXPLORE_LABEL,
+  PUBLIC_CTA_CREATE_POLL_NAV_LABEL,
+  PUBLIC_CTA_PROFILE_NAV_LABEL,
+  PUBLIC_CTA_GO_TO_PROFILE_LABEL,
+  PUBLIC_AUTH_GUEST_SIGN_IN_CTA_ARIA_LABEL,
+  PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL,
+  PUBLIC_CTA_GO_TO_VOTE_LABEL,
+  PUBLIC_CTA_OPEN_VOTE_PAGE_LABEL,
+  PUBLIC_CTA_VOTE_PAGE_SHORT_LABEL,
+  PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL,
+  PUBLIC_CTA_OPEN_PUBLIC_RESULTS_LABEL,
+  PUBLIC_CTA_VIEW_COLLECTING_RESULTS_LABEL,
+  PUBLIC_CTA_VIEW_RESULTS_LABEL,
+  PUBLIC_CTA_VIEW_LOCKED_RESULTS_LABEL,
+  PUBLIC_CTA_VIEW_CANCELLED_EXPLAINER_LABEL,
+  PUBLIC_CTA_VIEW_UNPUBLISHED_EXPLAINER_LABEL,
+  PUBLIC_CTA_CREATOR_RESULTS_LABEL,
+  PUBLIC_CTA_MY_POLLS_LABEL,
+  PUBLIC_CTA_GO_TO_MY_POLLS_LABEL,
+  PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL,
+  PUBLIC_CTA_COPY_VOTE_LINK_LABEL,
+  PUBLIC_CTA_COPY_RESULT_LINK_LABEL,
+  PUBLIC_CTA_SHARE_VOTE_LINK_LABEL,
+  PUBLIC_CTA_SHARE_VOTE_LINK_ARIA_LABEL,
+  PUBLIC_CTA_COPY_RESULT_LINK_ARIA_LABEL,
+  PUBLIC_CTA_SHARE_VOTE_URL_LABEL,
+  PUBLIC_CTA_SHARE_RESULT_URL_LABEL,
+];
+
 const GENERIC_LOAD_FAILURE = VOTE_PAGE_LOAD_FAILURE;
 
 /**
@@ -499,22 +588,22 @@ export function renderPublicNav(root) {
 
   const home = root.ownerDocument.createElement('a');
   home.href = '/';
-  home.textContent = '首頁';
+  home.textContent = PUBLIC_CTA_HOME_LABEL;
   nav.append(home);
 
   const explore = root.ownerDocument.createElement('a');
   explore.href = '/explore';
-  explore.textContent = '探索';
+  explore.textContent = PUBLIC_CTA_EXPLORE_LABEL;
   nav.append(explore);
 
   const create = root.ownerDocument.createElement('a');
   create.href = '/polls/new';
-  create.textContent = '發起提問';
+  create.textContent = PUBLIC_CTA_CREATE_POLL_NAV_LABEL;
   nav.append(create);
 
   const profile = root.ownerDocument.createElement('a');
   profile.href = '/profile';
-  profile.textContent = '個人資料';
+  profile.textContent = PUBLIC_CTA_PROFILE_NAV_LABEL;
   nav.append(profile);
 
   root.append(nav);
@@ -647,37 +736,37 @@ export function renderPollSharePanel(root, pollId, {
   copyStatus.setAttribute('aria-live', 'polite');
   root.append(copyStatus);
 
-  appendShareUrlDisplay(root, { label: '投票連結（分享給參與者）', url: voteUrl });
+  appendShareUrlDisplay(root, { label: PUBLIC_CTA_SHARE_VOTE_URL_LABEL, url: voteUrl });
 
   const voteLink = root.ownerDocument.createElement('a');
   voteLink.className = 'mvp-action-link';
   voteLink.href = votePath;
-  voteLink.textContent = '開啟投票頁';
+  voteLink.textContent = PUBLIC_CTA_OPEN_VOTE_PAGE_LABEL;
   root.append(voteLink);
 
   if (includeCopyButtons) {
     appendCopyButton(root, {
-      label: '複製投票連結',
+      label: PUBLIC_CTA_COPY_VOTE_LINK_LABEL,
       url: voteUrl,
       statusTarget: copyStatus,
-      ariaLabel: '複製投票頁完整網址到剪貼簿',
+      ariaLabel: PUBLIC_CTA_SHARE_VOTE_LINK_ARIA_LABEL,
     });
   }
 
-  appendShareUrlDisplay(root, { label: '結果連結（公開唯讀統計）', url: resultUrl });
+  appendShareUrlDisplay(root, { label: PUBLIC_CTA_SHARE_RESULT_URL_LABEL, url: resultUrl });
 
   const resultLink = root.ownerDocument.createElement('a');
   resultLink.className = 'mvp-action-link';
   resultLink.href = resultPath;
-  resultLink.textContent = '開啟公開結果頁';
+  resultLink.textContent = PUBLIC_CTA_OPEN_PUBLIC_RESULTS_LABEL;
   root.append(resultLink);
 
   if (includeCopyButtons) {
     appendCopyButton(root, {
-      label: '複製結果連結',
+      label: PUBLIC_CTA_COPY_RESULT_LINK_LABEL,
       url: resultUrl,
       statusTarget: copyStatus,
-      ariaLabel: '複製結果頁完整網址到剪貼簿',
+      ariaLabel: PUBLIC_CTA_COPY_RESULT_LINK_ARIA_LABEL,
     });
   }
 }

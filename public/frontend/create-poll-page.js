@@ -7,6 +7,9 @@ import {
 import {
   announceToStatusRegion,
   focusFirstFocusable,
+  PUBLIC_CTA_GO_TO_MY_POLLS_LABEL,
+  PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL,
+  PUBLIC_CTA_VIEW_COLLECTING_RESULTS_LABEL,
   PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
   PUBLIC_CREATE_POLL_DEMO_SUBMIT_LABEL,
   PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE,
@@ -44,6 +47,10 @@ export const CREATE_POLL_USER_ERROR_MESSAGES = [
 
 const SUBMIT_IDLE_LABEL = PUBLIC_CREATE_POLL_DEMO_SUBMIT_LABEL;
 export const CREATE_POLL_DEMO_SUBMIT_LABEL = PUBLIC_CREATE_POLL_DEMO_SUBMIT_LABEL;
+export const CREATE_POLL_DEMO_VOTE_CTA_LABEL = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
+export const CREATE_POLL_DEMO_MY_POLLS_CTA_LABEL = PUBLIC_CTA_GO_TO_MY_POLLS_LABEL;
+export const CREATE_POLL_DEMO_COLLECTING_RESULTS_CTA_LABEL =
+  PUBLIC_CTA_VIEW_COLLECTING_RESULTS_LABEL;
 const SUBMIT_IDLE_LABEL_LIVE = '建立問卷';
 export const CREATE_POLL_SUBMIT_PENDING_MESSAGE = '建立中，請稍候。';
 export const CREATE_POLL_SUCCESS_MESSAGE = PUBLIC_CREATE_POLL_SUCCESS_MESSAGE;
@@ -158,19 +165,19 @@ export function renderCreatePollDemoSuccess(root) {
   const voteLink = root.ownerDocument.createElement('a');
   voteLink.className = 'mvp-action-link';
   voteLink.href = buildDemoVotePath();
-  voteLink.textContent = '前往投票頁';
+  voteLink.textContent = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
   root.append(voteLink);
 
   const myPollsLink = root.ownerDocument.createElement('a');
   myPollsLink.className = 'mvp-action-link';
   myPollsLink.href = '/my-polls?nav=logged-in-mock';
-  myPollsLink.textContent = '前往我的問卷';
+  myPollsLink.textContent = PUBLIC_CTA_GO_TO_MY_POLLS_LABEL;
   root.append(myPollsLink);
 
   const resultLink = root.ownerDocument.createElement('a');
   resultLink.className = 'mvp-action-link mvp-action-link-muted';
   resultLink.href = buildDemoResultPath('collecting');
-  resultLink.textContent = '查看收集中結果頁';
+  resultLink.textContent = PUBLIC_CTA_VIEW_COLLECTING_RESULTS_LABEL;
   root.append(resultLink);
 }
 

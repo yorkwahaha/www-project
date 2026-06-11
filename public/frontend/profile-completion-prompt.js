@@ -6,6 +6,7 @@ import {
   LOGIN_STATE_AUTHENTICATED,
   readLoginState,
 } from './login-state-read.js';
+import { PUBLIC_CTA_GO_TO_PROFILE_LABEL } from './public-mvp-ui.js';
 
 export const PROFILE_COMPLETION_PROMPT_MOUNT_ID =
   'profile-completion-prompt-mount';
@@ -14,7 +15,7 @@ export const PROFILE_COMPLETION_PROMPT_CLASS =
 
 export const PROFILE_COMPLETION_PROMPT_MESSAGE =
   '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；這不代表你一定符合或不符合任何投票資格。';
-export const PROFILE_COMPLETION_PROMPT_CTA_LABEL = '前往個人資料';
+export const PROFILE_COMPLETION_PROMPT_CTA_LABEL = PUBLIC_CTA_GO_TO_PROFILE_LABEL;
 export const PROFILE_COMPLETION_PROMPT_CTA_HREF = '/profile';
 export const PROFILE_COMPLETION_PROMPT_LOAD_FAILURE_MESSAGE =
   '目前無法載入個人資料提示，請稍後再試。';

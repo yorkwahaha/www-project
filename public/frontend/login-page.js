@@ -5,6 +5,7 @@
 
 import {
   announceToStatusRegion,
+  PUBLIC_CTA_SIGN_IN_LABEL,
   PUBLIC_LOGIN_SUCCESS_MESSAGE,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
@@ -36,7 +37,8 @@ export const LOGIN_FORM_ORIGIN_FAILURE_MESSAGE =
 export const LOGIN_FORM_NETWORK_FAILURE_MESSAGE =
   '網路連線失敗，請稍後再試。';
 
-const LOGIN_SUBMIT_IDLE_LABEL = '登入';
+const LOGIN_SUBMIT_IDLE_LABEL = PUBLIC_CTA_SIGN_IN_LABEL;
+export const LOGIN_SUBMIT_CTA_LABEL = PUBLIC_CTA_SIGN_IN_LABEL;
 export const LOGIN_SUBMIT_BUSY_LABEL = LOGIN_FORM_LOADING_MESSAGE;
 
 /**

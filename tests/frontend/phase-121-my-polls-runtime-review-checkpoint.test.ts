@@ -52,11 +52,11 @@ describe('Phase 121 my polls runtime review checkpoint', () => {
       MY_POLLS_EMPTY_SUMMARY,
     } = await loadMyPollsModule();
 
-    expect(MY_POLLS_SIGN_IN_REQUIRED_MESSAGE).toBe('請先登入後查看你建立的問卷');
+    expect(MY_POLLS_SIGN_IN_REQUIRED_MESSAGE).toBe('請先登入後查看你建立的問卷。');
     expect(MY_POLLS_LOAD_FAILURE_MESSAGE).toBe(
-      '目前無法載入你建立的問卷，請稍後再試',
+      '目前無法載入你建立的問卷，請稍後再試。',
     );
-    expect(MY_POLLS_EMPTY_MESSAGE).toBe('你目前還沒有建立問卷');
+    expect(MY_POLLS_EMPTY_MESSAGE).toBe('你目前還沒有建立問卷。');
     expect(MY_POLLS_EMPTY_SUMMARY).toBe('你可以先建立一則問卷並分享投票連結。');
   });
 
@@ -126,7 +126,7 @@ describe('Phase 121 my polls runtime review checkpoint', () => {
   it('buckets sign-in-required errors without reading foreign error.message', async () => {
     const { isMyPollsSignInRequiredError } = await loadMyPollsModule();
 
-    const signInError = new Error('請先登入後查看你建立的問卷');
+    const signInError = new Error('請先登入後查看你建立的問卷。');
     signInError.name = 'MyPollsSignInRequiredError';
     expect(isMyPollsSignInRequiredError(signInError)).toBe(true);
 

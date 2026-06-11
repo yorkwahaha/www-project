@@ -12,15 +12,46 @@ import {
   isLocalDemoHostname,
   parsePollApiError,
   POLL_ID_PATTERN,
+  resolvePublicErrorUserMessage,
 } from './public-mvp-ui.js';
 
 /** Seeded creator for localhost manual / smoke flows (matches scripts/smoke-public-local.mjs). */
 export const LOCAL_DEMO_CREATOR_USER_ID = '11111111-1111-4111-8111-111111111111';
 
-const GENERIC_FAILURE = '目前無法更新問卷狀態，請稍後再試。';
+export const LIFECYCLE_GENERIC_FAILURE = '目前無法更新問卷狀態，請稍後再試。';
+const GENERIC_FAILURE = LIFECYCLE_GENERIC_FAILURE;
 const LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS =
   '狀態已更新。結果顯示暫時無法重新載入，請重新整理頁面。';
-const CREATOR_SESSION_FAILURE = '目前無法確認發起者身分，請稍後再試。';
+export const CREATOR_SESSION_FAILURE = '目前無法確認發起者身分，請稍後再試。';
+export const CREATOR_SESSION_ERROR_NAME = 'CreatorSessionFailureError';
+
+export function creatorSessionFailureError() {
+  const error = new Error(CREATOR_SESSION_FAILURE);
+  error.name = CREATOR_SESSION_ERROR_NAME;
+  return error;
+}
+
+export function isCreatorSessionFailureError(error) {
+  return error instanceof Error && error.name === CREATOR_SESSION_ERROR_NAME;
+}
+
+export const LIFECYCLE_USER_ERROR_MESSAGES = [
+  LIFECYCLE_GENERIC_FAILURE,
+  CREATOR_SESSION_FAILURE,
+  '公開結果期間無法刪除問卷；鎖定期結束後請使用下架。',
+  '問卷狀態資料不完整，無法推進生命週期。',
+  '目前問卷狀態無法執行此操作，請重新整理後再試。',
+  '公開鎖定期尚未結束，目前無法下架。',
+  '此問卷已取消。',
+  '此問卷已下架。',
+  '僅發起者可執行此操作。',
+  '需要發起者身分才能執行此操作。',
+  '找不到此問卷，可能已刪除或連結有誤。',
+  '尚未到預定截止時間，無法結束收集並公開結果。',
+  '問卷目前不在收集中，無法執行此操作。',
+  '此問卷已結束，無法再變更狀態。',
+  '無法執行此操作，請確認問卷狀態後再試。',
+];
 
 /** @typedef {'cancel' | 'close' | 'unpublish'} LifecycleTransitionAction */
 
@@ -104,13 +135,13 @@ export async function ensureCreatorSessionForLiveMode({
       credentials: 'same-origin',
     });
   } catch {
-    throw new Error(CREATOR_SESSION_FAILURE);
+    throw creatorSessionFailureError();
   }
   if (response.ok) {
     return true;
   }
   if (response.status !== 401 || !isLocalDemoHostname(locationObject?.hostname)) {
-    throw new Error(CREATOR_SESSION_FAILURE);
+    throw creatorSessionFailureError();
   }
   try {
     response = await fetchImpl('/creator/session', {
@@ -120,10 +151,10 @@ export async function ensureCreatorSessionForLiveMode({
       credentials: 'same-origin',
     });
   } catch {
-    throw new Error(CREATOR_SESSION_FAILURE);
+    throw creatorSessionFailureError();
   }
   if (!response.ok) {
-    throw new Error(CREATOR_SESSION_FAILURE);
+    throw creatorSessionFailureError();
   }
   return true;
 }
@@ -418,7 +449,11 @@ async function runLifecycleTransition({
     }
   } catch (error) {
     lifecycleFeedbackElement(host, status).textContent =
-      error instanceof Error ? error.message : GENERIC_FAILURE;
+      resolvePublicErrorUserMessage(
+        error,
+        GENERIC_FAILURE,
+        LIFECYCLE_USER_ERROR_MESSAGES,
+      );
     button.disabled = false;
   }
 }

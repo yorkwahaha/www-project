@@ -4,6 +4,7 @@
 
 import {
   announceToStatusRegion,
+  resolvePublicErrorUserMessage,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
@@ -47,6 +48,20 @@ export const REGISTRATION_NETWORK_FAILURE_MESSAGE =
   '網路連線失敗，請稍後再試。';
 export const REGISTRATION_FAILURE_MESSAGE =
   '目前無法完成註冊，請稍後再試。';
+
+export const REGISTRATION_USER_ERROR_MESSAGES = [
+  REGISTRATION_DISPLAY_NAME_MESSAGE,
+  REGISTRATION_BIRTH_YEAR_MONTH_MESSAGE,
+  REGISTRATION_REGION_MESSAGE,
+  REGISTRATION_CREDENTIAL_MESSAGE,
+  REGISTRATION_VALIDATION_FAILURE_MESSAGE,
+  REGISTRATION_AUTH_FAILURE_MESSAGE,
+  REGISTRATION_ORIGIN_FAILURE_MESSAGE,
+  REGISTRATION_CONFLICT_MESSAGE,
+  REGISTRATION_UNAVAILABLE_MESSAGE,
+  REGISTRATION_NETWORK_FAILURE_MESSAGE,
+  REGISTRATION_FAILURE_MESSAGE,
+];
 
 const DISPLAY_NAME_MAX_LENGTH = 80;
 const SUBMIT_IDLE_LABEL = '註冊';
@@ -337,7 +352,11 @@ export async function submitRegistrationForm(form, options = {}) {
   try {
     input = normalizeRegistrationFormInput(readRegistrationFormInput(form));
   } catch (error) {
-    const message = error instanceof Error ? error.message : REGISTRATION_FAILURE_MESSAGE;
+    const message = resolvePublicErrorUserMessage(
+      error,
+      REGISTRATION_FAILURE_MESSAGE,
+      REGISTRATION_USER_ERROR_MESSAGES,
+    );
     markRegistrationValidationError(form, message);
     announce(status, message);
     return { ok: false };

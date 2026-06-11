@@ -11,9 +11,9 @@ export const EXPLORE_FEED_ALLOWED_ITEM_KEYS = [
   'result_page_url',
 ];
 
-export const EXPLORE_LOAD_FAILURE_MESSAGE = '目前無法載入探索列表，請稍後再試';
+export const EXPLORE_LOAD_FAILURE_MESSAGE = '目前無法載入探索列表，請稍後再試。';
 export const EXPLORE_LOAD_MORE_FAILURE_MESSAGE = '無法載入更多問卷，請稍後再試。';
-export const EXPLORE_FEED_EMPTY_MESSAGE = '目前沒有正在收集中的公開問卷';
+export const EXPLORE_FEED_EMPTY_MESSAGE = '目前沒有正在收集中的公開問卷。';
 export const EXPLORE_FEED_EMPTY_SUMMARY = '你可以先發起一則問卷並分享投票連結。';
 export const EXPLORE_FEED_LIST_MESSAGE = '顯示公開問卷列表';
 export const EXPLORE_FEED_LIST_SUMMARY =

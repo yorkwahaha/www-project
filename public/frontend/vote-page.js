@@ -15,8 +15,11 @@ import {
   messageForPollVotingBlocked,
   messageForVoteSubmitFailure,
   parsePollApiError,
+  PUBLIC_POLL_LOAD_USER_MESSAGES,
+  PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
   renderPublicErrorPanel,
   renderPublicNav,
+  resolvePublicErrorUserMessage,
   resolvePublicMvpUserId,
   setBusySubmitButton,
   VOTE_PAGE_LOAD_FAILURE,
@@ -36,6 +39,14 @@ import {
 export const VOTE_SUCCESS_MESSAGE = '投票已送出，感謝參與。';
 export const VOTE_SUCCESS_STATUS_MESSAGE = '投票已送出。';
 export const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
+
+export const VOTE_PAGE_LOAD_USER_MESSAGES = PUBLIC_POLL_LOAD_USER_MESSAGES;
+
+export const VOTE_PAGE_SUBMIT_USER_MESSAGES = [
+  ...PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
+  MISSING_SELECTION_MESSAGE,
+];
+
 const SUBMIT_IDLE_LABEL = '送出投票';
 const SUBMIT_BUSY_LABEL = '送出中…';
 
@@ -358,8 +369,11 @@ export async function bootstrapVotePage({
     });
     markRegionBusy(form, false);
   } catch (error) {
-    const body =
-      error instanceof Error ? error.message : VOTE_PAGE_LOAD_FAILURE;
+    const body = resolvePublicErrorUserMessage(
+      error,
+      VOTE_PAGE_LOAD_FAILURE,
+      VOTE_PAGE_LOAD_USER_MESSAGES,
+    );
     showRouteError('無法載入問卷', body);
     return;
   }
@@ -402,8 +416,11 @@ export async function bootstrapVotePage({
       renderVoteSuccess(success, pollId, { demoOnly });
       focusFirstFocusable(success);
     } catch (error) {
-      const failureMessage =
-        error instanceof Error ? error.message : GENERIC_VOTE_SUBMIT_FAILURE;
+      const failureMessage = resolvePublicErrorUserMessage(
+        error,
+        GENERIC_VOTE_SUBMIT_FAILURE,
+        VOTE_PAGE_SUBMIT_USER_MESSAGES,
+      );
       announceToStatusRegion(message, failureMessage);
       setBusySubmitButton(submitButton, {
         busy: false,

@@ -8,6 +8,7 @@ import {
   announceToStatusRegion,
   focusFirstFocusable,
   renderPollSharePanel,
+  resolvePublicErrorUserMessage,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import {
@@ -27,7 +28,16 @@ import {
 
 const MAX_OPTIONS = 6;
 const PUBLISH_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-const SAFE_FAILURE_MESSAGE = '目前無法建立問卷，請稍後再試。';
+export const CREATE_POLL_FAILURE_MESSAGE = '目前無法建立問卷，請稍後再試。';
+const SAFE_FAILURE_MESSAGE = CREATE_POLL_FAILURE_MESSAGE;
+
+export const CREATE_POLL_USER_ERROR_MESSAGES = [
+  CREATE_POLL_FAILURE_MESSAGE,
+  '請填寫問卷標題。',
+  '請至少填寫兩個選項。',
+  '選項最多六個。',
+];
+
 const SUBMIT_IDLE_LABEL = '建立問卷（展示用，不儲存）';
 const SUBMIT_IDLE_LABEL_LIVE = '建立問卷';
 const SUBMIT_BUSY_LABEL = '處理中…';
@@ -239,7 +249,11 @@ export function bootstrapCreatePollPage({
     } catch (error) {
       announceToStatusRegion(
         message,
-        error instanceof Error ? error.message : SAFE_FAILURE_MESSAGE,
+        resolvePublicErrorUserMessage(
+          error,
+          SAFE_FAILURE_MESSAGE,
+          CREATE_POLL_USER_ERROR_MESSAGES,
+        ),
       );
       setBusySubmitButton(submitButton, {
         busy: false,

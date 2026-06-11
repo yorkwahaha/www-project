@@ -13,15 +13,17 @@ import {
 } from './public-mvp-ui.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
+  CREATOR_SESSION_FAILURE,
   ensureCreatorSessionForLiveMode,
+  isCreatorSessionFailureError,
   renderCreatorLifecycleActions,
 } from './poll-lifecycle-controls.js';
 
 const MOCK_SHARE_MSG = '已複製範例投票連結，可分享給他人體驗流程。';
 
-export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE = '請先登入後查看你建立的問卷';
-export const MY_POLLS_LOAD_FAILURE_MESSAGE = '目前無法載入你建立的問卷，請稍後再試';
-export const MY_POLLS_EMPTY_MESSAGE = '你目前還沒有建立問卷';
+export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE = '請先登入後查看你建立的問卷。';
+export const MY_POLLS_LOAD_FAILURE_MESSAGE = '目前無法載入你建立的問卷，請稍後再試。';
+export const MY_POLLS_EMPTY_MESSAGE = '你目前還沒有建立問卷。';
 export const MY_POLLS_EMPTY_SUMMARY = '你可以先建立一則問卷並分享投票連結。';
 export const MY_POLLS_LOADING_MESSAGE = '載入你的問卷…';
 const MY_POLLS_SIGN_IN_REQUIRED_ERROR = 'MyPollsSignInRequiredError';
@@ -132,7 +134,10 @@ export async function prepareMyPollsLiveSession({
   }
   try {
     await ensureCreatorSessionForLiveMode({ fetchImpl, locationObject });
-  } catch {
+  } catch (error) {
+    if (isCreatorSessionFailureError(error)) {
+      throw error;
+    }
     throw new Error(MY_POLLS_LOAD_FAILURE_MESSAGE);
   }
 }
@@ -242,10 +247,13 @@ async function mountLiveCreatorManagePanel(documentObject) {
     renderCreatorPollsList(host, documentObject, polls, fetchImpl);
   } catch (error) {
     const showLoginLink = isMyPollsSignInRequiredError(error);
+    const failureMessage = isCreatorSessionFailureError(error)
+      ? CREATOR_SESSION_FAILURE
+      : MY_POLLS_LOAD_FAILURE_MESSAGE;
     renderMyPollsUnavailableState(host, documentObject, {
       message: showLoginLink
         ? MY_POLLS_SIGN_IN_REQUIRED_MESSAGE
-        : MY_POLLS_LOAD_FAILURE_MESSAGE,
+        : failureMessage,
       showLoginLink,
     });
   }

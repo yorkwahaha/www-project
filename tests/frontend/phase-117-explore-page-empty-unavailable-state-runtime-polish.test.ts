@@ -60,7 +60,7 @@ describe('Phase 117 explore page empty unavailable state runtime polish', () => 
     expect(EXPLORE_FEED_LIST_SUMMARY).toBe(
       '依最近發布排序；非熱門、票數、個人化或榜單。',
     );
-    expect(EXPLORE_FEED_EMPTY_MESSAGE).toBe('目前沒有正在收集中的公開問卷');
+    expect(EXPLORE_FEED_EMPTY_MESSAGE).toBe('目前沒有正在收集中的公開問卷。');
     expect(EXPLORE_FEED_EMPTY_SUMMARY).toBe(
       '你可以先發起一則問卷並分享投票連結。',
     );
@@ -100,7 +100,7 @@ describe('Phase 117 explore page empty unavailable state runtime polish', () => 
       await loadExplorePageModule();
 
     expect(EXPLORE_LOAD_FAILURE_MESSAGE).toBe(
-      '目前無法載入探索列表，請稍後再試',
+      '目前無法載入探索列表，請稍後再試。',
     );
 
     const nonOkFetch = vi.fn().mockResolvedValue({

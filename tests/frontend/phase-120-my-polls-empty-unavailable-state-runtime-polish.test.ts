@@ -37,11 +37,11 @@ describe('Phase 120 my polls empty unavailable state runtime polish', () => {
       MY_POLLS_EMPTY_SUMMARY,
     } = await loadMyPollsModule();
 
-    expect(MY_POLLS_SIGN_IN_REQUIRED_MESSAGE).toBe('請先登入後查看你建立的問卷');
+    expect(MY_POLLS_SIGN_IN_REQUIRED_MESSAGE).toBe('請先登入後查看你建立的問卷。');
     expect(MY_POLLS_LOAD_FAILURE_MESSAGE).toBe(
-      '目前無法載入你建立的問卷，請稍後再試',
+      '目前無法載入你建立的問卷，請稍後再試。',
     );
-    expect(MY_POLLS_EMPTY_MESSAGE).toBe('你目前還沒有建立問卷');
+    expect(MY_POLLS_EMPTY_MESSAGE).toBe('你目前還沒有建立問卷。');
     expect(MY_POLLS_EMPTY_SUMMARY).toBe('你可以先建立一則問卷並分享投票連結。');
   });
 
@@ -72,7 +72,7 @@ describe('Phase 120 my polls empty unavailable state runtime polish', () => {
       }),
     });
     await expect(fetchCreatorOwnedPolls(unsafeFetch)).rejects.toThrow(
-      '目前無法載入你建立的問卷，請稍後再試',
+      '目前無法載入你建立的問卷，請稍後再試。',
     );
   });
 

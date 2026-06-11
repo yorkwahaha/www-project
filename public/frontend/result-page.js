@@ -10,6 +10,7 @@ import {
   parsePollApiError,
   renderPublicErrorPanel,
   renderPublicNav,
+  resolvePublicErrorUserMessage,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import {
@@ -44,10 +45,15 @@ export const RESULTS_CANCELLED_MESSAGE =
 export const RESULTS_UNPUBLISHED_TITLE = '問卷目前無法查看';
 export const RESULTS_UNPUBLISHED_MESSAGE =
   '此問卷目前無法查看，頁面不顯示聚合結果。';
-export const RESULTS_POLL_UNAVAILABLE_MESSAGE = '問卷目前無法使用';
-export const RESULTS_EMPTY_AGGREGATE_MESSAGE = '目前沒有可顯示的聚合結果';
+export const RESULTS_POLL_UNAVAILABLE_MESSAGE = '問卷目前無法使用。';
+export const RESULTS_EMPTY_AGGREGATE_MESSAGE = '目前沒有可顯示的聚合結果。';
 export const RESULTS_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
 const SAFE_LOAD_FAILURE_MESSAGE = RESULTS_LOAD_FAILURE_MESSAGE;
+
+export const RESULT_PAGE_LOAD_USER_MESSAGES = [
+  RESULTS_LOAD_FAILURE_MESSAGE,
+  RESULTS_POLL_UNAVAILABLE_MESSAGE,
+];
 /** Shown when lifecycle POST succeeded but GET /results refresh failed (Phase 58D). */
 export const RESULT_DISPLAY_REFRESH_FAILURE_MESSAGE =
   '問卷狀態已更新，但結果顯示暫時無法重新載入。請重新整理頁面查看最新內容。';
@@ -681,7 +687,11 @@ export async function bootstrapResultPage({
     pageContext.onRefreshResultDisplay = () => refreshResultPageDisplay(pageContext);
     paintResultPageFromPayload(pageContext, result);
   } catch (error) {
-    const body = error instanceof Error ? error.message : SAFE_LOAD_FAILURE_MESSAGE;
+    const body = resolvePublicErrorUserMessage(
+      error,
+      SAFE_LOAD_FAILURE_MESSAGE,
+      RESULT_PAGE_LOAD_USER_MESSAGES,
+    );
     showRouteError('無法載入結果', body);
     return;
   }

@@ -173,7 +173,7 @@ describe('public result page', () => {
 
     renderResultDisplay(root, { options: null });
 
-    expect(collectText(root)).toContain('目前沒有可顯示的聚合結果');
+    expect(collectText(root)).toContain('目前沒有可顯示的聚合結果。');
   });
 
   it('renders backend-provided display strings without deriving precision', async () => {
@@ -262,8 +262,8 @@ describe('public result page', () => {
     },
     {
       public_lifecycle_state: 'draft',
-      user_message: '問卷目前無法使用',
-      title: '問卷目前無法使用',
+      user_message: '問卷目前無法使用。',
+      title: '問卷目前無法使用。',
     },
   ] as const)(
     'renders unavailable lifecycle shells with safe user_message for %s',
@@ -328,11 +328,11 @@ describe('public result page', () => {
       options: [],
     };
 
-    expect(resolveUnavailableUserMessage(payload)).toBe('問卷目前無法使用');
+    expect(resolveUnavailableUserMessage(payload)).toBe('問卷目前無法使用。');
 
     const root = createRoot();
     renderResultDisplay(root, payload);
-    expect(collectText(root).join(' ')).toContain('問卷目前無法使用');
+    expect(collectText(root).join(' ')).toContain('問卷目前無法使用。');
   });
 
   it('renders identical content for direct visits and post-vote redirects', async () => {
@@ -402,7 +402,7 @@ describe('public result page', () => {
 
     await expect(
       loadResultDisplay({ pollId: displaySafeResult.poll_id, fetchImpl }),
-    ).rejects.toThrow('問卷目前無法使用');
+    ).rejects.toThrow('問卷目前無法使用。');
   });
 
   it('keeps result content visible when public notice loading fails', async () => {

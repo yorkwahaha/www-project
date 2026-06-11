@@ -5,6 +5,7 @@
 import {
   announceToStatusRegion,
   markRegionBusy,
+  resolvePublicErrorUserMessage,
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
@@ -40,6 +41,13 @@ export const PROFILE_LOAD_FAILURE_MESSAGE =
   '目前無法載入個人資料，請稍後再試。';
 export const PROFILE_SAVE_FAILURE_MESSAGE =
   '目前無法儲存個人資料，請稍後再試。';
+
+export const PROFILE_USER_ERROR_MESSAGES = [
+  PROFILE_VALIDATION_MESSAGE,
+  PROFILE_UNAUTHENTICATED_EDIT_MESSAGE,
+  PROFILE_LOAD_FAILURE_MESSAGE,
+  PROFILE_SAVE_FAILURE_MESSAGE,
+];
 
 const SUBMIT_IDLE_LABEL = '儲存';
 const SUBMIT_BUSY_LABEL = '儲存中…';
@@ -283,9 +291,11 @@ export function wireProfileForm(form, options = {}) {
       } catch (error) {
         announce(
           message,
-          error instanceof Error
-            ? error.message
-            : PROFILE_SAVE_FAILURE_MESSAGE,
+          resolvePublicErrorUserMessage(
+            error,
+            PROFILE_SAVE_FAILURE_MESSAGE,
+            PROFILE_USER_ERROR_MESSAGES,
+          ),
         );
       } finally {
         setProfileFormBusy(form, false);
@@ -331,7 +341,11 @@ export async function mountProfilePage(documentObject = document, options = {}) 
   } catch (error) {
     announce(
       message,
-      error instanceof Error ? error.message : PROFILE_LOAD_FAILURE_MESSAGE,
+      resolvePublicErrorUserMessage(
+        error,
+        PROFILE_LOAD_FAILURE_MESSAGE,
+        PROFILE_USER_ERROR_MESSAGES,
+      ),
     );
   } finally {
     setProfileFormBusy(form, false);

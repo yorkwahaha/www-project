@@ -31,6 +31,7 @@ import {
   PUBLIC_FORM_VOTE_OPTIONS_LEGEND,
   PUBLIC_VOTE_COLLECTING_PANEL_HEADING,
   PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING,
+  PUBLIC_VOTE_PAGE_REMINDER_LEAD,
   PUBLIC_VOTE_POLICY_PANEL_HEADING,
   renderPublicErrorPanel,
   renderPublicNav,
@@ -61,6 +62,7 @@ export const VOTE_OPTIONS_LEGEND = PUBLIC_FORM_VOTE_OPTIONS_LEGEND;
 export const VOTE_POLICY_PANEL_HEADING = PUBLIC_VOTE_POLICY_PANEL_HEADING;
 export const VOTE_COLLECTING_PANEL_HEADING = PUBLIC_VOTE_COLLECTING_PANEL_HEADING;
 export const VOTE_FOLLOW_RESULTS_PANEL_HEADING = PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING;
+export const VOTE_PAGE_REMINDER_LEAD = PUBLIC_VOTE_PAGE_REMINDER_LEAD;
 
 export const VOTE_PAGE_LOAD_USER_MESSAGES = PUBLIC_POLL_LOAD_USER_MESSAGES;
 
@@ -302,6 +304,16 @@ export function syncVotePageSectionHeadings(documentObject) {
   }
 }
 
+export function syncVotePageLeadParagraphs(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const reminderLead = documentObject.getElementById('vote-page-reminder-lead');
+  if (reminderLead) {
+    reminderLead.textContent = PUBLIC_VOTE_PAGE_REMINDER_LEAD;
+  }
+}
+
 export async function bootstrapVotePage({
   windowObject = globalThis.window,
   documentObject = globalThis.document,
@@ -309,6 +321,7 @@ export async function bootstrapVotePage({
   uuidFactory = () => globalThis.crypto.randomUUID(),
 } = {}) {
   syncVotePageSectionHeadings(documentObject);
+  syncVotePageLeadParagraphs(documentObject);
   syncVoteFormFieldCopy(documentObject);
   const pollId = getPollIdFromVotePath(windowObject.location.pathname);
   const title = documentObject.getElementById('poll-title');

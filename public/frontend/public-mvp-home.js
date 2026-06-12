@@ -1,5 +1,6 @@
 import {
   PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING,
+  PUBLIC_HOME_HERO_LEAD,
   PUBLIC_HOME_LOCK_PERIOD_CARD_HEADING,
   PUBLIC_HOME_PAGE_TITLE,
   PUBLIC_HOME_QUALITY_FEEDBACK_CARD_HEADING,
@@ -7,6 +8,7 @@ import {
 } from './public-mvp-ui.js';
 
 export const HOME_PAGE_TITLE = PUBLIC_HOME_PAGE_TITLE;
+export const HOME_HERO_LEAD = PUBLIC_HOME_HERO_LEAD;
 export const HOME_SAMPLE_POLLS_SECTION_TITLE = PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE;
 export const HOME_COLLECTING_HIDDEN_CARD_HEADING = PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING;
 export const HOME_LOCK_PERIOD_CARD_HEADING = PUBLIC_HOME_LOCK_PERIOD_CARD_HEADING;
@@ -39,6 +41,20 @@ export function syncHomePageSectionHeadings(documentObject) {
   }
 }
 
+/**
+ * @param {Document} documentObject
+ */
+export function syncHomePageLeadParagraphs(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const heroLead = documentObject.getElementById('home-hero-lead');
+  if (heroLead) {
+    heroLead.textContent = PUBLIC_HOME_HERO_LEAD;
+  }
+}
+
 if (typeof document !== 'undefined') {
   syncHomePageSectionHeadings(document);
+  syncHomePageLeadParagraphs(document);
 }

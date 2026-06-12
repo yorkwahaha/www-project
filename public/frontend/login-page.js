@@ -11,6 +11,8 @@ import {
   PUBLIC_FORM_LOGIN_CREDENTIAL_PLACEHOLDER,
   PUBLIC_LOGIN_FORM_READY_HINT,
   PUBLIC_LOGIN_LOCAL_DEMO_CARD_HEADING,
+  PUBLIC_LOGIN_PAGE_LEAD_PRIMARY,
+  PUBLIC_LOGIN_PAGE_LEAD_SECONDARY,
   PUBLIC_LOGIN_PAGE_TITLE,
   PUBLIC_LOGIN_PRODUCTION_CARD_HEADING,
   PUBLIC_LOGIN_REFERENCE_ANSWER_CARD_HEADING,
@@ -28,6 +30,8 @@ export const LOGIN_SHELL_DEMO_HINT_MESSAGE = PUBLIC_LOGIN_SHELL_DEMO_HINT;
 export const LOGIN_CREDENTIAL_LABEL = PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL;
 export const LOGIN_CREDENTIAL_PLACEHOLDER = PUBLIC_FORM_LOGIN_CREDENTIAL_PLACEHOLDER;
 export const LOGIN_CREDENTIAL_FIELD_HINT = PUBLIC_FORM_LOGIN_CREDENTIAL_FIELD_HINT;
+export const LOGIN_PAGE_LEAD_PRIMARY = PUBLIC_LOGIN_PAGE_LEAD_PRIMARY;
+export const LOGIN_PAGE_LEAD_SECONDARY = PUBLIC_LOGIN_PAGE_LEAD_SECONDARY;
 export const LOGIN_PAGE_TITLE = PUBLIC_LOGIN_PAGE_TITLE;
 export const LOGIN_PRODUCTION_CARD_HEADING = PUBLIC_LOGIN_PRODUCTION_CARD_HEADING;
 export const LOGIN_LOCAL_DEMO_CARD_HEADING = PUBLIC_LOGIN_LOCAL_DEMO_CARD_HEADING;
@@ -257,6 +261,20 @@ export function syncLoginPageSectionHeadings(documentObject) {
   }
 }
 
+export function syncLoginPageLeadParagraphs(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const primaryLead = documentObject.getElementById('login-lead-primary');
+  if (primaryLead) {
+    primaryLead.textContent = PUBLIC_LOGIN_PAGE_LEAD_PRIMARY;
+  }
+  const secondaryLead = documentObject.getElementById('login-lead-secondary');
+  if (secondaryLead) {
+    secondaryLead.textContent = PUBLIC_LOGIN_PAGE_LEAD_SECONDARY;
+  }
+}
+
 export function syncLoginFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -281,6 +299,7 @@ export function syncLoginFormFieldCopy(documentObject) {
 export function mountLoginShellPage(documentObject = document) {
   mountSiteChrome(documentObject);
   syncLoginPageSectionHeadings(documentObject);
+  syncLoginPageLeadParagraphs(documentObject);
   syncLoginFormFieldCopy(documentObject);
   const form = documentObject.getElementById('login-shell-form');
   if (!(form instanceof HTMLFormElement)) {

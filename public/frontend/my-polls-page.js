@@ -23,6 +23,7 @@ import {
   PUBLIC_MY_POLLS_EMPTY_MESSAGE,
   PUBLIC_MY_POLLS_EMPTY_SUMMARY,
   PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING,
+  PUBLIC_MY_POLLS_PAGE_LEAD,
   PUBLIC_MY_POLLS_PAGE_TITLE,
   PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING,
   PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
@@ -49,6 +50,7 @@ export const MY_POLLS_EMPTY_MESSAGE = PUBLIC_MY_POLLS_EMPTY_MESSAGE;
 export const MY_POLLS_EMPTY_SUMMARY = PUBLIC_MY_POLLS_EMPTY_SUMMARY;
 export const MY_POLLS_LOADING_MESSAGE = '載入你的問卷中，請稍候。';
 export const MY_POLLS_PAGE_TITLE = PUBLIC_MY_POLLS_PAGE_TITLE;
+export const MY_POLLS_PAGE_LEAD = PUBLIC_MY_POLLS_PAGE_LEAD;
 export const MY_POLLS_QUOTA_PANEL_HEADING = PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING;
 export const MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING =
   PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING;
@@ -177,9 +179,20 @@ export function syncMyPollsPageSectionHeadings(documentObject) {
   }
 }
 
+export function syncMyPollsPageLeadParagraphs(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const pageLead = documentObject.getElementById('my-polls-page-lead');
+  if (pageLead) {
+    pageLead.textContent = PUBLIC_MY_POLLS_PAGE_LEAD;
+  }
+}
+
 export function wireMyPollsDemoPage(documentObject = globalThis.document) {
   mountSiteChrome(documentObject);
   syncMyPollsPageSectionHeadings(documentObject);
+  syncMyPollsPageLeadParagraphs(documentObject);
 
   const useLiveApi = parseLiveApiMode(documentObject.defaultView?.location?.search ?? '');
   const mockWrap = documentObject.querySelector('.mvp-dash-table-wrap');

@@ -539,9 +539,50 @@ export const PUBLIC_REGISTRATION_READY_HINT =
 export const PUBLIC_PROFILE_COMPLETION_PROMPT_HINT =
   '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；這不代表你一定符合或不符合任何投票資格。';
 
-/** Frontend-owned explore page helper hints. */
-export const PUBLIC_EXPLORE_PAGE_LEAD_HINT =
+/** Frontend-owned page lead paragraphs below main page titles / hero headings. */
+export const PUBLIC_HOME_HERO_LEAD =
+  '收集中不公開票數；統計結束後才顯示彙總結果，並進入約 5 天公開鎖定期。';
+export const PUBLIC_EXPLORE_PAGE_LEAD =
   '依最近發布顯示目前可公開探索、仍在收集中的問卷。不提供熱門、票數、個人化或榜單排序；列表亦不顯示票數或結果百分比。';
+export const PUBLIC_LOGIN_PAGE_LEAD_PRIMARY =
+  '登入會建立瀏覽器工作階段，並在頁首顯示帳號名稱。若你還沒有帳號，請先到註冊頁建立資料；註冊不會自動登入。';
+export const PUBLIC_LOGIN_PAGE_LEAD_SECONDARY =
+  '正式環境中，個人資料、Official Vote、依序投票與發起者操作須透過已核准的 production 憑證；若後端無法驗證身分，系統會 fail closed（例如 401 AUTH_REQUIRED），不會退回 MVP 測試用 X-User-Id 或 creator_session。';
+export const PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY =
+  '註冊只建立帳號與個人資料欄位，不會自動登入，也不會建立瀏覽器工作階段。完成後請使用相同憑證到登入頁登入；登入才會控制頁首的已登入狀態。';
+export const PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY =
+  '本表單不會要求生日日期、街道門牌、精確定位或問卷選項資料。';
+export const PUBLIC_PROFILE_PAGE_LEAD =
+  '此資料只用於判斷你是否符合部分問卷的 Official Vote 資格。本頁僅可填寫出生年／月與粗粒度地區兩類欄位。';
+export const PUBLIC_MY_POLLS_PAGE_LEAD =
+  '收集中看不到票數；鎖定期內無法下架或編輯。';
+export const PUBLIC_CREATE_POLL_PAGE_LEAD =
+  '發布後無法在此修改題目或選項；收集中看不到期中結果。';
+export const PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD =
+  '目前為公開展示版：展示用，不儲存；以範例展示各狀態；收集中不顯示票數、百分比、總計、排名、趨勢或進度。優質題目依多種訊號判定，非單純按讚。';
+export const PUBLIC_VOTE_PAGE_REMINDER_LEAD =
+  '正式投票可能需要登入，並會在送出當下由系統處理。範例問卷（如 /vote/demo）僅展示 UI，不儲存票數。';
+
+/** Allowlist of safe user-visible page lead paragraphs. */
+export const PUBLIC_PAGE_LEAD_PARAGRAPHS = [
+  PUBLIC_HOME_HERO_LEAD,
+  PUBLIC_EXPLORE_PAGE_LEAD,
+  PUBLIC_LOGIN_PAGE_LEAD_PRIMARY,
+  PUBLIC_LOGIN_PAGE_LEAD_SECONDARY,
+  PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY,
+  PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY,
+  PUBLIC_PROFILE_PAGE_LEAD,
+  PUBLIC_MY_POLLS_PAGE_LEAD,
+  PUBLIC_CREATE_POLL_PAGE_LEAD,
+  PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD,
+  PUBLIC_VOTE_PAGE_REMINDER_LEAD,
+];
+
+/** Alias for {@link PUBLIC_PAGE_LEAD_PARAGRAPHS}. */
+export const PUBLIC_PAGE_LEADS = PUBLIC_PAGE_LEAD_PARAGRAPHS;
+
+/** Frontend-owned explore page helper hints. */
+export const PUBLIC_EXPLORE_PAGE_LEAD_HINT = PUBLIC_EXPLORE_PAGE_LEAD;
 export const PUBLIC_EXPLORE_FEED_LIST_HINT = '顯示公開問卷列表';
 export const PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT =
   '依最近發布排序；非熱門、票數、個人化或榜單。';
@@ -605,6 +646,24 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   PUBLIC_CREATOR_ACTION_CLOSE_HINT,
   PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT,
   PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX,
+  PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
+];
+
+/** Allowlist of safe user-visible page intro / section lead copy across public surfaces. */
+export const PUBLIC_PAGE_INTRO_TEXTS = [
+  ...PUBLIC_PAGE_LEAD_PARAGRAPHS,
+  PUBLIC_RESULTS_INTRO_LEAD_HINT,
+  PUBLIC_RESULTS_INTRO_SCOPE_HINT,
+  PUBLIC_RESULTS_INTRO_VOTE_HINT,
+  PUBLIC_RESULTS_COLLECTING_SUMMARY,
+  PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
+  PUBLIC_CREATE_POLL_SHARE_SUCCESS_LEAD,
+  PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT,
+  PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
+  PUBLIC_CREATOR_MY_POLLS_LEAD_HINT,
+  PUBLIC_CREATOR_RESULTS_LEAD_HINT,
+  PUBLIC_CREATOR_LIFECYCLE_COLLECTING_LEAD_HINT,
+  PUBLIC_CREATOR_LIFECYCLE_POST_LOCK_LEAD_HINT,
   PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
 ];
 

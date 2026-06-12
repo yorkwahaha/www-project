@@ -17,6 +17,8 @@ import {
   PUBLIC_FORM_REGISTRATION_DISPLAY_NAME_HINT,
   PUBLIC_FORM_REGISTRATION_RESIDENTIAL_REGION_HINT,
   PUBLIC_FORM_RESIDENTIAL_REGION_LABEL,
+  PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY,
+  PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY,
   PUBLIC_REGISTRATION_PAGE_TITLE,
   PUBLIC_REGISTRATION_READY_HINT,
   PUBLIC_REGISTRATION_SUCCESS_FORM_HEADING,
@@ -25,6 +27,9 @@ import {
   setBusySubmitButton,
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
+
+export const REGISTRATION_PAGE_LEAD_PRIMARY = PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY;
+export const REGISTRATION_PAGE_LEAD_SECONDARY = PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY;
 
 export const REGISTRATION_REGION_OPTIONS = [
   'TW-TPE',
@@ -456,6 +461,20 @@ export function syncRegistrationPageSectionHeadings(documentObject) {
   }
 }
 
+export function syncRegistrationPageLeadParagraphs(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const primaryLead = documentObject.getElementById('registration-lead-primary');
+  if (primaryLead) {
+    primaryLead.textContent = PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY;
+  }
+  const secondaryLead = documentObject.getElementById('registration-lead-secondary');
+  if (secondaryLead) {
+    secondaryLead.textContent = PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY;
+  }
+}
+
 export function syncRegistrationFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -514,6 +533,7 @@ export function syncRegistrationFormFieldCopy(documentObject) {
 export function mountRegistrationPage(documentObject = document) {
   mountSiteChrome(documentObject);
   syncRegistrationPageSectionHeadings(documentObject);
+  syncRegistrationPageLeadParagraphs(documentObject);
   syncRegistrationFormFieldCopy(documentObject);
   const form = documentObject.getElementById('registration-form');
   if (!(form instanceof HTMLFormElement)) {

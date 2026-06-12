@@ -14,6 +14,7 @@ import {
   PUBLIC_CREATE_POLL_DEMO_SUBMIT_LABEL,
   PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE,
   PUBLIC_CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL,
+  PUBLIC_CREATE_POLL_PAGE_LEAD,
   PUBLIC_CREATE_POLL_PAGE_TITLE,
   PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING,
   PUBLIC_CREATE_POLL_PRECHECK_PANEL_HEADING,
@@ -86,6 +87,7 @@ export const CREATE_POLL_DESCRIPTION_LABEL = PUBLIC_FORM_POLL_DESCRIPTION_LABEL;
 export const CREATE_POLL_DESCRIPTION_PLACEHOLDER = PUBLIC_FORM_POLL_DESCRIPTION_PLACEHOLDER;
 export const CREATE_POLL_OPTIONS_LEGEND = PUBLIC_FORM_POLL_OPTIONS_LEGEND;
 export const CREATE_POLL_PAGE_TITLE = PUBLIC_CREATE_POLL_PAGE_TITLE;
+export const CREATE_POLL_PAGE_LEAD = PUBLIC_CREATE_POLL_PAGE_LEAD;
 export const CREATE_POLL_POLICY_PANEL_HEADING = PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING;
 export const CREATE_POLL_PRECHECK_PANEL_HEADING = PUBLIC_CREATE_POLL_PRECHECK_PANEL_HEADING;
 
@@ -237,6 +239,16 @@ export function syncCreatePollPageSectionHeadings(documentObject) {
   }
 }
 
+export function syncCreatePollPageLeadParagraphs(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const pageLead = documentObject.getElementById('create-poll-page-lead');
+  if (pageLead) {
+    pageLead.textContent = PUBLIC_CREATE_POLL_PAGE_LEAD;
+  }
+}
+
 export function syncCreatePollFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -315,6 +327,7 @@ export function bootstrapCreatePollPage({
   now = () => new Date(),
 } = {}) {
   syncCreatePollPageSectionHeadings(documentObject);
+  syncCreatePollPageLeadParagraphs(documentObject);
   syncCreatePollFormFieldCopy(documentObject);
   const form = documentObject.getElementById('create-poll-form');
   const message = documentObject.getElementById('form-message');

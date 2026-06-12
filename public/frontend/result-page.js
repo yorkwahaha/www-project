@@ -506,8 +506,13 @@ function paintResultPageFromPayload(pageContext, result) {
       pageTitle.textContent = RESULTS_UNPUBLISHED_TITLE;
     } else if (demoOnly) {
       pageTitle.textContent = PUBLIC_RESULTS_DEMO_READONLY_TITLE;
+      syncResultsPageBrand(pageTitle.ownerDocument ?? root?.ownerDocument, PUBLIC_RESULTS_DEMO_READONLY_TITLE);
     } else {
       pageTitle.textContent = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
+      syncResultsPageBrand(
+        pageTitle.ownerDocument ?? root?.ownerDocument,
+        PUBLIC_RESULTS_PUBLIC_READONLY_TITLE,
+      );
     }
     pageTitle.removeAttribute('aria-busy');
   }
@@ -613,20 +618,37 @@ export function renderResultPageNav(root, pollId) {
   }
 }
 
-export function syncResultsPageSectionHeadings(documentObject) {
+function resolveResultsReadonlyTitle(pathname) {
+  const pollId = getPollIdFromResultPath(pathname);
+  if (pollId && isDemoPollRouteId(pollId)) {
+    return PUBLIC_RESULTS_DEMO_READONLY_TITLE;
+  }
+  return PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
+}
+
+function syncResultsPageBrand(documentObject, title) {
+  if (!documentObject || typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const brand = documentObject.querySelector('#main-content > p.mvp-brand');
+  if (brand) {
+    brand.textContent = title;
+  }
+}
+
+export function syncResultsPageSectionHeadings(
+  documentObject,
+  windowObject = globalThis.window,
+) {
   if (typeof documentObject.getElementById !== 'function') {
     return;
   }
+  const readonlyTitle = resolveResultsReadonlyTitle(windowObject?.location?.pathname ?? '');
   const pageTitle = documentObject.getElementById('page-title');
   if (pageTitle && !pageTitle.getAttribute('aria-busy')) {
-    pageTitle.textContent = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
+    pageTitle.textContent = readonlyTitle;
   }
-  if (typeof documentObject.querySelector === 'function') {
-    const brand = documentObject.querySelector('#main-content > p.mvp-brand');
-    if (brand) {
-      brand.textContent = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
-    }
-  }
+  syncResultsPageBrand(documentObject, readonlyTitle);
 }
 
 export function syncResultsPageLeadParagraphs(documentObject) {

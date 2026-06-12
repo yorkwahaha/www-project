@@ -20,6 +20,7 @@ import {
   PUBLIC_CTA_VIEW_RESULTS_LABEL,
   PUBLIC_CTA_VIEW_UNPUBLISHED_EXPLAINER_LABEL,
   PUBLIC_MY_POLLS_CANCELLED_ROW_INLINE_NOTE,
+  PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY,
   PUBLIC_MY_POLLS_CREATOR_NO_MIDTERM_CARD_HEADING,
   PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_BLOCK_MESSAGE,
   PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_MANAGE_MESSAGE,
@@ -192,6 +193,12 @@ export function syncMyPollsPageSectionHeadings(documentObject) {
   const sidePanelHeading = documentObject.querySelector('.mvp-side-panel h2');
   if (sidePanelHeading) {
     sidePanelHeading.textContent = PUBLIC_MY_POLLS_CREATOR_NO_MIDTERM_CARD_HEADING;
+  }
+  if (typeof documentObject.getElementById === 'function') {
+    const sidePanelNote = documentObject.getElementById('my-polls-creator-side-note');
+    if (sidePanelNote) {
+      sidePanelNote.textContent = PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY;
+    }
   }
 }
 

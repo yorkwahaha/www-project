@@ -291,6 +291,10 @@ export function syncLoginFormFieldCopy(documentObject) {
   if (credentialHint) {
     credentialHint.textContent = PUBLIC_FORM_LOGIN_CREDENTIAL_FIELD_HINT;
   }
+  const formReadyHint = documentObject.getElementById('login-form-ready-hint');
+  if (formReadyHint) {
+    formReadyHint.textContent = PUBLIC_LOGIN_FORM_READY_HINT;
+  }
 }
 
 /**

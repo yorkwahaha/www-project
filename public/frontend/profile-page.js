@@ -363,6 +363,10 @@ export function syncProfilePageLeadParagraphs(documentObject) {
   if (pageLead) {
     pageLead.textContent = PUBLIC_PROFILE_PAGE_LEAD;
   }
+  const unauthMessage = documentObject.getElementById('profile-unauth-message');
+  if (unauthMessage) {
+    unauthMessage.textContent = PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE;
+  }
 }
 
 export function syncProfileFormFieldCopy(documentObject) {

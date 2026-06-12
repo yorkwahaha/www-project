@@ -475,6 +475,16 @@ export function syncRegistrationPageLeadParagraphs(documentObject) {
   }
 }
 
+export function syncRegistrationSuccessCopy(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const successMessage = documentObject.getElementById('registration-success-message');
+  if (successMessage) {
+    successMessage.textContent = PUBLIC_REGISTRATION_SUCCESS_MESSAGE;
+  }
+}
+
 export function syncRegistrationFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -535,6 +545,7 @@ export function mountRegistrationPage(documentObject = document) {
   syncRegistrationPageSectionHeadings(documentObject);
   syncRegistrationPageLeadParagraphs(documentObject);
   syncRegistrationFormFieldCopy(documentObject);
+  syncRegistrationSuccessCopy(documentObject);
   const form = documentObject.getElementById('registration-form');
   if (!(form instanceof HTMLFormElement)) {
     return;

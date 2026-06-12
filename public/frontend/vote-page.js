@@ -29,6 +29,7 @@ import {
   PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
   PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
   PUBLIC_FORM_VOTE_OPTIONS_LEGEND,
+  PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY,
   PUBLIC_VOTE_COLLECTING_PANEL_HEADING,
   PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING,
   PUBLIC_VOTE_PAGE_REMINDER_LEAD,
@@ -301,6 +302,12 @@ export function syncVotePageSectionHeadings(documentObject) {
   const followHeading = documentObject.querySelector('#vote-side-panel h2');
   if (followHeading) {
     followHeading.textContent = PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING;
+  }
+  if (typeof documentObject.getElementById === 'function') {
+    const collectingNoticeBody = documentObject.getElementById('vote-collecting-notice-body');
+    if (collectingNoticeBody) {
+      collectingNoticeBody.textContent = PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY;
+    }
   }
 }
 

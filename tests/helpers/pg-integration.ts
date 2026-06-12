@@ -5,6 +5,7 @@ import pg from 'pg';
 const REQUIRED_TEST_DATABASE = 'www_test';
 
 const BUSINESS_TABLES = [
+  'poll_quality_feedback_aggregate',
   'user_sessions',
   'creator_sessions',
   'poll_eligibility_rules',

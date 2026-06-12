@@ -4,6 +4,7 @@ import type {
   PollOptionRow,
   PollOptionVoteCounterRow,
   PollEligibilityRuleRow,
+  QualityFeedbackAggregateRow,
   PollReferenceAnswerTokenRow,
   PollRow,
   PollStatus,
@@ -40,6 +41,7 @@ export function createInMemoryPollRepository(): PollRepository & {
   readonly options: Map<string, PollOptionRow[]>;
   readonly referenceAnswerTokens: Map<string, PollReferenceAnswerTokenRow>;
   readonly eligibilityRules: Map<string, PollEligibilityRuleRow>;
+  readonly qualityFeedbackAggregates: Map<string, QualityFeedbackAggregateRow>;
   readonly voteTokens: Map<string, PollVoteTokenRow>;
   readonly voteCounters: Map<string, PollOptionVoteCounterRow>;
   setUserTrustLevel(userId: string, trustLevel: TrustLevel): void;
@@ -56,6 +58,7 @@ export function createInMemoryPollRepository(): PollRepository & {
   const options = new Map<string, PollOptionRow[]>();
   const referenceAnswerTokens = new Map<string, PollReferenceAnswerTokenRow>();
   const eligibilityRules = new Map<string, PollEligibilityRuleRow>();
+  const qualityFeedbackAggregates = new Map<string, QualityFeedbackAggregateRow>();
   const voteTokens = new Map<string, PollVoteTokenRow>();
   const voteCounters = new Map<string, PollOptionVoteCounterRow>();
   let failVoteTokenInsert = false;
@@ -66,6 +69,7 @@ export function createInMemoryPollRepository(): PollRepository & {
     options,
     referenceAnswerTokens,
     eligibilityRules,
+    qualityFeedbackAggregates,
     voteTokens,
     voteCounters,
 
@@ -496,6 +500,19 @@ export function createInMemoryPollRepository(): PollRepository & {
         votedAtMinute,
         selectShardId,
       );
+    },
+
+    async incrementQualityFeedbackAggregate(pollId, feedbackTag) {
+      const key = `${pollId}:${feedbackTag}`;
+      const existing = qualityFeedbackAggregates.get(key);
+      const row: QualityFeedbackAggregateRow = {
+        poll_id: pollId,
+        feedback_tag: feedbackTag,
+        aggregate_count: (existing?.aggregate_count ?? 0) + 1,
+        updated_at: new Date(),
+      };
+      qualityFeedbackAggregates.set(key, row);
+      return row;
     },
   };
 }

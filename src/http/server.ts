@@ -419,6 +419,17 @@ async function routeRequest(
     return;
   }
 
+  const qualityFeedbackMatch = path.match(/^\/polls\/([^/]+)\/quality-feedback$/);
+  if (qualityFeedbackMatch && method === 'POST') {
+    const pollId = qualityFeedbackMatch[1]!;
+    if (!POLL_ID_PATTERN.test(pollId)) {
+      sendJson(res, 400, { error: 'INVALID_POLL_ID', message: 'Invalid poll id' });
+      return;
+    }
+    await pollRoutes.handlePostQualityFeedback(req, res, pollId);
+    return;
+  }
+
   const resultMatch = path.match(/^\/polls\/([^/]+)\/results$/);
   if (resultMatch && method === 'GET') {
     const pollId = resultMatch[1]!;

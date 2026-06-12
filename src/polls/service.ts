@@ -19,6 +19,8 @@ import type {
   PollDetail,
   PollOptionVoteAggregateRow,
   PollRow,
+  QualityFeedbackResult,
+  QualityFeedbackTag,
   PollResultDisplay,
   PublicFeedQuery,
   PublicFeedResult,
@@ -77,6 +79,10 @@ export type PollService = {
     userId: string,
     optionIndex: number,
   ): Promise<OfficialVoteResult>;
+  submitQualityFeedback(
+    pollId: string,
+    feedbackTag: QualityFeedbackTag,
+  ): Promise<QualityFeedbackResult>;
   assertCreatorCannotEditPublishedPoll(): never;
 };
 
@@ -329,6 +335,15 @@ export function createPollService(
         throw err;
       }
       return { status: 'voted', voted: true };
+    },
+
+    async submitQualityFeedback(pollId, feedbackTag) {
+      const poll = await repository.findPollById(pollId);
+      if (!poll) {
+        throw new PollNotFoundError();
+      }
+      await repository.incrementQualityFeedbackAggregate(pollId, feedbackTag);
+      return { ok: true };
     },
 
     assertCreatorCannotEditPublishedPoll(): never {

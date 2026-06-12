@@ -220,6 +220,27 @@ export type OfficialVoteResult = {
   voted: true;
 };
 
+export const QUALITY_FEEDBACK_TAGS = [
+  '表達清楚',
+  '選項公平',
+  '值得思考',
+  '期待結果',
+  '題目不優',
+] as const;
+
+export type QualityFeedbackTag = (typeof QUALITY_FEEDBACK_TAGS)[number];
+
+export type QualityFeedbackResult = {
+  ok: true;
+};
+
+export type QualityFeedbackAggregateRow = {
+  poll_id: string;
+  feedback_tag: QualityFeedbackTag;
+  aggregate_count: number;
+  updated_at: Date;
+};
+
 export type PollResultDisplay = {
   poll_id: string;
   public_lifecycle_state: PublicLifecycleState;

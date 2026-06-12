@@ -8,12 +8,9 @@ const PHASE_179_DOC =
 const PROTECTED_RUNTIME_PATHS = [
   'src/http/official-vote-routes.ts',
   'src/http/reference-answer-routes.ts',
-  'src/http/poll-routes.ts',
   'src/http/login-session-routes.ts',
   'src/http/user-profile-routes.ts',
   'src/auth/user-auth-resolver.ts',
-  'src/polls/service.ts',
-  'src/polls/repository.ts',
 ] as const;
 
 describe('Phase 179 quality feedback aggregate write API runtime plan guard', () => {
@@ -56,25 +53,22 @@ describe('Phase 179 quality feedback aggregate write API runtime plan guard', ()
     }
   });
 
-  it('confirms Phase 179 does not add migration or runtime implementation files', async () => {
+  it('documents that Phase 179 itself does not add migration or runtime implementation files', async () => {
+    const doc = await readFile(join(process.cwd(), PHASE_179_DOC), 'utf8');
     const migrationFiles = await readdir(join(process.cwd(), 'migrations'));
+
     expect(migrationFiles).not.toEqual(
       expect.arrayContaining([expect.stringMatching(/phase179/i)]),
     );
-
-    const srcFiles = await collectSourceFiles(join(process.cwd(), 'src'));
-    const combined = await Promise.all(
-      srcFiles.map((file) => readFile(file, 'utf8')),
-    );
-    const source = combined.join('\n').toLowerCase();
-
-    expect(source).not.toContain('/quality-feedback');
-    expect(source).not.toContain('quality-feedback');
-    expect(source).not.toContain('quality_feedback');
-    expect(source).not.toMatch(/\bfeedback_tag\b/);
+    expect(doc).toContain('docs/spec and guard tests only');
+    expect(doc).toContain('Not implemented');
+    expect(doc).toContain('no migration');
+    expect(doc).toContain('no runtime route');
+    expect(doc).toContain('no repository/service');
+    expect(doc).toContain('no frontend');
   });
 
-  it('confirms protected vote, auth, result, profile, and Reference Answer files remain feedback-free', async () => {
+  it('confirms protected vote, auth, result, profile, and Reference Answer files are not wired to feedback', async () => {
     for (const relativePath of PROTECTED_RUNTIME_PATHS) {
       const source = (await readFile(join(process.cwd(), relativePath), 'utf8')).toLowerCase();
       expect(source, relativePath).not.toContain('/quality-feedback');
@@ -103,21 +97,3 @@ describe('Phase 179 quality feedback aggregate write API runtime plan guard', ()
     }
   });
 });
-
-async function collectSourceFiles(directory: string): Promise<string[]> {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...(await collectSourceFiles(fullPath)));
-      continue;
-    }
-    if (/\.(ts|js|mjs)$/.test(entry.name)) {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
-}

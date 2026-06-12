@@ -20,12 +20,9 @@ const OFFICIAL_VOTE_MIGRATION = 'migrations/004_phase3_official_vote.sql';
 const PROTECTED_RUNTIME_PATHS = [
   'src/http/official-vote-routes.ts',
   'src/http/reference-answer-routes.ts',
-  'src/http/poll-routes.ts',
   'src/http/login-session-routes.ts',
   'src/http/user-profile-routes.ts',
   'src/auth/user-auth-resolver.ts',
-  'src/polls/service.ts',
-  'src/polls/repository.ts',
 ] as const;
 
 function extractCreateTable(sql: string, tableName: string): string {
@@ -119,19 +116,18 @@ describe('Phase 178-R quality feedback aggregate schema runtime readiness review
     }
   });
 
-  it('confirms no feedback runtime or API was added under src/', async () => {
-    const srcFiles = await collectSourceFiles(join(process.cwd(), 'src'));
-    const combined = await Promise.all(
-      srcFiles.map((file) => readFile(file, 'utf8')),
-    );
-    const source = combined.join('\n').toLowerCase();
+  it('documents that Phase 178-R itself added no feedback runtime or API', async () => {
+    const doc = await readFile(join(process.cwd(), PHASE_178R_DOC), 'utf8');
 
-    expect(source).not.toContain('poll_quality_feedback_aggregate');
-    expect(source).not.toContain('quality_feedback');
-    expect(source).not.toMatch(/\bfeedback_tag\b/);
+    expect(doc).toContain('review checkpoint only');
+    expect(doc).toContain('no migration');
+    expect(doc).toContain('no schema change');
+    expect(doc).toContain('no runtime');
+    expect(doc).toContain('no API implementation');
+    expect(doc).toContain('Phase 179 aggregate write API/runtime planning is **approved**');
   });
 
-  it('confirms protected vote, auth, result, and profile runtime files are feedback-free', async () => {
+  it('confirms protected vote, auth, result, and profile runtime files are not wired to feedback runtime', async () => {
     for (const relativePath of PROTECTED_RUNTIME_PATHS) {
       const source = (await readFile(join(process.cwd(), relativePath), 'utf8')).toLowerCase();
       expect(source, relativePath).not.toContain('poll_quality_feedback_aggregate');
@@ -155,21 +151,3 @@ describe('Phase 178-R quality feedback aggregate schema runtime readiness review
     expect(officialVote.toLowerCase()).not.toContain('feedback_tag');
   });
 });
-
-async function collectSourceFiles(directory: string): Promise<string[]> {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...(await collectSourceFiles(fullPath)));
-      continue;
-    }
-    if (/\.(ts|js|mjs)$/.test(entry.name)) {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
-}

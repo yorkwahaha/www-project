@@ -7,6 +7,7 @@ import {
   handlePostOfficialVote as dispatchOfficialVote,
   handlePostOfficialVoteByIndex as dispatchOfficialVoteByIndex,
 } from './official-vote-routes.js';
+import { handlePostQualityFeedback as dispatchQualityFeedback } from './quality-feedback-routes.js';
 import { handlePostReferenceAnswer as dispatchReferenceAnswer } from './reference-answer-routes.js';
 import { sendJson } from './json.js';
 
@@ -134,6 +135,14 @@ export function createPollRouteHandlers(
         pollService,
         requirePublicVoteUserAuth,
       );
+    },
+
+    handlePostQualityFeedback(
+      req: IncomingMessage,
+      res: ServerResponse,
+      pollId: string,
+    ): Promise<void> {
+      return dispatchQualityFeedback(req, res, pollId, pollService);
     },
   };
 }

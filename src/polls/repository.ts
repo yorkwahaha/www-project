@@ -6,6 +6,8 @@ import type {
   PollOptionVoteAggregateRow,
   PollOptionVoteCounterRow,
   PollEligibilityRuleRow,
+  QualityFeedbackAggregateRow,
+  QualityFeedbackTag,
   PollReferenceAnswerTokenRow,
   PollRow,
   PublicLifecycleState,
@@ -80,6 +82,10 @@ export type PollRepository = {
     votedAtMinute: Date,
     selectShardId: () => number,
   ): Promise<PollVoteTokenRow>;
+  incrementQualityFeedbackAggregate(
+    pollId: string,
+    feedbackTag: QualityFeedbackTag,
+  ): Promise<QualityFeedbackAggregateRow>;
 };
 
 export function createPgPollRepository(pool: Pool): PollRepository {
@@ -122,6 +128,8 @@ export function createPgPollRepository(pool: Pool): PollRepository {
         votedAtMinute,
         selectShardId,
       ),
+    incrementQualityFeedbackAggregate: (pollId, feedbackTag) =>
+      incrementQualityFeedbackAggregate(pool, pollId, feedbackTag),
   };
 }
 
@@ -304,6 +312,26 @@ async function incrementVoteCounter(
      DO UPDATE SET vote_count = poll_option_vote_counters.vote_count + 1
      RETURNING poll_id, option_id, shard_id, vote_count`,
     [pollId, optionId, shardId],
+  );
+  return result.rows[0]!;
+}
+
+async function incrementQualityFeedbackAggregate(
+  pool: Pool,
+  pollId: string,
+  feedbackTag: QualityFeedbackTag,
+): Promise<QualityFeedbackAggregateRow> {
+  const result = await pool.query<QualityFeedbackAggregateRow>(
+    `INSERT INTO poll_quality_feedback_aggregate (
+       poll_id, feedback_tag, aggregate_count, updated_at
+     )
+     VALUES ($1, $2, 1, NOW())
+     ON CONFLICT (poll_id, feedback_tag)
+     DO UPDATE
+       SET aggregate_count = poll_quality_feedback_aggregate.aggregate_count + 1,
+           updated_at = NOW()
+     RETURNING poll_id, feedback_tag, aggregate_count, updated_at`,
+    [pollId, feedbackTag],
   );
   return result.rows[0]!;
 }

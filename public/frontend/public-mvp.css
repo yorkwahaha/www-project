@@ -28,6 +28,13 @@
   --mvp-shadow-md: 0 6px 20px rgba(33, 51, 49, 0.08);
   --mvp-font: system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei",
     sans-serif;
+  /* Phase 161 — mobile rhythm & tap-target tokens */
+  --mvp-tap-min: 2.75rem;
+  --mvp-focus-width: 2px;
+  --mvp-focus-offset: 2px;
+  --mvp-space-section: 1.25rem;
+  --mvp-space-card: 1rem;
+  --mvp-space-form-field: 0.9rem;
 }
 
 *,
@@ -108,14 +115,30 @@ code {
   box-shadow: var(--mvp-shadow);
 }
 
-.skip-link:focus {
+.skip-link:focus,
+.skip-link:focus-visible {
   left: 1rem;
   top: 1rem;
 }
 
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 :focus-visible {
-  outline: 2px solid var(--mvp-accent);
-  outline-offset: 2px;
+  outline: var(--mvp-focus-width) solid var(--mvp-accent);
+  outline-offset: var(--mvp-focus-offset);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+summary:focus-visible {
+  outline: var(--mvp-focus-width) solid var(--mvp-accent);
+  outline-offset: var(--mvp-focus-offset);
 }
 
 .public-nav {
@@ -172,8 +195,9 @@ code {
 
 .mvp-form label {
   display: block;
-  margin-top: 1rem;
+  margin-top: var(--mvp-space-form-field);
   font-weight: 600;
+  line-height: 1.4;
 }
 
 .mvp-form .option-label {
@@ -194,6 +218,13 @@ code {
   border: 1px solid var(--mvp-border);
   border-radius: var(--mvp-radius);
   background: var(--mvp-surface);
+  touch-action: manipulation;
+}
+
+.mvp-form input:not([type="checkbox"]):not([type="radio"]),
+.mvp-form select,
+.mvp-form button {
+  min-height: var(--mvp-tap-min);
 }
 
 .mvp-form textarea {
@@ -219,8 +250,8 @@ code {
 }
 
 .mvp-form fieldset {
-  margin: 1.25rem 0 0;
-  padding: 1rem;
+  margin: var(--mvp-space-section) 0 0;
+  padding: var(--mvp-space-card);
   border: 1px solid var(--mvp-border);
   border-radius: var(--mvp-radius);
   background: var(--mvp-surface);
@@ -319,12 +350,14 @@ button:disabled {
   max-width: 100%;
   margin-top: 0.5rem;
   padding: 0.65rem 0.85rem;
+  min-height: var(--mvp-tap-min);
   border: 1px solid var(--mvp-border);
   border-radius: var(--mvp-radius);
   background: var(--mvp-surface);
   color: var(--mvp-text);
   font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .copy-link-button:hover:not(:disabled) {
@@ -571,12 +604,18 @@ button:disabled {
 
 /* Phase 41A — policy panels & mock controls */
 .mvp-policy-panel {
-  margin: 1rem 0;
-  padding: 1rem 1.05rem;
+  margin: var(--mvp-space-section) 0;
+  padding: var(--mvp-space-card) 1.05rem;
   border: 1px solid var(--mvp-border);
   border-radius: var(--mvp-radius);
   background: var(--mvp-surface);
   box-shadow: var(--mvp-shadow);
+}
+
+.mvp-policy-panel .policy-field-list li,
+.mvp-policy-panel .mvp-form-hint-list li {
+  margin: 0.35rem 0;
+  line-height: 1.5;
 }
 
 .mvp-policy-panel-compact {
@@ -826,7 +865,10 @@ button:disabled {
 }
 
 .mvp-site-nav a {
-  padding: 0.35rem 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--mvp-tap-min);
+  padding: 0.35rem 0.65rem;
   border-radius: var(--mvp-radius-sm);
   color: var(--mvp-muted);
   text-decoration: none;
@@ -854,6 +896,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: var(--mvp-tap-min);
   padding: 0.5rem 0.9rem;
   border-radius: var(--mvp-radius-sm);
   font-size: 0.9rem;
@@ -863,9 +906,11 @@ button:disabled {
   cursor: pointer;
   font-family: inherit;
   line-height: 1.3;
+  touch-action: manipulation;
 }
 
 .mvp-btn-sm {
+  min-height: 2.25rem;
   padding: 0.4rem 0.75rem;
   font-size: 0.85rem;
 }
@@ -1108,7 +1153,8 @@ button:disabled {
 .mvp-poll-card {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  gap: 0.15rem;
+  padding: var(--mvp-space-card);
   border: 1px solid var(--mvp-border);
   border-radius: var(--mvp-radius);
   background: var(--mvp-surface-elevated);
@@ -1471,10 +1517,11 @@ button:disabled {
   justify-content: center;
   vertical-align: middle;
   margin-left: 0.15rem;
-  min-width: 1.75rem;
-  min-height: 1.75rem;
+  min-width: var(--mvp-tap-min);
+  min-height: var(--mvp-tap-min);
   border-radius: 999px;
   cursor: help;
+  touch-action: manipulation;
 }
 
 .mvp-help-icon {
@@ -1614,7 +1661,7 @@ button:disabled {
 }
 
 .mvp-form-card {
-  padding: 1.25rem;
+  padding: var(--mvp-space-section);
   border: 1px solid var(--mvp-border);
   border-radius: var(--mvp-radius);
   background: var(--mvp-surface-elevated);
@@ -1793,7 +1840,17 @@ button:disabled {
 
 @media (max-width: 640px) {
   .mvp-page {
-    padding: 0.85rem 0.85rem 2rem;
+    padding: 0.85rem max(0.85rem, env(safe-area-inset-left, 0px)) calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mvp-shell {
+    padding-left: max(0.85rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.85rem, env(safe-area-inset-right, 0px));
+  }
+
+  .mvp-site-header-inner {
+    padding-left: max(0.85rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.85rem, env(safe-area-inset-right, 0px));
   }
 
   .mvp-lead {
@@ -1818,8 +1875,12 @@ button:disabled {
     min-height: 2.75rem;
   }
 
+  .mvp-value-grid {
+    gap: 0.65rem;
+  }
+
   .mvp-value-card {
-    padding: 0.7rem 0.85rem;
+    padding: 0.85rem 0.9rem;
   }
 
   .mvp-value-card h3 {
@@ -1838,7 +1899,24 @@ button:disabled {
   }
 
   .mvp-poll-card {
-    padding: 0.85rem;
+    padding: 0.95rem;
+  }
+
+  .mvp-policy-panel {
+    padding: 0.95rem 0.9rem;
+  }
+
+  .mvp-policy-panel-compact {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .mvp-side-panel {
+    padding: 0.95rem;
+  }
+
+  .vote-option {
+    min-height: 3.25rem;
+    padding: 0.95rem 1rem;
   }
 
   .mvp-poll-card-top {
@@ -1866,12 +1944,18 @@ button:disabled {
     width: 100%;
   }
 
-  .mvp-site-header-inner {
-    padding: 0.55rem 0.85rem;
+  .mvp-btn {
+    min-height: var(--mvp-tap-min);
   }
 
-  .mvp-btn {
-    min-height: 2.65rem;
+  #bottom-nav a,
+  .mvp-result-footer a,
+  .mvp-action-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--mvp-tap-min);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
 
   .mvp-help-tip {
@@ -2086,6 +2170,7 @@ button:disabled {
   display: flex;
   align-items: flex-start;
   gap: 0.45rem;
+  min-height: var(--mvp-tap-min);
   padding: 0.85rem 1rem;
   font-size: 1rem;
   font-weight: 600;
@@ -2093,6 +2178,7 @@ button:disabled {
   color: var(--mvp-text);
   cursor: pointer;
   list-style: none;
+  touch-action: manipulation;
 }
 
 .mvp-faq-question::-webkit-details-marker {
@@ -2426,4 +2512,12 @@ button:disabled {
   margin: 0;
   font-size: 0.78rem;
   color: var(--mvp-muted);
+}
+
+/* Phase 161 — mobile visual rhythm & accessibility polish */
+@media (prefers-reduced-motion: reduce) {
+  .mvp-faq-question::before,
+  .mvp-help-tip {
+    transition: none;
+  }
 }

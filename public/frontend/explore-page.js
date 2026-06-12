@@ -9,7 +9,10 @@ import {
   PUBLIC_EXPLORE_FEED_LIST_HINT,
   PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
+  PUBLIC_EXPLORE_PAGE_TITLE,
 } from './public-mvp-ui.js';
+
+export const EXPLORE_PAGE_TITLE = PUBLIC_EXPLORE_PAGE_TITLE;
 
 export const EXPLORE_COLLECTING_STATUS_LABEL = PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL;
 export const EXPLORE_COLLECTING_STATUS_HINT = PUBLIC_EXPLORE_COLLECTING_STATUS_HINT;
@@ -170,6 +173,13 @@ function setExplorePanelVisible(panel, visible) {
   panel.hidden = !visible;
 }
 
+export function syncExplorePageSectionHeadings(documentObject) {
+  const exploreHeading = documentObject.getElementById('explore-heading');
+  if (exploreHeading) {
+    exploreHeading.textContent = PUBLIC_EXPLORE_PAGE_TITLE;
+  }
+}
+
 export function syncExploreEmptyStatePanel(documentObject) {
   const emptyPanel = documentObject.getElementById('explore-empty');
   if (!emptyPanel) {
@@ -189,6 +199,7 @@ export function syncExploreEmptyStatePanel(documentObject) {
 }
 
 function mountExplorePage(documentObject, windowObject = globalThis) {
+  syncExplorePageSectionHeadings(documentObject);
   syncExploreEmptyStatePanel(documentObject);
   const listRoot = documentObject.getElementById('explore-feed-list');
   const statusRegion = documentObject.getElementById('explore-status');

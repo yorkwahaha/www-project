@@ -14,6 +14,9 @@ import {
   PUBLIC_CREATE_POLL_DEMO_SUBMIT_LABEL,
   PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE,
   PUBLIC_CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL,
+  PUBLIC_CREATE_POLL_PAGE_TITLE,
+  PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING,
+  PUBLIC_CREATE_POLL_PRECHECK_PANEL_HEADING,
   PUBLIC_CREATE_POLL_SUCCESS_MESSAGE,
   PUBLIC_CREATE_POLL_SUCCESS_PANEL_ARIA_LABEL,
   PUBLIC_FORM_POLL_CATEGORY_LABEL,
@@ -82,6 +85,9 @@ export const CREATE_POLL_TITLE_PLACEHOLDER = PUBLIC_FORM_POLL_TITLE_PLACEHOLDER;
 export const CREATE_POLL_DESCRIPTION_LABEL = PUBLIC_FORM_POLL_DESCRIPTION_LABEL;
 export const CREATE_POLL_DESCRIPTION_PLACEHOLDER = PUBLIC_FORM_POLL_DESCRIPTION_PLACEHOLDER;
 export const CREATE_POLL_OPTIONS_LEGEND = PUBLIC_FORM_POLL_OPTIONS_LEGEND;
+export const CREATE_POLL_PAGE_TITLE = PUBLIC_CREATE_POLL_PAGE_TITLE;
+export const CREATE_POLL_POLICY_PANEL_HEADING = PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING;
+export const CREATE_POLL_PRECHECK_PANEL_HEADING = PUBLIC_CREATE_POLL_PRECHECK_PANEL_HEADING;
 
 export function normalizeCreatePollForm({ title, description = '', options }) {
   const normalizedTitle = title.trim();
@@ -209,6 +215,28 @@ export function renderCreatePollDemoSuccess(root) {
 /**
  * @param {Document} documentObject
  */
+export function syncCreatePollPageSectionHeadings(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const pageHeading = documentObject.querySelector('#main-content > h1');
+  if (pageHeading) {
+    pageHeading.textContent = PUBLIC_CREATE_POLL_PAGE_TITLE;
+  }
+  const policyPanel = documentObject.querySelector(
+    'aside.mvp-policy-panel[aria-label="發起須知"] h2',
+  );
+  if (policyPanel) {
+    policyPanel.textContent = PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING;
+  }
+  const precheckPanel = documentObject.querySelector(
+    'aside.mvp-policy-panel[aria-label="送出前檢查"] h2',
+  );
+  if (precheckPanel) {
+    precheckPanel.textContent = PUBLIC_CREATE_POLL_PRECHECK_PANEL_HEADING;
+  }
+}
+
 export function syncCreatePollFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -286,6 +314,7 @@ export function bootstrapCreatePollPage({
   uuidFactory = () => globalThis.crypto.randomUUID(),
   now = () => new Date(),
 } = {}) {
+  syncCreatePollPageSectionHeadings(documentObject);
   syncCreatePollFormFieldCopy(documentObject);
   const form = documentObject.getElementById('create-poll-form');
   const message = documentObject.getElementById('form-message');

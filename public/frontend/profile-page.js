@@ -15,7 +15,9 @@ import {
   PUBLIC_FORM_REGION_EMPTY_OPTION,
   PUBLIC_FORM_RESIDENTIAL_REGION_LABEL,
   PUBLIC_PROFILE_EDIT_SIGN_IN_REQUIRED_MESSAGE,
+  PUBLIC_PROFILE_PAGE_TITLE,
   PUBLIC_PROFILE_SAVE_SUCCESS_MESSAGE,
+  PUBLIC_PROFILE_UNAUTH_FORM_HEADING,
   PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
@@ -51,6 +53,8 @@ export const PROFILE_UNAUTHENTICATED_EDIT_MESSAGE =
   PUBLIC_PROFILE_EDIT_SIGN_IN_REQUIRED_MESSAGE;
 export const PROFILE_GO_TO_LOGIN_CTA_LABEL = PUBLIC_CTA_GO_TO_LOGIN_LABEL;
 export const PROFILE_GO_TO_PROFILE_CTA_LABEL = PUBLIC_CTA_GO_TO_PROFILE_LABEL;
+export const PROFILE_PAGE_TITLE = PUBLIC_PROFILE_PAGE_TITLE;
+export const PROFILE_UNAUTH_FORM_HEADING = PUBLIC_PROFILE_UNAUTH_FORM_HEADING;
 
 export const PROFILE_BIRTH_YEAR_MONTH_LABEL = PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL;
 export const PROFILE_BIRTH_YEAR_MONTH_PLACEHOLDER = PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER;
@@ -335,6 +339,20 @@ function setFormHintAfterControl(control, text) {
 /**
  * @param {Document} documentObject
  */
+export function syncProfilePageSectionHeadings(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const pageHeading = documentObject.getElementById('profile-heading');
+  if (pageHeading) {
+    pageHeading.textContent = PUBLIC_PROFILE_PAGE_TITLE;
+  }
+  const unauthHeading = documentObject.getElementById('profile-unauth-heading');
+  if (unauthHeading) {
+    unauthHeading.textContent = PUBLIC_PROFILE_UNAUTH_FORM_HEADING;
+  }
+}
+
 export function syncProfileFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -373,6 +391,7 @@ export function syncProfileFormFieldCopy(documentObject) {
  */
 export async function mountProfilePage(documentObject = document, options = {}) {
   mountSiteChrome(documentObject, options);
+  syncProfilePageSectionHeadings(documentObject);
   syncProfileFormFieldCopy(documentObject);
 
   const form = documentObject.getElementById('profile-form');

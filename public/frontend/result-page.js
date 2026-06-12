@@ -22,6 +22,8 @@ import {
   PUBLIC_RESULTS_INTRO_LEAD_HINT,
   PUBLIC_RESULTS_INTRO_SCOPE_HINT,
   PUBLIC_RESULTS_INTRO_VOTE_HINT,
+  PUBLIC_RESULTS_POLL_OPTIONS_HEADING,
+  PUBLIC_RESULTS_PUBLIC_OPTIONS_HEADING,
   PUBLIC_RESULTS_PUBLIC_READONLY_TITLE,
   PUBLIC_RESULTS_REFRESH_NOTICE_ARIA_LABEL,
   PUBLIC_RESULTS_UNAVAILABLE_STATUS_ARIA_LABEL,
@@ -65,6 +67,9 @@ export const RESULTS_CANCELLED_TITLE = PUBLIC_RESULTS_CANCELLED_TITLE;
 export const RESULTS_CANCELLED_MESSAGE = PUBLIC_RESULTS_CANCELLED_MESSAGE;
 export const RESULTS_UNPUBLISHED_TITLE = PUBLIC_RESULTS_UNPUBLISHED_TITLE;
 export const RESULTS_UNPUBLISHED_MESSAGE = PUBLIC_RESULTS_UNPUBLISHED_MESSAGE;
+export const RESULTS_PUBLIC_OPTIONS_HEADING = PUBLIC_RESULTS_PUBLIC_OPTIONS_HEADING;
+export const RESULTS_POLL_OPTIONS_HEADING = PUBLIC_RESULTS_POLL_OPTIONS_HEADING;
+export const RESULTS_PAGE_READONLY_TITLE = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
 export const RESULTS_POLL_UNAVAILABLE_MESSAGE = PUBLIC_RESULTS_POLL_UNAVAILABLE_MESSAGE;
 export const RESULTS_EMPTY_AGGREGATE_MESSAGE = PUBLIC_RESULTS_EMPTY_AGGREGATE_MESSAGE;
 export const RESULTS_LOAD_FAILURE_MESSAGE = '目前無法載入結果，請稍後再試。';
@@ -366,7 +371,7 @@ export function renderResultDisplay(
       return;
     }
     renderOptionLabelsList(root, normalized.options, {
-      headingText: '目前公開的選項（不含票數）',
+      headingText: PUBLIC_RESULTS_PUBLIC_OPTIONS_HEADING,
     });
     if (attachPolicyExtras) {
       renderResultPagePolicyExtras(root, { collecting: true });
@@ -386,7 +391,7 @@ export function renderResultDisplay(
       return;
     }
     renderOptionLabelsList(root, normalized.options, {
-      headingText: '問卷選項（不含票數）',
+      headingText: PUBLIC_RESULTS_POLL_OPTIONS_HEADING,
     });
     if (attachPolicyExtras) {
       renderResultPagePolicyExtras(root, { collecting: false });
@@ -605,6 +610,22 @@ export function renderResultPageNav(root, pollId) {
   }
 }
 
+export function syncResultsPageSectionHeadings(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const pageTitle = documentObject.getElementById('page-title');
+  if (pageTitle && !pageTitle.getAttribute('aria-busy')) {
+    pageTitle.textContent = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
+  }
+  if (typeof documentObject.querySelector === 'function') {
+    const brand = documentObject.querySelector('#main-content > p.mvp-brand');
+    if (brand) {
+      brand.textContent = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
+    }
+  }
+}
+
 export async function bootstrapResultPage({
   windowObject = globalThis.window,
   documentObject = globalThis.document,
@@ -624,6 +645,7 @@ export async function bootstrapResultPage({
   }
 
   mountSiteChrome(documentObject);
+  syncResultsPageSectionHeadings(documentObject);
 
   const uiMockState = parseUiMockState(windowObject.location.search);
   mountUiMockPreviewChrome(documentObject, uiMockState);

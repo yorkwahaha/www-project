@@ -19,8 +19,12 @@ import {
   PUBLIC_CTA_VIEW_LOCKED_RESULTS_LABEL,
   PUBLIC_CTA_VIEW_RESULTS_LABEL,
   PUBLIC_CTA_VIEW_UNPUBLISHED_EXPLAINER_LABEL,
+  PUBLIC_MY_POLLS_CREATOR_NO_MIDTERM_CARD_HEADING,
   PUBLIC_MY_POLLS_EMPTY_MESSAGE,
   PUBLIC_MY_POLLS_EMPTY_SUMMARY,
+  PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING,
+  PUBLIC_MY_POLLS_PAGE_TITLE,
+  PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING,
   PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
   PUBLIC_POLL_LIFECYCLE_STATUS_LABELS,
   formatPublicPollLifecycleStatusLabel,
@@ -44,6 +48,12 @@ export const MY_POLLS_LOAD_FAILURE_MESSAGE = '目前無法載入你建立的問�
 export const MY_POLLS_EMPTY_MESSAGE = PUBLIC_MY_POLLS_EMPTY_MESSAGE;
 export const MY_POLLS_EMPTY_SUMMARY = PUBLIC_MY_POLLS_EMPTY_SUMMARY;
 export const MY_POLLS_LOADING_MESSAGE = '載入你的問卷中，請稍候。';
+export const MY_POLLS_PAGE_TITLE = PUBLIC_MY_POLLS_PAGE_TITLE;
+export const MY_POLLS_QUOTA_PANEL_HEADING = PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING;
+export const MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING =
+  PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING;
+export const MY_POLLS_CREATOR_NO_MIDTERM_CARD_HEADING =
+  PUBLIC_MY_POLLS_CREATOR_NO_MIDTERM_CARD_HEADING;
 const MY_POLLS_SIGN_IN_REQUIRED_ERROR = 'MyPollsSignInRequiredError';
 
 function createMyPollsSignInRequiredError() {
@@ -147,8 +157,29 @@ export async function prepareMyPollsLiveSession({
   }
 }
 
+export function syncMyPollsPageSectionHeadings(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const pageHeading = documentObject.querySelector('#main-content > h1');
+  if (pageHeading) {
+    pageHeading.textContent = PUBLIC_MY_POLLS_PAGE_TITLE;
+  }
+  const quotaHeading = documentObject.querySelector(
+    'aside.mvp-policy-panel[aria-label="額度與操作說明"] h2',
+  );
+  if (quotaHeading) {
+    quotaHeading.textContent = PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING;
+  }
+  const sidePanelHeading = documentObject.querySelector('.mvp-side-panel h2');
+  if (sidePanelHeading) {
+    sidePanelHeading.textContent = PUBLIC_MY_POLLS_CREATOR_NO_MIDTERM_CARD_HEADING;
+  }
+}
+
 export function wireMyPollsDemoPage(documentObject = globalThis.document) {
   mountSiteChrome(documentObject);
+  syncMyPollsPageSectionHeadings(documentObject);
 
   const useLiveApi = parseLiveApiMode(documentObject.defaultView?.location?.search ?? '');
   const mockWrap = documentObject.querySelector('.mvp-dash-table-wrap');
@@ -308,7 +339,7 @@ function renderCreatorPollsEmptyState(host, documentObject) {
 function renderCreatorPollsList(host, documentObject, polls, fetchImpl) {
   const heading = documentObject.createElement('h2');
   heading.className = 'mvp-policy-panel-title';
-  heading.textContent = '即時問卷管理';
+    heading.textContent = PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING;
   host.append(heading);
 
   const lead = documentObject.createElement('p');

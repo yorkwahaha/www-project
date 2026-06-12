@@ -29,6 +29,9 @@ import {
   PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
   PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
   PUBLIC_FORM_VOTE_OPTIONS_LEGEND,
+  PUBLIC_VOTE_COLLECTING_PANEL_HEADING,
+  PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING,
+  PUBLIC_VOTE_POLICY_PANEL_HEADING,
   renderPublicErrorPanel,
   renderPublicNav,
   resolvePublicErrorUserMessage,
@@ -55,6 +58,9 @@ export const VOTE_DEMO_SUCCESS_STATUS_MESSAGE =
   PUBLIC_VOTE_DEMO_SUCCESS_STATUS_MESSAGE;
 export const MISSING_SELECTION_MESSAGE = '請先選擇一個選項。';
 export const VOTE_OPTIONS_LEGEND = PUBLIC_FORM_VOTE_OPTIONS_LEGEND;
+export const VOTE_POLICY_PANEL_HEADING = PUBLIC_VOTE_POLICY_PANEL_HEADING;
+export const VOTE_COLLECTING_PANEL_HEADING = PUBLIC_VOTE_COLLECTING_PANEL_HEADING;
+export const VOTE_FOLLOW_RESULTS_PANEL_HEADING = PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING;
 
 export const VOTE_PAGE_LOAD_USER_MESSAGES = PUBLIC_POLL_LOAD_USER_MESSAGES;
 
@@ -274,12 +280,35 @@ export function syncVoteFormFieldCopy(documentObject) {
   }
 }
 
+export function syncVotePageSectionHeadings(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const policyHeading = documentObject.querySelector(
+    'aside.mvp-policy-panel[aria-label="投票須知"] h2',
+  );
+  if (policyHeading) {
+    policyHeading.textContent = PUBLIC_VOTE_POLICY_PANEL_HEADING;
+  }
+  const collectingHeading = documentObject.querySelector(
+    '#vote-collecting-notice h2',
+  );
+  if (collectingHeading) {
+    collectingHeading.textContent = PUBLIC_VOTE_COLLECTING_PANEL_HEADING;
+  }
+  const followHeading = documentObject.querySelector('#vote-side-panel h2');
+  if (followHeading) {
+    followHeading.textContent = PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING;
+  }
+}
+
 export async function bootstrapVotePage({
   windowObject = globalThis.window,
   documentObject = globalThis.document,
   fetchImpl = globalThis.fetch,
   uuidFactory = () => globalThis.crypto.randomUUID(),
 } = {}) {
+  syncVotePageSectionHeadings(documentObject);
   syncVoteFormFieldCopy(documentObject);
   const pollId = getPollIdFromVotePath(windowObject.location.pathname);
   const title = documentObject.getElementById('poll-title');

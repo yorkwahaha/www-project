@@ -17,7 +17,9 @@ import {
   PUBLIC_FORM_REGISTRATION_DISPLAY_NAME_HINT,
   PUBLIC_FORM_REGISTRATION_RESIDENTIAL_REGION_HINT,
   PUBLIC_FORM_RESIDENTIAL_REGION_LABEL,
+  PUBLIC_REGISTRATION_PAGE_TITLE,
   PUBLIC_REGISTRATION_READY_HINT,
+  PUBLIC_REGISTRATION_SUCCESS_FORM_HEADING,
   PUBLIC_REGISTRATION_SUCCESS_MESSAGE,
   resolvePublicErrorUserMessage,
   setBusySubmitButton,
@@ -40,6 +42,8 @@ export const REGISTRATION_REGION_OPTIONS = [
 ];
 
 export const REGISTRATION_READY_MESSAGE = PUBLIC_REGISTRATION_READY_HINT;
+export const REGISTRATION_PAGE_TITLE = PUBLIC_REGISTRATION_PAGE_TITLE;
+export const REGISTRATION_SUCCESS_FORM_HEADING = PUBLIC_REGISTRATION_SUCCESS_FORM_HEADING;
 
 export const REGISTRATION_DISPLAY_NAME_LABEL = PUBLIC_FORM_DISPLAY_NAME_LABEL;
 export const REGISTRATION_DISPLAY_NAME_PLACEHOLDER = PUBLIC_FORM_DISPLAY_NAME_PLACEHOLDER;
@@ -438,6 +442,20 @@ function setFormHintAfterControl(control, text) {
 /**
  * @param {Document} documentObject
  */
+export function syncRegistrationPageSectionHeadings(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const pageHeading = documentObject.getElementById('registration-heading');
+  if (pageHeading) {
+    pageHeading.textContent = PUBLIC_REGISTRATION_PAGE_TITLE;
+  }
+  const successHeading = documentObject.getElementById('registration-success-heading');
+  if (successHeading) {
+    successHeading.textContent = PUBLIC_REGISTRATION_SUCCESS_FORM_HEADING;
+  }
+}
+
 export function syncRegistrationFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -495,6 +513,7 @@ export function syncRegistrationFormFieldCopy(documentObject) {
  */
 export function mountRegistrationPage(documentObject = document) {
   mountSiteChrome(documentObject);
+  syncRegistrationPageSectionHeadings(documentObject);
   syncRegistrationFormFieldCopy(documentObject);
   const form = documentObject.getElementById('registration-form');
   if (!(form instanceof HTMLFormElement)) {

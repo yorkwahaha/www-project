@@ -1,10 +1,17 @@
 import {
+  PUBLIC_HOME_COLLECTING_CARD_TOOLTIP,
   PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING,
   PUBLIC_HOME_HERO_LEAD,
   PUBLIC_HOME_LOCK_PERIOD_CARD_HEADING,
   PUBLIC_HOME_PAGE_TITLE,
   PUBLIC_HOME_QUALITY_FEEDBACK_CARD_HEADING,
   PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE,
+  PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM,
+  PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM,
+  PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM,
+  PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY,
+  PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY,
+  PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY,
 } from './public-mvp-ui.js';
 
 export const HOME_PAGE_TITLE = PUBLIC_HOME_PAGE_TITLE;
@@ -54,7 +61,51 @@ export function syncHomePageLeadParagraphs(documentObject) {
   }
 }
 
+/**
+ * @param {Document} documentObject
+ */
+export function syncHomePageSupportingNotes(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const valueBodies = documentObject.querySelectorAll('.mvp-value-grid .mvp-value-card p');
+  if (valueBodies[0]) {
+    valueBodies[0].textContent = PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY;
+  }
+  if (valueBodies[1]) {
+    valueBodies[1].textContent = PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY;
+  }
+  if (valueBodies[2]) {
+    valueBodies[2].textContent = PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY;
+  }
+}
+
+/**
+ * @param {Document} documentObject
+ */
+export function syncHomePageMicrocopy(documentObject) {
+  if (typeof documentObject.querySelector !== 'function') {
+    return;
+  }
+  const trustItems = documentObject.querySelectorAll('.mvp-trust-row li');
+  if (trustItems[0]) {
+    trustItems[0].textContent = PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM;
+  }
+  if (trustItems[1]) {
+    trustItems[1].textContent = PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM;
+  }
+  if (trustItems[2]) {
+    trustItems[2].textContent = PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM;
+  }
+  const collectingTip = documentObject.querySelector('.mvp-help-tip');
+  if (collectingTip) {
+    collectingTip.textContent = PUBLIC_HOME_COLLECTING_CARD_TOOLTIP;
+  }
+}
+
 if (typeof document !== 'undefined') {
   syncHomePageSectionHeadings(document);
   syncHomePageLeadParagraphs(document);
+  syncHomePageSupportingNotes(document);
+  syncHomePageMicrocopy(document);
 }

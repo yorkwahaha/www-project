@@ -16,8 +16,13 @@ import {
   PUBLIC_LIFECYCLE_ALREADY_CANCELLED_MESSAGE,
   PUBLIC_LIFECYCLE_ALREADY_UNPUBLISHED_MESSAGE,
   PUBLIC_LIFECYCLE_AUTH_REQUIRED_MESSAGE,
+  PUBLIC_LIFECYCLE_ACTION_PANEL_ARIA_LABEL,
+  PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE,
+  PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE_PREFIX,
+  PUBLIC_LIFECYCLE_CANCEL_CONFIRM_MESSAGE,
   PUBLIC_LIFECYCLE_CANCELLED_NOTE_MESSAGE,
   PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE,
+  PUBLIC_LIFECYCLE_CLOSE_CONFIRM_MESSAGE,
   PUBLIC_LIFECYCLE_CLOSE_SUCCESS_MESSAGE,
   PUBLIC_LIFECYCLE_DELETE_LOCKED_MESSAGE,
   PUBLIC_LIFECYCLE_FORBIDDEN_MESSAGE,
@@ -31,6 +36,7 @@ import {
   PUBLIC_LIFECYCLE_POLL_NOT_FOUND_MESSAGE,
   PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE,
   PUBLIC_LIFECYCLE_REVEAL_TOO_EARLY_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISH_CONFIRM_MESSAGE,
   PUBLIC_LIFECYCLE_UNPUBLISH_LOCKED_MESSAGE,
   PUBLIC_CTA_CREATOR_RESULTS_LABEL,
   PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE,
@@ -90,24 +96,21 @@ export const LIFECYCLE_TRANSITION_COPY = {
   cancel: {
     path: 'cancel',
     label: '取消問卷',
-    confirm:
-      '確定要取消此問卷嗎？取消後不會產生公開結果，且無法恢復為收集中狀態。',
+    confirm: PUBLIC_LIFECYCLE_CANCEL_CONFIRM_MESSAGE,
     success: PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE,
     className: 'mvp-btn mvp-btn-sm mvp-btn-accent-outline',
   },
   close: {
     path: 'close',
     label: '結束收集並公開結果',
-    confirm:
-      '確定要結束收集並公開結果嗎？之後將進入公開鎖定期；收集中不會顯示票數或百分比。',
+    confirm: PUBLIC_LIFECYCLE_CLOSE_CONFIRM_MESSAGE,
     success: PUBLIC_LIFECYCLE_CLOSE_SUCCESS_MESSAGE,
     className: 'mvp-btn mvp-btn-sm mvp-btn-primary',
   },
   unpublish: {
     path: 'unpublish',
     label: '下架問卷',
-    confirm:
-      '確定要下架此問卷嗎？下架後訪客將無法再查看公開結果頁（鎖定期須已結束）。',
+    confirm: PUBLIC_LIFECYCLE_UNPUBLISH_CONFIRM_MESSAGE,
     success: PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE,
     className: 'mvp-btn mvp-btn-sm mvp-btn-secondary',
   },
@@ -338,13 +341,13 @@ export function renderCreatorLifecycleActions(host, options) {
   host.replaceChildren();
   host.hidden = false;
   host.setAttribute('role', 'region');
-  host.setAttribute('aria-label', '發起者問卷狀態操作');
+  host.setAttribute('aria-label', PUBLIC_LIFECYCLE_ACTION_PANEL_ARIA_LABEL);
 
   const heading = host.ownerDocument.createElement('h2');
   heading.className = 'mvp-policy-panel-title mvp-creator-lifecycle-title';
   heading.textContent = title
-    ? `發起者操作：${title}`
-    : '發起者問卷狀態操作';
+    ? `${PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE_PREFIX}${title}`
+    : PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE;
   host.append(heading);
 
   const lead = host.ownerDocument.createElement('p');

@@ -25,6 +25,7 @@ import {
   PUBLIC_RESULTS_INTRO_VOTE_HINT,
   PUBLIC_RESULTS_POLL_OPTIONS_HEADING,
   PUBLIC_RESULTS_PUBLIC_OPTIONS_HEADING,
+  PUBLIC_RESULTS_PUBLIC_NOTICE_LABEL,
   PUBLIC_RESULTS_PUBLIC_READONLY_TITLE,
   PUBLIC_RESULTS_REFRESH_NOTICE_ARIA_LABEL,
   PUBLIC_RESULTS_UNAVAILABLE_STATUS_ARIA_LABEL,
@@ -444,7 +445,7 @@ export function renderPublicNotices(root, noticeList) {
   for (const notice of notices) {
     const noticeElement = root.ownerDocument.createElement('article');
     noticeElement.className = 'public-notice';
-    appendText(noticeElement, 'p', '修正公告', 'public-notice-label');
+    appendText(noticeElement, 'p', PUBLIC_RESULTS_PUBLIC_NOTICE_LABEL, 'public-notice-label');
     appendText(noticeElement, 'h2', notice.title, 'public-notice-title');
     appendText(noticeElement, 'p', notice.body, 'public-notice-body');
     appendText(noticeElement, 'p', notice.created_at, 'public-notice-created-at');

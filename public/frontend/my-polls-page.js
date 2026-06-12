@@ -19,14 +19,25 @@ import {
   PUBLIC_CTA_VIEW_LOCKED_RESULTS_LABEL,
   PUBLIC_CTA_VIEW_RESULTS_LABEL,
   PUBLIC_CTA_VIEW_UNPUBLISHED_EXPLAINER_LABEL,
+  PUBLIC_MY_POLLS_CANCELLED_ROW_INLINE_NOTE,
   PUBLIC_MY_POLLS_CREATOR_NO_MIDTERM_CARD_HEADING,
+  PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_BLOCK_MESSAGE,
+  PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_MANAGE_MESSAGE,
+  PUBLIC_MY_POLLS_DEMO_SHARE_COPY_FAILED_MESSAGE,
+  PUBLIC_MY_POLLS_DEMO_SHARE_SUCCESS_MESSAGE,
   PUBLIC_MY_POLLS_EMPTY_MESSAGE,
   PUBLIC_MY_POLLS_EMPTY_SUMMARY,
+  PUBLIC_MY_POLLS_LIVE_MANAGE_ARIA_LABEL,
+  PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL,
   PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING,
+  PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE,
   PUBLIC_MY_POLLS_PAGE_LEAD,
   PUBLIC_MY_POLLS_PAGE_TITLE,
   PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING,
   PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
+  PUBLIC_MY_POLLS_UNPUBLISHED_ROW_INLINE_NOTE,
+  PUBLIC_MY_POLLS_VOTE_LINK_COPIED_MESSAGE,
+  PUBLIC_MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
   PUBLIC_POLL_LIFECYCLE_STATUS_LABELS,
   formatPublicPollLifecycleStatusLabel,
 } from './public-mvp-ui.js';
@@ -38,7 +49,12 @@ import {
   renderCreatorLifecycleActions,
 } from './poll-lifecycle-controls.js';
 
-const MOCK_SHARE_MSG = '已複製範例投票連結，可分享給他人體驗流程。';
+export const MY_POLLS_DEMO_SHARE_SUCCESS_MESSAGE = PUBLIC_MY_POLLS_DEMO_SHARE_SUCCESS_MESSAGE;
+export const MY_POLLS_VOTE_LINK_COPIED_MESSAGE = PUBLIC_MY_POLLS_VOTE_LINK_COPIED_MESSAGE;
+export const MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE =
+  PUBLIC_MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE;
+export const MY_POLLS_DEMO_SHARE_COPY_FAILED_MESSAGE =
+  PUBLIC_MY_POLLS_DEMO_SHARE_COPY_FAILED_MESSAGE;
 
 export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE =
   PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE;
@@ -272,7 +288,7 @@ async function mountLiveCreatorManagePanel(documentObject) {
   host.setAttribute('data-live-owned-list', 'true');
 
   host.setAttribute('role', 'region');
-  host.setAttribute('aria-label', '即時問卷管理');
+  host.setAttribute('aria-label', PUBLIC_MY_POLLS_LIVE_MANAGE_ARIA_LABEL);
   host.replaceChildren();
 
   const status = documentObject.createElement('p');
@@ -315,7 +331,7 @@ function renderMyPollsUnavailableState(
 ) {
   host.replaceChildren();
   host.setAttribute('role', 'note');
-  host.setAttribute('aria-label', '即時問卷管理說明');
+  host.setAttribute('aria-label', PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL);
   const note = documentObject.createElement('p');
   note.className = 'mvp-meta';
   note.setAttribute('role', 'status');
@@ -333,7 +349,7 @@ function renderMyPollsUnavailableState(
 
 function renderCreatorPollsEmptyState(host, documentObject) {
   host.setAttribute('role', 'note');
-  host.setAttribute('aria-label', '即時問卷管理說明');
+  host.setAttribute('aria-label', PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL);
   const note = documentObject.createElement('p');
   note.className = 'mvp-meta';
   note.textContent = MY_POLLS_EMPTY_MESSAGE;
@@ -410,7 +426,9 @@ function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
     const result = await copyTextToClipboard(url);
     showDemoOnlyFeedback(
       shareVote,
-      result.ok ? '已複製投票連結，可分享給參與者。' : '無法複製連結，請手動複製上方投票頁網址。',
+      result.ok
+        ? MY_POLLS_VOTE_LINK_COPIED_MESSAGE
+        : MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
     );
   });
   shareRow.append(shareVote);
@@ -456,7 +474,7 @@ function wireCollectingRow(row, documentObject, { demoOnly = false } = {}) {
     const result = await copyTextToClipboard(url);
     showDemoOnlyFeedback(
       share,
-      result.ok ? MOCK_SHARE_MSG : '無法複製連結，請手動複製投票頁網址。',
+      result.ok ? MY_POLLS_DEMO_SHARE_SUCCESS_MESSAGE : MY_POLLS_DEMO_SHARE_COPY_FAILED_MESSAGE,
     );
   });
 
@@ -468,7 +486,7 @@ function wireCollectingRow(row, documentObject, { demoOnly = false } = {}) {
     cancel.addEventListener('click', () => {
       showDemoOnlyFeedback(
         cancel,
-        '此為範例列。請使用上方「即時問卷」區塊，或先以 ?live=1 建立問卷。',
+        PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_BLOCK_MESSAGE,
       );
     });
   }
@@ -491,7 +509,7 @@ function wireLockedRow(row, documentObject) {
 
   const note = documentObject.createElement('span');
   note.className = 'mvp-meta';
-  note.textContent = '鎖定期內無法下架／刪除／修改';
+  note.textContent = PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE;
 
   actions.append(results, note);
 }
@@ -517,7 +535,7 @@ function wirePostLockRow(row, documentObject, { demoOnly = false } = {}) {
     unpublish.addEventListener('click', () => {
       showDemoOnlyFeedback(
         unpublish,
-        '此為範例列。請使用上方「即時問卷」區塊操作已建立的問卷。',
+        PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_MANAGE_MESSAGE,
       );
     });
   }
@@ -539,7 +557,7 @@ function wireCancelledRow(row, documentObject) {
 
   const note = documentObject.createElement('span');
   note.className = 'mvp-meta';
-  note.textContent = '無公開結果';
+  note.textContent = PUBLIC_MY_POLLS_CANCELLED_ROW_INLINE_NOTE;
 
   actions.append(link, note);
 }
@@ -558,7 +576,7 @@ function wireUnpublishedRow(row, documentObject) {
 
   const note = documentObject.createElement('span');
   note.className = 'mvp-meta';
-  note.textContent = '此問卷已結束公開鎖定期，並由發起者下架。';
+  note.textContent = PUBLIC_MY_POLLS_UNPUBLISHED_ROW_INLINE_NOTE;
 
   actions.append(link, note);
 }

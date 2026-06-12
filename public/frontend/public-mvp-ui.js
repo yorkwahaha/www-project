@@ -667,6 +667,119 @@ export const PUBLIC_PAGE_INTRO_TEXTS = [
   PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
 ];
 
+/** Frontend-owned homepage value card supporting copy. */
+export const PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY =
+  '不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。';
+export const PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY =
+  '結果公開後約 5 天為公開鎖定期，期間不能下架或隱藏；結束後可下架。';
+export const PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY =
+  '優質題目看多種訊號，不是單純按讚；回饋於登入與計分開放後提供。';
+
+/** Frontend-owned homepage trust row microcopy. */
+export const PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM = '收集中不顯示結果';
+export const PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM = '截止即公開結果';
+export const PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM = '公開鎖定期約 5 天';
+
+/** Frontend-owned homepage static example supporting notes. */
+export const PUBLIC_HOME_SAMPLE_POLLS_SECTION_NOTE =
+  '探索問卷已列出最近發布、仍在收集中的公開問卷（依發布時間排序；非熱門、票數、個人化或榜單；不顯示票數與結果預覽）。下方卡片為靜態範例，僅供預覽各狀態文案。';
+export const PUBLIC_HOME_STATIC_EXAMPLES_FOOTER_NOTE =
+  '想認識各種問卷狀態？可在結果頁切換「收集中」「公開鎖定期」「已取消」等範例，或查看常見問題。';
+export const PUBLIC_HOME_COLLECTING_CARD_TOOLTIP =
+  '不顯示票數、百分比、總計、排名、趨勢或進度。';
+
+/** Frontend-owned explore feed microcopy. */
+export const PUBLIC_EXPLORE_LOAD_MORE_LABEL = '載入更多';
+
+/** Frontend-owned my-polls demo table / share microcopy. */
+export const PUBLIC_MY_POLLS_DEMO_SHARE_SUCCESS_MESSAGE =
+  '已複製範例投票連結，可分享給他人體驗流程。';
+export const PUBLIC_MY_POLLS_VOTE_LINK_COPIED_MESSAGE =
+  '已複製投票連結，可分享給參與者。';
+export const PUBLIC_MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE =
+  '無法複製連結，請手動複製上方投票頁網址。';
+export const PUBLIC_MY_POLLS_DEMO_SHARE_COPY_FAILED_MESSAGE =
+  '無法複製連結，請手動複製投票頁網址。';
+export const PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_BLOCK_MESSAGE =
+  '此為範例列。請使用上方「即時問卷」區塊，或先以 ?live=1 建立問卷。';
+export const PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_MANAGE_MESSAGE =
+  '此為範例列。請使用上方「即時問卷」區塊操作已建立的問卷。';
+export const PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE =
+  '鎖定期內無法下架／刪除／修改';
+export const PUBLIC_MY_POLLS_CANCELLED_ROW_INLINE_NOTE = '無公開結果';
+export const PUBLIC_MY_POLLS_UNPUBLISHED_ROW_INLINE_NOTE =
+  '此問卷已結束公開鎖定期，並由發起者下架。';
+
+/** Frontend-owned my-polls live management microcopy. */
+export const PUBLIC_MY_POLLS_LIVE_MANAGE_ARIA_LABEL = '即時問卷管理';
+export const PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL = '即時問卷管理說明';
+
+/** Frontend-owned creator flow microcopy labels. */
+export const PUBLIC_CREATOR_ACTION_GUIDE_ARIA_LABEL = '發起者操作說明';
+export const PUBLIC_CREATOR_ACTION_GUIDE_TITLE = '操作說明';
+export const PUBLIC_CREATOR_NEXT_STEPS_ARIA_LABEL = '建立成功後的下一步';
+export const PUBLIC_CREATOR_NEXT_STEPS_TITLE = '下一步';
+
+/** Frontend-owned results public notice microcopy. */
+export const PUBLIC_RESULTS_PUBLIC_NOTICE_LABEL = '修正公告';
+
+/** Frontend-owned lifecycle action panel microcopy. */
+export const PUBLIC_LIFECYCLE_ACTION_PANEL_ARIA_LABEL = '發起者問卷狀態操作';
+export const PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE = '發起者問卷狀態操作';
+export const PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE_PREFIX = '發起者操作：';
+export const PUBLIC_LIFECYCLE_CANCEL_CONFIRM_MESSAGE =
+  '確定要取消此問卷嗎？取消後不會產生公開結果，且無法恢復為收集中狀態。';
+export const PUBLIC_LIFECYCLE_CLOSE_CONFIRM_MESSAGE =
+  '確定要結束收集並公開結果嗎？之後將進入公開鎖定期；收集中不會顯示票數或百分比。';
+export const PUBLIC_LIFECYCLE_UNPUBLISH_CONFIRM_MESSAGE =
+  '確定要下架此問卷嗎？下架後訪客將無法再查看公開結果頁（鎖定期須已結束）。';
+
+/** Allowlist of safe user-visible inline notes across public surfaces. */
+export const PUBLIC_INLINE_NOTES = [
+  PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE,
+  PUBLIC_MY_POLLS_CANCELLED_ROW_INLINE_NOTE,
+  PUBLIC_MY_POLLS_UNPUBLISHED_ROW_INLINE_NOTE,
+  PUBLIC_LIFECYCLE_CANCELLED_NOTE_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISHED_VISITOR_MESSAGE,
+];
+
+/** Allowlist of safe user-visible microcopy / short UI messages across public surfaces. */
+export const PUBLIC_MICROCOPY_MESSAGES = [
+  PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM,
+  PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM,
+  PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM,
+  PUBLIC_HOME_COLLECTING_CARD_TOOLTIP,
+  PUBLIC_EXPLORE_LOAD_MORE_LABEL,
+  PUBLIC_MY_POLLS_DEMO_SHARE_SUCCESS_MESSAGE,
+  PUBLIC_MY_POLLS_VOTE_LINK_COPIED_MESSAGE,
+  PUBLIC_MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
+  PUBLIC_MY_POLLS_DEMO_SHARE_COPY_FAILED_MESSAGE,
+  PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_BLOCK_MESSAGE,
+  PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_MANAGE_MESSAGE,
+  PUBLIC_MY_POLLS_LIVE_MANAGE_ARIA_LABEL,
+  PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL,
+  PUBLIC_CREATOR_ACTION_GUIDE_ARIA_LABEL,
+  PUBLIC_CREATOR_ACTION_GUIDE_TITLE,
+  PUBLIC_CREATOR_NEXT_STEPS_ARIA_LABEL,
+  PUBLIC_CREATOR_NEXT_STEPS_TITLE,
+  PUBLIC_RESULTS_PUBLIC_NOTICE_LABEL,
+  PUBLIC_LIFECYCLE_ACTION_PANEL_ARIA_LABEL,
+  PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE,
+  PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE_PREFIX,
+  PUBLIC_LIFECYCLE_CANCEL_CONFIRM_MESSAGE,
+  PUBLIC_LIFECYCLE_CLOSE_CONFIRM_MESSAGE,
+  PUBLIC_LIFECYCLE_UNPUBLISH_CONFIRM_MESSAGE,
+];
+
+/** Allowlist of safe user-visible supporting notes / supplementary paragraphs across public surfaces. */
+export const PUBLIC_SUPPORTING_NOTES = [
+  PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY,
+  PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY,
+  PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY,
+  PUBLIC_HOME_SAMPLE_POLLS_SECTION_NOTE,
+  PUBLIC_HOME_STATIC_EXAMPLES_FOOTER_NOTE,
+];
+
 /** Shared public form field labels. */
 export const PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL = 'Production credential proof';
 export const PUBLIC_FORM_DISPLAY_NAME_LABEL = '顯示名稱';

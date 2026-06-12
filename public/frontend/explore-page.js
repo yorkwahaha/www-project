@@ -8,6 +8,7 @@ import {
   PUBLIC_EXPLORE_EMPTY_SUMMARY,
   PUBLIC_EXPLORE_FEED_LIST_HINT,
   PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT,
+  PUBLIC_EXPLORE_LOAD_MORE_LABEL,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
   PUBLIC_EXPLORE_PAGE_LEAD,
   PUBLIC_EXPLORE_PAGE_TITLE,
@@ -40,6 +41,7 @@ export const EXPLORE_FEED_EMPTY_CTA_LABEL = PUBLIC_EXPLORE_EMPTY_CTA_LABEL;
 export const EXPLORE_FEED_LIST_MESSAGE = PUBLIC_EXPLORE_FEED_LIST_HINT;
 export const EXPLORE_FEED_LIST_SUMMARY = PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT;
 export const EXPLORE_FEED_LOADING_MESSAGE = '載入探索列表中，請稍候。';
+export const EXPLORE_LOAD_MORE_LABEL = PUBLIC_EXPLORE_LOAD_MORE_LABEL;
 export const EXPLORE_LOAD_MORE_PENDING_MESSAGE = '載入更多中，請稍候。';
 const CATEGORY_LABELS = {
   general: '一般',
@@ -189,6 +191,13 @@ export function syncExplorePageLeadParagraphs(documentObject) {
   }
 }
 
+export function syncExplorePageMicrocopy(documentObject) {
+  const loadMoreButton = documentObject.getElementById('explore-load-more');
+  if (loadMoreButton) {
+    loadMoreButton.textContent = PUBLIC_EXPLORE_LOAD_MORE_LABEL;
+  }
+}
+
 export function syncExploreEmptyStatePanel(documentObject) {
   const emptyPanel = documentObject.getElementById('explore-empty');
   if (!emptyPanel) {
@@ -210,6 +219,7 @@ export function syncExploreEmptyStatePanel(documentObject) {
 function mountExplorePage(documentObject, windowObject = globalThis) {
   syncExplorePageSectionHeadings(documentObject);
   syncExplorePageLeadParagraphs(documentObject);
+  syncExplorePageMicrocopy(documentObject);
   syncExploreEmptyStatePanel(documentObject);
   const listRoot = documentObject.getElementById('explore-feed-list');
   const statusRegion = documentObject.getElementById('explore-status');
@@ -304,7 +314,7 @@ function mountExplorePage(documentObject, windowObject = globalThis) {
       listRoot.removeAttribute('aria-busy');
       if (loadMoreButton) {
         loadMoreButton.removeAttribute('aria-busy');
-        loadMoreButton.textContent = '載入更多';
+        loadMoreButton.textContent = PUBLIC_EXPLORE_LOAD_MORE_LABEL;
       }
       updateLoadMore();
     }

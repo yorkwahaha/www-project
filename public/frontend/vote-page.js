@@ -44,6 +44,7 @@ import {
 } from './public-mvp-ui.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import { mountOfficialVotePreVoteHint } from './official-vote-pre-vote-hints.js';
+import { mountPostVoteQualityFeedback } from './post-vote-quality-feedback.js';
 import {
   applyVotePageUiMockState,
   mountUiMockPreviewChrome,
@@ -166,7 +167,11 @@ export function renderPollOptions(root, options, onSelect) {
   }
 }
 
-export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
+export function renderVoteSuccess(
+  root,
+  pollId,
+  { demoOnly = false, fetchImpl = globalThis.fetch } = {},
+) {
   root.replaceChildren();
   root.hidden = false;
   root.setAttribute('role', 'region');
@@ -185,7 +190,11 @@ export function renderVoteSuccess(root, pollId, { demoOnly = false } = {}) {
     : PUBLIC_VOTE_SUCCESS_RESULT_HINT;
   root.append(hint);
 
-  renderVoteQualityFeedbackPreview(root);
+  if (demoOnly) {
+    renderVoteQualityFeedbackPreview(root);
+  } else {
+    mountPostVoteQualityFeedback(root, { pollId, fetchImpl });
+  }
   renderVoteSuccessPolicyExtras(root);
 
   const link = root.ownerDocument.createElement('a');
@@ -496,7 +505,7 @@ export async function bootstrapVotePage({
         demoOnly ? VOTE_DEMO_SUCCESS_STATUS_MESSAGE : VOTE_SUCCESS_STATUS_MESSAGE,
       );
       form.hidden = true;
-      renderVoteSuccess(success, pollId, { demoOnly });
+      renderVoteSuccess(success, pollId, { demoOnly, fetchImpl });
       focusFirstFocusable(success);
     } catch (error) {
       const failureMessage = resolvePublicErrorUserMessage(

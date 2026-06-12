@@ -1499,6 +1499,48 @@ button:disabled {
   font-size: 0.8rem;
 }
 
+.mvp-quality-feedback {
+  margin: 0.85rem 0 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface-2, #faf8f5);
+}
+
+.mvp-quality-feedback-prompt {
+  margin: 0 0 0.35rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.mvp-quality-feedback-note {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+}
+
+.mvp-quality-feedback-chip:not(:disabled) {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.mvp-quality-feedback-chip:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.mvp-quality-feedback-status {
+  margin: 0.35rem 0 0;
+  font-size: 0.86rem;
+}
+
+.mvp-quality-feedback-status--success {
+  color: var(--mvp-text);
+}
+
+.mvp-quality-feedback-status--error {
+  color: var(--mvp-muted);
+}
+
 .mvp-demo-nav-switch {
   margin: 0 0 0.65rem;
   padding: 0;

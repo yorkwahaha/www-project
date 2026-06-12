@@ -251,7 +251,10 @@ describe('public voting page', () => {
     expect(text[0]).toBe('投票已送出，感謝參與。');
     expect(text.join(' ')).toMatch(/收集中結果頁不顯示票數或百分比/);
     expect(text.join(' ')).toMatch(/站內通知/);
-    expect(text.join(' ')).toMatch(/投票後可協助回饋題目品質/);
+    expect(text.join(' ')).toMatch(/這題給你的感覺是？/);
+    expect(text.join(' ')).toMatch(
+      /回饋只用來累計題目品質，不會記錄你選了哪個選項。/,
+    );
     expect(text).toContain('查看公開結果頁');
     const resultLink = root.children.find((child) => child.tagName === 'a');
     expect(resultLink?.href).toBe('/results/public-poll-id');

@@ -2875,3 +2875,142 @@ button:disabled {
     line-height: 1.5;
   }
 }
+
+/* Phase 204 — login / registration form accessibility & touch targets */
+.login-page .mvp-info-hero,
+.registration-page .mvp-info-hero {
+  margin-bottom: 1.15rem;
+}
+
+.login-page .mvp-login-form-card,
+.registration-page .mvp-registration-form-card {
+  padding: calc(var(--mvp-space-section) + 0.15rem) var(--mvp-space-card);
+}
+
+.login-page .mvp-production-login-form > .mvp-form-hint:first-of-type,
+.registration-page .mvp-production-registration-form > .mvp-form-hint:first-of-type {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  line-height: 1.45;
+}
+
+.login-page .mvp-production-login-form label,
+.registration-page .mvp-production-registration-form label {
+  margin-top: var(--mvp-space-form-field);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.login-page .mvp-production-login-form .mvp-form-hint,
+.registration-page .mvp-production-registration-form .mvp-form-hint {
+  margin: 0.35rem 0 0.65rem;
+  line-height: 1.45;
+  font-size: 0.88rem;
+}
+
+.login-page .mvp-production-login-form input,
+.registration-page .mvp-production-registration-form input,
+.registration-page .mvp-production-registration-form select {
+  font-size: 1rem;
+  line-height: 1.4;
+  padding: 0.8rem 0.85rem;
+}
+
+.registration-page .mvp-production-registration-form select {
+  appearance: auto;
+}
+
+.login-page .mvp-login-form-card .mvp-form-actions,
+.registration-page .mvp-registration-form-card .mvp-form-actions,
+.registration-page .mvp-registration-success .mvp-form-actions {
+  margin-top: 1rem;
+  gap: 0.65rem;
+}
+
+.login-page .mvp-login-form-card .mvp-form-actions .mvp-btn-primary,
+.login-page .mvp-login-form-card .mvp-form-actions .mvp-btn-secondary,
+.registration-page .mvp-registration-form-card .mvp-form-actions .mvp-btn-primary,
+.registration-page .mvp-registration-form-card .mvp-form-actions .mvp-btn-secondary,
+.registration-page .mvp-registration-success .mvp-form-actions .mvp-btn-primary,
+.registration-page .mvp-registration-success .mvp-form-actions .mvp-btn-secondary {
+  flex: 1 1 100%;
+  min-height: var(--mvp-tap-min);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.login-page #login-shell-message.mvp-login-shell-status,
+.registration-page #registration-form-message.mvp-registration-status {
+  margin-top: 1rem;
+  line-height: 1.5;
+  min-height: 2.75rem;
+}
+
+.login-page #login-shell-message:not(:empty),
+.registration-page #registration-form-message:not(:empty) {
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface);
+  border: 1px solid var(--mvp-border);
+}
+
+.registration-page .mvp-registration-success {
+  margin-top: 1.25rem;
+  padding: 1.15rem 1rem;
+}
+
+.registration-page .mvp-registration-success h2 {
+  line-height: 1.35;
+}
+
+.registration-page .mvp-registration-success p {
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.registration-page .mvp-production-registration-form input[aria-invalid="true"],
+.registration-page .mvp-production-registration-form select[aria-invalid="true"] {
+  border-color: #b42318;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.12);
+}
+
+@media (max-width: 640px) {
+  .login-page .mvp-info-hero .mvp-lead,
+  .registration-page .mvp-info-hero .mvp-lead {
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .login-page .mvp-mock-banner,
+  .registration-page .mvp-mock-banner {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+  }
+
+  .login-page .mvp-login-form-card,
+  .registration-page .mvp-registration-form-card {
+    padding: 1rem max(0.9rem, env(safe-area-inset-left, 0px));
+  }
+
+  .login-page .mvp-auth-state-grid {
+    margin-bottom: 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .login-page .mvp-auth-state-grid .mvp-value-card {
+    padding: 0.85rem 0.9rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .login-page .mvp-production-login-form label,
+  .registration-page .mvp-production-registration-form label {
+    margin-top: 1rem;
+  }
+
+  .registration-page .mvp-production-registration-form select option {
+    font-size: 1rem;
+  }
+}

@@ -3272,3 +3272,164 @@ button:disabled {
     font-size: 1rem;
   }
 }
+
+/* Phase 210 — my-polls live action area accessibility & touch targets */
+.my-polls-page .mvp-page-intro {
+  margin-bottom: 1rem;
+}
+
+.my-polls-page .mvp-page-intro .mvp-lead {
+  line-height: 1.5;
+}
+
+.my-polls-page .mvp-mock-banner {
+  line-height: 1.5;
+}
+
+.my-polls-page .mvp-policy-panel-compact .policy-panel-text {
+  line-height: 1.45;
+}
+
+.my-polls-page #creator-live-manage.mvp-creator-live-manage {
+  margin: 1rem 0;
+  padding: calc(var(--mvp-space-section) + 0.1rem) var(--mvp-space-card);
+}
+
+.my-polls-page #creator-live-manage .mvp-meta {
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+}
+
+.my-polls-page #creator-live-manage .mvp-meta[role="status"] {
+  min-height: 2.25rem;
+  margin-bottom: 0.65rem;
+}
+
+.my-polls-page #creator-live-manage .panel-message {
+  line-height: 1.5;
+  margin: 0 0 0.75rem;
+}
+
+.my-polls-page #creator-live-manage > .mvp-action-link {
+  display: flex;
+  align-items: center;
+  min-height: var(--mvp-tap-min);
+  padding: 0.75rem 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.my-polls-page .mvp-creator-live-poll {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface);
+}
+
+.my-polls-page .mvp-creator-lifecycle-title {
+  line-height: 1.35;
+  margin: 0 0 0.5rem;
+}
+
+.my-polls-page .mvp-creator-live-poll-meta {
+  line-height: 1.45;
+  margin-bottom: 0.65rem;
+}
+
+.my-polls-page .mvp-creator-flow-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0.65rem;
+}
+
+.my-polls-page .mvp-creator-flow-links .mvp-action-link {
+  display: flex;
+  align-items: center;
+  min-height: var(--mvp-tap-min);
+  padding: 0.65rem 0.25rem;
+}
+
+.my-polls-page .mvp-creator-flow-share-row {
+  margin: 0.5rem 0 0.75rem;
+}
+
+.my-polls-page .mvp-creator-flow-share-row .mvp-btn {
+  min-height: var(--mvp-tap-min);
+  padding: 0.65rem 0.9rem;
+}
+
+.my-polls-page .mvp-creator-lifecycle-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.my-polls-page .mvp-creator-lifecycle-toolbar .mvp-btn {
+  flex: 1 1 9rem;
+  min-height: var(--mvp-tap-min);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.my-polls-page .mvp-creator-lifecycle-panel .mvp-demo-action-feedback {
+  margin-top: 0.5rem;
+  line-height: 1.45;
+}
+
+.my-polls-page .mvp-dash-table-wrap {
+  margin-bottom: 1rem;
+}
+
+.my-polls-page .mvp-dash-table th,
+.my-polls-page .mvp-dash-table td {
+  line-height: 1.45;
+}
+
+.my-polls-page .mvp-dash-table td:last-child {
+  gap: 0.5rem;
+}
+
+.my-polls-page .mvp-dash-table td:last-child .mvp-btn {
+  min-height: var(--mvp-tap-min);
+  padding: 0.65rem 0.85rem;
+}
+
+.my-polls-page .mvp-side-panel {
+  margin-top: 1.15rem;
+  padding: 1rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .my-polls-page .mvp-page-intro .mvp-lead {
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .my-polls-page .mvp-mock-banner {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+  }
+
+  .my-polls-page #creator-live-manage.mvp-creator-live-manage {
+    padding: 1rem max(0.9rem, env(safe-area-inset-left, 0px));
+  }
+
+  .my-polls-page .mvp-creator-live-poll {
+    padding: 0.9rem max(0.85rem, env(safe-area-inset-left, 0px));
+  }
+
+  .my-polls-page .mvp-creator-lifecycle-toolbar .mvp-btn {
+    flex: 1 1 100%;
+  }
+
+  .my-polls-page .mvp-dash-table th,
+  .my-polls-page .mvp-dash-table td {
+    padding: 0.6rem 0.65rem;
+    font-size: 0.84rem;
+  }
+}

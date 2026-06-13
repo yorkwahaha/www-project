@@ -42,6 +42,7 @@ import {
   VOTE_PAGE_LOAD_FAILURE,
   VOTE_SUBMIT_TRANSPORT_FAILURE,
 } from './public-mvp-ui.js';
+import { mountQualityFeedbackBadgeNearTitle } from './quality-feedback-badge.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import { mountOfficialVotePreVoteHint } from './official-vote-pre-vote-hints.js';
 import { mountPostVoteQualityFeedback } from './post-vote-quality-feedback.js';
@@ -368,6 +369,7 @@ export async function bootstrapVotePage({
 
   const showRouteError = (heading, body) => {
     title.textContent = heading;
+    mountQualityFeedbackBadgeNearTitle(documentObject, title, {});
     description.textContent = '';
     form.hidden = true;
     success.hidden = true;
@@ -434,6 +436,7 @@ export async function bootstrapVotePage({
     }
     title.textContent = detail.title;
     title.removeAttribute('aria-busy');
+    mountQualityFeedbackBadgeNearTitle(documentObject, title, detail);
     description.textContent = detail.description ?? '';
     renderPollOptions(options, detail.options, controller.selectOption);
     if (policyPanels) {

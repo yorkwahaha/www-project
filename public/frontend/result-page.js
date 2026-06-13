@@ -36,6 +36,7 @@ import {
   renderPublicNav,
   resolvePublicErrorUserMessage,
 } from './public-mvp-ui.js';
+import { mountQualityFeedbackBadgeNearTitle } from './quality-feedback-badge.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import {
   parseCreatorManageMode,
@@ -515,6 +516,11 @@ function paintResultPageFromPayload(pageContext, result) {
       );
     }
     pageTitle.removeAttribute('aria-busy');
+    mountQualityFeedbackBadgeNearTitle(
+      pageTitle.ownerDocument ?? root?.ownerDocument,
+      pageTitle,
+      result,
+    );
   }
   if (introRoot) {
     introRoot.hidden =
@@ -689,6 +695,7 @@ export async function bootstrapResultPage({
   const showRouteError = (heading, body) => {
     if (pageTitle) {
       pageTitle.textContent = heading;
+      mountQualityFeedbackBadgeNearTitle(documentObject, pageTitle, {});
     }
     if (introRoot) {
       introRoot.hidden = true;

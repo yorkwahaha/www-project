@@ -67,6 +67,8 @@ const BEHAVIOR_RUNTIME_PATTERNS = [
 const BADGE_RUNTIME_FILES = new Set([
   'public/frontend/quality-feedback-badge.js',
   'public/frontend/explore-page.js',
+  'public/frontend/vote-page.js',
+  'public/frontend/result-page.js',
 ]);
 
 const POLICY_EDUCATIONAL_COPY_FILES = new Set([
@@ -149,7 +151,7 @@ describe('Phase 191-R high-quality poll badge poll detail results presentation p
     }
   });
 
-  it('confirms explore rendering exists while poll detail and results have no badge rendering', async () => {
+  it('confirms explore rendering exists and detail/results use shared quality feedback badge helper', async () => {
     const exploreSource = await readFile(
       join(process.cwd(), 'public/frontend/explore-page.js'),
       'utf8',
@@ -160,9 +162,8 @@ describe('Phase 191-R high-quality poll badge poll detail results presentation p
 
     for (const relativePath of DETAIL_RESULTS_SURFACE_FILES) {
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
-      expect(source, relativePath).not.toContain('renderQualityFeedbackBadge');
-      expect(source, relativePath).not.toContain('quality-feedback-badge.js');
-      expect(source, relativePath).not.toContain('positive-feedback-badge');
+      expect(source, relativePath).toContain("from './quality-feedback-badge.js'");
+      expect(source, relativePath).toContain('mountQualityFeedbackBadgeNearTitle');
       expect(source, relativePath).not.toMatch(/quality_badge[\s\S]{0,120}render/i);
     }
 

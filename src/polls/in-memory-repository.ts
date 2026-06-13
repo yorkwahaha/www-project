@@ -216,6 +216,19 @@ export function createInMemoryPollRepository(): PollRepository & {
         .sort((a, b) => a.option_order - b.option_order);
     },
 
+    async listQualityFeedbackAggregatesByPollId(pollId) {
+      return [...qualityFeedbackAggregates.values()].filter(
+        (row) => row.poll_id === pollId,
+      );
+    },
+
+    async listQualityFeedbackAggregatesByPollIds(pollIds) {
+      const pollIdSet = new Set(pollIds);
+      return [...qualityFeedbackAggregates.values()].filter((row) =>
+        pollIdSet.has(row.poll_id),
+      );
+    },
+
     async listPublicFeedPolls(params: ListPublicFeedPollsParams) {
       return [...polls.values()]
         .filter((poll) => isPublicFeedEligible(poll))

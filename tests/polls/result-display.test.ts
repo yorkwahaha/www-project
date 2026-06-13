@@ -88,6 +88,7 @@ describe('Result Display service', () => {
         },
       ],
       updated_display: '最近更新',
+      quality_badge: null,
     });
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain(options[0]!.id);
@@ -125,6 +126,7 @@ describe('Result Display service', () => {
         },
       ],
       updated_display: '最近更新',
+      quality_badge: null,
     });
   });
 

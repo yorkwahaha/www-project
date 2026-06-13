@@ -53,6 +53,12 @@ export type PollRepository = {
   findPollById(pollId: string): Promise<PollRow | null>;
   listOptionsByPollId(pollId: string): Promise<PollOptionRow[]>;
   listVoteAggregatesByPollId(pollId: string): Promise<PollOptionVoteAggregateRow[]>;
+  listQualityFeedbackAggregatesByPollId(
+    pollId: string,
+  ): Promise<QualityFeedbackAggregateRow[]>;
+  listQualityFeedbackAggregatesByPollIds(
+    pollIds: string[],
+  ): Promise<QualityFeedbackAggregateRow[]>;
   listPublicFeedPolls(params: ListPublicFeedPollsParams): Promise<PublicFeedPollRow[]>;
   listCreatorOwnedPolls(creatorId: string, limit: number): Promise<CreatorOwnedPollRow[]>;
   listPublicLifecycleSchedulerCandidateIds(limit: number): Promise<string[]>;
@@ -98,6 +104,10 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     findPollById: (pollId) => findPollById(pool, pollId),
     listOptionsByPollId: (pollId) => listOptionsByPollId(pool, pollId),
     listVoteAggregatesByPollId: (pollId) => listVoteAggregatesByPollId(pool, pollId),
+    listQualityFeedbackAggregatesByPollId: (pollId) =>
+      listQualityFeedbackAggregatesByPollId(pool, pollId),
+    listQualityFeedbackAggregatesByPollIds: (pollIds) =>
+      listQualityFeedbackAggregatesByPollIds(pool, pollIds),
     listPublicFeedPolls: (params) => listPublicFeedPolls(pool, params),
     listCreatorOwnedPolls: (creatorId, limit) => listCreatorOwnedPolls(pool, creatorId, limit),
     listPublicLifecycleSchedulerCandidateIds: (limit) =>
@@ -334,6 +344,35 @@ async function incrementQualityFeedbackAggregate(
     [pollId, feedbackTag],
   );
   return result.rows[0]!;
+}
+
+async function listQualityFeedbackAggregatesByPollId(
+  pool: Pool,
+  pollId: string,
+): Promise<QualityFeedbackAggregateRow[]> {
+  const result = await pool.query<QualityFeedbackAggregateRow>(
+    `SELECT poll_id, feedback_tag, aggregate_count, updated_at
+     FROM poll_quality_feedback_aggregate
+     WHERE poll_id = $1`,
+    [pollId],
+  );
+  return result.rows;
+}
+
+async function listQualityFeedbackAggregatesByPollIds(
+  pool: Pool,
+  pollIds: string[],
+): Promise<QualityFeedbackAggregateRow[]> {
+  if (pollIds.length === 0) {
+    return [];
+  }
+  const result = await pool.query<QualityFeedbackAggregateRow>(
+    `SELECT poll_id, feedback_tag, aggregate_count, updated_at
+     FROM poll_quality_feedback_aggregate
+     WHERE poll_id = ANY($1::uuid[])`,
+    [pollIds],
+  );
+  return result.rows;
 }
 
 async function findUserById(pool: Pool, userId: string): Promise<UserRow | null> {

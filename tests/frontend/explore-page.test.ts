@@ -17,6 +17,7 @@ const safePoll = {
   status: 'active' as const,
   published_display: '最近發布' as const,
   result_page_url: '/results/11111111-1111-4111-8111-111111111111',
+  quality_badge: null as const,
 };
 
 function createDocumentStub() {
@@ -80,6 +81,24 @@ describe('explore page feed helpers', () => {
       isExploreFeedItemSafe({
         ...safePoll,
         published_at: '2026-01-01T00:00:00.000Z',
+      }),
+    ).toBe(false);
+    expect(
+      isExploreFeedItemSafe({
+        ...safePoll,
+        quality_badge: null,
+      }),
+    ).toBe(true);
+    expect(
+      isExploreFeedItemSafe({
+        ...safePoll,
+        quality_badge: 'positive_feedback',
+      }),
+    ).toBe(true);
+    expect(
+      isExploreFeedItemSafe({
+        ...safePoll,
+        quality_badge: 'low_quality',
       }),
     ).toBe(false);
   });

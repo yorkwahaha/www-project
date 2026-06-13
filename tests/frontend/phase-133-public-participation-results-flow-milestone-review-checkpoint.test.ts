@@ -123,6 +123,7 @@ describe('Phase 133 public participation results flow milestone review checkpoin
       status: 'active' as const,
       published_display: '最近發布' as const,
       result_page_url: '/results/11111111-1111-4111-8111-111111111111',
+      quality_badge: null,
     };
 
     expect(isExploreFeedItemSafe(safePoll)).toBe(true);

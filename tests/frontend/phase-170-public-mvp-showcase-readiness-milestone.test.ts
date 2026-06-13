@@ -87,6 +87,7 @@ describe('Phase 170 public MVP showcase readiness milestone', () => {
         status: 'active',
         published_display: '最近發布',
         result_page_url: '/results/11111111-1111-4111-8111-111111111111',
+        quality_badge: null,
         vote_count: 9,
       }),
     ).toBe(false);

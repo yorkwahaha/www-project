@@ -174,6 +174,7 @@ export type PollDetail = {
     label: string;
   }>;
   user_participation_state: null;
+  quality_badge: QualityBadge;
 };
 
 export type CreatePollResult = {
@@ -230,6 +231,15 @@ export const QUALITY_FEEDBACK_TAGS = [
 
 export type QualityFeedbackTag = (typeof QUALITY_FEEDBACK_TAGS)[number];
 
+export const POSITIVE_QUALITY_FEEDBACK_TAGS = [
+  '表達清楚',
+  '選項公平',
+  '值得思考',
+  '期待結果',
+] as const satisfies readonly QualityFeedbackTag[];
+
+export type QualityBadge = null | 'positive_feedback';
+
 export type QualityFeedbackResult = {
   ok: true;
 };
@@ -260,6 +270,7 @@ export type PollResultDisplay = {
   }>;
   updated_display: '最近更新';
   user_message?: string;
+  quality_badge: QualityBadge;
 };
 
 export type PublicFeedQuery = {
@@ -283,6 +294,7 @@ export type PublicFeedResult = {
     status: 'active';
     published_display: '最近發布';
     result_page_url: string;
+    quality_badge: QualityBadge;
   }>;
   next_cursor: string | null;
 };

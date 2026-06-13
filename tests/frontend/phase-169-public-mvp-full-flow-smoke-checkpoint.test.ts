@@ -290,6 +290,7 @@ describe('Phase 169 public MVP full-flow smoke checkpoint', () => {
       status: 'active' as const,
       published_display: '最近發布' as const,
       result_page_url: '/results/11111111-1111-4111-8111-111111111111',
+      quality_badge: null,
     };
     expect(isExploreFeedItemSafe(safePoll)).toBe(true);
     expect(isExploreFeedItemSafe({ ...safePoll, vote_count: 12 })).toBe(false);

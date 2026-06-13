@@ -34,6 +34,7 @@ const safePoll = {
   status: 'active' as const,
   published_display: '最近發布' as const,
   result_page_url: '/results/11111111-1111-4111-8111-111111111111',
+  quality_badge: null,
 };
 
 function stripJsComments(source: string) {
@@ -96,6 +97,7 @@ describe('Phase 168 public explore feed UX review checkpoint', () => {
       'status',
       'published_display',
       'result_page_url',
+      'quality_badge',
     ]);
     expect(isExploreFeedItemSafe(safePoll)).toBe(true);
     expect(isExploreFeedItemSafe({ ...safePoll, vote_count: 12 })).toBe(false);

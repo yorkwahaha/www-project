@@ -190,6 +190,7 @@ describe('public freshness feed', () => {
           status: 'active',
           published_display: '最近發布',
           result_page_url: `/results/${created.poll_id}`,
+          quality_badge: null,
         },
       ],
       next_cursor: null,

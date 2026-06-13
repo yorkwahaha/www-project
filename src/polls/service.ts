@@ -19,6 +19,8 @@ import type {
   PollDetail,
   PollOptionVoteAggregateRow,
   PollRow,
+  QualityBadge,
+  QualityFeedbackAggregateRow,
   QualityFeedbackResult,
   QualityFeedbackTag,
   PollResultDisplay,
@@ -46,6 +48,7 @@ import {
   isPublicResultsReadable,
   participationRejectionMessage,
 } from './public-visibility.js';
+import { deriveQualityBadge } from './quality-badge.js';
 import { validateCreatePollInput } from './validation.js';
 
 export type PollService = {
@@ -110,8 +113,11 @@ export function createPollService(
       if (!poll || !isPublicDirectReadable(poll)) {
         throw new PollNotFoundError();
       }
-      const options = await repository.listOptionsByPollId(pollId);
-      return toPollDetail(poll, options);
+      const [options, aggregates] = await Promise.all([
+        repository.listOptionsByPollId(pollId),
+        repository.listQualityFeedbackAggregatesByPollId(pollId),
+      ]);
+      return toPollDetail(poll, options, deriveQualityBadge(aggregates));
     },
 
     async getPollResults(pollId) {
@@ -119,12 +125,24 @@ export function createPollService(
       if (!poll || !isPublicResultsReadable(poll)) {
         throw new PollNotFoundError();
       }
+      const aggregates = await repository.listQualityFeedbackAggregatesByPollId(pollId);
+      const qualityBadge = deriveQualityBadge(aggregates);
       if (!isPublicAggregateResultsReadable(poll)) {
         const options = await repository.listOptionsByPollId(pollId);
-        return toPollResultShell(poll.id, poll.public_lifecycle_state, options);
+        return toPollResultShell(
+          poll.id,
+          poll.public_lifecycle_state,
+          options,
+          qualityBadge,
+        );
       }
       const options = await repository.listVoteAggregatesByPollId(pollId);
-      return toPollResultDisplay(pollId, poll.public_lifecycle_state, options);
+      return toPollResultDisplay(
+        pollId,
+        poll.public_lifecycle_state,
+        options,
+        qualityBadge,
+      );
     },
 
     async getPublicFeed(query = {}) {
@@ -134,6 +152,9 @@ export function createPollService(
       const hasMore = rows.length > limit;
       const pageRows = hasMore ? rows.slice(0, limit) : rows;
       const lastRow = pageRows.at(-1);
+      const pollIds = pageRows.map((poll) => poll.id);
+      const aggregates = await repository.listQualityFeedbackAggregatesByPollIds(pollIds);
+      const aggregatesByPollId = groupQualityFeedbackAggregatesByPollId(aggregates);
       return {
         polls: pageRows.map((poll) => ({
           poll_id: poll.id,
@@ -142,6 +163,7 @@ export function createPollService(
           status: poll.status,
           published_display: '最近發布',
           result_page_url: `/results/${poll.id}`,
+          quality_badge: deriveQualityBadge(aggregatesByPollId.get(poll.id) ?? []),
         })),
         next_cursor:
           hasMore && lastRow
@@ -413,6 +435,18 @@ function isUniqueViolation(err: unknown): boolean {
   );
 }
 
+function groupQualityFeedbackAggregatesByPollId(
+  aggregates: QualityFeedbackAggregateRow[],
+): Map<string, QualityFeedbackAggregateRow[]> {
+  const grouped = new Map<string, QualityFeedbackAggregateRow[]>();
+  for (const row of aggregates) {
+    const existing = grouped.get(row.poll_id) ?? [];
+    existing.push(row);
+    grouped.set(row.poll_id, existing);
+  }
+  return grouped;
+}
+
 function toPollDetail(
   poll: {
     id: string;
@@ -426,6 +460,7 @@ function toPollDetail(
     published_at: Date | null;
   },
   options: Array<{ option_order: number; option_text: string }>,
+  qualityBadge: QualityBadge,
 ): PollDetail {
   return {
     poll_id: poll.id,
@@ -442,6 +477,7 @@ function toPollDetail(
       label: option.option_text,
     })),
     user_participation_state: null,
+    quality_badge: qualityBadge,
   };
 }
 
@@ -449,6 +485,7 @@ function toPollResultDisplay(
   pollId: string,
   lifecycleState: PollRow['public_lifecycle_state'],
   options: PollOptionVoteAggregateRow[],
+  qualityBadge: QualityBadge,
 ): PollResultDisplay {
   const counts = options.map((option) => BigInt(option.vote_count));
   const total = counts.reduce((sum, count) => sum + count, 0n);
@@ -466,6 +503,7 @@ function toPollResultDisplay(
       display_count: formatCount(counts[index]!, total),
     })),
     updated_display: '最近更新',
+    quality_badge: qualityBadge,
   };
 }
 
@@ -473,6 +511,7 @@ function toPollResultShell(
   pollId: string,
   lifecycleState: PollRow['public_lifecycle_state'],
   options: Array<{ option_order: number; option_text: string }>,
+  qualityBadge: QualityBadge,
 ): PollResultDisplay {
   const collecting = lifecycleState === 'collecting';
   return {
@@ -488,6 +527,7 @@ function toPollResultShell(
       display_count: null,
     })),
     updated_display: '最近更新',
+    quality_badge: qualityBadge,
     ...(collecting ? {} : { user_message: unavailableResultMessage(lifecycleState) }),
   };
 }

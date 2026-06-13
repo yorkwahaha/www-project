@@ -29,6 +29,7 @@ export const EXPLORE_FEED_ALLOWED_ITEM_KEYS = [
   'status',
   'published_display',
   'result_page_url',
+  'quality_badge',
 ];
 
 export const EXPLORE_LOAD_FAILURE_MESSAGE = '目前無法載入探索列表，請稍後再試。';
@@ -72,7 +73,8 @@ export function isExploreFeedItemSafe(item) {
     item.status === 'active' &&
     item.published_display === '最近發布' &&
     typeof item.result_page_url === 'string' &&
-    item.result_page_url === `/results/${item.poll_id}`
+    item.result_page_url === `/results/${item.poll_id}` &&
+    (item.quality_badge === null || item.quality_badge === 'positive_feedback')
   );
 }
 

@@ -12,6 +12,7 @@ import {
   isLocalDemoHostname,
   PUBLIC_CTA_COPY_VOTE_LINK_LABEL,
   PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL,
+  PUBLIC_CTA_GO_HOME_LABEL,
   PUBLIC_CTA_GO_TO_LOGIN_LABEL,
   PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL,
   PUBLIC_CTA_SHARE_VOTE_LINK_LABEL,
@@ -31,6 +32,8 @@ import {
   PUBLIC_MY_POLLS_LIVE_MANAGE_ARIA_LABEL,
   PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL,
   PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING,
+  PUBLIC_MY_POLLS_LOAD_FAILURE_MESSAGE,
+  PUBLIC_MY_POLLS_LOADING_MESSAGE,
   PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE,
   PUBLIC_MY_POLLS_PAGE_LEAD,
   PUBLIC_MY_POLLS_PAGE_TITLE,
@@ -41,6 +44,7 @@ import {
   PUBLIC_MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
   PUBLIC_POLL_LIFECYCLE_STATUS_LABELS,
   formatPublicPollLifecycleStatusLabel,
+  renderPublicInlineErrorNote,
 } from './public-mvp-ui.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
@@ -62,10 +66,10 @@ export const MY_POLLS_SIGN_IN_REQUIRED_MESSAGE =
 export const MY_POLLS_LOGIN_CTA_LABEL = PUBLIC_CTA_GO_TO_LOGIN_LABEL;
 export const MY_POLLS_CREATE_POLL_CTA_LABEL = PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL;
 export const MY_POLLS_VOTE_CTA_LABEL = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
-export const MY_POLLS_LOAD_FAILURE_MESSAGE = '目前無法載入你建立的問卷，請稍後再試。';
+export const MY_POLLS_LOAD_FAILURE_MESSAGE = PUBLIC_MY_POLLS_LOAD_FAILURE_MESSAGE;
 export const MY_POLLS_EMPTY_MESSAGE = PUBLIC_MY_POLLS_EMPTY_MESSAGE;
 export const MY_POLLS_EMPTY_SUMMARY = PUBLIC_MY_POLLS_EMPTY_SUMMARY;
-export const MY_POLLS_LOADING_MESSAGE = '載入你的問卷中，請稍候。';
+export const MY_POLLS_LOADING_MESSAGE = PUBLIC_MY_POLLS_LOADING_MESSAGE;
 export const MY_POLLS_PAGE_TITLE = PUBLIC_MY_POLLS_PAGE_TITLE;
 export const MY_POLLS_PAGE_LEAD = PUBLIC_MY_POLLS_PAGE_LEAD;
 export const MY_POLLS_QUOTA_PANEL_HEADING = PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING;
@@ -345,19 +349,25 @@ function renderMyPollsUnavailableState(
   host.replaceChildren();
   host.setAttribute('role', 'note');
   host.setAttribute('aria-label', PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL);
-  const note = documentObject.createElement('p');
-  note.className = 'mvp-meta';
-  note.setAttribute('role', 'status');
-  note.setAttribute('aria-live', 'polite');
-  note.textContent = message;
-  host.append(note);
   if (showLoginLink) {
+    const note = documentObject.createElement('p');
+    note.className = 'mvp-meta';
+    note.setAttribute('role', 'status');
+    note.setAttribute('aria-live', 'polite');
+    note.textContent = message;
+    host.append(note);
     const loginLink = documentObject.createElement('a');
     loginLink.className = 'mvp-action-link';
     loginLink.href = '/login';
     loginLink.textContent = PUBLIC_CTA_GO_TO_LOGIN_LABEL;
     host.append(loginLink);
+    return;
   }
+  renderPublicInlineErrorNote(host, {
+    message,
+    ctaHref: '/',
+    ctaLabel: PUBLIC_CTA_GO_HOME_LABEL,
+  });
 }
 
 function renderCreatorPollsEmptyState(host, documentObject) {

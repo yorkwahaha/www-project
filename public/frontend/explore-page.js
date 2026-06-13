@@ -10,10 +10,14 @@ import {
   PUBLIC_EXPLORE_EMPTY_SUMMARY,
   PUBLIC_EXPLORE_FEED_LIST_HINT,
   PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT,
+  PUBLIC_EXPLORE_FEED_LOADING_MESSAGE,
+  PUBLIC_EXPLORE_LOAD_FAILURE_MESSAGE,
   PUBLIC_EXPLORE_LOAD_MORE_LABEL,
+  PUBLIC_EXPLORE_LOAD_MORE_PENDING_MESSAGE,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
   PUBLIC_EXPLORE_PAGE_LEAD,
   PUBLIC_EXPLORE_PAGE_TITLE,
+  renderPublicInlineErrorNote,
 } from './public-mvp-ui.js';
 
 export const EXPLORE_PAGE_TITLE = PUBLIC_EXPLORE_PAGE_TITLE;
@@ -34,7 +38,7 @@ export const EXPLORE_FEED_ALLOWED_ITEM_KEYS = [
   'quality_badge',
 ];
 
-export const EXPLORE_LOAD_FAILURE_MESSAGE = '目前無法載入探索列表，請稍後再試。';
+export const EXPLORE_LOAD_FAILURE_MESSAGE = PUBLIC_EXPLORE_LOAD_FAILURE_MESSAGE;
 export const EXPLORE_LOAD_MORE_FAILURE_MESSAGE =
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE;
 export const EXPLORE_FEED_EMPTY_MESSAGE = PUBLIC_EXPLORE_EMPTY_MESSAGE;
@@ -43,9 +47,10 @@ export const EXPLORE_FEED_EMPTY_SUMMARY = PUBLIC_EXPLORE_EMPTY_SUMMARY;
 export const EXPLORE_FEED_EMPTY_CTA_LABEL = PUBLIC_EXPLORE_EMPTY_CTA_LABEL;
 export const EXPLORE_FEED_LIST_MESSAGE = PUBLIC_EXPLORE_FEED_LIST_HINT;
 export const EXPLORE_FEED_LIST_SUMMARY = PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT;
-export const EXPLORE_FEED_LOADING_MESSAGE = '載入探索列表中，請稍候。';
+export const EXPLORE_FEED_LOADING_MESSAGE = PUBLIC_EXPLORE_FEED_LOADING_MESSAGE;
 export const EXPLORE_LOAD_MORE_LABEL = PUBLIC_EXPLORE_LOAD_MORE_LABEL;
-export const EXPLORE_LOAD_MORE_PENDING_MESSAGE = '載入更多中，請稍候。';
+export const EXPLORE_LOAD_MORE_PENDING_MESSAGE =
+  PUBLIC_EXPLORE_LOAD_MORE_PENDING_MESSAGE;
 const CATEGORY_LABELS = {
   general: '一般',
   life: '生活',
@@ -269,10 +274,19 @@ function mountExplorePage(documentObject, windowObject = globalThis) {
     statusRegion.textContent = message;
   };
 
-  const showError = (message) => {
+  const showError = (message, { showHomeLink = false } = {}) => {
     setExplorePanelVisible(errorPanel, true);
     if (errorPanel) {
-      errorPanel.textContent = message;
+      if (showHomeLink) {
+        renderPublicInlineErrorNote(errorPanel, {
+          message,
+          ctaHref: '/',
+          ctaLabel: PUBLIC_CTA_GO_HOME_LABEL,
+        });
+      } else {
+        errorPanel.replaceChildren();
+        errorPanel.textContent = message;
+      }
     }
     setExplorePanelVisible(emptyPanel, false);
     setExplorePanelVisible(loadMoreButton, false);
@@ -281,6 +295,7 @@ function mountExplorePage(documentObject, windowObject = globalThis) {
   const clearError = () => {
     setExplorePanelVisible(errorPanel, false);
     if (errorPanel) {
+      errorPanel.replaceChildren();
       errorPanel.textContent = '';
     }
   };
@@ -335,7 +350,7 @@ function mountExplorePage(documentObject, windowObject = globalThis) {
       );
     } catch {
       if (reset && listRoot.children.length === 0) {
-        showError(EXPLORE_LOAD_FAILURE_MESSAGE);
+        showError(EXPLORE_LOAD_FAILURE_MESSAGE, { showHomeLink: true });
         announce(EXPLORE_LOAD_FAILURE_MESSAGE);
       } else {
         showError(EXPLORE_LOAD_MORE_FAILURE_MESSAGE);

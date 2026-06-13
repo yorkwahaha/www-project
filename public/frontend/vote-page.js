@@ -35,6 +35,8 @@ import {
   PUBLIC_VOTE_PAGE_REMINDER_LEAD,
   PUBLIC_VOTE_PAGE_BRAND_LABEL,
   PUBLIC_VOTE_POLICY_PANEL_HEADING,
+  PUBLIC_VOTE_PAGE_LOADING_MESSAGE,
+  PUBLIC_VOTE_PAGE_LOAD_ERROR_TITLE,
   renderPublicErrorPanel,
   renderPublicNav,
   resolvePublicErrorUserMessage,
@@ -75,7 +77,7 @@ export const VOTE_PAGE_SUBMIT_USER_MESSAGES = [
   MISSING_SELECTION_MESSAGE,
 ];
 
-export const VOTE_PAGE_LOADING_MESSAGE = '載入問卷中，請稍候。';
+export const VOTE_PAGE_LOADING_MESSAGE = PUBLIC_VOTE_PAGE_LOADING_MESSAGE;
 export const VOTE_SUBMIT_PENDING_MESSAGE = '送出中，請稍候。';
 
 const SUBMIT_IDLE_LABEL = '送出投票';
@@ -474,7 +476,7 @@ export async function bootstrapVotePage({
       VOTE_PAGE_LOAD_FAILURE,
       VOTE_PAGE_LOAD_USER_MESSAGES,
     );
-    showRouteError('無法載入問卷', body);
+    showRouteError(PUBLIC_VOTE_PAGE_LOAD_ERROR_TITLE, body);
     return;
   }
 

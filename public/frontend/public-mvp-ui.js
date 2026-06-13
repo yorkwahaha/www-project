@@ -65,6 +65,31 @@ export const PUBLIC_ACTION_PENDING_MESSAGE = '處理中，請稍候。';
 /** Frontend-owned generic loading pending copy (initial page / region fetch). */
 export const PUBLIC_LOADING_PENDING_MESSAGE = '載入中，請稍候。';
 
+/** Surface-specific loading pending copy (`…中，請稍候。` pattern). */
+export const PUBLIC_EXPLORE_FEED_LOADING_MESSAGE = '載入探索列表中，請稍候。';
+export const PUBLIC_EXPLORE_LOAD_MORE_PENDING_MESSAGE = '載入更多中，請稍候。';
+export const PUBLIC_MY_POLLS_LOADING_MESSAGE = '載入你的問卷中，請稍候。';
+export const PUBLIC_VOTE_PAGE_LOADING_MESSAGE = '載入問卷中，請稍候。';
+export const PUBLIC_RESULTS_PAGE_LOADING_MESSAGE = '載入結果中，請稍候。';
+export const PUBLIC_PROFILE_PAGE_LOADING_MESSAGE = '載入個人資料中，請稍候。';
+
+/** Surface-specific load failure copy (`目前無法載入…，請稍後再試。` pattern). */
+export const PUBLIC_EXPLORE_LOAD_FAILURE_MESSAGE =
+  '目前無法載入探索列表，請稍後再試。';
+export const PUBLIC_MY_POLLS_LOAD_FAILURE_MESSAGE =
+  '目前無法載入你建立的問卷，請稍後再試。';
+export const PUBLIC_RESULTS_LOAD_FAILURE_MESSAGE =
+  '目前無法載入結果，請稍後再試。';
+export const PUBLIC_PROFILE_LOAD_FAILURE_MESSAGE =
+  '目前無法載入個人資料，請稍後再試。';
+export const PUBLIC_PROFILE_SAVE_FAILURE_MESSAGE =
+  '目前無法儲存個人資料，請稍後再試。';
+
+/** Frontend-owned page load error panel titles. */
+export const PUBLIC_VOTE_PAGE_LOAD_ERROR_TITLE = '無法載入問卷';
+export const PUBLIC_RESULTS_PAGE_LOAD_ERROR_TITLE = '無法載入結果';
+export const PUBLIC_EXPLORE_LOAD_ERROR_TITLE = '無法載入探索列表';
+
 /** Allowlist of safe user-visible loading / pending messages across public surfaces. */
 export const PUBLIC_PENDING_USER_MESSAGES = [
   PUBLIC_ACTION_PENDING_MESSAGE,
@@ -75,11 +100,12 @@ export const PUBLIC_PENDING_USER_MESSAGES = [
   '送出中，請稍候。',
   '建立中，請稍候。',
   '登出中，請稍候。',
-  '載入探索列表中，請稍候。',
-  '載入更多中，請稍候。',
-  '載入問卷中，請稍候。',
-  '載入結果中，請稍候。',
-  '載入你的問卷中，請稍候。',
+  PUBLIC_EXPLORE_FEED_LOADING_MESSAGE,
+  PUBLIC_EXPLORE_LOAD_MORE_PENDING_MESSAGE,
+  PUBLIC_VOTE_PAGE_LOADING_MESSAGE,
+  PUBLIC_RESULTS_PAGE_LOADING_MESSAGE,
+  PUBLIC_MY_POLLS_LOADING_MESSAGE,
+  PUBLIC_PROFILE_PAGE_LOADING_MESSAGE,
   '載入個人資料提示中，請稍候。',
 ];
 
@@ -209,6 +235,18 @@ export const PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY =
 /** Frontend-owned explore unavailable copy. */
 export const PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE =
   '無法載入更多問卷，請稍後再試。';
+
+/** Allowlist of safe user-visible load / save failure messages across public surfaces. */
+export const PUBLIC_LOAD_FAILURE_USER_MESSAGES = [
+  VOTE_PAGE_LOAD_FAILURE,
+  PUBLIC_EXPLORE_LOAD_FAILURE_MESSAGE,
+  PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
+  PUBLIC_MY_POLLS_LOAD_FAILURE_MESSAGE,
+  PUBLIC_RESULTS_LOAD_FAILURE_MESSAGE,
+  PUBLIC_PROFILE_LOAD_FAILURE_MESSAGE,
+  PUBLIC_PROFILE_SAVE_FAILURE_MESSAGE,
+];
+
 export const PUBLIC_EXPLORE_EMPTY_MESSAGE = '目前沒有正在收集中的公開問卷。';
 export const PUBLIC_EXPLORE_EMPTY_SUMMARY =
   '你可以先發起一則問卷並分享投票連結。';
@@ -287,6 +325,9 @@ export const PUBLIC_UNAVAILABLE_USER_MESSAGES = [
   PUBLIC_RESULTS_POLL_UNAVAILABLE_MESSAGE,
   PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
+  PUBLIC_VOTE_PAGE_LOAD_ERROR_TITLE,
+  PUBLIC_RESULTS_PAGE_LOAD_ERROR_TITLE,
+  PUBLIC_EXPLORE_LOAD_ERROR_TITLE,
   PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
   PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE,
   PUBLIC_PROFILE_EDIT_SIGN_IN_REQUIRED_MESSAGE,
@@ -1197,6 +1238,30 @@ export function renderPublicErrorPanel(
 
   if (showNav) {
     renderPublicNav(root);
+  }
+}
+
+/**
+ * Renders a compact inline error note with optional safe next-step CTA link.
+ *
+ * @param {HTMLElement} host
+ * @param {{ message: string, ctaHref?: string | null, ctaLabel?: string | null }} [options]
+ */
+export function renderPublicInlineErrorNote(
+  host,
+  { message, ctaHref = null, ctaLabel = null } = {},
+) {
+  host.replaceChildren();
+  const body = host.ownerDocument.createElement('p');
+  body.className = 'panel-message';
+  body.textContent = message;
+  host.append(body);
+  if (ctaHref && ctaLabel) {
+    const link = host.ownerDocument.createElement('a');
+    link.className = 'mvp-action-link';
+    link.href = ctaHref;
+    link.textContent = ctaLabel;
+    host.append(link);
   }
 }
 

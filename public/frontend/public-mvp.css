@@ -315,7 +315,8 @@ button:disabled {
 }
 
 #success-panel,
-#error-panel {
+#error-panel,
+.mvp-error-panel {
   margin-top: 1rem;
   padding: 1rem;
   border-radius: var(--mvp-radius);
@@ -328,13 +329,15 @@ button:disabled {
   background: var(--mvp-success-bg);
 }
 
-#error-panel {
+#error-panel,
+.mvp-error-panel {
   border: 1px solid var(--mvp-error-border);
   background: var(--mvp-error-bg);
 }
 
 #success-panel a,
 #error-panel a,
+.mvp-error-panel a,
 .mvp-action-link {
   display: block;
   margin-top: 0.65rem;
@@ -1860,6 +1863,11 @@ button:disabled {
   border-radius: var(--mvp-radius);
   background: var(--mvp-surface);
   color: var(--mvp-muted);
+}
+
+.mvp-empty-state .mvp-btn,
+.mvp-empty-state .mvp-action-link {
+  margin-top: 0.75rem;
 }
 
 .mvp-empty-state .mvp-mascot {

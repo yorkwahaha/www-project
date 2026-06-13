@@ -1,0 +1,155 @@
+import { readdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const PHASE_188R_DOC =
+  'docs/www-project-phase-188r-high-quality-poll-badge-minimal-public-read-runtime-review-checkpoint-v1.md';
+const FRONTEND_DIR = 'public/frontend';
+const PUBLIC_DIR = 'public';
+
+const BADGE_RUNTIME_ID_CLASS_PATTERNS = [
+  /id=["'][^"']*high-quality[^"']*["']/i,
+  /class=["'][^"']*high-quality[^"']*["']/i,
+  /id=["'][^"']*quality-badge[^"']*["']/i,
+  /class=["'][^"']*quality-badge[^"']*["']/i,
+] as const;
+
+const BADGE_RENDERING_COPY = [
+  '回饋良好',
+  '大家覺得題目清楚',
+] as const;
+
+const BADGE_RENDERING_JS_PATTERNS = [
+  'quality-badge',
+  'high-quality-badge',
+  'highQualityBadge',
+  'mountHighQualityBadge',
+  'mountQualityBadge',
+  'renderQualityBadge',
+  'qualityBadge',
+] as const;
+
+const FORBIDDEN_DISPLAY_PATTERNS = [
+  'aggregate_count',
+  'tag_breakdown',
+  'tagBreakdown',
+  'quality_score',
+  'qualityScore',
+  'creator_score',
+  'creatorScore',
+] as const;
+
+const RANKING_RUNTIME_PATTERNS = [
+  'recommendationOrdering',
+  'personalization',
+  'hotness',
+  'trendingPoll',
+  'rankingBadge',
+] as const;
+
+const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js']);
+
+async function listFilesRecursive(dir: string): Promise<string[]> {
+  const entries = await readdir(join(process.cwd(), dir), {
+    withFileTypes: true,
+    recursive: true,
+  });
+  return entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => join(dir, entry.name.replace(/\\/g, '/')));
+}
+
+describe('Phase 188-R high-quality poll badge minimal public read runtime review checkpoint', () => {
+  it('documents Phase 188 runtime review and Phase 189 frontend presentation plan approval', async () => {
+    const doc = await readFile(join(process.cwd(), PHASE_188R_DOC), 'utf8');
+
+    expect(doc).toContain('Phase 188-R');
+    expect(doc).toContain('Phase 188');
+    expect(doc).toContain('APPROVED — Phase 189 blockers: none identified.');
+    expect(doc).toContain('High-quality Poll Badge Frontend Presentation Plan');
+    expect(doc).toContain('No frontend badge rendering runtime implementation');
+    expect(doc).toContain('quality_badge');
+  });
+
+  it('confirms public frontend JS has no badge rendering hooks beyond parsing tolerance', async () => {
+    const jsFiles = (await listFilesRecursive(FRONTEND_DIR)).filter((path) =>
+      path.endsWith('.js'),
+    );
+
+    for (const relativePath of jsFiles) {
+      const source = await readFile(join(process.cwd(), relativePath), 'utf8');
+      const lower = source.toLowerCase();
+      const normalizedPath = relativePath.replace(/\\/g, '/');
+
+      for (const pattern of BADGE_RENDERING_JS_PATTERNS) {
+        expect(lower, relativePath).not.toContain(pattern.toLowerCase());
+      }
+
+      for (const copy of BADGE_RENDERING_COPY) {
+        expect(source, relativePath).not.toContain(copy);
+      }
+
+      for (const forbidden of FORBIDDEN_DISPLAY_PATTERNS) {
+        expect(lower, relativePath).not.toContain(forbidden.toLowerCase());
+      }
+
+      for (const ranking of RANKING_RUNTIME_PATTERNS) {
+        expect(lower, relativePath).not.toContain(ranking.toLowerCase());
+      }
+
+      if (!FEED_PARSING_TOLERANCE_FILES.has(normalizedPath)) {
+        expect(lower, relativePath).not.toContain('quality_badge');
+        expect(lower, relativePath).not.toContain('positive_feedback');
+      }
+
+      expect(source, relativePath).not.toMatch(
+        /localStorage[\s\S]{0,120}(quality|badge|feedback)/i,
+      );
+      expect(source, relativePath).not.toMatch(
+        /sessionStorage[\s\S]{0,120}(quality|badge|feedback)/i,
+      );
+      expect(source, relativePath).not.toMatch(
+        /document\.cookie[\s\S]{0,120}(quality|badge|feedback)/i,
+      );
+    }
+  });
+
+  it('confirms explore feed parsing tolerates quality_badge without rendering it', async () => {
+    const source = await readFile(
+      join(process.cwd(), 'public/frontend/explore-page.js'),
+      'utf8',
+    );
+
+    expect(source).toContain('quality_badge');
+    expect(source).toContain('positive_feedback');
+    expect(source).not.toContain('回饋良好');
+    expect(source).not.toMatch(/renderQualityBadge|quality-badge|high-quality-badge/i);
+    expect(source).not.toMatch(/createElement[\s\S]{0,200}quality_badge/i);
+  });
+
+  it('confirms public HTML has no quality badge runtime id/class or rendering copy', async () => {
+    const htmlFiles = (await listFilesRecursive(PUBLIC_DIR)).filter((path) =>
+      path.endsWith('.html'),
+    );
+
+    for (const relativePath of htmlFiles) {
+      const source = await readFile(join(process.cwd(), relativePath), 'utf8');
+      const lower = source.toLowerCase();
+
+      for (const pattern of BADGE_RUNTIME_ID_CLASS_PATTERNS) {
+        expect(source, relativePath).not.toMatch(pattern);
+      }
+
+      for (const copy of BADGE_RENDERING_COPY) {
+        expect(source, relativePath).not.toContain(copy);
+      }
+
+      for (const forbidden of FORBIDDEN_DISPLAY_PATTERNS) {
+        expect(lower, relativePath).not.toContain(forbidden.toLowerCase());
+      }
+
+      expect(lower, relativePath).not.toContain('quality_badge');
+      expect(lower, relativePath).not.toContain('positive_feedback');
+    }
+  });
+});

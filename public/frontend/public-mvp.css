@@ -3014,3 +3014,111 @@ button:disabled {
     font-size: 1rem;
   }
 }
+
+/* Phase 206 — profile form accessibility & touch targets */
+.profile-page .mvp-info-hero {
+  margin-bottom: 1.15rem;
+}
+
+.profile-page .mvp-info-hero .mvp-lead {
+  line-height: 1.5;
+}
+
+.profile-page .mvp-profile-unauthenticated,
+.profile-page #profile-signed-in-panel {
+  padding: calc(var(--mvp-space-section) + 0.15rem) var(--mvp-space-card);
+}
+
+.profile-page .mvp-profile-unauthenticated h2 {
+  line-height: 1.35;
+}
+
+.profile-page .mvp-profile-unauthenticated p {
+  line-height: 1.5;
+  margin-bottom: 0.85rem;
+}
+
+.profile-page .mvp-profile-unauthenticated .mvp-form-actions,
+.profile-page #profile-form .mvp-form-actions {
+  margin-top: 0.5rem;
+  gap: 0.65rem;
+}
+
+.profile-page .mvp-profile-unauthenticated .mvp-form-actions .mvp-btn-primary,
+.profile-page .mvp-profile-unauthenticated .mvp-form-actions .mvp-btn-secondary,
+.profile-page #profile-form .mvp-form-actions .mvp-btn-primary,
+.profile-page #profile-form .mvp-form-actions .mvp-btn-secondary {
+  flex: 1 1 100%;
+  min-height: var(--mvp-tap-min);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.profile-page #profile-form label {
+  margin-top: var(--mvp-space-form-field);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.profile-page #profile-form label:first-of-type {
+  margin-top: 0;
+}
+
+.profile-page #profile-form .mvp-form-hint {
+  margin: 0.35rem 0 0.65rem;
+  line-height: 1.45;
+  font-size: 0.88rem;
+}
+
+.profile-page #profile-form input,
+.profile-page #profile-form select {
+  font-size: 1rem;
+  line-height: 1.4;
+  padding: 0.8rem 0.85rem;
+}
+
+.profile-page #profile-form select {
+  appearance: auto;
+}
+
+.profile-page #profile-form .mvp-form-actions {
+  margin-top: 1rem;
+}
+
+.profile-page #profile-form-message.mvp-profile-status {
+  margin-top: 1rem;
+  line-height: 1.5;
+  min-height: 2.75rem;
+}
+
+.profile-page #profile-form-message:not(:empty) {
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface);
+  border: 1px solid var(--mvp-border);
+}
+
+@media (max-width: 640px) {
+  .profile-page .mvp-info-hero .mvp-lead {
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .profile-page .mvp-profile-unauthenticated,
+  .profile-page #profile-signed-in-panel {
+    padding: 1rem max(0.9rem, env(safe-area-inset-left, 0px));
+  }
+
+  .profile-page #profile-form label {
+    margin-top: 1rem;
+  }
+
+  .profile-page #profile-form label:first-of-type {
+    margin-top: 0;
+  }
+
+  .profile-page #profile-form select option {
+    font-size: 1rem;
+  }
+}

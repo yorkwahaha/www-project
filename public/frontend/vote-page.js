@@ -33,6 +33,7 @@ import {
   PUBLIC_VOTE_COLLECTING_PANEL_HEADING,
   PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING,
   PUBLIC_VOTE_PAGE_REMINDER_LEAD,
+  PUBLIC_VOTE_PAGE_BRAND_LABEL,
   PUBLIC_VOTE_POLICY_PANEL_HEADING,
   renderPublicErrorPanel,
   renderPublicNav,
@@ -296,6 +297,10 @@ export function syncVoteFormFieldCopy(documentObject) {
 export function syncVotePageSectionHeadings(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
+  }
+  const pageBrand = documentObject.querySelector('.mvp-vote-main > p.mvp-brand');
+  if (pageBrand) {
+    pageBrand.textContent = PUBLIC_VOTE_PAGE_BRAND_LABEL;
   }
   const policyHeading = documentObject.querySelector(
     'aside.mvp-policy-panel[aria-label="投票須知"] h2',

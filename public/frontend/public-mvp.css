@@ -2215,6 +2215,23 @@ button:disabled {
   font-size: clamp(1.35rem, 4vw, 1.75rem);
 }
 
+/* Phase 197 — shared page intro header (title + lead) rhythm */
+.mvp-page-intro {
+  margin-bottom: 1rem;
+}
+
+.mvp-page-intro h1 {
+  margin: 0 0 0.4rem;
+}
+
+.mvp-page-intro .mvp-lead {
+  margin-bottom: 0.5rem;
+}
+
+.mvp-page-intro .mvp-meta {
+  margin-bottom: 0.75rem;
+}
+
 .mvp-info-quick-grid {
   margin-bottom: 1rem;
 }

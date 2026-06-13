@@ -180,7 +180,13 @@ export function syncMyPollsPageSectionHeadings(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
   }
-  const pageHeading = documentObject.querySelector('#main-content > h1');
+  let pageHeading = null;
+  if (typeof documentObject.getElementById === 'function') {
+    pageHeading = documentObject.getElementById('my-polls-heading');
+  }
+  if (!pageHeading) {
+    pageHeading = documentObject.querySelector('#main-content > h1');
+  }
   if (pageHeading) {
     pageHeading.textContent = PUBLIC_MY_POLLS_PAGE_TITLE;
   }

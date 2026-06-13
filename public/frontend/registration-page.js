@@ -4,6 +4,9 @@
 
 import {
   announceToStatusRegion,
+  PUBLIC_CTA_GO_HOME_LABEL,
+  PUBLIC_CTA_GO_TO_LOGIN_FROM_REGISTRATION_LABEL,
+  PUBLIC_CTA_GO_TO_LOGIN_LABEL,
   PUBLIC_CTA_REGISTER_LABEL,
   PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL,
   PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER,
@@ -485,6 +488,28 @@ export function syncRegistrationSuccessCopy(documentObject) {
   }
 }
 
+export function syncRegistrationPageCtas(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const submitButton = documentObject.getElementById('registration-submit');
+  if (submitButton) {
+    submitButton.textContent = PUBLIC_CTA_REGISTER_LABEL;
+  }
+  const formLoginLink = documentObject.getElementById('registration-login-cta');
+  if (formLoginLink) {
+    formLoginLink.textContent = PUBLIC_CTA_GO_TO_LOGIN_FROM_REGISTRATION_LABEL;
+  }
+  const successLoginLink = documentObject.getElementById('registration-success-login-cta');
+  if (successLoginLink) {
+    successLoginLink.textContent = PUBLIC_CTA_GO_TO_LOGIN_LABEL;
+  }
+  const successHomeLink = documentObject.getElementById('registration-success-home-cta');
+  if (successHomeLink) {
+    successHomeLink.textContent = PUBLIC_CTA_GO_HOME_LABEL;
+  }
+}
+
 export function syncRegistrationFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -546,6 +571,7 @@ export function mountRegistrationPage(documentObject = document) {
   syncRegistrationPageLeadParagraphs(documentObject);
   syncRegistrationFormFieldCopy(documentObject);
   syncRegistrationSuccessCopy(documentObject);
+  syncRegistrationPageCtas(documentObject);
   const form = documentObject.getElementById('registration-form');
   if (!(form instanceof HTMLFormElement)) {
     return;

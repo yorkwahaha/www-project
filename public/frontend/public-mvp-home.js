@@ -1,4 +1,6 @@
 import {
+  PUBLIC_CTA_CREATE_POLL_NAV_LABEL,
+  PUBLIC_CTA_EXPLORE_LABEL,
   PUBLIC_HOME_COLLECTING_CARD_TOOLTIP,
   PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING,
   PUBLIC_HOME_HERO_LEAD,
@@ -103,9 +105,27 @@ export function syncHomePageMicrocopy(documentObject) {
   }
 }
 
+/**
+ * @param {Document} documentObject
+ */
+export function syncHomePageCtas(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const exploreLink = documentObject.getElementById('home-explore-cta');
+  if (exploreLink) {
+    exploreLink.textContent = PUBLIC_CTA_EXPLORE_LABEL;
+  }
+  const createLink = documentObject.getElementById('home-create-cta');
+  if (createLink) {
+    createLink.textContent = PUBLIC_CTA_CREATE_POLL_NAV_LABEL;
+  }
+}
+
 if (typeof document !== 'undefined') {
   syncHomePageSectionHeadings(document);
   syncHomePageLeadParagraphs(document);
   syncHomePageSupportingNotes(document);
   syncHomePageMicrocopy(document);
+  syncHomePageCtas(document);
 }

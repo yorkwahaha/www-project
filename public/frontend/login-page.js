@@ -5,6 +5,8 @@
 
 import {
   announceToStatusRegion,
+  PUBLIC_CTA_CREATE_ACCOUNT_LABEL,
+  PUBLIC_CTA_GO_HOME_LABEL,
   PUBLIC_CTA_SIGN_IN_LABEL,
   PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL,
   PUBLIC_FORM_LOGIN_CREDENTIAL_FIELD_HINT,
@@ -297,6 +299,24 @@ export function syncLoginFormFieldCopy(documentObject) {
   }
 }
 
+export function syncLoginPageCtas(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const submitButton = documentObject.getElementById('login-shell-submit');
+  if (submitButton) {
+    submitButton.textContent = PUBLIC_CTA_SIGN_IN_LABEL;
+  }
+  const registerLink = documentObject.getElementById('login-register-cta');
+  if (registerLink) {
+    registerLink.textContent = PUBLIC_CTA_CREATE_ACCOUNT_LABEL;
+  }
+  const homeLink = documentObject.getElementById('login-home-cta');
+  if (homeLink) {
+    homeLink.textContent = PUBLIC_CTA_GO_HOME_LABEL;
+  }
+}
+
 /**
  * @param {Document} [documentObject]
  */
@@ -305,6 +325,7 @@ export function mountLoginShellPage(documentObject = document) {
   syncLoginPageSectionHeadings(documentObject);
   syncLoginPageLeadParagraphs(documentObject);
   syncLoginFormFieldCopy(documentObject);
+  syncLoginPageCtas(documentObject);
   const form = documentObject.getElementById('login-shell-form');
   if (!(form instanceof HTMLFormElement)) {
     return;

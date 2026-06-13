@@ -2,6 +2,7 @@ import { renderQualityFeedbackBadge } from './quality-feedback-badge.js';
 import {
   buildPublicVotePath,
   PUBLIC_CTA_GO_TO_VOTE_LABEL,
+  PUBLIC_CTA_GO_HOME_LABEL,
   PUBLIC_EXPLORE_COLLECTING_STATUS_HINT,
   PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL,
   PUBLIC_EXPLORE_EMPTY_CTA_LABEL,
@@ -228,11 +229,30 @@ export function syncExploreEmptyStatePanel(documentObject) {
   }
 }
 
+export function syncExplorePageLeadLinks(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const homeLink = documentObject.getElementById('explore-home-cta');
+  if (homeLink) {
+    homeLink.textContent = PUBLIC_CTA_GO_HOME_LABEL;
+  }
+}
+
+export function syncExplorePageStatusCopy(documentObject) {
+  const statusRegion = documentObject.getElementById('explore-status');
+  if (statusRegion) {
+    statusRegion.textContent = EXPLORE_FEED_LOADING_MESSAGE;
+  }
+}
+
 function mountExplorePage(documentObject, windowObject = globalThis) {
   syncExplorePageSectionHeadings(documentObject);
   syncExplorePageLeadParagraphs(documentObject);
   syncExplorePageMicrocopy(documentObject);
   syncExploreEmptyStatePanel(documentObject);
+  syncExplorePageLeadLinks(documentObject);
+  syncExplorePageStatusCopy(documentObject);
   const listRoot = documentObject.getElementById('explore-feed-list');
   const statusRegion = documentObject.getElementById('explore-status');
   const errorPanel = documentObject.getElementById('explore-error');

@@ -8,6 +8,8 @@ import {
   PUBLIC_LOADING_PENDING_MESSAGE,
   PUBLIC_CTA_GO_TO_LOGIN_LABEL,
   PUBLIC_CTA_GO_TO_PROFILE_LABEL,
+  PUBLIC_CTA_GO_TO_REGISTER_FROM_PROFILE_LABEL,
+  PUBLIC_CTA_PROFILE_NAV_LABEL,
   PUBLIC_FORM_BIRTH_YEAR_MONTH_LABEL,
   PUBLIC_FORM_BIRTH_YEAR_MONTH_PLACEHOLDER,
   PUBLIC_FORM_PROFILE_BIRTH_YEAR_MONTH_HINT,
@@ -369,6 +371,26 @@ export function syncProfilePageLeadParagraphs(documentObject) {
   }
 }
 
+export function syncProfilePageCtas(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  if (typeof documentObject.querySelector === 'function') {
+    const pageBrand = documentObject.querySelector('.mvp-profile-shell .mvp-brand');
+    if (pageBrand) {
+      pageBrand.textContent = PUBLIC_CTA_PROFILE_NAV_LABEL;
+    }
+  }
+  const loginLink = documentObject.getElementById('profile-login-cta');
+  if (loginLink) {
+    loginLink.textContent = PUBLIC_CTA_GO_TO_LOGIN_LABEL;
+  }
+  const registerLink = documentObject.getElementById('profile-register-cta');
+  if (registerLink) {
+    registerLink.textContent = PUBLIC_CTA_GO_TO_REGISTER_FROM_PROFILE_LABEL;
+  }
+}
+
 export function syncProfileFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -409,6 +431,7 @@ export async function mountProfilePage(documentObject = document, options = {}) 
   mountSiteChrome(documentObject, options);
   syncProfilePageSectionHeadings(documentObject);
   syncProfilePageLeadParagraphs(documentObject);
+  syncProfilePageCtas(documentObject);
   syncProfileFormFieldCopy(documentObject);
 
   const form = documentObject.getElementById('profile-form');

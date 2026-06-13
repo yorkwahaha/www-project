@@ -320,6 +320,7 @@ export const PUBLIC_CTA_GO_TO_LOGIN_ARIA_LABEL = '前往登入頁';
 export const PUBLIC_CTA_GO_TO_REGISTER_ARIA_LABEL = '前往註冊頁建立帳號';
 export const PUBLIC_CTA_CREATE_ACCOUNT_LABEL = '建立帳號';
 export const PUBLIC_CTA_GO_TO_LOGIN_FROM_REGISTRATION_LABEL = '已有帳號，前往登入';
+export const PUBLIC_CTA_GO_TO_REGISTER_FROM_PROFILE_LABEL = '尚未註冊？建立帳號';
 export const PUBLIC_CTA_GO_HOME_LABEL = '返回首頁';
 
 /** Frontend-owned site navigation CTA link labels. */
@@ -369,6 +370,7 @@ export const PUBLIC_CTA_LINK_LABELS = [
   PUBLIC_CTA_GO_TO_REGISTER_ARIA_LABEL,
   PUBLIC_CTA_CREATE_ACCOUNT_LABEL,
   PUBLIC_CTA_GO_TO_LOGIN_FROM_REGISTRATION_LABEL,
+  PUBLIC_CTA_GO_TO_REGISTER_FROM_PROFILE_LABEL,
   PUBLIC_CTA_GO_HOME_LABEL,
   PUBLIC_CTA_HOME_LABEL,
   PUBLIC_CTA_EXPLORE_LABEL,
@@ -880,6 +882,9 @@ export const PUBLIC_CREATE_POLL_PAGE_TITLE = '建立問卷';
 export const PUBLIC_LOGIN_PAGE_TITLE = '登入帳號';
 export const PUBLIC_REGISTRATION_PAGE_TITLE = '註冊帳號';
 export const PUBLIC_PROFILE_PAGE_TITLE = '投票資格資料';
+
+/** Frontend-owned vote page brand label above poll title. */
+export const PUBLIC_VOTE_PAGE_BRAND_LABEL = '參與投票';
 
 /** Frontend-owned form section headings (h2 in forms / auth gates). */
 export const PUBLIC_REGISTRATION_SUCCESS_FORM_HEADING = '註冊完成';

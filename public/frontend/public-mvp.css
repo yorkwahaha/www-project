@@ -3122,3 +3122,153 @@ button:disabled {
     font-size: 1rem;
   }
 }
+
+/* Phase 208 — create-poll form accessibility & touch targets */
+.create-poll-page .mvp-lead {
+  line-height: 1.5;
+}
+
+.create-poll-page .mvp-mock-banner {
+  line-height: 1.5;
+}
+
+.create-poll-page .mvp-founder-callout ul li {
+  line-height: 1.5;
+}
+
+.create-poll-page .mvp-form-card {
+  padding: calc(var(--mvp-space-section) + 0.15rem) var(--mvp-space-card);
+}
+
+.create-poll-page #create-poll-form > label {
+  margin-top: var(--mvp-space-form-field);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.create-poll-page #create-poll-form > label:first-of-type {
+  margin-top: 0;
+}
+
+.create-poll-page #create-poll-form .option-label {
+  margin-top: 0.85rem;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.create-poll-page #create-poll-form fieldset .option-label:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.create-poll-page #create-poll-form fieldset {
+  margin-top: 1.15rem;
+}
+
+.create-poll-page #create-poll-form fieldset legend {
+  line-height: 1.4;
+  padding-bottom: 0.25rem;
+}
+
+.create-poll-page #create-poll-form input,
+.create-poll-page #create-poll-form select,
+.create-poll-page #create-poll-form textarea {
+  font-size: 1rem;
+  line-height: 1.4;
+  padding: 0.8rem 0.85rem;
+}
+
+.create-poll-page #create-poll-form textarea {
+  min-height: 5.5rem;
+}
+
+.create-poll-page #create-poll-form .mvp-form-demo-fields {
+  border-style: dashed;
+}
+
+.create-poll-page #create-poll-form .mvp-form-demo-fields .policy-panel-text {
+  line-height: 1.45;
+  margin-bottom: 0.65rem;
+}
+
+.create-poll-page #create-poll-submit {
+  min-height: var(--mvp-tap-min);
+  margin-top: 1.35rem;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.create-poll-page #form-message {
+  margin-top: 1rem;
+  line-height: 1.5;
+  min-height: 2.75rem;
+}
+
+.create-poll-page #form-message:not(:empty) {
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface);
+  border: 1px solid var(--mvp-border);
+}
+
+.create-poll-page #success-panel {
+  margin-top: 1.15rem;
+  padding: 1.15rem 1rem;
+}
+
+.create-poll-page #success-panel a,
+.create-poll-page #success-panel .mvp-action-link {
+  display: flex;
+  align-items: center;
+  min-height: var(--mvp-tap-min);
+  padding: 0.75rem 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.create-poll-page #success-panel .copy-link-button {
+  min-height: var(--mvp-tap-min);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+}
+
+.create-poll-page .mvp-policy-panel-compact .mvp-form-hint-list li {
+  line-height: 1.5;
+  margin: 0.4rem 0;
+}
+
+@media (max-width: 640px) {
+  .create-poll-page .mvp-lead {
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .create-poll-page .mvp-mock-banner {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+  }
+
+  .create-poll-page .mvp-form-card {
+    padding: 1rem max(0.9rem, env(safe-area-inset-left, 0px));
+  }
+
+  .create-poll-page #create-poll-form > label {
+    margin-top: 1rem;
+  }
+
+  .create-poll-page #create-poll-form > label:first-of-type {
+    margin-top: 0;
+  }
+
+  .create-poll-page #create-poll-form .option-label {
+    margin-top: 0.9rem;
+  }
+
+  .create-poll-page #create-poll-form textarea {
+    min-height: 6rem;
+  }
+
+  .create-poll-page #create-poll-form select option {
+    font-size: 1rem;
+  }
+}

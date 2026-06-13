@@ -29,6 +29,10 @@ const BADGE_RENDERING_JS_PATTERNS = [
 
 const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js']);
 
+const PHASE_190_BADGE_RUNTIME_FILES = new Set([
+  'public/frontend/quality-feedback-badge.js',
+]);
+
 async function listFilesRecursive(dir: string): Promise<string[]> {
   const entries = await readdir(join(process.cwd(), dir), {
     withFileTypes: true,
@@ -60,6 +64,10 @@ describe('Phase 188 high-quality poll badge minimal public read runtime', () => 
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
       const lower = source.toLowerCase();
       const normalizedPath = relativePath.replace(/\\/g, '/');
+
+      if (PHASE_190_BADGE_RUNTIME_FILES.has(normalizedPath)) {
+        continue;
+      }
 
       for (const pattern of BADGE_RENDERING_JS_PATTERNS) {
         expect(lower, relativePath).not.toContain(pattern.toLowerCase());

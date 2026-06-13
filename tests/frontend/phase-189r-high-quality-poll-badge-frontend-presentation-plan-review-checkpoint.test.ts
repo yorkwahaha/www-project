@@ -79,6 +79,10 @@ const BEHAVIOR_RUNTIME_PATTERNS = [
 
 const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js']);
 
+const PHASE_190_BADGE_RUNTIME_FILES = new Set([
+  'public/frontend/quality-feedback-badge.js',
+]);
+
 const POLICY_EDUCATIONAL_COPY_FILES = new Set([
   'public/frontend/policy-ui-placeholders.js',
   'public/frontend/public-mvp-ui.js',
@@ -116,6 +120,10 @@ describe('Phase 189-R high-quality poll badge frontend presentation plan review 
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
       const lower = source.toLowerCase();
       const normalizedPath = relativePath.replace(/\\/g, '/');
+
+      if (PHASE_190_BADGE_RUNTIME_FILES.has(normalizedPath)) {
+        continue;
+      }
 
       for (const pattern of BADGE_RENDERING_JS_PATTERNS) {
         expect(lower, relativePath).not.toContain(pattern.toLowerCase());

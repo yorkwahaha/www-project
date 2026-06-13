@@ -1280,6 +1280,21 @@ button:disabled {
   border-color: #d8cff0;
 }
 
+.mvp-poll-card-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.positive-feedback-badge {
+  background: #f3f6f8;
+  color: #4a5f6d;
+  border-color: #d5dee4;
+  font-weight: 600;
+}
+
 .mvp-policy-panel-mascot {
   flex-shrink: 0;
 }

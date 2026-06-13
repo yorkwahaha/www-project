@@ -47,6 +47,10 @@ const RANKING_RUNTIME_PATTERNS = [
   'rankingBadge',
 ] as const;
 
+const PHASE_190_BADGE_RUNTIME_FILES = new Set([
+  'public/frontend/quality-feedback-badge.js',
+]);
+
 async function listFilesRecursive(dir: string): Promise<string[]> {
   const entries = await readdir(join(process.cwd(), dir), {
     withFileTypes: true,
@@ -78,6 +82,11 @@ describe('Phase 185-R high-quality poll badge eligibility plan review checkpoint
     for (const relativePath of jsFiles) {
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
       const lower = source.toLowerCase();
+      const normalizedPath = relativePath.replace(/\\/g, '/');
+
+      if (PHASE_190_BADGE_RUNTIME_FILES.has(normalizedPath)) {
+        continue;
+      }
 
       for (const pattern of BADGE_RUNTIME_JS_PATTERNS) {
         expect(lower, relativePath).not.toContain(pattern.toLowerCase());

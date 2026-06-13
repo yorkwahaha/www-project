@@ -114,6 +114,21 @@ describe('explore page feed helpers', () => {
     expect(serialized).toContain('不顯示票數');
     expect(serialized).not.toMatch(/%|熱門|趨勢|option_id|vote_count|mvp-result-preview/i);
     expect(serialized).toContain('/vote/11111111-1111-4111-8111-111111111111');
+    expect(serialized).not.toContain('回饋良好');
+  });
+
+  it('renders quality feedback badge on explore cards when quality_badge is positive_feedback', async () => {
+    const { renderExplorePollCard } = await loadExplorePageModule();
+    const documentObject = createDocumentStub();
+    const card = renderExplorePollCard(documentObject, {
+      ...safePoll,
+      quality_badge: 'positive_feedback',
+    });
+    const serialized = JSON.stringify(card);
+
+    expect(serialized).toContain('回饋良好');
+    expect(serialized).toContain('positive-feedback-badge');
+    expect(serialized).not.toMatch(/尚未達標|回饋不足|品質不足|優質題目|高分題目|熱門|排名|品質分數|低品質/i);
   });
 
   it('fetches and validates a safe feed payload', async () => {

@@ -61,6 +61,10 @@ async function listFilesRecursive(dir: string): Promise<string[]> {
 
 const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js']);
 
+const PHASE_190_BADGE_RUNTIME_FILES = new Set([
+  'public/frontend/quality-feedback-badge.js',
+]);
+
 describe('Phase 186-R high-quality poll badge read-model presentation plan review checkpoint', () => {
   it('documents Phase 186 plan review and Phase 187 plan-only approval', async () => {
     const doc = await readFile(join(process.cwd(), PHASE_186R_DOC), 'utf8');
@@ -82,6 +86,10 @@ describe('Phase 186-R high-quality poll badge read-model presentation plan revie
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
       const lower = source.toLowerCase();
       const normalizedPath = relativePath.replace(/\\/g, '/');
+
+      if (PHASE_190_BADGE_RUNTIME_FILES.has(normalizedPath)) {
+        continue;
+      }
 
       for (const pattern of BADGE_RUNTIME_JS_PATTERNS) {
         if (

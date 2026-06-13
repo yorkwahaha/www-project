@@ -1,3 +1,4 @@
+import { renderQualityFeedbackBadge } from './quality-feedback-badge.js';
 import {
   buildPublicVotePath,
   PUBLIC_CTA_GO_TO_VOTE_LABEL,
@@ -145,11 +146,20 @@ export function renderExplorePollCard(documentObject, poll) {
   const title = documentObject.createElement('h3');
   title.textContent = poll.title;
 
-  const badge = documentObject.createElement('span');
-  badge.className = 'mvp-badge mvp-badge-collecting';
-  badge.textContent = EXPLORE_COLLECTING_STATUS_LABEL;
+  const badgeGroup = documentObject.createElement('div');
+  badgeGroup.className = 'mvp-poll-card-badges';
 
-  top.append(title, badge);
+  const statusBadge = documentObject.createElement('span');
+  statusBadge.className = 'mvp-badge mvp-badge-collecting';
+  statusBadge.textContent = EXPLORE_COLLECTING_STATUS_LABEL;
+  badgeGroup.append(statusBadge);
+
+  const qualityFeedbackBadge = renderQualityFeedbackBadge(documentObject, poll);
+  if (qualityFeedbackBadge) {
+    badgeGroup.append(qualityFeedbackBadge);
+  }
+
+  top.append(title, badgeGroup);
 
   const meta = documentObject.createElement('p');
   meta.className = 'mvp-poll-card-meta';

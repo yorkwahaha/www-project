@@ -122,7 +122,7 @@ describe('profile page frontend', () => {
       documentObject.getElementById('profile-signed-in-panel')?.hidden,
     ).toBe(true);
     expect(documentObject.getElementById('profile-form-message')?.textContent).toBe(
-      '編輯個人資料前請先登入。',
+      '編輯出生年月與居住地區前請先登入。',
     );
   });
 
@@ -230,7 +230,7 @@ describe('profile page frontend', () => {
       '請確認出生年月與居住地區格式。',
     );
     expect(messageForProfileFailure('unauthenticated', 'save')).toBe(
-      '請先登入後再編輯個人資料。',
+      '請先登入後再編輯出生年月與居住地區。',
     );
     expect(messageForProfileFailure('server', 'load')).toBe(
       '目前無法載入個人資料，請稍後再試。',

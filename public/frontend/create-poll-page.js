@@ -63,6 +63,11 @@ import {
   renderMockTerminalResultState,
   renderUiMockStatePanel,
 } from './policy-ui-placeholders.js';
+import {
+  PUBLIC_CREATE_POLL_OPTION_INPUTS_REGION_ID,
+  PUBLIC_CREATE_POLL_PAGE_TITLE_REGION_ID,
+  PUBLIC_CREATE_POLL_PREVIEW_HELP_REGION_ID,
+} from './public-create-poll-form-layout.js';
 
 const MAX_OPTIONS = 6;
 const PUBLISH_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -228,7 +233,9 @@ export function syncCreatePollPageSectionHeadings(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
   }
-  const pageHeading = documentObject.querySelector('#main-content > h1');
+  const pageHeading =
+    documentObject.querySelector(`#${PUBLIC_CREATE_POLL_PAGE_TITLE_REGION_ID} h1`) ??
+    documentObject.querySelector('#main-content > h1');
   if (pageHeading) {
     pageHeading.textContent = PUBLIC_CREATE_POLL_PAGE_TITLE;
   }
@@ -239,7 +246,7 @@ export function syncCreatePollPageSectionHeadings(documentObject) {
     policyPanel.textContent = PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING;
   }
   const precheckPanel = documentObject.querySelector(
-    'aside.mvp-policy-panel[aria-label="送出前檢查"] h2',
+    `#${PUBLIC_CREATE_POLL_PREVIEW_HELP_REGION_ID} h2, aside.mvp-policy-panel[aria-label="送出前檢查"] h2`,
   );
   if (precheckPanel) {
     precheckPanel.textContent = PUBLIC_CREATE_POLL_PRECHECK_PANEL_HEADING;
@@ -321,7 +328,9 @@ export function syncCreatePollFormFieldCopy(documentObject) {
     categoryLabel.textContent = PUBLIC_FORM_POLL_CATEGORY_LABEL;
   }
 
-  const optionsLegend = documentObject.querySelector('#create-poll-form fieldset legend');
+  const optionsLegend = documentObject.querySelector(
+    `#${PUBLIC_CREATE_POLL_OPTION_INPUTS_REGION_ID} legend, #create-poll-form fieldset legend`,
+  );
   if (optionsLegend) {
     optionsLegend.textContent = PUBLIC_FORM_POLL_OPTIONS_LEGEND;
   }

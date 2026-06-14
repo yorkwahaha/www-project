@@ -16,59 +16,74 @@
         ·
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
-      <h1>建立問卷</h1>
-      <p class="mvp-lead" id="create-poll-page-lead">在此建立並發布問卷。發布後無法在此修改題目或選項；收集中看不到期中結果。</p>
 
-      <p class="mvp-mock-banner" id="create-poll-page-banner" role="note">
-        目前為公開展示版：此頁預設為展示流程，送出僅做欄位檢查，資料不會儲存。若要實際建立並管理問卷，請使用即時模式（網址加上 ?live=1）。
-      </p>
-      <p class="mvp-meta" id="create-poll-live-mode-hint">
-        即時模式會實際建立問卷。建立成功後可至「我的問卷」管理、分享投票連結，或變更公開狀態。
-      </p>
-      <p class="mvp-meta" id="create-poll-my-polls-nav-hint">
-        建立問卷後，可到<a href="/my-polls?live=1">前往我的問卷</a>管理已建立的問卷、分享投票連結。
-      </p>
+      <header
+        id="create-poll-page-title"
+        class="mvp-create-poll-page-title"
+        aria-label="頁面標題"
+      >
+        <h1>建立問卷</h1>
+        <p class="mvp-lead" id="create-poll-page-lead">在此建立並發布問卷。發布後無法在此修改題目或選項；收集中看不到期中結果。</p>
+      </header>
 
-      <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="發起須知">
-        <h2 class="mvp-policy-panel-title" style="font-size:0.95rem;margin:0 0 0.5rem">發起須知</h2>
-        <ul class="mvp-form-hint-list" style="margin:0">
-          <li><strong>Lv.1 註冊用戶</strong>可發起一般問卷（每日額度較低，正式上線後計算）</li>
-          <li><strong>政治／高風險</strong>類別需更高信任並經事前審核，無法以一般流程發布（<a href="/trust-levels">說明</a>）</li>
-          <li>收集中看不到期中結果；詳見<a href="/faq">常見問題</a></li>
-          <li>累積<strong>優質題目</strong>有助信任提升；依投票後品質回饋判定，非單純按讚</li>
-        </ul>
-      </aside>
+      <section
+        id="create-poll-creator-guidance"
+        class="mvp-create-poll-creator-guidance"
+        aria-label="發起說明"
+      >
+        <p class="mvp-mock-banner" id="create-poll-page-banner" role="note">
+          目前為公開展示版：此頁預設為展示流程，送出僅做欄位檢查，資料不會儲存。若要實際建立並管理問卷，請使用即時模式（網址加上 ?live=1）。
+        </p>
+        <p class="mvp-meta" id="create-poll-live-mode-hint">
+          即時模式會實際建立問卷。建立成功後可至「我的問卷」管理、分享投票連結，或變更公開狀態。
+        </p>
+        <p class="mvp-meta" id="create-poll-my-polls-nav-hint">
+          建立問卷後，可到<a href="/my-polls?live=1">前往我的問卷</a>管理已建立的問卷、分享投票連結。
+        </p>
 
-      <div class="mvp-founder-callout" role="note">
-        <strong>發起者須知</strong>
-        <ul>
-          <li>收集中停止請用「<strong>取消</strong>」，不是「下架」。</li>
-          <li>結果公開後約 <strong>5 天</strong>鎖定期，期間不可下架或修改。
-            <span class="mvp-help" tabindex="0" role="button" aria-label="鎖定期">
-              <span class="mvp-help-icon" aria-hidden="true">?</span>
-              <span class="mvp-help-tip" role="tooltip">鎖定期內不可編輯、下架、刪除、重開投票或隱藏結果。</span>
-            </span>
-          </li>
-        </ul>
-      </div>
+        <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="發起須知">
+          <h2 class="mvp-policy-panel-title" style="font-size:0.95rem;margin:0 0 0.5rem">發起須知</h2>
+          <ul class="mvp-form-hint-list" style="margin:0">
+            <li><strong>Lv.1 註冊用戶</strong>可發起一般問卷（每日額度較低，正式上線後計算）</li>
+            <li><strong>政治／高風險</strong>類別需更高信任並經事前審核，無法以一般流程發布（<a href="/trust-levels">說明</a>）</li>
+            <li>收集中看不到期中結果；詳見<a href="/faq">常見問題</a></li>
+            <li>累積<strong>優質題目</strong>有助信任提升；依投票後品質回饋判定，非單純按讚</li>
+          </ul>
+        </aside>
+
+        <div class="mvp-founder-callout" role="note">
+          <strong>發起者須知</strong>
+          <ul>
+            <li>收集中停止請用「<strong>取消</strong>」，不是「下架」。</li>
+            <li>結果公開後約 <strong>5 天</strong>鎖定期，期間不可下架或修改。
+              <span class="mvp-help" tabindex="0" role="button" aria-label="鎖定期">
+                <span class="mvp-help-icon" aria-hidden="true">?</span>
+                <span class="mvp-help-tip" role="tooltip">鎖定期內不可編輯、下架、刪除、重開投票或隱藏結果。</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </section>
 
       <div class="mvp-form-card">
         <form id="create-poll-form" class="mvp-form" novalidate>
-          <label for="poll-title">問卷標題</label>
-          <input id="poll-title" name="title" maxlength="200" required autocomplete="off" placeholder="例如：你支持週休三日嗎？">
+          <div id="create-poll-form-sections" class="mvp-create-poll-form-sections">
+            <label for="poll-title">問卷標題</label>
+            <input id="poll-title" name="title" maxlength="200" required autocomplete="off" placeholder="例如：你支持週休三日嗎？">
 
-          <label for="poll-description">補充說明（選填）</label>
-          <textarea id="poll-description" name="description" rows="3" autocomplete="off" placeholder="補充背景，不影響選項"></textarea>
+            <label for="poll-description">補充說明（選填）</label>
+            <textarea id="poll-description" name="description" rows="3" autocomplete="off" placeholder="補充背景，不影響選項"></textarea>
 
-          <label for="poll-category">分類（正式上線後開放）</label>
-          <select id="poll-category" class="mvp-form-demo-fields" disabled aria-disabled="true">
-            <option>生活</option>
-            <option>職場</option>
-            <option>科技</option>
-            <option>其他</option>
-          </select>
+            <label for="poll-category">分類（正式上線後開放）</label>
+            <select id="poll-category" class="mvp-form-demo-fields" disabled aria-disabled="true">
+              <option>生活</option>
+              <option>職場</option>
+              <option>科技</option>
+              <option>其他</option>
+            </select>
+          </div>
 
-          <fieldset>
+          <fieldset id="create-poll-option-inputs" class="mvp-create-poll-option-inputs">
             <legend>選項（至少 2 項，最多 6 項）</legend>
             <label class="option-label" for="poll-option-1">選項 1</label>
             <input id="poll-option-1" name="option" required autocomplete="off">
@@ -80,27 +95,36 @@
             <input id="poll-option-4" name="option" autocomplete="off">
           </fieldset>
 
-          <fieldset class="mvp-form-demo-fields">
-            <legend>統計截止與結果公開（正式上線後開放）</legend>
-            <p class="policy-panel-text policy-panel-muted" style="margin:0 0 0.5rem">
-              MVP：截止時間即結果公開時間；截止不等於鎖定期結束。
-            </p>
-            <label for="poll-close-at">截止／結果公開時間（正式上線後開放）</label>
-            <input id="poll-close-at" type="datetime-local" disabled aria-disabled="true">
-          </fieldset>
+          <div
+            id="create-poll-schedule-lifecycle-hints"
+            class="mvp-create-poll-schedule-lifecycle-hints"
+          >
+            <fieldset class="mvp-form-demo-fields">
+              <legend>統計截止與結果公開（正式上線後開放）</legend>
+              <p class="policy-panel-text policy-panel-muted" style="margin:0 0 0.5rem">
+                MVP：截止時間即結果公開時間；截止不等於鎖定期結束。
+              </p>
+              <label for="poll-close-at">截止／結果公開時間（正式上線後開放）</label>
+              <input id="poll-close-at" type="datetime-local" disabled aria-disabled="true">
+            </fieldset>
 
-          <fieldset class="mvp-form-demo-fields">
-            <legend>投票資格設定（正式上線後開放）</legend>
-            <p class="policy-panel-text policy-panel-muted" style="margin:0 0 0.5rem">
-              年齡依參與者自行填寫的出生年／月判斷，非官方驗證。
-            </p>
-            <label for="poll-eligibility-age">年齡區間（正式上線後開放）</label>
-            <input id="poll-eligibility-age" type="text" disabled placeholder="例如 18–30">
-            <label for="poll-eligibility-region">地區（正式上線後開放）</label>
-            <input id="poll-eligibility-region" type="text" disabled placeholder="例如 高雄市">
-          </fieldset>
+            <fieldset class="mvp-form-demo-fields">
+              <legend>投票資格設定（正式上線後開放）</legend>
+              <p class="policy-panel-text policy-panel-muted" style="margin:0 0 0.5rem">
+                年齡依參與者自行填寫的出生年／月判斷，非官方驗證。
+              </p>
+              <label for="poll-eligibility-age">年齡區間（正式上線後開放）</label>
+              <input id="poll-eligibility-age" type="text" disabled placeholder="例如 18–30">
+              <label for="poll-eligibility-region">地區（正式上線後開放）</label>
+              <input id="poll-eligibility-region" type="text" disabled placeholder="例如 高雄市">
+            </fieldset>
+          </div>
 
-          <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="送出前檢查">
+          <aside
+            id="create-poll-preview-help"
+            class="mvp-create-poll-preview-help mvp-policy-panel mvp-policy-panel-compact"
+            aria-label="送出前檢查"
+          >
             <h2 class="mvp-policy-panel-title" style="font-size:0.95rem">送出前檢查</h2>
             <ul class="mvp-form-hint-list">
               <li>標題不可空白</li>
@@ -109,16 +133,23 @@
             </ul>
           </aside>
 
-          <button
-            id="create-poll-submit"
-            type="submit"
-            class="mvp-btn-primary"
-            aria-describedby="form-message"
-          >建立問卷（展示用，不儲存）</button>
+          <div id="create-poll-submit-area" class="mvp-create-poll-submit-area">
+            <button
+              id="create-poll-submit"
+              type="submit"
+              class="mvp-btn-primary"
+              aria-describedby="form-message"
+            >建立問卷（展示用，不儲存）</button>
+          </div>
         </form>
       </div>
 
-      <p id="form-message" role="status" aria-live="polite"></p>
+      <p
+        id="form-message"
+        class="mvp-create-poll-inline-feedback"
+        role="status"
+        aria-live="polite"
+      ></p>
       <section
         id="success-panel"
         role="region"

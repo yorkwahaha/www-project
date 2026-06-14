@@ -3323,13 +3323,13 @@ button:disabled {
   padding: calc(var(--mvp-space-section) + 0.15rem) var(--mvp-space-card);
 }
 
-.create-poll-page #create-poll-form > label {
+.create-poll-page #create-poll-form-sections > label {
   margin-top: var(--mvp-space-form-field);
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
-.create-poll-page #create-poll-form > label:first-of-type {
+.create-poll-page #create-poll-form-sections > label:first-of-type {
   margin-top: 0;
 }
 
@@ -3339,15 +3339,15 @@ button:disabled {
   font-size: 0.95rem;
 }
 
-.create-poll-page #create-poll-form fieldset .option-label:first-of-type {
+.create-poll-page #create-poll-option-inputs .option-label:first-of-type {
   margin-top: 0.5rem;
 }
 
-.create-poll-page #create-poll-form fieldset {
+.create-poll-page #create-poll-option-inputs {
   margin-top: 1.15rem;
 }
 
-.create-poll-page #create-poll-form fieldset legend {
+.create-poll-page #create-poll-option-inputs legend {
   line-height: 1.4;
   padding-bottom: 0.25rem;
 }
@@ -3373,9 +3373,13 @@ button:disabled {
   margin-bottom: 0.65rem;
 }
 
+.create-poll-page #create-poll-submit-area {
+  margin-top: 1.35rem;
+}
+
 .create-poll-page #create-poll-submit {
   min-height: var(--mvp-tap-min);
-  margin-top: 1.35rem;
+  margin-top: 0;
   padding: 0.8rem 1rem;
   font-size: 0.95rem;
   line-height: 1.35;
@@ -3435,11 +3439,11 @@ button:disabled {
     padding: 1rem max(0.9rem, env(safe-area-inset-left, 0px));
   }
 
-  .create-poll-page #create-poll-form > label {
+  .create-poll-page #create-poll-form-sections > label {
     margin-top: 1rem;
   }
 
-  .create-poll-page #create-poll-form > label:first-of-type {
+  .create-poll-page #create-poll-form-sections > label:first-of-type {
     margin-top: 0;
   }
 
@@ -3454,6 +3458,55 @@ button:disabled {
   .create-poll-page #create-poll-form select option {
     font-size: 1rem;
   }
+}
+
+/* Phase 244 — create-poll form information hierarchy */
+.create-poll-page .mvp-create-poll-page-title {
+  margin-bottom: 0.85rem;
+}
+
+.create-poll-page .mvp-create-poll-page-title h1 {
+  margin-bottom: 0.35rem;
+}
+
+.create-poll-page .mvp-create-poll-creator-guidance {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+}
+
+.create-poll-page .mvp-create-poll-creator-guidance .mvp-mock-banner {
+  margin-bottom: 0;
+}
+
+.create-poll-page .mvp-create-poll-creator-guidance .mvp-meta {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.create-poll-page .mvp-create-poll-form-sections {
+  display: flex;
+  flex-direction: column;
+}
+
+.create-poll-page .mvp-create-poll-schedule-lifecycle-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 1.15rem;
+}
+
+.create-poll-page .mvp-create-poll-schedule-lifecycle-hints fieldset {
+  margin-top: 0;
+}
+
+.create-poll-page .mvp-create-poll-preview-help {
+  margin-top: 1.15rem;
+}
+
+.create-poll-page .mvp-create-poll-inline-feedback {
+  margin-top: 1rem;
 }
 
 /* Phase 210 — my-polls live action area accessibility & touch targets */

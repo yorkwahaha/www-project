@@ -42,13 +42,13 @@ import {
   PUBLIC_MY_POLLS_UNPUBLISHED_ROW_INLINE_NOTE,
   PUBLIC_MY_POLLS_VOTE_LINK_COPIED_MESSAGE,
   PUBLIC_MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
+  PUBLIC_CREATOR_SESSION_FAILURE_MESSAGE,
   PUBLIC_POLL_LIFECYCLE_STATUS_LABELS,
   formatPublicPollLifecycleStatusLabel,
   renderPublicInlineErrorNote,
 } from './public-mvp-ui.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
-  CREATOR_SESSION_FAILURE,
   ensureCreatorSessionForLiveMode,
   isCreatorSessionFailureError,
   renderCreatorLifecycleActions,
@@ -70,6 +70,8 @@ export const MY_POLLS_LOAD_FAILURE_MESSAGE = PUBLIC_MY_POLLS_LOAD_FAILURE_MESSAG
 export const MY_POLLS_EMPTY_MESSAGE = PUBLIC_MY_POLLS_EMPTY_MESSAGE;
 export const MY_POLLS_EMPTY_SUMMARY = PUBLIC_MY_POLLS_EMPTY_SUMMARY;
 export const MY_POLLS_LOADING_MESSAGE = PUBLIC_MY_POLLS_LOADING_MESSAGE;
+export const MY_POLLS_CREATOR_SESSION_FAILURE_MESSAGE =
+  PUBLIC_CREATOR_SESSION_FAILURE_MESSAGE;
 export const MY_POLLS_PAGE_TITLE = PUBLIC_MY_POLLS_PAGE_TITLE;
 export const MY_POLLS_PAGE_LEAD = PUBLIC_MY_POLLS_PAGE_LEAD;
 export const MY_POLLS_QUOTA_PANEL_HEADING = PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING;
@@ -330,7 +332,7 @@ async function mountLiveCreatorManagePanel(documentObject) {
   } catch (error) {
     const showLoginLink = isMyPollsSignInRequiredError(error);
     const failureMessage = isCreatorSessionFailureError(error)
-      ? CREATOR_SESSION_FAILURE
+      ? MY_POLLS_CREATOR_SESSION_FAILURE_MESSAGE
       : MY_POLLS_LOAD_FAILURE_MESSAGE;
     renderMyPollsUnavailableState(host, documentObject, {
       message: showLoginLink

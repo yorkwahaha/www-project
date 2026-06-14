@@ -182,8 +182,22 @@ describe('public MVP accessibility', () => {
       },
     );
 
-    const links = root.children.filter((child) => child.tagName === 'a');
-    const buttons = root.children.filter((child) => child.tagName === 'button');
+    function collectByTag(
+      element: ReturnType<typeof createElement>,
+      tagName: string,
+    ): ReturnType<typeof createElement>[] {
+      const matches: ReturnType<typeof createElement>[] = [];
+      if (String(element.tagName).toLowerCase() === tagName) {
+        matches.push(element);
+      }
+      for (const child of element.children) {
+        matches.push(...collectByTag(child, tagName));
+      }
+      return matches;
+    }
+
+    const links = collectByTag(root, 'a');
+    const buttons = collectByTag(root, 'button');
     expect(links.length).toBeGreaterThanOrEqual(2);
     expect(buttons.length).toBe(2);
     expect(root.attributes.get('role')).toBe('region');

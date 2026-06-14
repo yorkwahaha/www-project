@@ -8,13 +8,14 @@ import {
   renderPublicEmptyStatePanel,
   renderPublicLoadFailurePanel,
 } from './public-unavailable-state.js';
+import {
+  mountCreatorOwnedPollShareLinks,
+} from './public-share-link-layout.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import {
   buildAbsoluteUrl,
-  buildPublicVotePath,
   copyTextToClipboard,
   isLocalDemoHostname,
-  PUBLIC_CTA_COPY_VOTE_LINK_LABEL,
   PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL,
   PUBLIC_CTA_GO_HOME_LABEL,
   PUBLIC_CTA_GO_TO_LOGIN_LABEL,
@@ -531,21 +532,13 @@ function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
     },
   });
 
-  const shareVote = documentObject.createElement('button');
-  shareVote.type = 'button';
-  shareVote.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
-  shareVote.textContent = PUBLIC_CTA_COPY_VOTE_LINK_LABEL;
-  shareVote.addEventListener('click', async () => {
-    const url = buildAbsoluteUrl(buildPublicVotePath(poll.poll_id));
-    const result = await copyTextToClipboard(url);
-    showDemoOnlyFeedback(
-      shareVote,
-      result.ok
-        ? MY_POLLS_VOTE_LINK_COPIED_MESSAGE
-        : MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
-    );
+  const shareHost = documentObject.createElement('div');
+  shareHost.className = 'mvp-creator-owned-poll-share-links';
+  mountCreatorOwnedPollShareLinks(documentObject, shareHost, {
+    pollId: poll.poll_id,
+    locationObject: documentObject.defaultView?.location ?? globalThis.location,
   });
-  actionSlots.secondary.append(shareVote);
+  actionSlots.secondary.append(shareHost);
 
   renderCreatorManageLinks(actionSlots.navLinks, {
     pollId: poll.poll_id,

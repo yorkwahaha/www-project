@@ -391,8 +391,20 @@ try {
     if (!body.includes('複製投票連結') || !body.includes('複製結果連結')) {
       throw new Error('Public MVP UI missing copy-link actions');
     }
-    if (!body.includes('buildAbsoluteUrl') || !body.includes('share-url')) {
+    if (!body.includes('buildAbsoluteUrl') || !body.includes('public-share-link-layout.js')) {
       throw new Error('Public MVP UI missing absolute share URL helpers');
+    }
+    pass('Public MVP UI includes share/copy helpers with safe URLs');
+  }
+
+  {
+    const { response, body } = await requestText(
+      baseUrl,
+      '/frontend/public-share-link-layout.js',
+    );
+    expectStatus('GET /frontend/public-share-link-layout.js', response, 200);
+    if (!body.includes('renderPollSharePanel') || !body.includes('share-url')) {
+      throw new Error('Share link layout missing share panel helpers');
     }
     const shareSnippet = body.slice(
       body.indexOf('renderPollSharePanel'),
@@ -401,7 +413,7 @@ try {
     if (PUBLIC_JSON_DENYLIST.test(shareSnippet)) {
       throw new Error('Share panel helper references forbidden public fields');
     }
-    pass('Public MVP UI includes share/copy helpers with safe URLs');
+    pass('Share link layout includes safe absolute URL presentation');
   }
 
   {

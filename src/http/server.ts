@@ -289,6 +289,15 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/public-share-link-layout.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-share-link-layout.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   if (method === 'GET' && path === '/frontend/public-mvp-layout.js') {
     await sendPublicFile(
       res,

@@ -59,6 +59,7 @@ import { mountQualityFeedbackBadgeNearTitle } from './quality-feedback-badge.js'
 import { mountSiteChrome } from './public-mvp-layout.js';
 import { mountOfficialVotePreVoteHint } from './official-vote-pre-vote-hints.js';
 import { syncVoteDetailStatusMeta } from './public-vote-detail-layout.js';
+import { syncVotePageShareLinks } from './public-share-link-layout.js';
 import { mountPostVoteQualityFeedback } from './post-vote-quality-feedback.js';
 import {
   applyVotePageUiMockState,
@@ -472,6 +473,7 @@ export async function bootstrapVotePage({
     title.textContent = heading;
     mountQualityFeedbackBadgeNearTitle(documentObject, title, {});
     syncVoteDetailStatusMeta(documentObject, null);
+    syncVotePageShareLinks(documentObject);
     description.textContent = '';
     form.hidden = true;
     success.hidden = true;
@@ -540,6 +542,7 @@ export async function bootstrapVotePage({
     title.removeAttribute('aria-busy');
     mountQualityFeedbackBadgeNearTitle(documentObject, title, detail);
     syncVoteDetailStatusMeta(documentObject, detail);
+    syncVotePageShareLinks(documentObject, { pollId });
     description.textContent = detail.description ?? '';
     renderPollOptions(options, detail.options, controller.selectOption);
     if (policyPanels) {

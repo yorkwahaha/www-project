@@ -135,7 +135,34 @@ describe('public poll creation page', () => {
       },
     );
 
-    const links = root.children.filter((child) => child.tagName === 'a');
+    const collectByClass = (
+      element: ReturnType<typeof createDomRoot>,
+      className: string,
+    ): ReturnType<typeof createDomRoot>[] => {
+      const matches: ReturnType<typeof createDomRoot>[] = [];
+      if (element.className === className) {
+        matches.push(element);
+      }
+      for (const child of element.children ?? []) {
+        matches.push(...collectByClass(child, className));
+      }
+      return matches;
+    };
+    const collectByTag = (
+      element: ReturnType<typeof createDomRoot>,
+      tagName: string,
+    ): ReturnType<typeof createDomRoot>[] => {
+      const matches: ReturnType<typeof createDomRoot>[] = [];
+      if (String(element.tagName).toLowerCase() === tagName) {
+        matches.push(element);
+      }
+      for (const child of element.children ?? []) {
+        matches.push(...collectByTag(child, tagName));
+      }
+      return matches;
+    };
+
+    const links = collectByTag(root, 'a');
     expect(links).toHaveLength(2);
     expect(links[0]!.href).toBe(
       '/vote/22222222-2222-4222-8222-222222222222',
@@ -145,9 +172,7 @@ describe('public poll creation page', () => {
     );
     expect(links[0]!.textContent).toBe('開啟投票頁');
     expect(links[1]!.textContent).toBe('開啟公開結果頁');
-    const codes = root.children.flatMap((child) =>
-      child.children?.filter((nested) => nested.className === 'share-url') ?? [],
-    );
+    const codes = collectByClass(root, 'share-url');
     expect(codes).toHaveLength(2);
     expect(codes[0]!.textContent).toBe(
       'https://example.test/vote/22222222-2222-4222-8222-222222222222',
@@ -161,7 +186,7 @@ describe('public poll creation page', () => {
     expect(serialized).not.toMatch(
       /option_id|shard|vote_token|user_id|session|device/i,
     );
-    const buttons = root.children.filter((child) => child.tagName === 'button');
+    const buttons = collectByClass(root, 'copy-link-button');
     expect(buttons.map((button) => button.textContent)).toEqual([
       '複製投票連結',
       '複製結果連結',

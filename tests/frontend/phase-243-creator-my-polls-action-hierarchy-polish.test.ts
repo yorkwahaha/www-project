@@ -104,7 +104,8 @@ describe('Phase 243 creator my polls action hierarchy polish', () => {
     expect(myPollsSource).toContain('createCreatorOwnedPollActionArea');
     expect(myPollsSource).toContain('buildCreatorOwnedPollHeader');
     expect(myPollsSource).toContain('actionLayoutHosts: actionSlots');
-    expect(myPollsSource).toContain('actionSlots.secondary.append(shareVote)');
+    expect(myPollsSource).toContain('mountCreatorOwnedPollShareLinks');
+    expect(myPollsSource).toContain('actionSlots.secondary.append(shareHost');
     expect(myPollsSource).toContain('renderCreatorManageLinks(actionSlots.navLinks');
     expect(myPollsSource).not.toMatch(FORBIDDEN_AGGREGATE);
   });

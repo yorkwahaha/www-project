@@ -107,14 +107,25 @@ describe('public MVP UI helpers', () => {
     const root = createElement('section');
     const pollId = '33333333-3333-4333-8333-333333333333';
 
+    function collectByClass(
+      element: ReturnType<typeof createElement>,
+      className: string,
+    ): ReturnType<typeof createElement>[] {
+      const matches: ReturnType<typeof createElement>[] = [];
+      if (element.className === className) {
+        matches.push(element);
+      }
+      for (const child of element.children) {
+        matches.push(...collectByClass(child, className));
+      }
+      return matches;
+    }
+
     renderPollSharePanel(root, pollId, {
       locationObject: { origin: 'https://share.example' },
     });
 
-    const urls = root.children
-      .flatMap((child) => child.children ?? [])
-      .filter((child) => child.className === 'share-url')
-      .map((child) => child.textContent);
+    const urls = collectByClass(root, 'share-url').map((child) => child.textContent);
     expect(urls).toEqual([
       `https://share.example/vote/${pollId}`,
       `https://share.example/results/${pollId}`,

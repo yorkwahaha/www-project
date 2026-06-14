@@ -105,6 +105,12 @@ function ensurePreVoteHintMount(documentObject) {
   mount = documentObject.createElement('aside');
   mount.id = PRE_VOTE_HINT_MOUNT_ID;
 
+  const preVoteRegion = documentObject.getElementById('vote-detail-pre-vote-hints');
+  if (preVoteRegion && typeof preVoteRegion.append === 'function') {
+    preVoteRegion.append(mount);
+    return mount;
+  }
+
   const form = documentObject.getElementById('vote-form');
   if (form?.parentElement && typeof form.parentElement.insertBefore === 'function') {
     form.parentElement.insertBefore(mount, form);

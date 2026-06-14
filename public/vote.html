@@ -17,66 +17,107 @@
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
       <div class="mvp-vote-layout">
-        <div class="mvp-vote-main">
+        <div class="mvp-vote-main mvp-vote-detail">
           <p class="mvp-brand">參與投票</p>
-          <h1 id="poll-title" aria-live="polite">載入問卷中，請稍候。</h1>
-          <p id="poll-description"></p>
 
-          <p class="mvp-mock-banner" role="note" id="vote-page-reminder-lead">
-            此頁可閱讀問卷、選擇一個選項並送出。正式投票可能需要登入；送出當下由系統處理，並判定是否可計票。範例問卷（如 /vote/demo）僅展示流程，不儲存票數。
-          </p>
+          <header class="mvp-vote-detail-header" aria-label="問卷標題">
+            <h1 id="poll-title" aria-live="polite">載入問卷中，請稍候。</h1>
+          </header>
 
-          <p class="mvp-meta vote-view-results-nav-hint" id="vote-view-results-nav-hint" hidden></p>
-
-          <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="投票須知">
-            <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0 0 0.35rem">投票須知</h2>
-            <ul class="mvp-form-hint-list" id="vote-policy-hint-list" style="margin:0">
-              <li>正式投票可能需要登入；送出當下才會判定是否可計票（<a href="/trust-levels">說明</a>）。此提示不代表一定可以完成投票。</li>
-              <li>收集中不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計（<a href="/faq">常見問題</a>）</li>
-              <li>暫不投票或稍後再試時，可關注結果，於公開後查看彙總</li>
-              <li>投票後可協助回饋題目品質；優質題目非單純按讚，亦非正式檢舉</li>
-            </ul>
-          </aside>
-
-          <div id="vote-collecting-notice" class="mvp-policy-panel mvp-policy-panel-compact" aria-label="收票規則">
-            <div class="mvp-policy-panel-header">
-              <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0">收集中</h2>
-              <span class="mvp-badge mvp-badge-collecting">收集中</span>
-            </div>
-            <p class="policy-panel-text" id="vote-collecting-notice-body" style="margin:0">
-              不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。
-            </p>
-          </div>
-
-          <aside
-            id="official-vote-pre-vote-hint"
-            class="mvp-official-vote-pre-vote-hint"
-            aria-label="正式投票提醒"
-            hidden
-          ></aside>
-
-          <div id="vote-policy-panels" class="vote-policy-panels" hidden></div>
-
-          <form id="vote-form" class="mvp-form" hidden aria-labelledby="poll-title">
-            <fieldset>
-              <legend>請選擇一個選項</legend>
-              <div id="poll-options" role="radiogroup" aria-label="投票選項"></div>
-            </fieldset>
-            <button
-              id="vote-submit"
-              type="submit"
-              class="mvp-btn-primary"
-              aria-describedby="form-message"
-            >送出投票</button>
-          </form>
-
-          <p id="form-message" role="status" aria-live="polite"></p>
-          <section id="error-panel" role="alert" aria-live="assertive" hidden></section>
           <section
-            id="success-panel"
-            role="region"
-            aria-label="投票成功"
-            aria-live="polite"
+            id="vote-detail-status-meta"
+            class="mvp-vote-detail-status-meta"
+            aria-label="問卷狀態與資訊"
+            hidden
+          >
+            <div
+              id="vote-detail-status-row"
+              class="mvp-vote-detail-status-row"
+              hidden
+            ></div>
+            <p
+              id="vote-detail-meta-line"
+              class="mvp-vote-detail-meta mvp-meta"
+              hidden
+            ></p>
+            <p id="poll-description" class="mvp-vote-detail-description"></p>
+
+            <div id="vote-collecting-notice" class="mvp-policy-panel mvp-policy-panel-compact" aria-label="收票規則">
+              <div class="mvp-policy-panel-header">
+                <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0">收集中</h2>
+                <span class="mvp-badge mvp-badge-collecting">收集中</span>
+              </div>
+              <p class="policy-panel-text" id="vote-collecting-notice-body" style="margin:0">
+                不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。
+              </p>
+            </div>
+
+            <p class="mvp-meta vote-view-results-nav-hint" id="vote-view-results-nav-hint" hidden></p>
+          </section>
+
+          <section
+            id="vote-detail-pre-vote-hints"
+            class="mvp-vote-detail-pre-vote-hints"
+            aria-label="投票前提醒"
+          >
+            <p class="mvp-mock-banner" role="note" id="vote-page-reminder-lead">
+              此頁可閱讀問卷、選擇一個選項並送出。正式投票可能需要登入；送出當下由系統處理，並判定是否可計票。範例問卷（如 /vote/demo）僅展示流程，不儲存票數。
+            </p>
+
+            <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="投票須知">
+              <h2 class="mvp-policy-panel-title" style="font-size:1rem;margin:0 0 0.35rem">投票須知</h2>
+              <ul class="mvp-form-hint-list" id="vote-policy-hint-list" style="margin:0">
+                <li>正式投票可能需要登入；送出當下才會判定是否可計票（<a href="/trust-levels">說明</a>）。此提示不代表一定可以完成投票。</li>
+                <li>收集中不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計（<a href="/faq">常見問題</a>）</li>
+                <li>暫不投票或稍後再試時，可關注結果，於公開後查看彙總</li>
+                <li>投票後可協助回饋題目品質；優質題目非單純按讚，亦非正式檢舉</li>
+              </ul>
+            </aside>
+
+            <aside
+              id="official-vote-pre-vote-hint"
+              class="mvp-official-vote-pre-vote-hint"
+              aria-label="正式投票提醒"
+              hidden
+            ></aside>
+
+            <div id="vote-policy-panels" class="vote-policy-panels" hidden></div>
+          </section>
+
+          <section
+            id="vote-detail-action-area"
+            class="mvp-vote-detail-action-area"
+            aria-label="投票操作"
+          >
+            <form id="vote-form" class="mvp-form" hidden aria-labelledby="poll-title">
+              <fieldset>
+                <legend>請選擇一個選項</legend>
+                <div id="poll-options" role="radiogroup" aria-label="投票選項"></div>
+              </fieldset>
+              <button
+                id="vote-submit"
+                type="submit"
+                class="mvp-btn-primary"
+                aria-describedby="form-message"
+              >送出投票</button>
+            </form>
+
+            <p id="form-message" role="status" aria-live="polite"></p>
+
+            <section
+              id="success-panel"
+              role="region"
+              aria-label="投票成功"
+              aria-live="polite"
+              hidden
+            ></section>
+          </section>
+
+          <section
+            id="error-panel"
+            class="mvp-vote-detail-unavailable"
+            role="alert"
+            aria-live="assertive"
             hidden
           ></section>
         </div>

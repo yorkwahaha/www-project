@@ -97,7 +97,7 @@ describe('Phase 118 explore page runtime review checkpoint', () => {
       '目前無法載入探索列表，請稍後再試。',
     );
     expect(EXPLORE_LOAD_MORE_FAILURE_MESSAGE).toBe(
-      '無法載入更多問卷，請稍後再試。',
+      '目前無法載入更多問卷，請稍後再試。',
     );
 
     const nonOkFetch = vi.fn().mockResolvedValue({

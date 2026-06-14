@@ -211,11 +211,13 @@ export const PUBLIC_SUCCESS_USER_MESSAGES = [
 
 /** Frontend-owned neutral pre-vote hints when submit may be unavailable. */
 export const PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT =
-  '正式投票可能需要登入。若你尚未登入，可前往登入頁完成登入後再嘗試投票。';
+  '正式投票可能需要登入。若你尚未登入，請先登入後再嘗試投票；此提示不代表一定可以完成投票。';
 export const PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT =
-  '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；此提示不代表一定可以完成投票。';
+  '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；這不代表你一定符合或不符合任何投票資格。';
 export const PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT =
   '送出投票後，系統會依該投票的規則在當下判定是否可計票。此提示不代表一定可以完成投票。';
+export const PUBLIC_VOTE_PRE_VOTE_PROFILE_LOAD_FAILED_HINT =
+  '目前無法載入個人資料提示。送出投票後，系統會依該投票的規則在當下判定是否可計票；此提示不代表一定可以完成投票。';
 
 /** Frontend-owned results unavailable / non-aggregate copy. */
 export const PUBLIC_RESULTS_COLLECTING_TITLE = '結果尚未公開';
@@ -234,7 +236,7 @@ export const PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY =
 
 /** Frontend-owned explore unavailable copy. */
 export const PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE =
-  '無法載入更多問卷，請稍後再試。';
+  '目前無法載入更多問卷，請稍後再試。';
 
 /** Allowlist of safe user-visible load / save failure messages across public surfaces. */
 export const PUBLIC_LOAD_FAILURE_USER_MESSAGES = [
@@ -316,6 +318,7 @@ export const PUBLIC_UNAVAILABLE_USER_MESSAGES = [
   PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT,
   PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT,
   PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
+  PUBLIC_VOTE_PRE_VOTE_PROFILE_LOAD_FAILED_HINT,
   PUBLIC_RESULTS_COLLECTING_TITLE,
   PUBLIC_RESULTS_COLLECTING_SUMMARY,
   PUBLIC_RESULTS_CANCELLED_TITLE,
@@ -603,6 +606,8 @@ export const PUBLIC_CREATE_POLL_PAGE_LEAD =
   '發布後無法在此修改題目或選項；收集中看不到期中結果。';
 export const PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD =
   '目前為公開展示版：展示用，不儲存；以範例展示各狀態；收集中不顯示票數、百分比、總計、排名、趨勢或進度。優質題目依多種訊號判定，非單純按讚。';
+export const PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD =
+  '此為正式公開結果頁（唯讀）：收集中不顯示票數、百分比、總計、排名、趨勢或進度；已公開結果為顯示安全的區間化摘要。';
 export const PUBLIC_VOTE_PAGE_REMINDER_LEAD =
   '正式投票可能需要登入，並會在送出當下由系統處理。範例問卷（如 /vote/demo）僅展示 UI，不儲存票數。';
 
@@ -618,6 +623,7 @@ export const PUBLIC_PAGE_LEAD_PARAGRAPHS = [
   PUBLIC_MY_POLLS_PAGE_LEAD,
   PUBLIC_CREATE_POLL_PAGE_LEAD,
   PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD,
+  PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD,
   PUBLIC_VOTE_PAGE_REMINDER_LEAD,
 ];
 
@@ -667,6 +673,7 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT,
   PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT,
   PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
+  PUBLIC_VOTE_PRE_VOTE_PROFILE_LOAD_FAILED_HINT,
   PUBLIC_VOTE_SUCCESS_RESULT_HINT,
   PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
   PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
@@ -678,6 +685,8 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   PUBLIC_RESULTS_INTRO_LEAD_HINT,
   PUBLIC_RESULTS_INTRO_SCOPE_HINT,
   PUBLIC_RESULTS_INTRO_VOTE_HINT,
+  PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD,
+  PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD,
   PUBLIC_RESULTS_COLLECTING_SUMMARY,
   PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT,
   PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
@@ -698,6 +707,8 @@ export const PUBLIC_PAGE_INTRO_TEXTS = [
   PUBLIC_RESULTS_INTRO_LEAD_HINT,
   PUBLIC_RESULTS_INTRO_SCOPE_HINT,
   PUBLIC_RESULTS_INTRO_VOTE_HINT,
+  PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD,
+  PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD,
   PUBLIC_RESULTS_COLLECTING_SUMMARY,
   PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
   PUBLIC_CREATE_POLL_SHARE_SUCCESS_LEAD,

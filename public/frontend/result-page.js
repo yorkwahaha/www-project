@@ -20,6 +20,7 @@ import {
   PUBLIC_RESULTS_COLLECTING_STATUS_ARIA_LABEL,
   PUBLIC_RESULTS_DEMO_READONLY_TITLE,
   PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD,
+  PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD,
   PUBLIC_RESULTS_INTRO_LEAD_HINT,
   PUBLIC_RESULTS_INTRO_SCOPE_HINT,
   PUBLIC_RESULTS_INTRO_VOTE_HINT,
@@ -77,6 +78,7 @@ export const RESULTS_PUBLIC_OPTIONS_HEADING = PUBLIC_RESULTS_PUBLIC_OPTIONS_HEAD
 export const RESULTS_POLL_OPTIONS_HEADING = PUBLIC_RESULTS_POLL_OPTIONS_HEADING;
 export const RESULTS_PAGE_READONLY_TITLE = PUBLIC_RESULTS_PUBLIC_READONLY_TITLE;
 export const RESULTS_PAGE_DEMO_INTRO_LEAD = PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD;
+export const RESULTS_PAGE_LIVE_INTRO_LEAD = PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD;
 export const RESULTS_POLL_UNAVAILABLE_MESSAGE = PUBLIC_RESULTS_POLL_UNAVAILABLE_MESSAGE;
 export const RESULTS_EMPTY_AGGREGATE_MESSAGE = PUBLIC_RESULTS_EMPTY_AGGREGATE_MESSAGE;
 export const RESULTS_LOAD_FAILURE_MESSAGE = PUBLIC_RESULTS_LOAD_FAILURE_MESSAGE;
@@ -660,13 +662,18 @@ export function syncResultsPageSectionHeadings(
   syncResultsPageBrand(documentObject, readonlyTitle);
 }
 
-export function syncResultsPageLeadParagraphs(documentObject) {
+export function syncResultsPageLeadParagraphs(
+  documentObject,
+  { demoOnly = false } = {},
+) {
   if (typeof documentObject.getElementById !== 'function') {
     return;
   }
   const demoIntro = documentObject.getElementById('results-page-demo-intro');
   if (demoIntro) {
-    demoIntro.textContent = PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD;
+    demoIntro.textContent = demoOnly
+      ? PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD
+      : PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD;
   }
 }
 
@@ -690,7 +697,6 @@ export async function bootstrapResultPage({
 
   mountSiteChrome(documentObject);
   syncResultsPageSectionHeadings(documentObject);
-  syncResultsPageLeadParagraphs(documentObject);
 
   const uiMockState = parseUiMockState(windowObject.location.search);
   mountUiMockPreviewChrome(documentObject, uiMockState);
@@ -738,6 +744,7 @@ export async function bootstrapResultPage({
   }
 
   const demoOnly = isDemoPollRouteId(pollId);
+  syncResultsPageLeadParagraphs(documentObject, { demoOnly });
   if (statePreviewLinks) {
     renderResultUiStatePreviewLinks(statePreviewLinks, pollId);
     statePreviewLinks.hidden = false;

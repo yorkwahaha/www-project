@@ -158,10 +158,13 @@ describe('Phase 155 public page intro / lead paragraph consistency polish', () =
     expect(myPollsLead.textContent).toBe(publicUi.PUBLIC_MY_POLLS_PAGE_LEAD);
 
     const resultsIntro = { textContent: '' };
-    results.syncResultsPageLeadParagraphs({
-      getElementById: (id: string) =>
-        id === 'results-page-demo-intro' ? resultsIntro : null,
-    });
+    results.syncResultsPageLeadParagraphs(
+      {
+        getElementById: (id: string) =>
+          id === 'results-page-demo-intro' ? resultsIntro : null,
+      },
+      { demoOnly: true },
+    );
     expect(resultsIntro.textContent).toBe(publicUi.PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD);
   });
 

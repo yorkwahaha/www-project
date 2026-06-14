@@ -102,7 +102,7 @@ describe('Phase 150 public help / hint text runtime review checkpoint', () => {
       publicUi.PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
     );
     expect(preVote.PRE_VOTE_HINT_COPY.profileLoadFailed).toBe(
-      publicUi.PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
+      publicUi.PUBLIC_VOTE_PRE_VOTE_PROFILE_LOAD_FAILED_HINT,
     );
 
     for (const hint of Object.values(preVote.PRE_VOTE_HINT_COPY)) {

@@ -185,7 +185,7 @@ describe('Phase 168 public explore feed UX review checkpoint', () => {
     expect(EXPLORE_FEED_LOADING_MESSAGE).toBe('載入探索列表中，請稍候。');
     expect(EXPLORE_LOAD_MORE_PENDING_MESSAGE).toBe('載入更多中，請稍候。');
     expect(EXPLORE_LOAD_FAILURE_MESSAGE).toBe('目前無法載入探索列表，請稍後再試。');
-    expect(EXPLORE_LOAD_MORE_FAILURE_MESSAGE).toBe('無法載入更多問卷，請稍後再試。');
+    expect(EXPLORE_LOAD_MORE_FAILURE_MESSAGE).toBe('目前無法載入更多問卷，請稍後再試。');
 
     const failingFetch = vi.fn().mockResolvedValue({
       ok: false,

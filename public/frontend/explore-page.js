@@ -1,4 +1,13 @@
-import { renderQualityFeedbackBadge } from './quality-feedback-badge.js';
+import {
+  appendPublicPollCardStatusRow,
+  buildPublicPollCardFooter,
+  buildPublicPollCardHint,
+  buildPublicPollCardMeta,
+  buildPublicPollCardTitle,
+  formatPublicPollCardMetaLine,
+  PUBLIC_POLL_CARD_CLASS,
+} from './public-poll-card.js';
+export { renderQualityFeedbackBadge } from './quality-feedback-badge.js';
 import {
   buildPublicVotePath,
   PUBLIC_CTA_GO_TO_VOTE_LABEL,
@@ -143,48 +152,36 @@ export function renderExplorePollCard(documentObject, poll) {
   }
 
   const article = documentObject.createElement('article');
-  article.className = 'mvp-poll-card';
+  article.className = PUBLIC_POLL_CARD_CLASS;
   article.dataset.pollId = poll.poll_id;
 
-  const top = documentObject.createElement('div');
-  top.className = 'mvp-poll-card-top';
-
-  const title = documentObject.createElement('h3');
-  title.textContent = poll.title;
-
-  const badgeGroup = documentObject.createElement('div');
-  badgeGroup.className = 'mvp-poll-card-badges';
+  article.append(buildPublicPollCardTitle(documentObject, poll.title));
 
   const statusBadge = documentObject.createElement('span');
   statusBadge.className = 'mvp-badge mvp-badge-collecting';
   statusBadge.textContent = EXPLORE_COLLECTING_STATUS_LABEL;
-  badgeGroup.append(statusBadge);
+  appendPublicPollCardStatusRow(documentObject, article, {
+    statusElement: statusBadge,
+    pollRecord: poll,
+  });
 
-  const qualityFeedbackBadge = renderQualityFeedbackBadge(documentObject, poll);
-  if (qualityFeedbackBadge) {
-    badgeGroup.append(qualityFeedbackBadge);
-  }
-
-  top.append(title, badgeGroup);
-
-  const meta = documentObject.createElement('p');
-  meta.className = 'mvp-poll-card-meta';
-  meta.textContent = `${formatExploreCategory(poll.category)} · ${poll.published_display}`;
-
-  const hint = documentObject.createElement('p');
-  hint.className = 'mvp-poll-card-hint';
-  hint.textContent = EXPLORE_COLLECTING_STATUS_HINT;
-
-  const footer = documentObject.createElement('div');
-  footer.className = 'mvp-poll-card-footer';
+  article.append(
+    buildPublicPollCardMeta(
+      documentObject,
+      formatPublicPollCardMetaLine(
+        formatExploreCategory(poll.category),
+        poll.published_display,
+      ),
+    ),
+  );
+  article.append(buildPublicPollCardHint(documentObject, EXPLORE_COLLECTING_STATUS_HINT));
 
   const voteLink = documentObject.createElement('a');
   voteLink.className = 'mvp-btn mvp-btn-primary';
   voteLink.href = buildPublicVotePath(poll.poll_id);
   voteLink.textContent = PUBLIC_CTA_GO_TO_VOTE_LABEL;
 
-  footer.append(voteLink);
-  article.append(top, meta, hint, footer);
+  article.append(buildPublicPollCardFooter(documentObject, voteLink));
   return article;
 }
 

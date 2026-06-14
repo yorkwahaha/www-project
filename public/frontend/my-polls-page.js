@@ -54,6 +54,12 @@ import {
   formatPublicPollLifecycleStatusLabel,
   renderPublicInlineErrorNote,
 } from './public-mvp-ui.js';
+import {
+  appendPublicPollCardStatusRow,
+  buildPublicPollCardMeta,
+  formatPublicPollCardCloseTimeLabel,
+  formatPublicPollCardMetaLine,
+} from './public-poll-card.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
   ensureCreatorSessionForLiveMode,
@@ -491,18 +497,22 @@ function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
     : '即時問卷';
   pollHost.append(heading);
 
-  const meta = documentObject.createElement('p');
-  meta.className = 'mvp-meta mvp-creator-live-poll-meta';
   const badge = documentObject.createElement('span');
   badge.className = lifecycleBadgeClassForMyPolls(poll.public_lifecycle_state);
   badge.textContent = formatMyPollsLifecycleLabel(poll.public_lifecycle_state);
-  meta.append(badge);
-  if (poll.category) {
-    const category = documentObject.createElement('span');
-    category.textContent = ` · ${poll.category}`;
-    meta.append(category);
+  appendPublicPollCardStatusRow(documentObject, pollHost, {
+    statusElement: badge,
+  });
+
+  const metaLine = formatPublicPollCardMetaLine(
+    poll.category,
+    formatPublicPollCardCloseTimeLabel(poll.closes_at),
+  );
+  if (metaLine) {
+    const meta = buildPublicPollCardMeta(documentObject, metaLine);
+    meta.className = 'mvp-poll-card-meta mvp-creator-live-poll-meta';
+    pollHost.append(meta);
   }
-  pollHost.append(meta);
 
   renderCreatorManageLinks(pollHost, {
     pollId: poll.poll_id,

@@ -272,7 +272,7 @@ export const PUBLIC_SUCCESS_USER_MESSAGES = [
 export const PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT =
   '正式投票可能需要登入。若你尚未登入，請先登入後再嘗試投票；此提示不代表一定可以完成投票。';
 export const PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT =
-  '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；這不代表你一定符合或不符合任何投票資格。';
+  '部分正式投票可能在送出當下檢查出生年月與居住地區。若尚未填寫，可至個人資料頁補充；這不代表你一定符合或不符合任何投票資格。';
 export const PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT =
   '送出投票後，系統會依該投票的規則在當下判定是否可計票。此提示不代表一定可以完成投票。';
 export const PUBLIC_VOTE_PRE_VOTE_PROFILE_LOAD_FAILED_HINT =
@@ -545,6 +545,42 @@ export const PUBLIC_AUTH_SIGNED_IN_STATUS_ARIA_PREFIX = '已登入';
 export const PUBLIC_AUTH_LOGOUT_STATUS_LABEL = '登出';
 export const PUBLIC_AUTH_SIGN_IN_REQUIRED_STATUS_LABEL = '需登入';
 
+/** Frontend-owned header / auth-state onboarding copy (Phase 223). */
+export const PUBLIC_AUTH_GUEST_CHIP_TITLE =
+  '登入後頁首才會顯示帳號名稱。註冊只建立帳號資料，不會自動登入。';
+export const PUBLIC_AUTH_DEMO_IDENTITY_CHIP_ARIA_LABEL =
+  '目前為 MVP 測試身份展示，非正式登入或 creator_session';
+export const PUBLIC_AUTH_DEMO_IDENTITY_CHIP_TITLE =
+  '本機以 X-User-Id 示範個人資料與投票；發起者流程請用 creator_session（?live=1）';
+export const PUBLIC_AUTH_BANNER_ARIA_LABEL = '身分與登入狀態說明';
+export const PUBLIC_AUTH_BANNER_GUEST_LEAD = '正式帳號流程';
+export const PUBLIC_AUTH_BANNER_GUEST_BODY =
+  '註冊只建立帳號資料，不會自動登入；完成註冊後請到登入頁。登入後才會在頁首顯示帳號名稱。缺少已核准憑證時，受保護功能會拒絕存取，不會退回 MVP X-User-Id 或 creator_session。';
+export const PUBLIC_AUTH_BANNER_LOCAL_DEMO_TITLE = '本機 demo 測試身份';
+export const PUBLIC_AUTH_BANNER_LOCAL_DEMO_BODY =
+  '個人資料與投票使用 MVP X-User-Id；發起問卷請用 ?live=1 的 creator_session（僅 /creator/*，非一般 user auth）。';
+export const PUBLIC_AUTH_BANNER_NAV_DEMO_NOTE =
+  '上方「展示用已登入導覽」僅切換導覽列外觀，並非真實登入或帳號狀態。';
+export const PUBLIC_AUTH_DEMO_NAV_SWITCH_LABEL = '切換導覽展示（非登入）';
+export const PUBLIC_AUTH_DEMO_NAV_GUEST_LINK = '訪客導覽';
+export const PUBLIC_AUTH_DEMO_NAV_LOGGED_IN_LINK = '展示用已登入導覽';
+
+/** Allowlist of safe user-visible header / auth-state onboarding messages. */
+export const PUBLIC_AUTH_STATE_ONBOARDING_MESSAGES = [
+  PUBLIC_AUTH_GUEST_CHIP_TITLE,
+  PUBLIC_AUTH_DEMO_IDENTITY_CHIP_ARIA_LABEL,
+  PUBLIC_AUTH_DEMO_IDENTITY_CHIP_TITLE,
+  PUBLIC_AUTH_BANNER_ARIA_LABEL,
+  PUBLIC_AUTH_BANNER_GUEST_LEAD,
+  PUBLIC_AUTH_BANNER_GUEST_BODY,
+  PUBLIC_AUTH_BANNER_LOCAL_DEMO_TITLE,
+  PUBLIC_AUTH_BANNER_LOCAL_DEMO_BODY,
+  PUBLIC_AUTH_BANNER_NAV_DEMO_NOTE,
+  PUBLIC_AUTH_DEMO_NAV_SWITCH_LABEL,
+  PUBLIC_AUTH_DEMO_NAV_GUEST_LINK,
+  PUBLIC_AUTH_DEMO_NAV_LOGGED_IN_LINK,
+];
+
 /** Frontend-owned poll lifecycle status badge labels. */
 export const PUBLIC_POLL_LIFECYCLE_DRAFT_STATUS_LABEL = '草稿';
 export const PUBLIC_POLL_LIFECYCLE_COLLECTING_STATUS_LABEL = '收集中';
@@ -675,7 +711,7 @@ export const PUBLIC_REGISTRATION_READY_HINT =
 
 /** Frontend-owned profile completion prompt helper hint. */
 export const PUBLIC_PROFILE_COMPLETION_PROMPT_HINT =
-  '部分正式投票可能會在投票當下檢查出生年月與粗粒度居住地區。若你尚未填寫，可至個人資料頁補充或更新；這不代表你一定符合或不符合任何投票資格。';
+  '部分正式投票可能在送出當下檢查出生年月與居住地區。若尚未填寫，可至個人資料頁補充；這不代表你一定符合或不符合任何投票資格。';
 
 /** Frontend-owned page lead paragraphs below main page titles / hero headings. */
 export const PUBLIC_HOME_HERO_LEAD =
@@ -791,6 +827,7 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT,
   PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX,
   PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
+  ...PUBLIC_AUTH_STATE_ONBOARDING_MESSAGES,
 ];
 
 /** Allowlist of safe user-visible page intro / section lead copy across public surfaces. */
@@ -827,10 +864,25 @@ export const PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM = '截止即公開結果';
 export const PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM = '公開鎖定期約 5 天';
 
 /** Frontend-owned homepage static example supporting notes. */
+export const PUBLIC_HOME_SAMPLE_POLLS_EXPLORE_LINK_LABEL = '探索問卷';
 export const PUBLIC_HOME_SAMPLE_POLLS_SECTION_NOTE =
-  '探索問卷已列出最近發布、仍在收集中的公開問卷（依發布時間排序；非熱門、票數、個人化或榜單；不顯示票數與結果預覽）。下方卡片為靜態範例，僅供預覽各狀態文案。';
+  '已列出最近發布、仍在收集中的公開問卷（依發布時間排序；非熱門、票數、個人化或榜單；不顯示票數與結果預覽）。下方卡片為靜態範例，僅供預覽各狀態文案。';
 export const PUBLIC_HOME_STATIC_EXAMPLES_FOOTER_NOTE =
   '想認識各種問卷狀態？可在結果頁切換「收集中」「公開鎖定期」「已取消」等範例，或查看常見問題。';
+export const PUBLIC_HOME_ACCOUNT_FLOW_FORMAL_LEAD = '正式帳號：';
+export const PUBLIC_HOME_ACCOUNT_FLOW_REGISTRATION_NOTE =
+  '只建立帳號，不會自動登入';
+export const PUBLIC_HOME_ACCOUNT_FLOW_LOGIN_NOTE =
+  '登入後頁首才會顯示帳號名稱';
+export const PUBLIC_HOME_DEMO_FLOW_LEAD = '本機 demo：';
+export const PUBLIC_HOME_DEMO_CREATE_POLL_LINK_LABEL = '建立問卷（?live=1）';
+export const PUBLIC_HOME_DEMO_CREATE_POLL_HREF = '/polls/new?live=1';
+export const PUBLIC_HOME_PROFILE_HREF = '/profile';
+export const PUBLIC_HOME_DEMO_CREATOR_SESSION_NOTE = '使用 creator_session；';
+export const PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE =
+  '個人資料與投票使用 MVP X-User-Id。';
+export const PUBLIC_HOME_MANUAL_QA_DOC_NOTE =
+  '測試順序見專案文件 public-mvp-manual-qa。';
 export const PUBLIC_HOME_COLLECTING_CARD_TOOLTIP =
   '不顯示票數、百分比、總計、排名、趨勢或進度。';
 
@@ -954,6 +1006,11 @@ export const PUBLIC_SUPPORTING_NOTES = [
   PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY,
   PUBLIC_HOME_SAMPLE_POLLS_SECTION_NOTE,
   PUBLIC_HOME_STATIC_EXAMPLES_FOOTER_NOTE,
+  PUBLIC_HOME_ACCOUNT_FLOW_REGISTRATION_NOTE,
+  PUBLIC_HOME_ACCOUNT_FLOW_LOGIN_NOTE,
+  PUBLIC_HOME_DEMO_CREATOR_SESSION_NOTE,
+  PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE,
+  PUBLIC_HOME_MANUAL_QA_DOC_NOTE,
 ];
 
 /** Shared public form field labels. */

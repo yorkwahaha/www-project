@@ -39,12 +39,11 @@
             ·
             <a href="/profile">個人資料</a>
           </p>
-          <p class="mvp-meta" role="note" style="margin-top:0.5rem">
+          <p class="mvp-meta" id="home-account-flow-note" role="note" style="margin-top:0.5rem">
             正式帳號：<a href="/registration">註冊</a>（只建立帳號，不會自動登入）·
             <a href="/login">登入</a>（登入後頁首才顯示帳號名稱）。
-            本機 demo：<a href="/polls/new?live=1">建立問卷（即時）</a> 用 <code>creator_session</code>；
+            本機 demo：<a href="/polls/new?live=1">建立問卷（?live=1）</a> 用 <code>creator_session</code>；
             <a href="/profile">個人資料</a>／投票用 MVP <code>X-User-Id</code>。
-            測試順序見 <code>docs/www-project-public-mvp-manual-qa-v1.md</code> §3.10。
           </p>
         </div>
         <div class="mvp-mascot mvp-mascot--collecting" aria-hidden="true" title="問問">
@@ -68,9 +67,8 @@
       </div>
 
       <h2 class="mvp-section-title">範例問卷</h2>
-      <p class="mvp-meta" style="margin-top:-0.5rem;margin-bottom:0.75rem">
-        <a href="/explore">探索問卷</a>已列出<strong>最近發布</strong>、仍在<strong>收集中</strong>的公開問卷（依發布時間排序；非熱門、票數、個人化或榜單；不顯示票數與結果預覽）。
-        下方卡片為<strong>靜態範例</strong>，僅供預覽各狀態文案。
+      <p class="mvp-meta" id="home-sample-polls-section-note" style="margin-top:-0.5rem;margin-bottom:0.75rem">
+        <a href="/explore">探索問卷</a>已列出最近發布、仍在收集中的公開問卷（依發布時間排序；非熱門、票數、個人化或榜單；不顯示票數與結果預覽）。下方卡片為靜態範例，僅供預覽各狀態文案。
       </p>
 
       <div class="mvp-card-grid" data-static-examples="true" aria-label="靜態範例問卷">
@@ -119,7 +117,7 @@
         </article>
       </div>
 
-      <p class="note mvp-meta">
+      <p class="note mvp-meta" id="home-static-examples-footer-note">
         想認識各種問卷狀態？可在<a href="/results/demo">結果頁</a>切換「收集中」「公開鎖定期」「已取消」等範例，或查看<a href="/faq">常見問題</a>。
       </p>
     </div>

@@ -37,7 +37,7 @@ describe('Phase 75 auth state navigation copy guard', () => {
     expect(AUTH_STATE_COPY.demoIdentityChipLabel).toMatch(/MVP/);
     expect(AUTH_STATE_COPY.bannerLocalDemoBody).toContain('X-User-Id');
     expect(AUTH_STATE_COPY.bannerLocalDemoBody).toContain('creator_session');
-    expect(AUTH_STATE_COPY.bannerGuestBody).toMatch(/fail closed/i);
+    expect(AUTH_STATE_COPY.bannerGuestBody).toMatch(/會拒絕存取/);
   });
 
   it('routes guest header actions to /login with consistent labels', async () => {

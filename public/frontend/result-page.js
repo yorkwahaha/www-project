@@ -4,6 +4,7 @@ import {
   renderResultUiStatePreviewLinks,
 } from './public-mvp-demo.js';
 import { renderPublicUnavailableStatusBlock } from './public-unavailable-state.js';
+import { syncResultsDetailStatusMeta } from './public-results-detail-layout.js';
 import {
   isPublicMvpPagePollId,
   buildPublicVotePath,
@@ -516,6 +517,7 @@ function paintResultPageFromPayload(pageContext, result) {
       result,
     );
   }
+  syncResultsDetailStatusMeta(pageTitle?.ownerDocument ?? root?.ownerDocument, result);
   if (introRoot) {
     introRoot.hidden =
       uiMockState === 'cancelled' ||
@@ -721,6 +723,7 @@ export async function bootstrapResultPage({
       pageTitle.textContent = heading;
       mountQualityFeedbackBadgeNearTitle(documentObject, pageTitle, {});
     }
+    syncResultsDetailStatusMeta(documentObject, null);
     if (introRoot) {
       introRoot.hidden = true;
       introRoot.replaceChildren();

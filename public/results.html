@@ -16,39 +16,87 @@
         ·
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
+
+      <div class="mvp-results-detail">
       <p class="mvp-brand">公開結果（唯讀）</p>
-      <h1 id="page-title" aria-live="polite">公開結果（唯讀）</h1>
-      <p class="mvp-meta results-page-demo-intro" id="results-page-demo-intro">
-        目前為示範頁：展示用，不儲存；以範例展示各狀態（如 /results/demo）。收集中不顯示票數、百分比、總計、排名、趨勢或進度。優質題目依多種訊號判定，非單純按讚。
-      </p>
-      <p class="mvp-meta">
-        <a href="/faq">常見問題</a>
-      </p>
 
-      <p class="mvp-meta results-vote-nav-hint" id="results-vote-nav-hint" hidden></p>
-
-      <div id="result-state-preview-links" class="mvp-preview-links-host" hidden></div>
+      <header class="mvp-results-detail-header" aria-label="結果頁標題">
+        <h1 id="page-title" aria-live="polite">公開結果（唯讀）</h1>
+      </header>
 
       <section
-        id="results-intro"
-        class="results-intro"
-        aria-label="公開結果頁說明"
+        id="results-detail-status-meta"
+        class="mvp-results-detail-status-meta"
+        aria-label="問卷狀態與更新資訊"
+        hidden
+      >
+        <div
+          id="results-detail-status-row"
+          class="mvp-results-detail-status-row"
+          hidden
+        ></div>
+        <p
+          id="results-detail-meta-line"
+          class="mvp-results-detail-meta mvp-meta"
+          hidden
+        ></p>
+      </section>
+
+      <section
+        id="results-detail-visibility-hints"
+        class="mvp-results-detail-visibility-hints"
+        aria-label="結果可見度說明"
+      >
+        <p class="mvp-meta results-page-demo-intro" id="results-page-demo-intro">
+          目前為示範頁：展示用，不儲存；以範例展示各狀態（如 /results/demo）。收集中不顯示票數、百分比、總計、排名、趨勢或進度。優質題目依多種訊號判定，非單純按讚。
+        </p>
+        <p class="mvp-meta">
+          <a href="/faq">常見問題</a>
+        </p>
+
+        <p class="mvp-meta results-vote-nav-hint" id="results-vote-nav-hint" hidden></p>
+
+        <div id="result-state-preview-links" class="mvp-preview-links-host" hidden></div>
+
+        <section
+          id="results-intro"
+          class="results-intro"
+          aria-label="公開結果頁說明"
+          hidden
+        ></section>
+
+        <section id="creator-lifecycle-host" class="mvp-creator-lifecycle-panel" hidden></section>
+      </section>
+
+      <section
+        id="results-detail-content"
+        class="mvp-results-detail-content"
+        aria-label="投票結果統計"
+      >
+        <div
+          id="result-display"
+          role="region"
+          aria-label="投票結果統計"
+          aria-live="polite"
+        >載入結果中，請稍候。</div>
+      </section>
+
+      <section
+        id="error-panel"
+        class="mvp-results-detail-unavailable"
+        role="alert"
+        aria-live="assertive"
         hidden
       ></section>
 
-      <section id="creator-lifecycle-host" class="mvp-creator-lifecycle-panel" hidden></section>
-
-      <div
-        id="result-display"
-        role="region"
-        aria-label="投票結果統計"
-        aria-live="polite"
-      >載入結果中，請稍候。</div>
-
-      <section id="error-panel" role="alert" aria-live="assertive" hidden></section>
       <section id="public-notices" aria-label="修正公告" hidden></section>
 
-      <nav id="bottom-nav" class="public-nav mvp-result-footer" aria-label="頁面導覽"></nav>
+      <nav
+        id="bottom-nav"
+        class="public-nav mvp-result-footer mvp-results-detail-nav"
+        aria-label="頁面導覽"
+      ></nav>
+      </div>
     </main>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>
     <script type="module" src="/frontend/result-page.js"></script>

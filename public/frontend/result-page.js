@@ -33,6 +33,8 @@ import {
   PUBLIC_RESULTS_PAGE_LOADING_MESSAGE,
   PUBLIC_RESULTS_LOAD_FAILURE_MESSAGE,
   PUBLIC_RESULTS_PAGE_LOAD_ERROR_TITLE,
+  PUBLIC_RESULTS_VOTE_NAV_HINT_LEAD,
+  PUBLIC_RESULTS_VOTE_NAV_HINT_TAIL,
   PUBLIC_CTA_CREATOR_RESULTS_LABEL,
   PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL,
   PUBLIC_CTA_MY_POLLS_LABEL,
@@ -677,6 +679,33 @@ export function syncResultsPageLeadParagraphs(
   }
 }
 
+export function syncResultsOnboardingNavigationHints(documentObject, { pollId } = {}) {
+  if (typeof documentObject.getElementById !== 'function' || !pollId) {
+    return;
+  }
+  const navHint = documentObject.getElementById('results-vote-nav-hint');
+  if (!navHint || typeof navHint.replaceChildren !== 'function') {
+    return;
+  }
+  navHint.replaceChildren();
+  navHint.hidden = false;
+  navHint.append(documentObject.createTextNode(PUBLIC_RESULTS_VOTE_NAV_HINT_LEAD));
+  const voteLink = documentObject.createElement('a');
+  voteLink.href = buildPublicVotePath(pollId);
+  voteLink.textContent = PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL;
+  navHint.append(voteLink);
+  navHint.append(documentObject.createTextNode(PUBLIC_RESULTS_VOTE_NAV_HINT_TAIL));
+}
+
+export function syncResultsPageOnboardingCopy(
+  documentObject,
+  { demoOnly = false, pollId = null, windowObject = globalThis.window } = {},
+) {
+  syncResultsPageSectionHeadings(documentObject, windowObject);
+  syncResultsPageLeadParagraphs(documentObject, { demoOnly });
+  syncResultsOnboardingNavigationHints(documentObject, { pollId });
+}
+
 export async function bootstrapResultPage({
   windowObject = globalThis.window,
   documentObject = globalThis.document,
@@ -696,7 +725,6 @@ export async function bootstrapResultPage({
   }
 
   mountSiteChrome(documentObject);
-  syncResultsPageSectionHeadings(documentObject);
 
   const uiMockState = parseUiMockState(windowObject.location.search);
   mountUiMockPreviewChrome(documentObject, uiMockState);
@@ -744,7 +772,7 @@ export async function bootstrapResultPage({
   }
 
   const demoOnly = isDemoPollRouteId(pollId);
-  syncResultsPageLeadParagraphs(documentObject, { demoOnly });
+  syncResultsPageOnboardingCopy(documentObject, { demoOnly, pollId, windowObject });
   if (statePreviewLinks) {
     renderResultUiStatePreviewLinks(statePreviewLinks, pollId);
     statePreviewLinks.hidden = false;

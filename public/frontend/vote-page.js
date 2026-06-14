@@ -29,12 +29,22 @@ import {
   PUBLIC_VOTE_SUCCESS_STATUS_MESSAGE,
   PUBLIC_VOTE_SUBMIT_USER_MESSAGES,
   PUBLIC_FORM_VOTE_OPTIONS_LEGEND,
-  PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY,
+  PUBLIC_VOTE_COLLECTING_NOTICE_BODY,
   PUBLIC_VOTE_COLLECTING_PANEL_HEADING,
+  PUBLIC_VOTE_FOLLOW_RESULTS_MOCK_NOTE,
+  PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_BODY,
   PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_HEADING,
   PUBLIC_VOTE_PAGE_REMINDER_LEAD,
   PUBLIC_VOTE_PAGE_BRAND_LABEL,
+  PUBLIC_VOTE_POLICY_COLLECTING_HIDDEN_TEXT,
+  PUBLIC_VOTE_POLICY_FAQ_LINK_LABEL,
+  PUBLIC_VOTE_POLICY_FOLLOW_RESULTS_TEXT,
+  PUBLIC_VOTE_POLICY_LOGIN_TEXT,
   PUBLIC_VOTE_POLICY_PANEL_HEADING,
+  PUBLIC_VOTE_POLICY_QUALITY_FEEDBACK_TEXT,
+  PUBLIC_VOTE_POLICY_TRUST_LEVELS_LINK_LABEL,
+  PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_LEAD,
+  PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_TAIL,
   PUBLIC_VOTE_PAGE_LOADING_MESSAGE,
   PUBLIC_VOTE_PAGE_LOAD_ERROR_TITLE,
   renderPublicErrorPanel,
@@ -323,9 +333,94 @@ export function syncVotePageSectionHeadings(documentObject) {
   if (typeof documentObject.getElementById === 'function') {
     const collectingNoticeBody = documentObject.getElementById('vote-collecting-notice-body');
     if (collectingNoticeBody) {
-      collectingNoticeBody.textContent = PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY;
+      collectingNoticeBody.textContent = PUBLIC_VOTE_COLLECTING_NOTICE_BODY;
     }
   }
+}
+
+function appendVotePolicyListItem(list, documentObject, buildContent) {
+  const item = documentObject.createElement('li');
+  buildContent(item);
+  list.append(item);
+}
+
+export function syncVotePagePolicyPanelCopy(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const list = documentObject.getElementById('vote-policy-hint-list');
+  if (!list || typeof list.replaceChildren !== 'function') {
+    return;
+  }
+  list.replaceChildren();
+
+  appendVotePolicyListItem(list, documentObject, (item) => {
+    item.append(documentObject.createTextNode('正式投票可能需要登入；送出當下才會判定是否可計票（'));
+    const trustLink = documentObject.createElement('a');
+    trustLink.href = '/trust-levels';
+    trustLink.textContent = PUBLIC_VOTE_POLICY_TRUST_LEVELS_LINK_LABEL;
+    item.append(trustLink);
+    item.append(documentObject.createTextNode('）。此提示不代表一定可以完成投票。'));
+  });
+
+  appendVotePolicyListItem(list, documentObject, (item) => {
+    item.append(documentObject.createTextNode(PUBLIC_VOTE_POLICY_COLLECTING_HIDDEN_TEXT));
+    item.append(documentObject.createTextNode('（'));
+    const faqLink = documentObject.createElement('a');
+    faqLink.href = '/faq';
+    faqLink.textContent = PUBLIC_VOTE_POLICY_FAQ_LINK_LABEL;
+    item.append(faqLink);
+    item.append(documentObject.createTextNode('）'));
+  });
+
+  appendVotePolicyListItem(list, documentObject, (item) => {
+    item.textContent = PUBLIC_VOTE_POLICY_FOLLOW_RESULTS_TEXT;
+  });
+
+  appendVotePolicyListItem(list, documentObject, (item) => {
+    item.textContent = PUBLIC_VOTE_POLICY_QUALITY_FEEDBACK_TEXT;
+  });
+}
+
+export function syncVotePageSidePanelCopy(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const followBody = documentObject.getElementById('vote-follow-results-body');
+  if (followBody) {
+    followBody.textContent = PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_BODY;
+  }
+  const followMockNote = documentObject.getElementById('vote-follow-results-mock-note');
+  if (followMockNote) {
+    followMockNote.textContent = PUBLIC_VOTE_FOLLOW_RESULTS_MOCK_NOTE;
+  }
+}
+
+export function syncVoteOnboardingNavigationHints(documentObject, { pollId } = {}) {
+  if (typeof documentObject.getElementById !== 'function' || !pollId) {
+    return;
+  }
+  const navHint = documentObject.getElementById('vote-view-results-nav-hint');
+  if (!navHint || typeof navHint.replaceChildren !== 'function') {
+    return;
+  }
+  navHint.replaceChildren();
+  navHint.hidden = false;
+  navHint.append(documentObject.createTextNode(PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_LEAD));
+  const resultsLink = documentObject.createElement('a');
+  resultsLink.href = buildPublicResultPath(pollId);
+  resultsLink.textContent = PUBLIC_CTA_VIEW_PUBLIC_RESULTS_LABEL;
+  navHint.append(resultsLink);
+  navHint.append(documentObject.createTextNode(PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_TAIL));
+}
+
+export function syncVotePageOnboardingCopy(documentObject, { pollId } = {}) {
+  syncVotePageSectionHeadings(documentObject);
+  syncVotePageLeadParagraphs(documentObject);
+  syncVoteFormFieldCopy(documentObject);
+  syncVotePagePolicyPanelCopy(documentObject);
+  syncVotePageSidePanelCopy(documentObject);
+  syncVoteOnboardingNavigationHints(documentObject, { pollId });
 }
 
 export function syncVotePageLeadParagraphs(documentObject) {
@@ -344,10 +439,8 @@ export async function bootstrapVotePage({
   fetchImpl = globalThis.fetch,
   uuidFactory = () => globalThis.crypto.randomUUID(),
 } = {}) {
-  syncVotePageSectionHeadings(documentObject);
-  syncVotePageLeadParagraphs(documentObject);
-  syncVoteFormFieldCopy(documentObject);
   const pollId = getPollIdFromVotePath(windowObject.location.pathname);
+  syncVotePageOnboardingCopy(documentObject, { pollId });
   const title = documentObject.getElementById('poll-title');
   const description = documentObject.getElementById('poll-description');
   const options = documentObject.getElementById('poll-options');

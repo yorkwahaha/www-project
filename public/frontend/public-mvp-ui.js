@@ -210,11 +210,11 @@ export const PUBLIC_VOTE_DEMO_SUCCESS_MESSAGE =
 
 /** Frontend-owned vote success result-page hint copy. */
 export const PUBLIC_VOTE_SUCCESS_RESULT_HINT =
-  '收集中結果頁不顯示票數或百分比。結果公開後可查看彙總統計：';
+  '收集中結果頁不顯示票數或百分比。若想查看目前公開狀態說明，可前往公開結果頁：';
 
 /** Frontend-owned demo vote success result-page hint copy. */
 export const PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT =
-  '收集中結果頁不顯示票數或百分比。可前往結果頁查看收集中說明：';
+  '收集中結果頁不顯示票數或百分比。可前往結果頁查看示範狀態說明：';
 
 /** Frontend-owned lifecycle cancel success copy. */
 export const PUBLIC_LIFECYCLE_CANCEL_SUCCESS_MESSAGE =
@@ -781,11 +781,11 @@ export const PUBLIC_MY_POLLS_QUOTA_PANEL_TAIL = '。';
 export const PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_LEAD = '尚未建立問卷？可前往';
 export const PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_TAIL = '，完成後回到此頁管理。';
 export const PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD =
-  '目前為公開展示版：展示用，不儲存；以範例展示各狀態；收集中不顯示票數、百分比、總計、排名、趨勢或進度。優質題目依多種訊號判定，非單純按讚。';
+  '目前為示範頁：展示用，不儲存；以範例展示各狀態（如 /results/demo）。收集中不顯示票數、百分比、總計、排名、趨勢或進度。優質題目依多種訊號判定，非單純按讚。';
 export const PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD =
-  '此為正式公開結果頁（唯讀）：收集中不顯示票數、百分比、總計、排名、趨勢或進度；已公開結果為顯示安全的區間化摘要。';
+  '此為公開結果頁（唯讀）：可查看目前允許顯示的統計摘要，無法在此投票或編輯問卷。收集中不顯示票數、百分比、總計、排名、趨勢或進度；已公開結果為顯示安全的區間化摘要。';
 export const PUBLIC_VOTE_PAGE_REMINDER_LEAD =
-  '正式投票可能需要登入，並會在送出當下由系統處理。範例問卷（如 /vote/demo）僅展示 UI，不儲存票數。';
+  '此頁可閱讀問卷、選擇一個選項並送出。正式投票可能需要登入；送出當下由系統處理，並判定是否可計票。範例問卷（如 /vote/demo）僅展示流程，不儲存票數。';
 
 /** Allowlist of safe user-visible page lead paragraphs. */
 export const PUBLIC_PAGE_LEAD_PARAGRAPHS = [
@@ -814,10 +814,60 @@ export const PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT =
 
 /** Frontend-owned results page intro helper hints. */
 export const PUBLIC_RESULTS_INTRO_LEAD_HINT =
-  '此為公開結果頁（唯讀）：可查看目前顯示安全的統計摘要，無法在此投票或編輯問卷。';
+  '此為公開結果頁（唯讀）：可查看目前允許顯示的統計摘要，無法在此投票或編輯問卷。';
 export const PUBLIC_RESULTS_INTRO_SCOPE_HINT =
-  '本頁不含登入、個人化推薦、排行榜或 feed 列表。已公開結果為顯示安全的區間化摘要，非即時原始票數。';
+  '本頁不含個人化推薦或排行榜。收集中不顯示票數；已公開結果為區間化摘要，非即時原始票數。';
 export const PUBLIC_RESULTS_INTRO_VOTE_HINT = '若要參與投票，請前往投票頁：';
+
+/** Frontend-owned vote page policy panel and onboarding navigation copy. */
+export const PUBLIC_VOTE_POLICY_LOGIN_TEXT =
+  '正式投票可能需要登入；送出當下才會判定是否可計票。此提示不代表一定可以完成投票。';
+export const PUBLIC_VOTE_POLICY_TRUST_LEVELS_LINK_LABEL = '說明';
+export const PUBLIC_VOTE_POLICY_COLLECTING_HIDDEN_TEXT =
+  '收集中不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。';
+export const PUBLIC_VOTE_POLICY_FAQ_LINK_LABEL = '常見問題';
+export const PUBLIC_VOTE_POLICY_FOLLOW_RESULTS_TEXT =
+  '暫不投票或稍後再試時，可關注結果，於公開後查看彙總。';
+export const PUBLIC_VOTE_POLICY_QUALITY_FEEDBACK_TEXT =
+  '投票後可協助回饋題目品質；優質題目非單純按讚，亦非正式檢舉。';
+export const PUBLIC_VOTE_COLLECTING_NOTICE_BODY =
+  '不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。';
+export const PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_BODY =
+  '暫不投票或稍後再試時，可關注結果公開通知（不含 Email／推播）。';
+export const PUBLIC_VOTE_FOLLOW_RESULTS_MOCK_NOTE =
+  '站內通知將在登入與通知系統完成後開放；目前不會儲存關注。';
+export const PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_LEAD = '想查看公開結果頁說明？可';
+export const PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_TAIL =
+  '（唯讀；收集中不顯示票數或百分比）。';
+export const PUBLIC_RESULTS_VOTE_NAV_HINT_LEAD = '尚未投票？可';
+export const PUBLIC_RESULTS_VOTE_NAV_HINT_TAIL = '閱讀問卷、選擇選項並送出。';
+
+/** Allowlist of safe user-visible vote / results onboarding navigation copy. */
+export const PUBLIC_VOTE_RESULTS_ONBOARDING_MESSAGES = [
+  PUBLIC_VOTE_PAGE_REMINDER_LEAD,
+  PUBLIC_VOTE_POLICY_LOGIN_TEXT,
+  PUBLIC_VOTE_POLICY_COLLECTING_HIDDEN_TEXT,
+  PUBLIC_VOTE_POLICY_FOLLOW_RESULTS_TEXT,
+  PUBLIC_VOTE_POLICY_QUALITY_FEEDBACK_TEXT,
+  PUBLIC_VOTE_COLLECTING_NOTICE_BODY,
+  PUBLIC_VOTE_FOLLOW_RESULTS_PANEL_BODY,
+  PUBLIC_VOTE_FOLLOW_RESULTS_MOCK_NOTE,
+  PUBLIC_VOTE_PRE_VOTE_ANONYMOUS_HINT,
+  PUBLIC_VOTE_PRE_VOTE_INCOMPLETE_PROFILE_HINT,
+  PUBLIC_VOTE_PRE_VOTE_NEUTRAL_SUBMIT_HINT,
+  PUBLIC_VOTE_PRE_VOTE_PROFILE_LOAD_FAILED_HINT,
+  PUBLIC_VOTE_SUCCESS_RESULT_HINT,
+  PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
+  PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD,
+  PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD,
+  PUBLIC_RESULTS_INTRO_LEAD_HINT,
+  PUBLIC_RESULTS_INTRO_SCOPE_HINT,
+  PUBLIC_RESULTS_INTRO_VOTE_HINT,
+  PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_LEAD,
+  PUBLIC_VOTE_VIEW_RESULTS_NAV_HINT_TAIL,
+  PUBLIC_RESULTS_VOTE_NAV_HINT_LEAD,
+  PUBLIC_RESULTS_VOTE_NAV_HINT_TAIL,
+];
 
 /** Frontend-owned creator flow helper hints. */
 export const PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT =
@@ -900,6 +950,7 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   ...PUBLIC_AUTH_STATE_ONBOARDING_MESSAGES,
   ...PUBLIC_AUTH_ACCOUNT_ONBOARDING_MESSAGES,
   ...PUBLIC_CREATOR_ONBOARDING_MESSAGES,
+  ...PUBLIC_VOTE_RESULTS_ONBOARDING_MESSAGES,
 ];
 
 /** Allowlist of safe user-visible page intro / section lead copy across public surfaces. */

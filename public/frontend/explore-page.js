@@ -9,6 +9,10 @@ import {
 } from './public-poll-card.js';
 export { renderQualityFeedbackBadge } from './quality-feedback-badge.js';
 import {
+  renderPublicEmptyStatePanel,
+  renderPublicLoadFailurePanel,
+} from './public-unavailable-state.js';
+import {
   buildPublicVotePath,
   PUBLIC_CTA_GO_TO_VOTE_LABEL,
   PUBLIC_CTA_GO_HOME_LABEL,
@@ -20,13 +24,13 @@ import {
   PUBLIC_EXPLORE_FEED_LIST_HINT,
   PUBLIC_EXPLORE_FEED_LIST_SUMMARY_HINT,
   PUBLIC_EXPLORE_FEED_LOADING_MESSAGE,
+  PUBLIC_EXPLORE_LOAD_ERROR_TITLE,
   PUBLIC_EXPLORE_LOAD_FAILURE_MESSAGE,
   PUBLIC_EXPLORE_LOAD_MORE_LABEL,
   PUBLIC_EXPLORE_LOAD_MORE_PENDING_MESSAGE,
   PUBLIC_EXPLORE_LOAD_MORE_UNAVAILABLE_MESSAGE,
   PUBLIC_EXPLORE_PAGE_LEAD,
   PUBLIC_EXPLORE_PAGE_TITLE,
-  renderPublicInlineErrorNote,
 } from './public-mvp-ui.js';
 
 export const EXPLORE_PAGE_TITLE = PUBLIC_EXPLORE_PAGE_TITLE;
@@ -218,14 +222,26 @@ export function syncExploreEmptyStatePanel(documentObject) {
   if (!emptyPanel) {
     return;
   }
-  const paragraphs = emptyPanel.querySelectorAll('p');
-  if (paragraphs[0]) {
+  if (
+    typeof documentObject.createElement === 'function' &&
+    typeof emptyPanel.replaceChildren === 'function'
+  ) {
+    renderPublicEmptyStatePanel(documentObject, emptyPanel, {
+      message: PUBLIC_EXPLORE_EMPTY_MESSAGE,
+      summary: PUBLIC_EXPLORE_EMPTY_SUMMARY,
+      ctaHref: '/polls/new?live=1',
+      ctaLabel: PUBLIC_EXPLORE_EMPTY_CTA_LABEL,
+    });
+    return;
+  }
+  const paragraphs = emptyPanel.querySelectorAll?.('p');
+  if (paragraphs?.[0]) {
     paragraphs[0].textContent = PUBLIC_EXPLORE_EMPTY_MESSAGE;
   }
-  if (paragraphs[1]) {
+  if (paragraphs?.[1]) {
     paragraphs[1].textContent = PUBLIC_EXPLORE_EMPTY_SUMMARY;
   }
-  const createLink = emptyPanel.querySelector('a[href="/polls/new?live=1"]');
+  const createLink = emptyPanel.querySelector?.('a[href="/polls/new?live=1"]');
   if (createLink) {
     createLink.textContent = PUBLIC_EXPLORE_EMPTY_CTA_LABEL;
   }
@@ -271,19 +287,15 @@ function mountExplorePage(documentObject, windowObject = globalThis) {
     statusRegion.textContent = message;
   };
 
-  const showError = (message, { showHomeLink = false } = {}) => {
+  const showError = (message, { showHomeLink = false, title = null } = {}) => {
     setExplorePanelVisible(errorPanel, true);
     if (errorPanel) {
-      if (showHomeLink) {
-        renderPublicInlineErrorNote(errorPanel, {
-          message,
-          ctaHref: '/',
-          ctaLabel: PUBLIC_CTA_GO_HOME_LABEL,
-        });
-      } else {
-        errorPanel.replaceChildren();
-        errorPanel.textContent = message;
-      }
+      renderPublicLoadFailurePanel(documentObject, errorPanel, {
+        title: showHomeLink ? title ?? PUBLIC_EXPLORE_LOAD_ERROR_TITLE : title,
+        message,
+        ctaHref: showHomeLink ? '/' : null,
+        ctaLabel: showHomeLink ? PUBLIC_CTA_GO_HOME_LABEL : null,
+      });
     }
     setExplorePanelVisible(emptyPanel, false);
     setExplorePanelVisible(loadMoreButton, false);

@@ -3,6 +3,7 @@ import {
   isDemoPollRouteId,
   renderResultUiStatePreviewLinks,
 } from './public-mvp-demo.js';
+import { renderPublicUnavailableStatusBlock } from './public-unavailable-state.js';
 import {
   isPublicMvpPagePollId,
   buildPublicVotePath,
@@ -295,26 +296,12 @@ export function renderUnavailableStatusBlock(
   root,
   { userMessage, lifecycleState = null } = {},
 ) {
-  const block = root.ownerDocument.createElement('section');
-  block.className = 'result-unavailable-status';
-  block.setAttribute('role', 'status');
-  block.setAttribute('aria-label', PUBLIC_RESULTS_UNAVAILABLE_STATUS_ARIA_LABEL);
-
-  appendText(block, 'h2', unavailableStatusTitle(lifecycleState), 'result-unavailable-title');
-  appendText(
-    block,
-    'p',
-    userMessage || RESULTS_POLL_UNAVAILABLE_MESSAGE,
-    'result-unavailable-message',
-  );
-  appendText(
-    block,
-    'p',
-    PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY,
-    'result-unavailable-summary',
-  );
-
-  root.append(block);
+  renderPublicUnavailableStatusBlock(root.ownerDocument, root, {
+    title: unavailableStatusTitle(lifecycleState),
+    message: userMessage || RESULTS_POLL_UNAVAILABLE_MESSAGE,
+    summary: PUBLIC_RESULTS_UNAVAILABLE_AGGREGATE_SUMMARY,
+    ariaLabel: PUBLIC_RESULTS_UNAVAILABLE_STATUS_ARIA_LABEL,
+  });
 }
 
 export function renderResultsReadOnlyIntro(root, pollId) {

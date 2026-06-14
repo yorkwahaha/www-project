@@ -1886,6 +1886,57 @@ button:disabled {
   color: var(--mvp-muted);
 }
 
+.mvp-public-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mvp-public-load-failure .mvp-public-unavailable-title,
+.mvp-public-load-failure .panel-heading {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.mvp-public-load-failure .mvp-public-unavailable-message,
+.mvp-public-load-failure .panel-message {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.mvp-public-unavailable-title,
+.result-unavailable-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.mvp-public-unavailable-message,
+.result-unavailable-message {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.mvp-public-unavailable-summary,
+.result-unavailable-summary {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--mvp-muted);
+}
+
+.mvp-public-unavailable-status {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid var(--mvp-border);
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface);
+}
+
 .mvp-empty-state .mvp-btn,
 .mvp-empty-state .mvp-action-link {
   margin-top: 0.75rem;

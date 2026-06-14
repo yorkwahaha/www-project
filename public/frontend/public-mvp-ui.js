@@ -1,5 +1,9 @@
 /** Shared public MVP UI helpers with no durable storage. */
 
+import {
+  renderPublicLoadFailurePanel,
+} from './public-unavailable-state.js';
+
 export const POLL_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -1599,20 +1603,11 @@ export function renderPublicErrorPanel(
   root,
   { title, message, showNav = true } = {},
 ) {
-  root.replaceChildren();
-  root.hidden = false;
-  root.setAttribute('role', 'alert');
-
-  const heading = root.ownerDocument.createElement('h2');
-  heading.className = 'panel-heading';
-  heading.textContent = title;
-  root.append(heading);
-
-  const body = root.ownerDocument.createElement('p');
-  body.className = 'panel-message';
-  body.textContent = message;
-  root.append(body);
-
+  renderPublicLoadFailurePanel(root.ownerDocument, root, {
+    title,
+    message,
+    role: 'alert',
+  });
   if (showNav) {
     renderPublicNav(root);
   }
@@ -1628,7 +1623,13 @@ export function renderPublicInlineErrorNote(
   host,
   { message, ctaHref = null, ctaLabel = null } = {},
 ) {
-  host.replaceChildren();
+  if (typeof host.replaceChildren === 'function') {
+    host.replaceChildren();
+  } else if (Array.isArray(host.children)) {
+    host.children = [];
+  } else {
+    host.textContent = '';
+  }
   const body = host.ownerDocument.createElement('p');
   body.className = 'panel-message';
   body.textContent = message;

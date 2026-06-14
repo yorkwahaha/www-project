@@ -4,6 +4,10 @@ import {
   parseLiveApiMode,
   showDemoOnlyFeedback,
 } from './public-mvp-demo.js';
+import {
+  renderPublicEmptyStatePanel,
+  renderPublicLoadFailurePanel,
+} from './public-unavailable-state.js';
 import { mountSiteChrome } from './public-mvp-layout.js';
 import {
   buildAbsoluteUrl,
@@ -450,19 +454,13 @@ function renderMyPollsUnavailableState(
 function renderCreatorPollsEmptyState(host, documentObject) {
   host.setAttribute('role', 'note');
   host.setAttribute('aria-label', PUBLIC_MY_POLLS_LIVE_MANAGE_HELP_ARIA_LABEL);
-  const note = documentObject.createElement('p');
-  note.className = 'mvp-meta';
-  note.textContent = MY_POLLS_EMPTY_MESSAGE;
-  host.append(note);
-  const summary = documentObject.createElement('p');
-  summary.className = 'mvp-meta';
-  summary.textContent = MY_POLLS_EMPTY_SUMMARY;
-  host.append(summary);
-  const createLink = documentObject.createElement('a');
-  createLink.className = 'mvp-action-link';
-  createLink.href = '/polls/new?live=1';
-  createLink.textContent = PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL;
-  host.append(createLink);
+  renderPublicEmptyStatePanel(documentObject, host, {
+    message: MY_POLLS_EMPTY_MESSAGE,
+    summary: MY_POLLS_EMPTY_SUMMARY,
+    ctaHref: '/polls/new?live=1',
+    ctaLabel: PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL,
+    ctaClassName: 'mvp-action-link',
+  });
 }
 
 function renderCreatorPollsList(host, documentObject, polls, fetchImpl) {

@@ -31,6 +31,13 @@ async function loadLayoutModule() {
   return import(/* @vite-ignore */ url);
 }
 
+async function loadShareLinkLayoutModule() {
+  const url = pathToFileURL(
+    join(process.cwd(), 'public/frontend/public-share-link-layout.js'),
+  ).href;
+  return import(/* @vite-ignore */ url);
+}
+
 function createSubmitButton() {
   return {
     disabled: false,
@@ -257,5 +264,64 @@ describe('public MVP accessibility', () => {
     expect(radio.id).toBe('vote-option-0');
     expect(radio.attributes.get('aria-label')).toBe('Rice');
     expect(root.children[0]!.htmlFor).toBe('vote-option-0');
+  });
+
+  it('exposes accessible share-link copy feedback regions', async () => {
+    const layout = await loadShareLinkLayoutModule();
+    const documentObject = {
+      createElement(tagName: string) {
+        const element = {
+          tagName,
+          className: '',
+          textContent: '',
+          id: '',
+          _tabIndex: -1,
+          get tabIndex() {
+            return this._tabIndex;
+          },
+          set tabIndex(value: number) {
+            this._tabIndex = value;
+          },
+          attributes: new Map<string, string>(),
+          children: [] as Array<ReturnType<typeof documentObject.createElement>>,
+          focus: vi.fn(),
+          append(child: ReturnType<typeof documentObject.createElement>) {
+            this.children.push(child);
+          },
+          setAttribute(name: string, value: string) {
+            this.attributes.set(name, value);
+            if (name === 'id') {
+              this.id = value;
+            }
+          },
+          addEventListener() {},
+        };
+        return element;
+      },
+    };
+    const host = documentObject.createElement('div');
+
+    layout.renderPublicShareLinkRow(documentObject, host, {
+      label: '投票連結（分享給參與者）',
+      url: 'https://example.test/vote/demo',
+      copyButtonLabel: '複製投票連結',
+      copyButtonAriaLabel: '複製投票頁完整網址到剪貼簿',
+    });
+
+    const row = host.children[0]!;
+    const feedback = row.children.find((child) =>
+      child.className.includes('mvp-public-share-link-feedback'),
+    );
+    const button = row.children.find((child) => child.className.includes('copy-link-button'));
+    const urlCode = row.children.find((child) =>
+      child.className.split(/\s+/).includes('share-url'),
+    );
+
+    expect(feedback?.attributes.get('role')).toBe('status');
+    expect(feedback?.attributes.get('aria-live')).toBe('polite');
+    expect(feedback?.attributes.get('aria-atomic')).toBe('true');
+    expect(button?.attributes.get('aria-describedby')).toContain(feedback?.id);
+    expect(urlCode?.tabIndex).toBe(0);
+    expect(urlCode?.attributes.get('aria-label')).toContain('完整網址');
   });
 });

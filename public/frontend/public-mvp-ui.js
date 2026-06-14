@@ -235,16 +235,18 @@ export const PUBLIC_LIFECYCLE_UNPUBLISH_SUCCESS_MESSAGE = '問卷已下架。';
 export const PUBLIC_LIFECYCLE_REFRESH_DEFERRED_SUCCESS_MESSAGE =
   '狀態已更新。結果顯示暫時無法重新載入，請重新整理頁面。';
 
-/** Frontend-owned share-link copy success copy. */
-export const PUBLIC_SHARE_LINK_COPIED_MESSAGE = '已複製連結。';
+/** Frontend-owned share-link copy success copy (re-exported from share layout). */
+export {
+  PUBLIC_SHARE_LINK_COPIED_MESSAGE,
+  PUBLIC_SHARE_LINK_PROMPT_MESSAGE,
+  PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE,
+} from './public-share-link-layout.js';
 
-/** Frontend-owned share-link manual prompt copy. */
-export const PUBLIC_SHARE_LINK_PROMPT_MESSAGE =
-  '瀏覽器無法自動複製，已顯示手動複製提示；亦可選取下方完整網址。';
-
-/** Frontend-owned share-link manual fallback copy. */
-export const PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE =
-  '無法自動複製，請手動選取下方完整網址。';
+import {
+  PUBLIC_SHARE_LINK_COPIED_MESSAGE,
+  PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE,
+  PUBLIC_SHARE_LINK_PROMPT_MESSAGE,
+} from './public-share-link-layout.js';
 
 /** Allowlist of safe user-visible success / completion messages across public surfaces. */
 export const PUBLIC_SUCCESS_USER_MESSAGES = [
@@ -1088,12 +1090,11 @@ export const PUBLIC_EXPLORE_LOAD_MORE_LABEL = '載入更多';
 /** Frontend-owned my-polls demo table / share microcopy. */
 export const PUBLIC_MY_POLLS_DEMO_SHARE_SUCCESS_MESSAGE =
   '已複製範例投票連結，可分享給他人體驗流程。';
-export const PUBLIC_MY_POLLS_VOTE_LINK_COPIED_MESSAGE =
-  '已複製投票連結，可分享給參與者。';
+export const PUBLIC_MY_POLLS_VOTE_LINK_COPIED_MESSAGE = PUBLIC_SHARE_LINK_COPIED_MESSAGE;
 export const PUBLIC_MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE =
-  '無法複製連結，請手動選取下方完整網址。';
+  PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE;
 export const PUBLIC_MY_POLLS_DEMO_SHARE_COPY_FAILED_MESSAGE =
-  '無法複製連結，請手動複製投票頁網址。';
+  PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE;
 export const PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_BLOCK_MESSAGE =
   '此為範例列。請使用上方「即時問卷」區塊，或先以 ?live=1 建立問卷。';
 export const PUBLIC_MY_POLLS_DEMO_ROW_USE_LIVE_MANAGE_MESSAGE =
@@ -1649,8 +1650,11 @@ export function renderPublicInlineErrorNote(
 }
 
 export {
+  applyShareLinkCopyFeedback,
   copyTextToClipboard,
   mountCreatorOwnedPollShareLinks,
+  PUBLIC_SHARE_LINK_COPY_FEEDBACK_A11Y_ORDER,
+  PUBLIC_SHARE_LINK_FALLBACK_URL_ARIA_LABEL,
   renderPollSharePanel,
   syncResultsPageShareLinks,
   syncVotePageShareLinks,

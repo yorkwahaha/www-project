@@ -1,7 +1,9 @@
-const SHARE_LINK_COPIED_MESSAGE = '已複製連結。';
-const SHARE_LINK_PROMPT_MESSAGE =
+export const PUBLIC_SHARE_LINK_COPIED_MESSAGE = '已複製連結。';
+export const PUBLIC_SHARE_LINK_PROMPT_MESSAGE =
   '瀏覽器無法自動複製，已顯示手動複製提示；亦可選取下方完整網址。';
-const SHARE_LINK_MANUAL_COPY_MESSAGE = '無法自動複製，請手動選取下方完整網址。';
+export const PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE =
+  '無法自動複製，請手動選取下方完整網址。';
+export const PUBLIC_SHARE_LINK_FALLBACK_URL_ARIA_LABEL = '完整網址，可手動選取複製';
 
 const CREATE_POLL_SHARE_SUCCESS_LEAD =
   '問卷已建立。下方為可分享的完整網址（僅含問卷識別碼）。請將投票連結傳給參與者；結果連結為公開唯讀統計頁。收集中不顯示票數或百分比，發起者亦看不到中間結果。';
@@ -20,9 +22,6 @@ const VOTE_PAGE_SHARE_SECTION_TITLE = '分享投票連結';
 const RESULTS_PAGE_SHARE_SECTION_TITLE = '分享連結';
 const CREATOR_OWNED_POLL_SHARE_SECTION_TITLE = '分享投票連結';
 
-const MY_POLLS_VOTE_LINK_COPIED_MESSAGE = '已複製投票連結，可分享給參與者。';
-const MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE = '無法複製連結，請手動選取下方完整網址。';
-
 function buildPublicVotePath(pollId) {
   return `/vote/${encodeURIComponent(pollId)}`;
 }
@@ -35,11 +34,26 @@ function buildAbsoluteUrl(path, locationObject = globalThis.location) {
   return new URL(path, locationObject.origin).href;
 }
 
+function createShareLinkRowIds(host) {
+  const index = host.children?.length ?? 0;
+  const base = `mvp-share-link-row-${index}`;
+  return {
+    feedbackId: `${base}-feedback`,
+    urlId: `${base}-url`,
+  };
+}
+
 export const PUBLIC_SHARE_LINK_ROW_LAYOUT_ORDER = [
   'link-label',
   'copy-button',
   'inline-feedback',
   'fallback-url',
+];
+
+export const PUBLIC_SHARE_LINK_COPY_FEEDBACK_A11Y_ORDER = [
+  'copy-button',
+  'aria-live-feedback',
+  'fallback-plain-url',
 ];
 
 export const PUBLIC_SHARE_LINK_SECTION_LAYOUT_ORDER = [
@@ -93,30 +107,40 @@ export async function copyTextToClipboard(text, {
   return { ok: false, method: 'none' };
 }
 
-function applyShareLinkCopyFeedback(statusTarget, result, {
-  copiedMessage = SHARE_LINK_COPIED_MESSAGE,
-  promptMessage = SHARE_LINK_PROMPT_MESSAGE,
-  manualCopyMessage = SHARE_LINK_MANUAL_COPY_MESSAGE,
+export function applyShareLinkCopyFeedback(statusTarget, result, {
+  copiedMessage = PUBLIC_SHARE_LINK_COPIED_MESSAGE,
+  promptMessage = PUBLIC_SHARE_LINK_PROMPT_MESSAGE,
+  manualCopyMessage = PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE,
 } = {}) {
   if (!statusTarget) {
     return;
   }
   if (result.ok) {
     statusTarget.textContent = copiedMessage;
+    statusTarget.setAttribute('data-copy-state', 'success');
+    statusTarget.setAttribute('aria-live', 'polite');
     return;
   }
   if (result.method === 'prompt') {
     statusTarget.textContent = promptMessage;
+    statusTarget.setAttribute('data-copy-state', 'prompt');
+    statusTarget.setAttribute('aria-live', 'assertive');
     return;
   }
   statusTarget.textContent = manualCopyMessage;
+  statusTarget.setAttribute('data-copy-state', 'failure');
+  statusTarget.setAttribute('aria-live', 'assertive');
 }
 
-export function createPublicShareLinkFeedback(documentObject) {
+export function createPublicShareLinkFeedback(documentObject, { id } = {}) {
   const feedback = documentObject.createElement('p');
   feedback.className = `copy-status ${PUBLIC_SHARE_LINK_FEEDBACK_CLASS}`;
   feedback.setAttribute('role', 'status');
   feedback.setAttribute('aria-live', 'polite');
+  feedback.setAttribute('aria-atomic', 'true');
+  if (id) {
+    feedback.id = id;
+  }
   return feedback;
 }
 
@@ -141,12 +165,21 @@ export function renderPublicShareLinkRow(
   const row = documentObject.createElement('div');
   row.className = PUBLIC_SHARE_LINK_ROW_CLASS;
 
+  const { feedbackId, urlId } = createShareLinkRowIds(host);
+
   const rowLabel = documentObject.createElement('p');
   rowLabel.className = PUBLIC_SHARE_LINK_LABEL_CLASS;
   rowLabel.textContent = label;
   row.append(rowLabel);
 
-  const feedback = createPublicShareLinkFeedback(documentObject);
+  const feedback = createPublicShareLinkFeedback(documentObject, { id: feedbackId });
+
+  const code = documentObject.createElement('code');
+  code.className = PUBLIC_SHARE_LINK_FALLBACK_URL_CLASS;
+  code.id = urlId;
+  code.tabIndex = 0;
+  code.setAttribute('aria-label', PUBLIC_SHARE_LINK_FALLBACK_URL_ARIA_LABEL);
+  code.textContent = url;
 
   if (includeCopyButton) {
     const button = documentObject.createElement('button');
@@ -154,6 +187,7 @@ export function renderPublicShareLinkRow(
     button.className = 'copy-link-button';
     button.textContent = copyButtonLabel;
     button.setAttribute('aria-label', copyButtonAriaLabel ?? copyButtonLabel);
+    button.setAttribute('aria-describedby', `${feedbackId} ${urlId}`);
     button.addEventListener('click', async () => {
       const result = await copyTextToClipboard(url);
       applyShareLinkCopyFeedback(feedback, result, {
@@ -161,15 +195,14 @@ export function renderPublicShareLinkRow(
         promptMessage,
         manualCopyMessage,
       });
+      if (!result.ok && typeof code.focus === 'function') {
+        code.focus();
+      }
     });
     row.append(button);
   }
 
   row.append(feedback);
-
-  const code = documentObject.createElement('code');
-  code.className = PUBLIC_SHARE_LINK_FALLBACK_URL_CLASS;
-  code.textContent = url;
   row.append(code);
 
   host.append(row);
@@ -375,9 +408,6 @@ export function mountCreatorOwnedPollShareLinks(documentObject, host, {
         url: voteUrl,
         copyButtonLabel: COPY_VOTE_LINK_LABEL,
         copyButtonAriaLabel: SHARE_VOTE_LINK_ARIA_LABEL,
-        copiedMessage: MY_POLLS_VOTE_LINK_COPIED_MESSAGE,
-        manualCopyMessage: MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
-        promptMessage: MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
       },
     ],
   });

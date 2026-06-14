@@ -3567,6 +3567,26 @@ button:disabled {
   font-size: 0.92rem;
 }
 
+/* Phase 248 — share link copy feedback accessibility */
+.mvp-public-share-link-feedback[data-copy-state='success'] {
+  color: #355e37;
+}
+
+.mvp-public-share-link-feedback[data-copy-state='failure'],
+.mvp-public-share-link-feedback[data-copy-state='prompt'] {
+  color: #8a4b00;
+}
+
+.mvp-public-share-link-row .share-url:focus {
+  outline: 2px solid var(--mvp-accent);
+  outline-offset: 2px;
+}
+
+.mvp-public-share-link-row .copy-link-button:focus-visible {
+  outline: 2px solid var(--mvp-accent);
+  outline-offset: 2px;
+}
+
 /* Phase 210 — my-polls live action area accessibility & touch targets */
 .my-polls-page .mvp-page-intro {
   margin-bottom: 1rem;

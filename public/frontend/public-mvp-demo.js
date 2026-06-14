@@ -133,6 +133,7 @@ export function showDemoOnlyFeedback(target, message) {
     status.className = 'mvp-demo-action-feedback';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
+    status.setAttribute('aria-atomic', 'true');
     host.append(status);
   }
   status.textContent = message;

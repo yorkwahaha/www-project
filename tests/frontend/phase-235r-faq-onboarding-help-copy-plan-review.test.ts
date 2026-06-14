@@ -59,16 +59,17 @@ describe('Phase 235-R faq onboarding help copy plan review', () => {
     }
   });
 
-  it('keeps faq.html engineer-facing residue as future copy cleanup target', async () => {
+  it('documents Phase 235 plan engineer residue targets; faq.html cleaned in Phase 236', async () => {
     const faqHtml = await readFile(join(process.cwd(), 'public/faq.html'), 'utf8');
     const plan = await readFile(join(process.cwd(), PHASE_235_DOC), 'utf8');
 
-    expect(faqHtml).toContain('X-User-Id');
-    expect(faqHtml).toContain('production user-auth wiring later');
     expect(plan).toContain('Engineer-facing residue');
     expect(plan).toContain('X-User-Id');
     expect(plan).toContain('creator_session');
     expect(plan).toContain('production user-auth wiring later');
+    expect(faqHtml).not.toContain('X-User-Id');
+    expect(faqHtml).not.toContain('creator_session');
+    expect(faqHtml).not.toContain('production user-auth wiring later');
   });
 
   it('keeps completed onboarding allowlists and FAQ link label available', async () => {
@@ -89,7 +90,8 @@ describe('Phase 235-R faq onboarding help copy plan review', () => {
     expect(faqHtml).toContain('id="faq-heading"');
     expect(faqHtml).toContain('/trust-levels');
     expect(trustLevelsHtml).toContain('/faq');
-    expect('PUBLIC_FAQ_ONBOARDING_MESSAGES' in publicUi).toBe(false);
+    expect('PUBLIC_FAQ_ONBOARDING_MESSAGES' in publicUi).toBe(true);
+    expect(publicUi.PUBLIC_FAQ_ONBOARDING_MESSAGES.length).toBeGreaterThan(0);
   });
 
   it('keeps FAQ cross-links as static href-only surfaces', async () => {

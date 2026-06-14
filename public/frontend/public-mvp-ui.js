@@ -890,6 +890,66 @@ export const PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT =
   '下架問卷：訪客將無法再查看公開結果頁（須已過公開鎖定期）。';
 export const PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX = '投票頁完整網址：';
 
+/** Frontend-owned FAQ page hero and onboarding help copy. */
+export const PUBLIC_FAQ_PAGE_HERO_LEAD =
+  '帳號怎麼註冊登入？問卷怎麼建立？投票後去哪看結果？收票盲測、截止公開、取消與下架的差別，這裡用最直白的方式說明。';
+export const PUBLIC_FAQ_ACCOUNT_FLOW_INTRO =
+  '註冊只建立帳號與個人資料欄位，不會自動登入，也不會建立瀏覽器工作階段。';
+export const PUBLIC_FAQ_ACCOUNT_FLOW_LOGIN_STEP =
+  '完成註冊後請使用相同憑證到登入頁登入；登入才會在頁首顯示帳號名稱。';
+export const PUBLIC_FAQ_ACCOUNT_FLOW_PROFILE_STEP =
+  '若需準備部分問卷的正式投票，可至個人資料頁填寫出生年月與居住地區；這不表示可保證符合或不符合任何問卷資格。';
+export const PUBLIC_FAQ_CREATOR_FLOW_DEMO_STEP =
+  '建立問卷頁預設為展示流程，送出僅做欄位檢查，資料不會儲存。';
+export const PUBLIC_FAQ_CREATOR_FLOW_LIVE_STEP =
+  '若要實際建立並管理問卷，請使用即時模式（網址加上 ?live=1）。';
+export const PUBLIC_FAQ_CREATOR_FLOW_MY_POLLS_STEP =
+  '建立成功後可至「我的問卷」管理已建立的問卷、分享投票連結；此頁僅管理你透過本站台建立流程所建立的問卷。';
+export const PUBLIC_FAQ_PARTICIPANT_VOTE_STEP =
+  '投票頁可閱讀問卷、選擇一個選項並送出。正式投票可能需要登入；送出當下由系統處理，並判定是否可計票。';
+export const PUBLIC_FAQ_PARTICIPANT_DEMO_STEP =
+  '範例問卷（如 /vote/demo）僅展示流程，不儲存票數。';
+export const PUBLIC_FAQ_PARTICIPANT_RESULTS_STEP =
+  '公開結果頁（唯讀）可查看目前允許顯示的統計摘要，無法在此投票或編輯問卷。';
+export const PUBLIC_FAQ_PARTICIPANT_COLLECTING_STEP = PUBLIC_VOTE_POLICY_COLLECTING_HIDDEN_TEXT;
+export const PUBLIC_FAQ_PROFILE_DEMO_BOUNDARY_NOTE =
+  '本機展示時，個人資料與投票頁可能使用測試身份示範，非正式登入；發起問卷請使用即時模式（?live=1）。正式上線後須透過已核准憑證登入與操作。';
+export const PUBLIC_FAQ_PROFILE_FIELDS_PURPOSE_LEAD =
+  '部分問卷僅限特定年齡區間或粗粒度地區的參與者參與正式投票。';
+export const PUBLIC_FAQ_PROFILE_FIELDS_PURPOSE_BODY =
+  '請在個人資料頁填寫出生年／月（不含日期）與粗粒度地區代碼（例如 TW-TPE）。資料只用於資格判斷，不對外公開個人投票紀錄，也不做公開統計分群展示。';
+export const PUBLIC_FAQ_PROFILE_ELIGIBILITY_HINT =
+  '部分正式投票可能在送出當下檢查出生年月與居住地區。若尚未填寫，可至個人資料頁補充；這不表示可保證符合或不符合任何問卷資格。';
+export const PUBLIC_FAQ_COLLECTING_HIDDEN_LEAD =
+  '收集期間完全不顯示票數、百分比、排名或趨勢。';
+export const PUBLIC_FAQ_COLLECTING_HIDDEN_PURPOSE =
+  '目的是讓每位投票者不受已知數字影響，屬於產品設計，不是畫面故障。';
+export const PUBLIC_FAQ_ELIGIBILITY_FAILURE_REFERENCE_NOTE =
+  '試填作答目前不依個人資料欄位額外限制。';
+
+/** Allowlist of safe user-visible FAQ onboarding / help copy. */
+export const PUBLIC_FAQ_ONBOARDING_MESSAGES = [
+  PUBLIC_FAQ_PAGE_HERO_LEAD,
+  PUBLIC_FAQ_ACCOUNT_FLOW_INTRO,
+  PUBLIC_FAQ_ACCOUNT_FLOW_LOGIN_STEP,
+  PUBLIC_FAQ_ACCOUNT_FLOW_PROFILE_STEP,
+  PUBLIC_FAQ_CREATOR_FLOW_DEMO_STEP,
+  PUBLIC_FAQ_CREATOR_FLOW_LIVE_STEP,
+  PUBLIC_FAQ_CREATOR_FLOW_MY_POLLS_STEP,
+  PUBLIC_FAQ_PARTICIPANT_VOTE_STEP,
+  PUBLIC_FAQ_PARTICIPANT_DEMO_STEP,
+  PUBLIC_FAQ_PARTICIPANT_RESULTS_STEP,
+  PUBLIC_FAQ_PARTICIPANT_COLLECTING_STEP,
+  PUBLIC_FAQ_PROFILE_DEMO_BOUNDARY_NOTE,
+  PUBLIC_FAQ_PROFILE_FIELDS_PURPOSE_LEAD,
+  PUBLIC_FAQ_PROFILE_FIELDS_PURPOSE_BODY,
+  PUBLIC_FAQ_PROFILE_ELIGIBILITY_HINT,
+  PUBLIC_FAQ_COLLECTING_HIDDEN_LEAD,
+  PUBLIC_FAQ_COLLECTING_HIDDEN_PURPOSE,
+  PUBLIC_FAQ_ELIGIBILITY_FAILURE_REFERENCE_NOTE,
+  PUBLIC_VOTE_POLICY_COLLECTING_HIDDEN_TEXT,
+];
+
 /** Allowlist of safe user-visible poll creation / my-polls onboarding navigation copy. */
 export const PUBLIC_CREATOR_ONBOARDING_MESSAGES = [
   PUBLIC_CREATE_POLL_PAGE_LEAD,
@@ -951,6 +1011,7 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   ...PUBLIC_AUTH_ACCOUNT_ONBOARDING_MESSAGES,
   ...PUBLIC_CREATOR_ONBOARDING_MESSAGES,
   ...PUBLIC_VOTE_RESULTS_ONBOARDING_MESSAGES,
+  ...PUBLIC_FAQ_ONBOARDING_MESSAGES,
 ];
 
 /** Allowlist of safe user-visible page intro / section lead copy across public surfaces. */

@@ -23,8 +23,8 @@
 
       <header class="mvp-info-hero">
         <h1 id="faq-heading">常見問題</h1>
-        <p class="mvp-lead">
-          收票怎麼算盲測？什麼時候看到結果？取消和下架有什麼不同？這裡用最直白的方式說明。
+        <p class="mvp-lead" id="faq-page-hero-lead">
+          帳號怎麼註冊登入？問卷怎麼建立？投票後去哪看結果？收票盲測、截止公開、取消與下架的差別，這裡用最直白的方式說明。
         </p>
         <p class="mvp-meta mvp-preview-links">
           帳號能做什麼？請看
@@ -52,13 +52,75 @@
       </div>
 
       <section class="mvp-faq-list" aria-label="詳細說明">
+        <details class="mvp-policy-panel mvp-faq-item" id="faq-account-flow">
+          <summary class="mvp-faq-question">帳號要怎麼註冊、登入與填寫個人資料？</summary>
+          <div class="mvp-faq-answer">
+            <ul class="policy-field-list">
+              <li>
+                <span id="faq-account-flow-intro">註冊只建立帳號與個人資料欄位，不會自動登入，也不會建立瀏覽器工作階段。</span>
+                請先前往 <a href="/registration">註冊頁</a> 建立帳號。
+              </li>
+              <li>
+                <span id="faq-account-flow-login-step">完成註冊後請使用相同憑證到登入頁登入；登入才會在頁首顯示帳號名稱。</span>
+                請至 <a href="/login">登入頁</a> 登入。
+              </li>
+              <li>
+                <span id="faq-account-flow-profile-step">若需準備部分問卷的正式投票，可至個人資料頁填寫出生年月與居住地區；這不表示可保證符合或不符合任何問卷資格。</span>
+                請至 <a href="/profile">個人資料</a> 補充欄位。
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="mvp-policy-panel mvp-faq-item" id="faq-creator-flow">
+          <summary class="mvp-faq-question">如何建立問卷並在「我的問卷」管理？</summary>
+          <div class="mvp-faq-answer">
+            <ul class="policy-field-list">
+              <li>
+                <span id="faq-creator-flow-demo-step">建立問卷頁預設為展示流程，送出僅做欄位檢查，資料不會儲存。</span>
+                可先在 <a href="/polls/new">建立問卷</a> 頁熟悉欄位。
+              </li>
+              <li>
+                <span id="faq-creator-flow-live-step">若要實際建立並管理問卷，請使用即時模式（網址加上 ?live=1）。</span>
+                請使用 <a href="/polls/new?live=1">建立問卷（即時模式）</a>。
+              </li>
+              <li>
+                <span id="faq-creator-flow-my-polls-step">建立成功後可至「我的問卷」管理已建立的問卷、分享投票連結；此頁僅管理你透過本站台建立流程所建立的問卷。</span>
+                請至 <a href="/my-polls?live=1">我的問卷</a> 管理。
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="mvp-policy-panel mvp-faq-item" id="faq-participant-flow">
+          <summary class="mvp-faq-question">如何投票與查看公開結果？</summary>
+          <div class="mvp-faq-answer">
+            <ul class="policy-field-list">
+              <li id="faq-participant-vote-step">
+                投票頁可閱讀問卷、選擇一個選項並送出。正式投票可能需要登入；送出當下由系統處理，並判定是否可計票。
+              </li>
+              <li>
+                <span id="faq-participant-demo-step">範例問卷（如 /vote/demo）僅展示流程，不儲存票數。</span>
+                可先試用 <a href="/vote/demo">投票範例</a>。
+              </li>
+              <li>
+                <span id="faq-participant-results-step">公開結果頁（唯讀）可查看目前允許顯示的統計摘要，無法在此投票或編輯問卷。</span>
+                可查看 <a href="/results/demo">結果範例</a>。
+              </li>
+              <li id="faq-participant-collecting-step">
+                收集中不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。
+              </li>
+            </ul>
+          </div>
+        </details>
+
         <details class="mvp-policy-panel mvp-faq-item">
           <summary class="mvp-faq-question">收集中為什麼看不到任何數字？</summary>
           <div class="mvp-faq-answer">
             <ul class="policy-field-list">
-              <li>收集期間完全不顯示票數、百分比、排名或趨勢。</li>
+              <li id="faq-collecting-hidden-lead">收集期間完全不顯示票數、百分比、排名或趨勢。</li>
               <li>發起者也不例外，無法查看中途統計。</li>
-              <li>目的是讓每位投票者不受已知數字影響，屬於產品設計，不是畫面故障。</li>
+              <li id="faq-collecting-hidden-purpose">目的是讓每位投票者不受已知數字影響，屬於產品設計，不是畫面故障。</li>
             </ul>
           </div>
         </details>
@@ -67,7 +129,7 @@
           <summary class="mvp-faq-question">截止、結果公開、鎖定期有什麼差別？</summary>
           <div class="mvp-faq-answer">
             <dl class="mvp-dl-compact">
-              <dt>截止／結果公開（close）</dt>
+              <dt>截止／結果公開</dt>
               <dd>投票與統計期間結束，並立即顯示彙總結果。公開 MVP 中，截止時間即結果公開時間。</dd>
               <dt>公開鎖定期（約 5 天）</dt>
               <dd>結果公開後進入約 5 天鎖定期。這段期間發起者不能下架、刪除、修改問卷、重新開放投票，或隱藏已公開結果。</dd>
@@ -96,17 +158,24 @@
           </div>
         </details>
 
-        <details class="mvp-policy-panel mvp-faq-item">
+        <details class="mvp-policy-panel mvp-faq-item" id="faq-profile-fields">
           <summary class="mvp-faq-question">為什麼要填出生年月與居住地區？</summary>
           <div class="mvp-faq-answer">
             <ul class="policy-field-list">
-              <li>部分問卷僅限特定年齡區間或粗粒度地區的參與者投票（Official Vote）。</li>
-              <li>請在 <a href="/profile">個人資料</a> 填寫<strong>出生年／月</strong>（不含日期）與<strong>粗粒度地區代碼</strong>（例如 TW-TPE）。</li>
-              <li>資料只用於資格判斷，不對外公開個人投票紀錄，也不做公開統計分群展示。</li>
+              <li id="faq-profile-fields-purpose-lead">
+                部分問卷僅限特定年齡區間或粗粒度地區的參與者參與正式投票。
+              </li>
+              <li>
+                <span id="faq-profile-fields-purpose-body">請在個人資料頁填寫出生年／月（不含日期）與粗粒度地區代碼（例如 TW-TPE）。資料只用於資格判斷，不對外公開個人投票紀錄，也不做公開統計分群展示。</span>
+                請至 <a href="/profile">個人資料</a> 填寫。
+              </li>
               <li>本頁個人資料表單<strong>僅</strong>包含出生年／月與粗粒度地區，不含其他敏感定位或身份欄位。</li>
             </ul>
-            <p class="policy-panel-text policy-panel-muted mvp-faq-note">
-              公開 MVP 以本機 demo 的 <code>X-User-Id</code> 示範，非正式登入；production user-auth wiring later。
+            <p class="policy-panel-text policy-panel-muted mvp-faq-note" id="faq-profile-eligibility-hint">
+              部分正式投票可能在送出當下檢查出生年月與居住地區。若尚未填寫，可至個人資料頁補充；這不表示可保證符合或不符合任何問卷資格。
+            </p>
+            <p class="policy-panel-text policy-panel-muted mvp-faq-note" id="faq-profile-demo-boundary-note">
+              本機展示時，個人資料與投票頁可能使用測試身份示範，非正式登入；發起問卷請使用即時模式（?live=1）。正式上線後須透過已核准憑證登入與操作。
             </p>
           </div>
         </details>
@@ -120,8 +189,8 @@
               <li>頁面會顯示固定說明（例如「你目前不符合此問卷的投票資格。」），<strong>不會</strong>告訴你哪個選項有效或哪條規則未過。</li>
               <li>可「關注結果」，結果公開後收到站內通知（通知持久化尚未開放）。</li>
             </ul>
-            <p class="policy-panel-text policy-panel-muted mvp-faq-note">
-              Email 與推播通知屬未來規劃。「放棄投票、只看結果」也不在 MVP 範圍內。Reference Answer 目前<strong>不</strong>依 profile 欄位額外限制。
+            <p class="policy-panel-text policy-panel-muted mvp-faq-note" id="faq-eligibility-failure-reference-note">
+              Email 與推播通知屬未來規劃。「放棄投票、只看結果」也不在 MVP 範圍內。<span id="faq-eligibility-failure-reference-tail">試填作答目前不依個人資料欄位額外限制。</span>
             </p>
           </div>
         </details>
@@ -140,9 +209,10 @@
       </section>
 
       <p class="note mvp-meta">
-        更多技術與治理細節見專案政策文件；本頁僅供訪客快速理解公開 MVP 方向。
+        更多政策細節見專案文件；本頁僅供訪客快速理解公開 MVP 方向。
       </p>
     </main>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>
+    <script type="module" src="/frontend/faq-page.js"></script>
   </body>
 </html>

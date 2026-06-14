@@ -79,7 +79,8 @@ describe('Phase 68–69 public demo copy guard', () => {
     expect(faq).toMatch(/出生年/);
     expect(faq).toMatch(/粗粒度/);
     expect(faq).toMatch(/僅.*出生年/);
-    expect(faq).toMatch(/production user-auth wiring later/i);
+    expect(faq).toMatch(/測試身份|本機展示|非正式登入/i);
+    expect(faq).not.toMatch(/production user-auth wiring later/i);
     expect(faq).not.toMatch(FORBIDDEN_UI_COPY);
   });
 });

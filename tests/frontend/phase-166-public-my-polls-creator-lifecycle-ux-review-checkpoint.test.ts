@@ -134,8 +134,9 @@ describe('Phase 166 public my-polls creator lifecycle UX review checkpoint', () 
 
     expect(credentialVerifierTest).toContain('creator_session');
     expect(source).not.toContain('creator_session');
-    expect(html).toContain('creator_session');
-    expect(html).toContain('非一般 user 登入');
+    expect(html).toContain('?live=1');
+    expect(html).toContain('即時模式');
+    expect(html).not.toContain('creator_session');
   });
 
   it('accepts only display-safe owned poll payloads without counters or internal tokens', async () => {

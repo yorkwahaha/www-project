@@ -14,9 +14,13 @@ import {
   PUBLIC_CREATE_POLL_DEMO_SUBMIT_LABEL,
   PUBLIC_CREATE_POLL_DEMO_SUCCESS_MESSAGE,
   PUBLIC_CREATE_POLL_FAILURE_MESSAGE,
+  PUBLIC_CREATE_POLL_LIVE_MODE_HINT,
   PUBLIC_CREATE_POLL_LIVE_SUBMIT_STATUS_LABEL,
   PUBLIC_CREATE_POLL_MAX_OPTIONS_MESSAGE,
   PUBLIC_CREATE_POLL_MIN_OPTIONS_MESSAGE,
+  PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_LEAD,
+  PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_TAIL,
+  PUBLIC_CREATE_POLL_PAGE_BANNER_BODY,
   PUBLIC_CREATE_POLL_PAGE_LEAD,
   PUBLIC_CREATE_POLL_PAGE_TITLE,
   PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING,
@@ -89,6 +93,8 @@ export const CREATE_POLL_DESCRIPTION_PLACEHOLDER = PUBLIC_FORM_POLL_DESCRIPTION_
 export const CREATE_POLL_OPTIONS_LEGEND = PUBLIC_FORM_POLL_OPTIONS_LEGEND;
 export const CREATE_POLL_PAGE_TITLE = PUBLIC_CREATE_POLL_PAGE_TITLE;
 export const CREATE_POLL_PAGE_LEAD = PUBLIC_CREATE_POLL_PAGE_LEAD;
+export const CREATE_POLL_PAGE_BANNER_BODY = PUBLIC_CREATE_POLL_PAGE_BANNER_BODY;
+export const CREATE_POLL_LIVE_MODE_HINT = PUBLIC_CREATE_POLL_LIVE_MODE_HINT;
 export const CREATE_POLL_POLICY_PANEL_HEADING = PUBLIC_CREATE_POLL_POLICY_PANEL_HEADING;
 export const CREATE_POLL_PRECHECK_PANEL_HEADING = PUBLIC_CREATE_POLL_PRECHECK_PANEL_HEADING;
 
@@ -250,6 +256,44 @@ export function syncCreatePollPageLeadParagraphs(documentObject) {
   }
 }
 
+export function syncCreatePollPageBanner(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const banner = documentObject.getElementById('create-poll-page-banner');
+  if (banner) {
+    banner.textContent = PUBLIC_CREATE_POLL_PAGE_BANNER_BODY;
+  }
+}
+
+export function syncCreatePollOnboardingNavigationHints(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const liveHint = documentObject.getElementById('create-poll-live-mode-hint');
+  if (liveHint) {
+    liveHint.textContent = PUBLIC_CREATE_POLL_LIVE_MODE_HINT;
+  }
+  const navHint = documentObject.getElementById('create-poll-my-polls-nav-hint');
+  if (navHint && typeof navHint.replaceChildren === 'function') {
+    navHint.replaceChildren();
+    navHint.append(documentObject.createTextNode(PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_LEAD));
+    const myPollsLink = documentObject.createElement('a');
+    myPollsLink.href = '/my-polls?live=1';
+    myPollsLink.textContent = PUBLIC_CTA_GO_TO_MY_POLLS_LABEL;
+    navHint.append(myPollsLink);
+    navHint.append(documentObject.createTextNode(PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_TAIL));
+  }
+}
+
+export function syncCreatePollPageOnboardingCopy(documentObject) {
+  syncCreatePollPageSectionHeadings(documentObject);
+  syncCreatePollPageLeadParagraphs(documentObject);
+  syncCreatePollPageBanner(documentObject);
+  syncCreatePollFormFieldCopy(documentObject);
+  syncCreatePollOnboardingNavigationHints(documentObject);
+}
+
 export function syncCreatePollFormFieldCopy(documentObject) {
   if (typeof documentObject.querySelector !== 'function') {
     return;
@@ -327,9 +371,7 @@ export function bootstrapCreatePollPage({
   uuidFactory = () => globalThis.crypto.randomUUID(),
   now = () => new Date(),
 } = {}) {
-  syncCreatePollPageSectionHeadings(documentObject);
-  syncCreatePollPageLeadParagraphs(documentObject);
-  syncCreatePollFormFieldCopy(documentObject);
+  syncCreatePollPageOnboardingCopy(documentObject);
   const form = documentObject.getElementById('create-poll-form');
   const message = documentObject.getElementById('form-message');
   const success = documentObject.getElementById('success-panel');

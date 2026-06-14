@@ -107,8 +107,9 @@ describe('Phase 128 static public pages copy privacy boundary review checkpoint'
     expect(explore).toContain('不提供熱門、票數、個人化或榜單排序');
 
     expect(myPolls).toContain('收集中看不到票數');
-    expect(myPolls).toContain('範例資料');
-    expect(myPolls).toContain('creator_session');
+    expect(myPolls).toContain('範例');
+    expect(myPolls).toContain('?live=1');
+    expect(myPolls).not.toContain('creator_session');
 
     expect(results).toContain('收集中不顯示票數');
     expect(results).toContain('範例展示');

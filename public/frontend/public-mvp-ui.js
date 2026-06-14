@@ -262,7 +262,7 @@ export const PUBLIC_SUCCESS_USER_MESSAGES = [
   PUBLIC_SHARE_LINK_PROMPT_MESSAGE,
   PUBLIC_SHARE_LINK_MANUAL_COPY_MESSAGE,
   '問卷已建立。請先複製並分享「投票連結」給參與者；收集中不顯示票數或百分比。',
-  '可在下方變更問卷狀態，或前往「我的問卷」與「結果頁（發起者）」繼續管理。',
+  '可在下方變更問卷狀態，或前往「我的問卷」繼續管理、分享投票連結。',
   PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
   PUBLIC_VOTE_SUCCESS_RESULT_HINT,
   PUBLIC_VOTE_DEMO_SUCCESS_RESULT_HINT,
@@ -316,12 +316,12 @@ export const PUBLIC_EXPLORE_EMPTY_CTA_LABEL = '建立問卷';
 /** Frontend-owned my-polls creator list empty-state copy. */
 export const PUBLIC_MY_POLLS_EMPTY_MESSAGE = '你目前還沒有建立問卷。';
 export const PUBLIC_MY_POLLS_EMPTY_SUMMARY =
-  '你可以先建立一則問卷並分享投票連結。';
+  '你目前還沒有透過本流程建立的問卷。可先建立一則問卷，完成後在此管理並分享投票連結。';
 export const PUBLIC_MY_POLLS_EMPTY_HEADLINE = '你目前還沒有建立問卷';
 
 /** Frontend-owned auth / profile action unavailable copy. */
 export const PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE =
-  '請先登入後查看你建立的問卷。';
+  '請先登入，才能查看並管理你建立的問卷。若尚未註冊，請先到註冊頁建立帳號，完成後再回來登入。';
 export const PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE =
   '請先登入後再編輯出生年月與居住地區。若尚未註冊，請先到註冊頁建立帳號，完成後再回來登入。';
 export const PUBLIC_PROFILE_EDIT_SIGN_IN_REQUIRED_MESSAGE =
@@ -762,9 +762,24 @@ export const PUBLIC_AUTH_ACCOUNT_ONBOARDING_MESSAGES = [
 ];
 
 export const PUBLIC_MY_POLLS_PAGE_LEAD =
-  '收集中看不到票數；鎖定期內無法下架或編輯。';
+  '在此瀏覽並管理你透過本站台建立流程所建立的問卷。收集中看不到票數；鎖定期內無法下架或編輯。';
 export const PUBLIC_CREATE_POLL_PAGE_LEAD =
-  '發布後無法在此修改題目或選項；收集中看不到期中結果。';
+  '在此建立並發布問卷。發布後無法在此修改題目或選項；收集中看不到期中結果。';
+export const PUBLIC_CREATE_POLL_PAGE_BANNER_BODY =
+  '目前為公開展示版：此頁預設為展示流程，送出僅做欄位檢查，資料不會儲存。若要實際建立並管理問卷，請使用即時模式（網址加上 ?live=1）。';
+export const PUBLIC_CREATE_POLL_LIVE_MODE_HINT =
+  '即時模式會實際建立問卷。建立成功後可至「我的問卷」管理、分享投票連結，或變更公開狀態。';
+export const PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_LEAD = '建立問卷後，可到';
+export const PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_TAIL =
+  '管理已建立的問卷、分享投票連結。';
+export const PUBLIC_MY_POLLS_PAGE_BANNER_BODY =
+  '此頁預設為範例儀表板，資料僅供預覽。若要管理你實際建立的問卷，請使用即時模式（網址加上 ?live=1）；須先完成登入與發起者身分準備。';
+export const PUBLIC_MY_POLLS_QUOTA_PANEL_LEAD =
+  '額度與品質點數依信任等級規劃（正式上線後計算）。鎖定期內不可下架或修改。下方表格為範例；即時管理請先';
+export const PUBLIC_MY_POLLS_QUOTA_PANEL_MID = '，再開啟 ';
+export const PUBLIC_MY_POLLS_QUOTA_PANEL_TAIL = '。';
+export const PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_LEAD = '尚未建立問卷？可前往';
+export const PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_TAIL = '，完成後回到此頁管理。';
 export const PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD =
   '目前為公開展示版：展示用，不儲存；以範例展示各狀態；收集中不顯示票數、百分比、總計、排名、趨勢或進度。優質題目依多種訊號判定，非單純按讚。';
 export const PUBLIC_RESULTS_PAGE_LIVE_INTRO_LEAD =
@@ -808,9 +823,9 @@ export const PUBLIC_RESULTS_INTRO_VOTE_HINT = '若要參與投票，請前往投
 export const PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT =
   '問卷已建立。請先複製並分享「投票連結」給參與者；收集中不顯示票數或百分比。';
 export const PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT =
-  '可在下方變更問卷狀態，或前往「我的問卷」與「結果頁（發起者）」繼續管理。';
+  '可在下方變更問卷狀態，或前往「我的問卷」繼續管理、分享投票連結。';
 export const PUBLIC_CREATOR_MY_POLLS_LEAD_HINT =
-  '以下為發起者工作階段可管理的問卷。可分享投票連結、查看結果，或變更公開狀態。';
+  '以下為你透過本站台建立流程所建立、可管理的問卷。可分享投票連結、查看結果，或變更公開狀態。';
 export const PUBLIC_CREATOR_RESULTS_LEAD_HINT =
   '發起者操作區：須先「結束收集並公開結果」後，上方才會顯示公開的區間化統計。';
 export const PUBLIC_CREATOR_LIFECYCLE_COLLECTING_LEAD_HINT =
@@ -824,6 +839,28 @@ export const PUBLIC_CREATOR_ACTION_CLOSE_HINT =
 export const PUBLIC_CREATOR_ACTION_UNPUBLISH_HINT =
   '下架問卷：訪客將無法再查看公開結果頁（須已過公開鎖定期）。';
 export const PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX = '投票頁完整網址：';
+
+/** Allowlist of safe user-visible poll creation / my-polls onboarding navigation copy. */
+export const PUBLIC_CREATOR_ONBOARDING_MESSAGES = [
+  PUBLIC_CREATE_POLL_PAGE_LEAD,
+  PUBLIC_CREATE_POLL_PAGE_BANNER_BODY,
+  PUBLIC_CREATE_POLL_LIVE_MODE_HINT,
+  PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_LEAD,
+  PUBLIC_CREATE_POLL_MY_POLLS_NAV_HINT_TAIL,
+  PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
+  PUBLIC_MY_POLLS_PAGE_LEAD,
+  PUBLIC_MY_POLLS_PAGE_BANNER_BODY,
+  PUBLIC_MY_POLLS_QUOTA_PANEL_LEAD,
+  PUBLIC_MY_POLLS_QUOTA_PANEL_MID,
+  PUBLIC_MY_POLLS_QUOTA_PANEL_TAIL,
+  PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_LEAD,
+  PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_TAIL,
+  PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT,
+  PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
+  PUBLIC_CREATOR_MY_POLLS_LEAD_HINT,
+  PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
+  PUBLIC_MY_POLLS_EMPTY_SUMMARY,
+];
 
 /** Allowlist of safe user-visible help / hint / helper text across public surfaces. */
 export const PUBLIC_HINT_TEXT_MESSAGES = [
@@ -862,6 +899,7 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
   ...PUBLIC_AUTH_STATE_ONBOARDING_MESSAGES,
   ...PUBLIC_AUTH_ACCOUNT_ONBOARDING_MESSAGES,
+  ...PUBLIC_CREATOR_ONBOARDING_MESSAGES,
 ];
 
 /** Allowlist of safe user-visible page intro / section lead copy across public surfaces. */
@@ -875,6 +913,9 @@ export const PUBLIC_PAGE_INTRO_TEXTS = [
   PUBLIC_RESULTS_COLLECTING_SUMMARY,
   PUBLIC_CREATE_POLL_DEMO_PANEL_LEAD,
   PUBLIC_CREATE_POLL_SHARE_SUCCESS_LEAD,
+  PUBLIC_CREATE_POLL_PAGE_BANNER_BODY,
+  PUBLIC_CREATE_POLL_LIVE_MODE_HINT,
+  PUBLIC_MY_POLLS_PAGE_BANNER_BODY,
   PUBLIC_CREATOR_CREATE_SUCCESS_LEAD_HINT,
   PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
   PUBLIC_CREATOR_MY_POLLS_LEAD_HINT,

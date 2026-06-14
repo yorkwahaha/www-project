@@ -123,7 +123,7 @@ describe('Phase 135 public error copy consistency polish', () => {
       '目前無法載入你建立的問卷，請稍後再試。',
     );
     expect(myPolls.MY_POLLS_SIGN_IN_REQUIRED_MESSAGE).toBe(
-      '請先登入後查看你建立的問卷。',
+      '請先登入，才能查看並管理你建立的問卷。若尚未註冊，請先到註冊頁建立帳號，完成後再回來登入。',
     );
     expect(lifecycle.CREATOR_SESSION_FAILURE).toBe(
       '目前無法確認發起者身分，請稍後再試。',

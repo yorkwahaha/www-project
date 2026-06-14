@@ -71,7 +71,7 @@ describe('trust level preview copy (phase 45)', () => {
     const html = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
     expect(html).toMatch(/額度與操作說明/);
     expect(html).toMatch(/正式上線後計算/);
-    expect(html).toMatch(/範例資料展示/);
+    expect(html).toMatch(/範例/);
     expect(html).toMatch(/公開鎖定期/);
     expect(html).not.toMatch(/未連線後端/);
   });

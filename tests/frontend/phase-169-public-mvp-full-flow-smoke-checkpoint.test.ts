@@ -338,8 +338,9 @@ describe('Phase 169 public MVP full-flow smoke checkpoint', () => {
     const myPollsHtml = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
 
     expect(parseLiveApiMode('?live=1')).toBe(true);
-    expect(myPollsHtml).toContain('creator_session');
-    expect(myPollsHtml).toContain('非一般 user 登入');
+    expect(myPollsHtml).toContain('?live=1');
+    expect(myPollsHtml).toContain('即時模式');
+    expect(myPollsHtml).not.toContain('creator_session');
     expect(myPollsSource).toContain('/creator/polls');
     expect(myPollsSource).toContain('data-mock-dashboard');
     expect(myPollsSource).toContain('data-live-owned-list');

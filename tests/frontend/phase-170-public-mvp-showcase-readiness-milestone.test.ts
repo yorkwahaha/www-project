@@ -61,8 +61,8 @@ describe('Phase 170 public MVP showcase readiness milestone', () => {
     expect(source).toContain('parseLiveApiMode');
     expect(parseLiveApiMode('?live=1')).toBe(true);
     expect(parseLiveApiMode('')).toBe(false);
-    expect(myPollsHtml).toContain('creator_session');
-    expect(myPollsHtml).toContain('非一般 user 登入');
+    expect(myPollsHtml).toContain('?live=1');
+    expect(myPollsHtml).not.toContain('creator_session');
     expect(indexHtml).toContain('creator_session');
   });
 

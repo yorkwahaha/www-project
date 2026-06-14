@@ -14,6 +14,7 @@ import {
   PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL,
   PUBLIC_CTA_GO_HOME_LABEL,
   PUBLIC_CTA_GO_TO_LOGIN_LABEL,
+  PUBLIC_CTA_GO_TO_MY_POLLS_LABEL,
   PUBLIC_CTA_GO_TO_VOTE_PAGE_LABEL,
   PUBLIC_CTA_SHARE_VOTE_LINK_LABEL,
   PUBLIC_CTA_VIEW_CANCELLED_EXPLAINER_LABEL,
@@ -35,7 +36,13 @@ import {
   PUBLIC_MY_POLLS_LOAD_FAILURE_MESSAGE,
   PUBLIC_MY_POLLS_LOADING_MESSAGE,
   PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE,
+  PUBLIC_MY_POLLS_PAGE_BANNER_BODY,
   PUBLIC_MY_POLLS_PAGE_LEAD,
+  PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_LEAD,
+  PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_TAIL,
+  PUBLIC_MY_POLLS_QUOTA_PANEL_LEAD,
+  PUBLIC_MY_POLLS_QUOTA_PANEL_MID,
+  PUBLIC_MY_POLLS_QUOTA_PANEL_TAIL,
   PUBLIC_MY_POLLS_PAGE_TITLE,
   PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING,
   PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE,
@@ -74,6 +81,7 @@ export const MY_POLLS_CREATOR_SESSION_FAILURE_MESSAGE =
   PUBLIC_CREATOR_SESSION_FAILURE_MESSAGE;
 export const MY_POLLS_PAGE_TITLE = PUBLIC_MY_POLLS_PAGE_TITLE;
 export const MY_POLLS_PAGE_LEAD = PUBLIC_MY_POLLS_PAGE_LEAD;
+export const MY_POLLS_PAGE_BANNER_BODY = PUBLIC_MY_POLLS_PAGE_BANNER_BODY;
 export const MY_POLLS_QUOTA_PANEL_HEADING = PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING;
 export const MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING =
   PUBLIC_MY_POLLS_LIVE_MANAGEMENT_PANEL_HEADING;
@@ -224,10 +232,71 @@ export function syncMyPollsPageLeadParagraphs(documentObject) {
   }
 }
 
-export function wireMyPollsDemoPage(documentObject = globalThis.document) {
-  mountSiteChrome(documentObject);
+export function syncMyPollsPageBanner(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const banner = documentObject.getElementById('my-polls-page-banner');
+  if (banner) {
+    banner.textContent = PUBLIC_MY_POLLS_PAGE_BANNER_BODY;
+  }
+}
+
+export function syncMyPollsQuotaPanelCopy(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const body = documentObject.getElementById('my-polls-quota-panel-body');
+  if (!body || typeof body.replaceChildren !== 'function') {
+    return;
+  }
+  body.replaceChildren();
+  body.append(documentObject.createTextNode(PUBLIC_MY_POLLS_QUOTA_PANEL_LEAD));
+  const createLink = documentObject.createElement('a');
+  createLink.href = '/polls/new?live=1';
+  createLink.textContent = PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL;
+  body.append(createLink);
+  body.append(documentObject.createTextNode(PUBLIC_MY_POLLS_QUOTA_PANEL_MID));
+  const myPollsLink = documentObject.createElement('a');
+  myPollsLink.href = '/my-polls?live=1&nav=logged-in-mock';
+  myPollsLink.textContent = PUBLIC_CTA_GO_TO_MY_POLLS_LABEL;
+  body.append(myPollsLink);
+  body.append(documentObject.createTextNode(PUBLIC_MY_POLLS_QUOTA_PANEL_TAIL));
+  const faqLink = documentObject.createElement('a');
+  faqLink.href = '/faq';
+  faqLink.textContent = '常見問題';
+  body.append(documentObject.createTextNode(' '));
+  body.append(faqLink);
+}
+
+export function syncMyPollsOnboardingNavigationHints(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const navHint = documentObject.getElementById('my-polls-create-poll-nav-hint');
+  if (!navHint || typeof navHint.replaceChildren !== 'function') {
+    return;
+  }
+  navHint.replaceChildren();
+  navHint.append(documentObject.createTextNode(PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_LEAD));
+  const createLink = documentObject.createElement('a');
+  createLink.href = '/polls/new?live=1';
+  createLink.textContent = PUBLIC_CTA_GO_TO_CREATE_POLL_LIVE_LABEL;
+  navHint.append(createLink);
+  navHint.append(documentObject.createTextNode(PUBLIC_MY_POLLS_CREATE_POLL_NAV_HINT_TAIL));
+}
+
+export function syncMyPollsPageOnboardingCopy(documentObject) {
   syncMyPollsPageSectionHeadings(documentObject);
   syncMyPollsPageLeadParagraphs(documentObject);
+  syncMyPollsPageBanner(documentObject);
+  syncMyPollsQuotaPanelCopy(documentObject);
+  syncMyPollsOnboardingNavigationHints(documentObject);
+}
+
+export function wireMyPollsDemoPage(documentObject = globalThis.document) {
+  mountSiteChrome(documentObject);
+  syncMyPollsPageOnboardingCopy(documentObject);
 
   const useLiveApi = parseLiveApiMode(documentObject.defaultView?.location?.search ?? '');
   const mockWrap = documentObject.querySelector('.mvp-dash-table-wrap');

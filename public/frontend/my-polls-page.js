@@ -59,11 +59,16 @@ import {
   renderPublicInlineErrorNote,
 } from './public-mvp-ui.js';
 import {
-  appendPublicPollCardStatusRow,
+  buildCreatorOwnedPollHeader,
+  createCreatorOwnedPollActionArea,
+} from './public-creator-owned-poll-layout.js';
+import { formatVoteDetailCategoryLabel } from './public-vote-detail-layout.js';
+import {
   buildPublicPollCardMeta,
   formatPublicPollCardCloseTimeLabel,
   formatPublicPollCardMetaLine,
 } from './public-poll-card.js';
+export { appendPublicPollCardStatusRow } from './public-poll-card.js';
 import { CREATOR_FLOW_COPY, renderCreatorManageLinks } from './creator-flow-copy.js';
 import {
   ensureCreatorSessionForLiveMode,
@@ -488,37 +493,44 @@ function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
   pollHost.className = 'mvp-creator-live-poll';
   host.append(pollHost);
 
-  const heading = documentObject.createElement('h3');
-  heading.className = 'mvp-creator-lifecycle-title';
-  heading.textContent = poll.title
-    ? `即時問卷：${poll.title}`
-    : '即時問卷';
-  pollHost.append(heading);
-
   const badge = documentObject.createElement('span');
   badge.className = lifecycleBadgeClassForMyPolls(poll.public_lifecycle_state);
   badge.textContent = formatMyPollsLifecycleLabel(poll.public_lifecycle_state);
-  appendPublicPollCardStatusRow(documentObject, pollHost, {
-    statusElement: badge,
-  });
 
+  let metaElement = null;
   const metaLine = formatPublicPollCardMetaLine(
-    poll.category,
+    formatVoteDetailCategoryLabel(poll.category),
     formatPublicPollCardCloseTimeLabel(poll.closes_at),
   );
   if (metaLine) {
-    const meta = buildPublicPollCardMeta(documentObject, metaLine);
-    meta.className = 'mvp-poll-card-meta mvp-creator-live-poll-meta';
-    pollHost.append(meta);
+    metaElement = buildPublicPollCardMeta(documentObject, metaLine);
+    metaElement.className = 'mvp-poll-card-meta mvp-creator-live-poll-meta';
   }
 
-  renderCreatorManageLinks(pollHost, {
+  pollHost.append(
+    buildCreatorOwnedPollHeader(documentObject, {
+      title: poll.title ? `即時問卷：${poll.title}` : '即時問卷',
+      statusElement: badge,
+      metaElement,
+    }),
+  );
+
+  const actionSlots = createCreatorOwnedPollActionArea(documentObject);
+  pollHost.append(actionSlots.area);
+
+  renderCreatorLifecycleActions(actionSlots.area, {
     pollId: poll.poll_id,
-    locationObject: documentObject.defaultView?.location ?? globalThis.location,
+    lifecycleState: poll.public_lifecycle_state,
+    title: poll.title,
+    fetchImpl,
+    flowContext: 'manage',
+    showPanelTitle: false,
+    actionLayoutHosts: actionSlots,
+    onStateChange: (nextState) => {
+      poll.public_lifecycle_state = nextState;
+    },
   });
 
-  const shareRow = documentObject.createElement('p');
-  shareRow.className = 'mvp-meta mvp-creator-flow-share-row';
   const shareVote = documentObject.createElement('button');
   shareVote.type = 'button';
   shareVote.className = 'mvp-btn mvp-btn-ghost mvp-btn-sm';
@@ -533,22 +545,11 @@ function renderCreatorOwnedPoll(host, documentObject, poll, fetchImpl) {
         : MY_POLLS_VOTE_LINK_COPY_FAILED_MESSAGE,
     );
   });
-  shareRow.append(shareVote);
-  pollHost.append(shareRow);
+  actionSlots.secondary.append(shareVote);
 
-  const lifecycleHost = documentObject.createElement('section');
-  lifecycleHost.className = 'mvp-creator-lifecycle-panel mvp-creator-flow-lifecycle';
-  pollHost.append(lifecycleHost);
-
-  renderCreatorLifecycleActions(lifecycleHost, {
+  renderCreatorManageLinks(actionSlots.navLinks, {
     pollId: poll.poll_id,
-    lifecycleState: poll.public_lifecycle_state,
-    title: poll.title,
-    fetchImpl,
-    flowContext: 'manage',
-    onStateChange: (nextState) => {
-      poll.public_lifecycle_state = nextState;
-    },
+    locationObject: documentObject.defaultView?.location ?? globalThis.location,
   });
 }
 

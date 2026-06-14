@@ -92,6 +92,17 @@ export const LIFECYCLE_USER_ERROR_MESSAGES = [
 
 /** @typedef {'cancel' | 'close' | 'unpublish'} LifecycleTransitionAction */
 
+/**
+ * @param {LifecycleTransitionAction} action
+ * @returns {'primary' | 'destructive'}
+ */
+export function lifecycleActionPresentationGroup(action) {
+  if (action === 'close') {
+    return 'primary';
+  }
+  return 'destructive';
+}
+
 /** @type {Record<LifecycleTransitionAction, { path: string; label: string; confirm: string; success: string; className: string }>} */
 export const LIFECYCLE_TRANSITION_COPY = {
   cancel: {
@@ -325,6 +336,15 @@ export function nextLifecycleStateFromTransition(action, body) {
  *     | Promise<void | { refreshed?: boolean }>;
  *   flowContext?: 'create' | 'manage' | 'results';
  *   showFlowGuide?: boolean;
+ *   showPanelTitle?: boolean;
+ *   actionLayoutHosts?: {
+ *     hint?: HTMLElement | null;
+ *     primary?: HTMLElement | null;
+ *     secondary?: HTMLElement | null;
+ *     destructive?: HTMLElement | null;
+ *     navLinks?: HTMLElement | null;
+ *     feedback?: HTMLElement | null;
+ *   } | null;
  * }} options
  */
 export function renderCreatorLifecycleActions(host, options) {
@@ -337,46 +357,94 @@ export function renderCreatorLifecycleActions(host, options) {
     onTransitionSuccess,
     flowContext = 'manage',
     showFlowGuide = true,
+    showPanelTitle = true,
+    actionLayoutHosts = null,
   } = options;
 
-  host.replaceChildren();
+  const useGroupedLayout = Boolean(actionLayoutHosts);
+
+  if (useGroupedLayout) {
+    for (const slot of [
+      actionLayoutHosts.hint,
+      actionLayoutHosts.primary,
+      actionLayoutHosts.secondary,
+      actionLayoutHosts.destructive,
+      actionLayoutHosts.navLinks,
+    ]) {
+      if (slot && typeof slot.replaceChildren === 'function') {
+        slot.replaceChildren();
+      }
+    }
+    if (actionLayoutHosts.feedback) {
+      actionLayoutHosts.feedback.textContent = '';
+    }
+  } else {
+    host.replaceChildren();
+  }
   host.hidden = false;
   host.setAttribute('role', 'region');
   host.setAttribute('aria-label', PUBLIC_LIFECYCLE_ACTION_PANEL_ARIA_LABEL);
 
-  const heading = host.ownerDocument.createElement('h2');
-  heading.className = 'mvp-policy-panel-title mvp-creator-lifecycle-title';
-  heading.textContent = title
-    ? `${PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE_PREFIX}${title}`
-    : PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE;
-  host.append(heading);
+  const hintTarget = useGroupedLayout ? actionLayoutHosts.hint ?? host : host;
+
+  if (showPanelTitle) {
+    const heading = host.ownerDocument.createElement('h2');
+    heading.className = 'mvp-policy-panel-title mvp-creator-lifecycle-title';
+    heading.textContent = title
+      ? `${PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE_PREFIX}${title}`
+      : PUBLIC_LIFECYCLE_ACTION_PANEL_TITLE;
+    host.append(heading);
+  }
 
   const lead = host.ownerDocument.createElement('p');
   lead.className = 'mvp-meta mvp-creator-lifecycle-lead';
   lead.textContent = lifecycleLeadForContext(flowContext, lifecycleState);
-  host.append(lead);
+  hintTarget.append(lead);
 
   if (showFlowGuide) {
-    renderCreatorActionGuide(host, lifecycleState);
+    renderCreatorActionGuide(hintTarget, lifecycleState);
   }
 
-  const toolbar = host.ownerDocument.createElement('div');
-  toolbar.className = 'mvp-creator-lifecycle-toolbar';
-  toolbar.setAttribute('data-demo-feedback-host', 'true');
-  host.append(toolbar);
+  const toolbar = useGroupedLayout ? null : host.ownerDocument.createElement('div');
+  if (toolbar) {
+    toolbar.className = 'mvp-creator-lifecycle-toolbar';
+    toolbar.setAttribute('data-demo-feedback-host', 'true');
+    host.append(toolbar);
+  }
 
-  const status = host.ownerDocument.createElement('p');
-  status.className = 'mvp-demo-action-feedback';
-  status.setAttribute('role', 'status');
-  status.setAttribute('aria-live', 'polite');
-  host.append(status);
+  const status = useGroupedLayout
+    ? actionLayoutHosts.feedback ??
+      host.ownerDocument.createElement('p')
+    : host.ownerDocument.createElement('p');
+  if (!useGroupedLayout) {
+    status.className = 'mvp-demo-action-feedback';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    host.append(status);
+  }
+
+  const renderOptions = {
+    pollId,
+    lifecycleState,
+    title,
+    fetchImpl,
+    onStateChange,
+    onTransitionSuccess,
+    flowContext,
+    showFlowGuide,
+    showPanelTitle,
+    actionLayoutHosts,
+  };
 
   const actions = lifecycleActionsForState(lifecycleState);
   if (actions.length === 0) {
     const note = host.ownerDocument.createElement('p');
     note.className = 'mvp-meta';
     note.textContent = lifecycleNoteForState(lifecycleState);
-    toolbar.append(note);
+    const emptyTarget = useGroupedLayout
+      ? actionLayoutHosts.primary ?? actionLayoutHosts.hint ?? host
+      : toolbar ?? host;
+    emptyTarget.append(note);
     return;
   }
 
@@ -398,20 +466,37 @@ export function renderCreatorLifecycleActions(host, options) {
         onTransitionSuccess,
         flowContext,
         showFlowGuide,
+        showPanelTitle,
+        actionLayoutHosts,
         host,
+        renderOptions,
       });
     });
-    toolbar.append(button);
+    if (useGroupedLayout) {
+      const group = lifecycleActionPresentationGroup(action);
+      const target =
+        group === 'primary'
+          ? actionLayoutHosts.primary
+          : actionLayoutHosts.destructive;
+      (target ?? actionLayoutHosts.secondary ?? host).append(button);
+    } else {
+      toolbar.append(button);
+    }
   }
 
-  const resultLink = host.ownerDocument.createElement('a');
-  resultLink.className = 'mvp-action-link mvp-action-link-muted';
-  resultLink.href = `${buildPublicResultPath(pollId)}?creator=1`;
-  resultLink.textContent = PUBLIC_CTA_CREATOR_RESULTS_LABEL;
-  toolbar.append(resultLink);
+  if (!useGroupedLayout) {
+    const resultLink = host.ownerDocument.createElement('a');
+    resultLink.className = 'mvp-action-link mvp-action-link-muted';
+    resultLink.href = `${buildPublicResultPath(pollId)}?creator=1`;
+    resultLink.textContent = PUBLIC_CTA_CREATOR_RESULTS_LABEL;
+    toolbar.append(resultLink);
+  }
 }
 
-function lifecycleFeedbackElement(host, fallback) {
+function lifecycleFeedbackElement(host, fallback, actionLayoutHosts = null) {
+  if (actionLayoutHosts?.feedback) {
+    return actionLayoutHosts.feedback;
+  }
   if (host && typeof host.querySelector === 'function') {
     const node = host.querySelector('.mvp-demo-action-feedback');
     if (node) {
@@ -445,7 +530,10 @@ async function runLifecycleTransition({
   onTransitionSuccess,
   flowContext,
   showFlowGuide,
+  showPanelTitle = true,
+  actionLayoutHosts = null,
   host,
+  renderOptions = null,
 }) {
   if (!confirmLifecycleTransition(action)) {
     return;
@@ -468,26 +556,30 @@ async function runLifecycleTransition({
     if (nextState) {
       onStateChange?.(nextState);
       renderCreatorLifecycleActions(host, {
-        pollId,
+        ...(renderOptions ?? {
+          pollId,
+          lifecycleState: nextState,
+          title,
+          fetchImpl,
+          onStateChange,
+          onTransitionSuccess,
+          flowContext,
+          showFlowGuide,
+        }),
         lifecycleState: nextState,
-        title,
-        fetchImpl,
-        onStateChange,
-        onTransitionSuccess,
-        flowContext,
-        showFlowGuide,
       });
       const refreshOutcome = await onTransitionSuccess?.();
-      const feedback = lifecycleFeedbackElement(host, status);
+      const feedback = lifecycleFeedbackElement(host, status, actionLayoutHosts);
       feedback.textContent =
         refreshOutcome && refreshOutcome.refreshed === false
           ? LIFECYCLE_RESULT_REFRESH_DEFERRED_STATUS
           : copy.success;
     } else {
-      lifecycleFeedbackElement(host, status).textContent = copy.success;
+      lifecycleFeedbackElement(host, status, actionLayoutHosts).textContent =
+        copy.success;
     }
   } catch (error) {
-    lifecycleFeedbackElement(host, status).textContent =
+    lifecycleFeedbackElement(host, status, actionLayoutHosts).textContent =
       resolvePublicErrorUserMessage(
         error,
         GENERIC_FAILURE,

@@ -3501,6 +3501,43 @@ button:disabled {
   margin-top: 0.35rem;
 }
 
+.my-polls-page .mvp-creator-live-poll .mvp-creator-owned-poll-header {
+  margin-bottom: 0.65rem;
+}
+
+.my-polls-page .mvp-creator-owned-poll-action-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.my-polls-page .mvp-creator-owned-poll-lifecycle-hint .mvp-creator-lifecycle-lead,
+.my-polls-page .mvp-creator-owned-poll-lifecycle-hint .mvp-creator-flow-guide {
+  margin: 0;
+}
+
+.my-polls-page .mvp-creator-owned-poll-primary-actions,
+.my-polls-page .mvp-creator-owned-poll-secondary-actions,
+.my-polls-page .mvp-creator-owned-poll-destructive-actions {
+  gap: 0.5rem;
+}
+
+.my-polls-page .mvp-creator-owned-poll-destructive-toolbar .mvp-btn {
+  border-color: #d9a3a3;
+  color: #8a2f2f;
+}
+
+.my-polls-page .mvp-creator-owned-poll-nav-links .mvp-creator-flow-links,
+.my-polls-page .mvp-creator-owned-poll-nav-links .mvp-creator-flow-vote-url {
+  margin: 0;
+}
+
+.my-polls-page .mvp-creator-owned-poll-feedback {
+  min-height: 2.25rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
 .my-polls-page .mvp-creator-live-poll {
   margin-top: 1rem;
   padding: 1rem;
@@ -3604,6 +3641,16 @@ button:disabled {
 
   .my-polls-page #creator-live-manage.mvp-creator-live-manage {
     padding: 1rem max(0.9rem, env(safe-area-inset-left, 0px));
+  }
+
+  .my-polls-page .mvp-creator-owned-poll-action-area {
+    gap: 0.55rem;
+  }
+
+  .my-polls-page .mvp-creator-owned-poll-primary-actions .mvp-btn,
+  .my-polls-page .mvp-creator-owned-poll-secondary-actions .mvp-btn,
+  .my-polls-page .mvp-creator-owned-poll-destructive-actions .mvp-btn {
+    flex: 1 1 100%;
   }
 
   .my-polls-page .mvp-creator-live-poll {

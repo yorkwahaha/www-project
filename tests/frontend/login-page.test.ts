@@ -11,12 +11,13 @@ async function loadLoginPageModule() {
 }
 
 describe('login page frontend shell', () => {
-  it('documents production fail-closed and local demo test identity on the login page', async () => {
+  it('documents production access denial and local demo test identity on the login page', async () => {
     const html = await readFile(join(process.cwd(), 'public/login.html'), 'utf8');
 
-    expect(html).toContain('正式登入表單基礎已開放');
-    expect(html).toContain('fail closed');
-    expect(html).toContain('AUTH_REQUIRED');
+    expect(html).toContain('正式登入表單已開放');
+    expect(html).toContain('會拒絕存取');
+    expect(html).not.toMatch(/fail closed/i);
+    expect(html).not.toMatch(/AUTH_REQUIRED/);
     expect(html).toContain('X-User-Id');
     expect(html).toContain('creator_session');
     expect(html).toContain('/creator/*');

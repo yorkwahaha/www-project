@@ -18,6 +18,11 @@ import {
   PUBLIC_LOGIN_FORM_ORIGIN_FAILURE_MESSAGE,
   PUBLIC_LOGIN_FORM_READY_HINT,
   PUBLIC_LOGIN_FORM_VERIFY_STATE_FAILURE_MESSAGE,
+  PUBLIC_LOGIN_PAGE_BANNER_BODY,
+  PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_LEAD,
+  PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_LINK_LABEL,
+  PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_TAIL,
+  PUBLIC_LOGIN_PROFILE_NEXT_STEP_HINT,
   PUBLIC_LOGIN_LOCAL_DEMO_CARD_HEADING,
   PUBLIC_LOGIN_PAGE_LEAD_PRIMARY,
   PUBLIC_LOGIN_PAGE_LEAD_SECONDARY,
@@ -322,15 +327,55 @@ export function syncLoginPageCtas(documentObject) {
   }
 }
 
+export function syncLoginPageBanner(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const banner = documentObject.getElementById('login-page-banner');
+  if (banner) {
+    banner.textContent = PUBLIC_LOGIN_PAGE_BANNER_BODY;
+  }
+}
+
+export function syncLoginOnboardingNavigationHints(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const registrationHint = documentObject.getElementById('login-registration-crosslink-hint');
+  if (registrationHint && typeof registrationHint.replaceChildren === 'function') {
+    registrationHint.replaceChildren();
+    registrationHint.append(
+      documentObject.createTextNode(PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_LEAD),
+      (() => {
+        const link = documentObject.createElement('a');
+        link.href = '/registration';
+        link.textContent = PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_LINK_LABEL;
+        return link;
+      })(),
+      documentObject.createTextNode(` ${PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_TAIL}`),
+    );
+  }
+  const profileHint = documentObject.getElementById('login-profile-next-step-hint');
+  if (profileHint) {
+    profileHint.textContent = PUBLIC_LOGIN_PROFILE_NEXT_STEP_HINT;
+  }
+}
+
+export function syncLoginPageOnboardingCopy(documentObject) {
+  syncLoginPageSectionHeadings(documentObject);
+  syncLoginPageLeadParagraphs(documentObject);
+  syncLoginPageBanner(documentObject);
+  syncLoginFormFieldCopy(documentObject);
+  syncLoginOnboardingNavigationHints(documentObject);
+  syncLoginPageCtas(documentObject);
+}
+
 /**
  * @param {Document} [documentObject]
  */
 export function mountLoginShellPage(documentObject = document) {
   mountSiteChrome(documentObject);
-  syncLoginPageSectionHeadings(documentObject);
-  syncLoginPageLeadParagraphs(documentObject);
-  syncLoginFormFieldCopy(documentObject);
-  syncLoginPageCtas(documentObject);
+  syncLoginPageOnboardingCopy(documentObject);
   const form = documentObject.getElementById('login-shell-form');
   if (!(form instanceof HTMLFormElement)) {
     return;

@@ -174,7 +174,7 @@ export const PUBLIC_LOGIN_SUCCESS_MESSAGE =
 
 /** Frontend-owned registration success copy. */
 export const PUBLIC_REGISTRATION_SUCCESS_MESSAGE =
-  '註冊成功。請前往登入頁完成登入；註冊不會自動登入。';
+  '註冊完成。請前往登入頁並使用相同憑證登入；註冊不會自動登入，也不會自動建立瀏覽器工作階段。';
 
 /** Frontend-owned profile save success copy. */
 export const PUBLIC_PROFILE_SAVE_SUCCESS_MESSAGE = '個人資料已儲存。';
@@ -323,7 +323,7 @@ export const PUBLIC_MY_POLLS_EMPTY_HEADLINE = '你目前還沒有建立問卷';
 export const PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE =
   '請先登入後查看你建立的問卷。';
 export const PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE =
-  '編輯出生年月與居住地區前請先登入。';
+  '請先登入後再編輯出生年月與居住地區。若尚未註冊，請先到註冊頁建立帳號，完成後再回來登入。';
 export const PUBLIC_PROFILE_EDIT_SIGN_IN_REQUIRED_MESSAGE =
   '請先登入後再編輯出生年月與居住地區。';
 
@@ -718,16 +718,49 @@ export const PUBLIC_HOME_HERO_LEAD =
   '收集中不公開票數；統計結束後才顯示彙總結果，並進入約 5 天公開鎖定期。';
 export const PUBLIC_EXPLORE_PAGE_LEAD =
   '依最近發布顯示目前可公開探索、仍在收集中的問卷。不提供熱門、票數、個人化或榜單排序；列表亦不顯示票數或結果百分比。';
+/** Frontend-owned registration / login / profile account onboarding navigation copy (Phase 225). */
+export const PUBLIC_REGISTRATION_PAGE_BANNER_BODY =
+  '正式註冊表單已開放：送出顯示名稱、出生年月、居住地區與已核准憑證。註冊完成後請前往登入頁；不會自動登入，也不會自動建立瀏覽器工作階段。';
+export const PUBLIC_LOGIN_PAGE_BANNER_BODY =
+  '正式登入表單已開放：送出已核准憑證即可登入。若剛完成註冊，請用註冊時的相同憑證。缺少有效憑證時，受保護功能會拒絕存取，不會退回本機測試身份。';
+export const PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_LEAD =
+  '若你剛完成註冊，請用相同憑證登入。尚未註冊？請先前往';
+export const PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_LINK_LABEL = '註冊頁';
+export const PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_TAIL = '建立帳號。';
+export const PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_HINT =
+  '若你剛完成註冊，請用相同憑證登入。尚未註冊？請先前往註冊頁建立帳號。';
+export const PUBLIC_LOGIN_PROFILE_NEXT_STEP_HINT =
+  '登入後可先至個人資料頁填寫出生年月與居住地區，有助準備正式投票；這不表示可保證符合任何問卷資格。';
+export const PUBLIC_PROFILE_SIGNED_IN_GUIDANCE_NOTE =
+  '儲存後可在投票當下由系統依各問卷規則判定資格。這不表示可保證符合或不符合任何問卷資格。';
+
 export const PUBLIC_LOGIN_PAGE_LEAD_PRIMARY =
-  '登入會建立瀏覽器工作階段，並在頁首顯示帳號名稱。若你還沒有帳號，請先到註冊頁建立資料；註冊不會自動登入。';
+  '登入會建立瀏覽器工作階段，並在頁首顯示帳號名稱。若你剛完成註冊，請用相同憑證登入；若尚未註冊，請先到註冊頁建立帳號（註冊不會自動登入）。';
 export const PUBLIC_LOGIN_PAGE_LEAD_SECONDARY =
-  '正式環境中，個人資料、Official Vote、依序投票與發起者操作須透過已核准的 production 憑證；若後端無法驗證身分，系統會 fail closed（例如 401 AUTH_REQUIRED），不會退回 MVP 測試用 X-User-Id 或 creator_session。';
+  '正式環境中，個人資料、投票與發起者操作須透過已核准憑證；若後端無法驗證身分，系統會拒絕存取，不會退回本機測試用 X-User-Id 或 creator_session。';
 export const PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY =
   '註冊只建立帳號與個人資料欄位，不會自動登入，也不會建立瀏覽器工作階段。完成後請使用相同憑證到登入頁登入；登入才會控制頁首的已登入狀態。';
 export const PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY =
   '本表單不會要求生日日期、街道門牌、精確定位或問卷選項資料。';
 export const PUBLIC_PROFILE_PAGE_LEAD =
-  '此資料只用於判斷你是否符合部分問卷的 Official Vote 資格。本頁僅可填寫出生年／月與粗粒度地區兩類欄位。';
+  '填寫出生年月與居住地區有助準備部分問卷的正式投票資格檢查。本頁僅可編輯這兩類欄位；填寫不表示可保證符合或不符合任何問卷資格。';
+
+/** Allowlist of safe user-visible registration / login / profile onboarding navigation messages. */
+export const PUBLIC_AUTH_ACCOUNT_ONBOARDING_MESSAGES = [
+  PUBLIC_REGISTRATION_PAGE_BANNER_BODY,
+  PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY,
+  PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY,
+  PUBLIC_REGISTRATION_SUCCESS_MESSAGE,
+  PUBLIC_LOGIN_PAGE_BANNER_BODY,
+  PUBLIC_LOGIN_PAGE_LEAD_PRIMARY,
+  PUBLIC_LOGIN_PAGE_LEAD_SECONDARY,
+  PUBLIC_LOGIN_FORM_REGISTRATION_CROSSLINK_HINT,
+  PUBLIC_LOGIN_PROFILE_NEXT_STEP_HINT,
+  PUBLIC_PROFILE_PAGE_LEAD,
+  PUBLIC_PROFILE_SIGNED_IN_GUIDANCE_NOTE,
+  PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE,
+];
+
 export const PUBLIC_MY_POLLS_PAGE_LEAD =
   '收集中看不到票數；鎖定期內無法下架或編輯。';
 export const PUBLIC_CREATE_POLL_PAGE_LEAD =
@@ -828,6 +861,7 @@ export const PUBLIC_HINT_TEXT_MESSAGES = [
   PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX,
   PUBLIC_DEMO_UI_STATE_PREVIEW_LEAD,
   ...PUBLIC_AUTH_STATE_ONBOARDING_MESSAGES,
+  ...PUBLIC_AUTH_ACCOUNT_ONBOARDING_MESSAGES,
 ];
 
 /** Allowlist of safe user-visible page intro / section lead copy across public surfaces. */

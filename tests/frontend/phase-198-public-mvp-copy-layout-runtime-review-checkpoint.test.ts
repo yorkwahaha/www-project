@@ -294,9 +294,9 @@ describe('Phase 198 public MVP copy layout runtime review checkpoint', () => {
       'utf8',
     );
 
-    expect(loginSource).toMatch(/mountLoginShellPage[\s\S]*syncLoginPageCtas/);
-    expect(registrationSource).toMatch(/mountRegistrationPage[\s\S]*syncRegistrationPageCtas/);
-    expect(profileSource).toMatch(/mountProfilePage[\s\S]*syncProfilePageCtas/);
+    expect(loginSource).toMatch(/mountLoginShellPage[\s\S]*syncLoginPageOnboardingCopy/);
+    expect(registrationSource).toMatch(/mountRegistrationPage[\s\S]*syncRegistrationPageOnboardingCopy/);
+    expect(profileSource).toMatch(/mountProfilePage[\s\S]*syncProfilePageOnboardingCopy/);
     expect(homeSource).toMatch(/syncHomePageCtas\(document\)/);
     expect(exploreSource).toMatch(/mountExplorePage[\s\S]*syncExplorePageLeadLinks/);
     expect(exploreSource).toMatch(/mountExplorePage[\s\S]*syncExplorePageStatusCopy/);

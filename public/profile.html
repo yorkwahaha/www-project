@@ -21,7 +21,7 @@
         <p class="mvp-brand">個人資料</p>
         <h1 id="profile-heading">投票資格資料</h1>
         <p class="mvp-lead" id="profile-page-lead">
-          此資料只用於判斷你是否符合部分問卷的 Official Vote 資格。本頁僅可填寫出生年／月與粗粒度地區兩類欄位。
+          填寫出生年月與居住地區有助準備部分問卷的正式投票資格檢查。本頁僅可編輯這兩類欄位；填寫不表示可保證符合或不符合任何問卷資格。
         </p>
       </header>
 
@@ -31,7 +31,7 @@
         aria-labelledby="profile-unauth-heading"
       >
         <h2 id="profile-unauth-heading">需要登入</h2>
-        <p id="profile-unauth-message">編輯出生年月與居住地區前請先登入。</p>
+        <p id="profile-unauth-message">請先登入後再編輯出生年月與居住地區。若尚未註冊，請先到註冊頁建立帳號，完成後再回來登入。</p>
         <div class="mvp-form-actions">
           <a id="profile-login-cta" class="mvp-btn-primary" href="/login">前往登入</a>
           <a id="profile-register-cta" class="mvp-btn mvp-btn-secondary" href="/registration">尚未註冊？建立帳號</a>
@@ -39,6 +39,9 @@
       </section>
 
       <div id="profile-signed-in-panel" class="mvp-form-card" hidden>
+        <p class="mvp-form-hint" id="profile-signed-in-guidance" role="note">
+          儲存後可在投票當下由系統依各問卷規則判定資格。這不表示可保證符合或不符合任何問卷資格。
+        </p>
         <form id="profile-form" class="mvp-form" novalidate aria-describedby="profile-form-message">
           <label for="profile-birth-year-month">出生年月（僅到月份）</label>
           <input

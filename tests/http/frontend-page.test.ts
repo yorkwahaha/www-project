@@ -283,8 +283,9 @@ describe('frontend static routes', () => {
       expect(page.status).toBe(200);
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
-      expect(pageBody).toContain('正式登入表單基礎已開放');
-      expect(pageBody).toContain('fail closed');
+      expect(pageBody).toContain('正式登入表單已開放');
+      expect(pageBody).toContain('會拒絕存取');
+      expect(pageBody).not.toMatch(/fail closed/i);
       expect(pageBody).toContain('login-shell-form');
       expect(pageBody).toContain('name="credential"');
       expect(pageBody).toContain('href="/registration"');

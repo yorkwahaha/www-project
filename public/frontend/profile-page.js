@@ -11,6 +11,7 @@ import {
   PUBLIC_PROFILE_PAGE_LEAD,
   PUBLIC_PROFILE_PAGE_LOADING_MESSAGE,
   PUBLIC_PROFILE_PAGE_TITLE,
+  PUBLIC_PROFILE_SIGNED_IN_GUIDANCE_NOTE,
   PUBLIC_PROFILE_SAVE_FAILURE_MESSAGE,
   PUBLIC_PROFILE_SAVE_SUCCESS_MESSAGE,
   PUBLIC_PROFILE_UNAUTH_FORM_HEADING,
@@ -421,6 +422,24 @@ export function syncProfileFormFieldCopy(documentObject) {
   }
 }
 
+export function syncProfileSignedInGuidance(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const guidance = documentObject.getElementById('profile-signed-in-guidance');
+  if (guidance) {
+    guidance.textContent = PUBLIC_PROFILE_SIGNED_IN_GUIDANCE_NOTE;
+  }
+}
+
+export function syncProfilePageOnboardingCopy(documentObject) {
+  syncProfilePageSectionHeadings(documentObject);
+  syncProfilePageLeadParagraphs(documentObject);
+  syncProfileSignedInGuidance(documentObject);
+  syncProfilePageCtas(documentObject);
+  syncProfileFormFieldCopy(documentObject);
+}
+
 /**
  * @param {Document} documentObject
  * @param {{
@@ -431,10 +450,7 @@ export function syncProfileFormFieldCopy(documentObject) {
  */
 export async function mountProfilePage(documentObject = document, options = {}) {
   mountSiteChrome(documentObject, options);
-  syncProfilePageSectionHeadings(documentObject);
-  syncProfilePageLeadParagraphs(documentObject);
-  syncProfilePageCtas(documentObject);
-  syncProfileFormFieldCopy(documentObject);
+  syncProfilePageOnboardingCopy(documentObject);
 
   const form = documentObject.getElementById('profile-form');
   const message = documentObject.getElementById('profile-form-message');

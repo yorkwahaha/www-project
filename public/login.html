@@ -17,18 +17,17 @@
         <a href="?nav=logged-in-mock">登入後</a>
       </p>
 
-      <p class="mvp-mock-banner" role="note">
-        <strong>正式登入表單基礎已開放</strong>：此頁只送出已核准的 production credential proof。
-        若後端未設定 verifier 或來源不被允許，系統會 fail closed，且不會退回 MVP 測試身份。
+      <p class="mvp-mock-banner" id="login-page-banner" role="note">
+        正式登入表單已開放：送出已核准憑證即可登入。若剛完成註冊，請用註冊時的相同憑證。缺少有效憑證時，受保護功能會拒絕存取，不會退回本機測試身份。
       </p>
 
       <header class="mvp-info-hero">
         <h1 id="login-heading">登入帳號</h1>
         <p class="mvp-lead" id="login-lead-primary">
-          登入會建立瀏覽器工作階段，並在頁首顯示帳號名稱。若你還沒有帳號，請先到註冊頁建立資料；註冊不會自動登入。
+          登入會建立瀏覽器工作階段，並在頁首顯示帳號名稱。若你剛完成註冊，請用相同憑證登入；若尚未註冊，請先到註冊頁建立帳號（註冊不會自動登入）。
         </p>
         <p class="mvp-lead" id="login-lead-secondary">
-          正式環境中，個人資料、Official Vote、依序投票與發起者操作須透過已核准的 production 憑證；若後端無法驗證身分，系統會 fail closed（例如 401 AUTH_REQUIRED），不會退回 MVP 測試用 X-User-Id 或 creator_session。
+          正式環境中，個人資料、投票與發起者操作須透過已核准憑證；若後端無法驗證身分，系統會拒絕存取，不會退回本機測試用 X-User-Id 或 creator_session。
         </p>
       </header>
 
@@ -55,8 +54,11 @@
           <p class="mvp-form-hint" id="login-form-ready-hint">
             請輸入已核准的 production credential proof。登入狀態會由伺服器驗證後更新。
           </p>
-          <p class="mvp-form-hint">
-            尚未註冊？請先前往 <a href="/registration">註冊頁</a> 建立帳號。
+          <p class="mvp-form-hint" id="login-registration-crosslink-hint">
+            若你剛完成註冊，請用相同憑證登入。尚未註冊？請先前往 <a href="/registration">註冊頁</a> 建立帳號。
+          </p>
+          <p class="mvp-form-hint" id="login-profile-next-step-hint">
+            登入後可先至個人資料頁填寫出生年月與居住地區，有助準備正式投票；這不表示可保證符合任何問卷資格。
           </p>
           <label for="login-credential">Production credential proof</label>
           <input

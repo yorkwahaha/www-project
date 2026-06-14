@@ -32,6 +32,7 @@ import {
   PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY,
   PUBLIC_REGISTRATION_PAGE_LEAD_SECONDARY,
   PUBLIC_REGISTRATION_PAGE_TITLE,
+  PUBLIC_REGISTRATION_PAGE_BANNER_BODY,
   PUBLIC_REGISTRATION_READY_HINT,
   PUBLIC_REGISTRATION_REGION_MESSAGE,
   PUBLIC_REGISTRATION_SUCCESS_FORM_HEADING,
@@ -570,16 +571,31 @@ export function syncRegistrationFormFieldCopy(documentObject) {
   }
 }
 
+export function syncRegistrationPageBanner(documentObject) {
+  if (typeof documentObject.getElementById !== 'function') {
+    return;
+  }
+  const banner = documentObject.getElementById('registration-page-banner');
+  if (banner) {
+    banner.textContent = PUBLIC_REGISTRATION_PAGE_BANNER_BODY;
+  }
+}
+
+export function syncRegistrationPageOnboardingCopy(documentObject) {
+  syncRegistrationPageSectionHeadings(documentObject);
+  syncRegistrationPageLeadParagraphs(documentObject);
+  syncRegistrationPageBanner(documentObject);
+  syncRegistrationFormFieldCopy(documentObject);
+  syncRegistrationSuccessCopy(documentObject);
+  syncRegistrationPageCtas(documentObject);
+}
+
 /**
  * @param {Document} [documentObject]
  */
 export function mountRegistrationPage(documentObject = document) {
   mountSiteChrome(documentObject);
-  syncRegistrationPageSectionHeadings(documentObject);
-  syncRegistrationPageLeadParagraphs(documentObject);
-  syncRegistrationFormFieldCopy(documentObject);
-  syncRegistrationSuccessCopy(documentObject);
-  syncRegistrationPageCtas(documentObject);
+  syncRegistrationPageOnboardingCopy(documentObject);
   const form = documentObject.getElementById('registration-form');
   if (!(form instanceof HTMLFormElement)) {
     return;

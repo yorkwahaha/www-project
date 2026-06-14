@@ -93,7 +93,7 @@ describe('profile page frontend', () => {
     expect(html).toContain('id="profile-unauthenticated"');
     expect(html).toContain('id="profile-signed-in-panel"');
     expect(html).toMatch(/id="profile-signed-in-panel"[^>]*\bhidden\b/);
-    expect(html).toMatch(/此資料只用於判斷你是否符合部分問卷.*資格/);
+    expect(html).toMatch(/填寫出生年月與居住地區有助準備部分問卷/);
     expect(html).not.toMatch(
       /gender|性別|birthday|生日|address|地址|GPS|geocode|precise location|精準位置|option_id|option_text|option_index|X-User-Id|creator_session/i,
     );
@@ -122,7 +122,7 @@ describe('profile page frontend', () => {
       documentObject.getElementById('profile-signed-in-panel')?.hidden,
     ).toBe(true);
     expect(documentObject.getElementById('profile-form-message')?.textContent).toBe(
-      '編輯出生年月與居住地區前請先登入。',
+      '請先登入後再編輯出生年月與居住地區。若尚未註冊，請先到註冊頁建立帳號，完成後再回來登入。',
     );
   });
 

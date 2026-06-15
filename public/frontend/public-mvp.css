@@ -3881,3 +3881,16 @@ button:disabled {
   background: var(--mvp-surface);
   border: 1px solid var(--mvp-border);
 }
+
+/* Phase 253 — public page reduced motion CSS-only polish (extends Phase 161) */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .mvp-faq-question::before,
+  .mvp-help-tip {
+    transition: none;
+    animation: none;
+  }
+}

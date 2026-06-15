@@ -33,6 +33,11 @@ async function loadModule(relativePath: string) {
   return import(/* @vite-ignore */ url);
 }
 
+function cssBeforePhase253(css: string) {
+  const marker = css.indexOf('Phase 253');
+  return marker === -1 ? css : css.slice(0, marker);
+}
+
 describe('Phase 252 public page reduced motion / motion safety polish plan', () => {
   it('documents Phase 252 plan-only scope in README', async () => {
     const plan = await readFile(join(process.cwd(), PHASE_252_DOC), 'utf8');
@@ -59,14 +64,15 @@ describe('Phase 252 public page reduced motion / motion safety polish plan', () 
   it('locks current public CSS motion inventory aligned with plan baseline', async () => {
     const css = await readFile(join(process.cwd(), PUBLIC_MVP_CSS), 'utf8');
     const plan = await readFile(join(process.cwd(), PHASE_252_DOC), 'utf8');
+    const cssBaseline = cssBeforePhase253(css);
 
-    expect(css).toContain('transition: opacity 0.12s ease');
-    expect(css).toContain('transition: transform 0.15s ease');
-    expect(css).toContain('@media (prefers-reduced-motion: reduce)');
-    expect(css).toContain('transition: none');
-    expect(css).not.toContain('@keyframes');
-    expect(css).not.toContain('scroll-behavior');
-    expect(css).not.toMatch(/\banimation\s*:/);
+    expect(cssBaseline).toContain('transition: opacity 0.12s ease');
+    expect(cssBaseline).toContain('transition: transform 0.15s ease');
+    expect(cssBaseline).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(cssBaseline).toContain('transition: none');
+    expect(cssBaseline).not.toContain('@keyframes');
+    expect(cssBaseline).not.toContain('scroll-behavior');
+    expect(cssBaseline).not.toMatch(/\banimation\s*:/);
 
     expect(plan).toContain('.mvp-help-tip');
     expect(plan).toContain('.mvp-faq-question::before');

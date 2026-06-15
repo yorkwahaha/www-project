@@ -323,10 +323,10 @@ export const PUBLIC_EXPLORE_EMPTY_SUMMARY =
 export const PUBLIC_EXPLORE_EMPTY_CTA_LABEL = '建立問卷';
 
 /** Frontend-owned my-polls creator list empty-state copy. */
-export const PUBLIC_MY_POLLS_EMPTY_MESSAGE = '你目前還沒有建立問卷。';
+export const PUBLIC_MY_POLLS_EMPTY_MESSAGE = '目前還沒有你建立的問卷。';
 export const PUBLIC_MY_POLLS_EMPTY_SUMMARY =
-  '你目前還沒有透過本流程建立的問卷。可先建立一則問卷，完成後在此管理並分享投票連結。';
-export const PUBLIC_MY_POLLS_EMPTY_HEADLINE = '你目前還沒有建立問卷';
+  '可前往建立一則新問卷，完成後回到此頁管理。';
+export const PUBLIC_MY_POLLS_EMPTY_HEADLINE = '目前還沒有你建立的問卷';
 
 /** Frontend-owned auth / profile action unavailable copy. */
 export const PUBLIC_MY_POLLS_SIGN_IN_REQUIRED_MESSAGE =

@@ -43,9 +43,9 @@ describe('Phase 120 my polls empty unavailable state runtime polish', () => {
     expect(MY_POLLS_LOAD_FAILURE_MESSAGE).toBe(
       '目前無法載入你建立的問卷，請稍後再試。',
     );
-    expect(MY_POLLS_EMPTY_MESSAGE).toBe('你目前還沒有建立問卷。');
+    expect(MY_POLLS_EMPTY_MESSAGE).toBe('目前還沒有你建立的問卷。');
     expect(MY_POLLS_EMPTY_SUMMARY).toBe(
-      '你目前還沒有透過本流程建立的問卷。可先建立一則問卷，完成後在此管理並分享投票連結。',
+      '可前往建立一則新問卷，完成後回到此頁管理。',
     );
   });
 

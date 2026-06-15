@@ -43,7 +43,7 @@ describe('Phase 147 public empty / no data state UX polish', () => {
     expect(publicUi.PUBLIC_EXPLORE_EMPTY_MESSAGE).toBe(
       '目前沒有可瀏覽的公開問卷。',
     );
-    expect(publicUi.PUBLIC_MY_POLLS_EMPTY_MESSAGE).toBe('你目前還沒有建立問卷。');
+    expect(publicUi.PUBLIC_MY_POLLS_EMPTY_MESSAGE).toBe('目前還沒有你建立的問卷。');
     expect(publicUi.PUBLIC_RESULTS_EMPTY_AGGREGATE_MESSAGE).toBe(
       '目前沒有可顯示的聚合結果。',
     );

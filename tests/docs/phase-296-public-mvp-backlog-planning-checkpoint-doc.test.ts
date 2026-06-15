@@ -128,7 +128,7 @@ describe('Phase 296 public MVP backlog planning checkpoint doc', () => {
 
     expect(readme).toContain('Phase 296');
     expect(readme).toContain(PHASE_296_DOC);
-    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–296)');
+    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–297)');
     expect(readme).toContain('Phase 297 blockers: none identified');
   });
 

@@ -1660,6 +1660,13 @@ export {
   syncVotePageShareLinks,
 } from './public-share-link-layout.js';
 
+export {
+  PUBLIC_KEYBOARD_FOCUS_ERROR_PANEL_CLASS,
+  PUBLIC_KEYBOARD_FOCUS_FEEDBACK_REGION_CLASS,
+  PUBLIC_KEYBOARD_FOCUS_INTERACTIVE_ORDER,
+  PUBLIC_KEYBOARD_FOCUS_SELECTOR_MAP,
+} from './public-keyboard-focus-a11y.js';
+
 /** Fake local-only voter UUID; must exist in DB with trust_level=official when using demo:public:local. */
 export const LOCAL_DEMO_VOTER_USER_ID = '44444444-4444-4444-8444-444444444444';
 

@@ -229,9 +229,11 @@ describe('Phase 249 public share link accessibility runtime review checkpoint', 
 
     expect(phase248).toContain("[data-copy-state='success']");
     expect(phase248).toContain("[data-copy-state='failure']");
-    expect(phase248).toContain('.mvp-public-share-link-row .share-url:focus');
-    expect(phase248).toContain('.copy-link-button:focus-visible');
     expect(phase248).not.toMatch(/\bfetch\b|addEventListener|localStorage|sessionStorage/);
+
+    const phase250 = css.slice(css.indexOf('Phase 250'));
+    expect(phase250).toContain('.mvp-public-share-link-row .share-url:focus-visible');
+    expect(phase250).toContain('.copy-link-button:focus-visible');
   });
 
   it('keeps vote-by-index payload boundary after Phase 248', async () => {

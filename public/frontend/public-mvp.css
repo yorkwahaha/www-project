@@ -3577,16 +3577,6 @@ button:disabled {
   color: #8a4b00;
 }
 
-.mvp-public-share-link-row .share-url:focus {
-  outline: 2px solid var(--mvp-accent);
-  outline-offset: 2px;
-}
-
-.mvp-public-share-link-row .copy-link-button:focus-visible {
-  outline: 2px solid var(--mvp-accent);
-  outline-offset: 2px;
-}
-
 /* Phase 210 — my-polls live action area accessibility & touch targets */
 .my-polls-page .mvp-page-intro {
   margin-bottom: 1rem;
@@ -3797,4 +3787,97 @@ button:disabled {
     padding: 0.6rem 0.65rem;
     font-size: 0.84rem;
   }
+}
+
+/* Phase 250 — public page keyboard focus polish */
+:root {
+  --mvp-focus-shadow: 0 0 0 3px rgba(47, 118, 109, 0.28);
+  --mvp-focus-on-accent-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(47, 118, 109, 0.55);
+  --mvp-focus-danger-shadow: 0 0 0 3px rgba(185, 91, 84, 0.28);
+}
+
+.mvp-btn-primary:focus-visible,
+.mvp-cta:focus-visible,
+#vote-submit:focus-visible,
+#create-poll-submit:focus-visible,
+.mvp-form-actions .mvp-btn-primary:focus-visible {
+  outline: var(--mvp-focus-width) solid var(--mvp-accent);
+  outline-offset: var(--mvp-focus-offset);
+  box-shadow: var(--mvp-focus-on-accent-shadow);
+}
+
+.mvp-btn-secondary:focus-visible,
+.mvp-btn-ghost:focus-visible,
+.mvp-btn-accent-outline:focus-visible,
+.mvp-form-actions .mvp-btn-secondary:focus-visible {
+  outline: var(--mvp-focus-width) solid var(--mvp-accent);
+  outline-offset: var(--mvp-focus-offset);
+  box-shadow: var(--mvp-focus-shadow);
+}
+
+.my-polls-page .mvp-creator-owned-poll-destructive-toolbar .mvp-btn:focus-visible {
+  outline: var(--mvp-focus-width) solid var(--mvp-danger);
+  outline-offset: var(--mvp-focus-offset);
+  box-shadow: var(--mvp-focus-danger-shadow);
+}
+
+.copy-link-button:focus-visible,
+.mvp-public-share-link-row .copy-link-button:focus-visible {
+  outline: var(--mvp-focus-width) solid var(--mvp-accent);
+  outline-offset: var(--mvp-focus-offset);
+  box-shadow: var(--mvp-focus-shadow);
+}
+
+.mvp-public-share-link-row .share-url:focus,
+.mvp-public-share-link-row .share-url:focus-visible {
+  outline: var(--mvp-focus-width) solid var(--mvp-accent);
+  outline-offset: var(--mvp-focus-offset);
+  box-shadow: var(--mvp-focus-shadow);
+  border-radius: var(--mvp-radius-sm);
+}
+
+#error-panel a:focus-visible,
+.mvp-error-panel a:focus-visible,
+.mvp-action-link:focus-visible,
+.mvp-public-load-failure a:focus-visible {
+  outline: var(--mvp-focus-width) solid var(--mvp-accent);
+  outline-offset: var(--mvp-focus-offset);
+  border-radius: var(--mvp-radius-sm);
+  box-shadow: var(--mvp-focus-shadow);
+}
+
+#error-panel:focus-within,
+.mvp-error-panel:focus-within,
+.mvp-public-load-failure:focus-within,
+.mvp-keyboard-focus-error-panel:focus-within {
+  box-shadow: var(--mvp-shadow-md), inset 0 0 0 1px var(--mvp-error-border);
+}
+
+.login-page #login-shell-message:focus-within:not(:empty),
+.registration-page #registration-form-message:focus-within:not(:empty),
+.profile-page #profile-form-message:focus-within:not(:empty),
+.create-poll-page #form-message:focus-within:not(:empty),
+.vote-page #form-message:focus-within:not(:empty),
+.mvp-keyboard-focus-feedback:focus-within {
+  border-color: var(--mvp-accent);
+  box-shadow: inset 0 0 0 2px var(--mvp-accent-soft);
+}
+
+.mvp-public-share-link-feedback,
+.mvp-demo-action-feedback,
+.my-polls-page .mvp-creator-owned-poll-feedback,
+.create-poll-page .mvp-create-poll-inline-feedback {
+  line-height: 1.5;
+}
+
+.mvp-public-share-link-feedback[data-copy-state='failure'],
+.mvp-public-share-link-feedback[data-copy-state='prompt'],
+.mvp-demo-action-feedback:not(:empty),
+.my-polls-page .mvp-creator-owned-poll-feedback:not(:empty) {
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--mvp-radius-sm);
+  background: var(--mvp-surface);
+  border: 1px solid var(--mvp-border);
 }

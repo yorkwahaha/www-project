@@ -324,4 +324,20 @@ describe('public MVP accessibility', () => {
     expect(urlCode?.tabIndex).toBe(0);
     expect(urlCode?.attributes.get('aria-label')).toContain('完整網址');
   });
+
+  it('exposes keyboard focus polish constants and CSS selector map', async () => {
+    const publicUi = await loadPublicMvpUiModule();
+    const css = await readFile(join(process.cwd(), 'public/frontend/public-mvp.css'), 'utf8');
+
+    expect(publicUi.PUBLIC_KEYBOARD_FOCUS_INTERACTIVE_ORDER).toContain('primary-cta');
+    expect(publicUi.PUBLIC_KEYBOARD_FOCUS_INTERACTIVE_ORDER).toContain('share-fallback-url');
+    expect(publicUi.PUBLIC_KEYBOARD_FOCUS_SELECTOR_MAP['form-submit']).toContain(
+      '.mvp-form-actions .mvp-btn-primary:focus-visible',
+    );
+
+    const phase250 = css.slice(css.indexOf('Phase 250'));
+    expect(phase250).toContain('--mvp-focus-on-accent-shadow');
+    expect(phase250).toContain('.mvp-public-share-link-row .share-url:focus-visible');
+    expect(phase250).toContain('.mvp-error-panel:focus-within');
+  });
 });

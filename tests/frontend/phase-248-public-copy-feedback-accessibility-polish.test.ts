@@ -192,12 +192,13 @@ describe('Phase 248 public copy feedback accessibility polish', () => {
 
   it('styles copy feedback states and focus outlines in CSS', async () => {
     const css = await readFile(join(process.cwd(), 'public/frontend/public-mvp.css'), 'utf8');
-    const phase248 = css.slice(css.indexOf('Phase 248'));
+    const phase248 = css.slice(css.indexOf('Phase 248'), css.indexOf('Phase 250'));
+    const phase250 = css.slice(css.indexOf('Phase 250'));
 
     expect(phase248).toContain(".mvp-public-share-link-feedback[data-copy-state='success']");
     expect(phase248).toContain(".mvp-public-share-link-feedback[data-copy-state='failure']");
-    expect(phase248).toContain('.mvp-public-share-link-row .share-url:focus');
-    expect(phase248).toContain('.mvp-public-share-link-row .copy-link-button:focus-visible');
+    expect(phase250).toContain('.mvp-public-share-link-row .share-url:focus-visible');
+    expect(phase250).toContain('.mvp-public-share-link-row .copy-link-button:focus-visible');
   });
 
   it('keeps touched modules free of storage, tracking, and backend echo', async () => {

@@ -21,7 +21,7 @@ describe('Phase 257 public help / FAQ copy refinement doc', () => {
     expect(source).toContain('回饋良好');
     expect(source).toContain('優質題目');
     expect(source).toContain('Raw Option Linkage Ban');
-    expect(source).toContain('does **not**');
+    expect(source).toContain('did **not**');
 
     expect(readme).toContain('Phase 257');
     expect(readme).toContain(PHASE_257_DOC);

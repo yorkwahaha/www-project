@@ -6,10 +6,9 @@ import { describe, expect, it, vi } from 'vitest';
 const PHASE_257_DOC =
   'docs/www-project-phase-257-public-help-faq-copy-refinement-v1.md';
 
-const ALLOWED_COPY_FILES = [
-  'public/frontend/public-page-copy.js',
-  'public/faq.html',
-] as const;
+const ALLOWED_COPY_FILES = ['public/frontend/public-page-copy.js'] as const;
+
+const PHASE_257_STATIC_FALLBACK_FILES = ['public/faq.html'] as const;
 
 const FORBIDDEN_RUNTIME_MODULES = [
   'public/frontend/vote-page.js',
@@ -145,6 +144,11 @@ describe('Phase 257 public help / FAQ copy refinement', () => {
     for (const relativePath of ALLOWED_COPY_FILES) {
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
       expect(source, relativePath).toContain('Phase 257');
+    }
+
+    for (const relativePath of PHASE_257_STATIC_FALLBACK_FILES) {
+      const source = await readFile(join(process.cwd(), relativePath), 'utf8');
+      expect(source, relativePath).not.toContain('Phase 257');
     }
 
     const voteSource = await readFile(join(process.cwd(), 'public/frontend/vote-page.js'), 'utf8');

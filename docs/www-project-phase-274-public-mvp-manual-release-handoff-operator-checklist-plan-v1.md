@@ -17,6 +17,10 @@
 
 ---
 
+**Release docs arc navigation (Phase 284):** **operator release arc** (entry) — ← [Phase 273](./www-project-phase-273-public-mvp-launch-approval-decision-record-v1.md) · **Phase 274** · [Phase 275](./www-project-phase-275-public-mvp-release-execution-record-template-final-operator-readiness-checkpoint-v1.md) → · ← [launch decision arc exit](./www-project-phase-273-public-mvp-launch-approval-decision-record-v1.md)
+
+**Authoritative current release status (Phase 284):** manual release preparation approved per Phase 273; operator release execution authorized; Actual deployment NOT EXECUTED; no deploy scripts added; no production configuration changed. Historical phase baselines do not imply deployment or production configuration change. See [Phase 280 final checkpoint](./www-project-phase-280-public-mvp-release-authorization-not-executed-status-final-checkpoint-v1.md) and [Phase 284 implementation](./www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md).
+
 ## 1. Plan Purpose
 
 Phase 274 is **plan only**. It prepares the **manual release handoff** operators need after Phase 273 approved Public MVP launch for **manual release preparation**.

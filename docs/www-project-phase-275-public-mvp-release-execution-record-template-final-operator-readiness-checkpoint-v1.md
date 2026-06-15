@@ -18,6 +18,10 @@
 
 ---
 
+**Release docs arc navigation (Phase 284):** **operator release arc** (middle) — ← [Phase 274](./www-project-phase-274-public-mvp-manual-release-handoff-operator-checklist-plan-v1.md) · **Phase 275** · [Phase 276](./www-project-phase-276-public-mvp-manual-release-execution-record-v1.md) →
+
+**Authoritative current release status (Phase 284):** manual release preparation approved per Phase 273; operator release execution authorized; Actual deployment NOT EXECUTED; no deploy scripts added; no production configuration changed. Historical phase baselines do not imply deployment or production configuration change. See [Phase 280 final checkpoint](./www-project-phase-280-public-mvp-release-authorization-not-executed-status-final-checkpoint-v1.md) and [Phase 284 implementation](./www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md).
+
 ## 1. Checkpoint Purpose
 
 Phase 275 is a **final operator readiness checkpoint** that:

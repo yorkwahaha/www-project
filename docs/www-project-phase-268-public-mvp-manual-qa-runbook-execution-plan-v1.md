@@ -17,6 +17,10 @@
 
 ---
 
+**Release docs arc navigation (Phase 284):** **manual QA arc** (entry) — ← [Phase 267](./www-project-phase-267-public-mvp-launch-readiness-runtime-review-final-checkpoint-v1.md) · **Phase 268** · [Phase 269](./www-project-phase-269-public-mvp-manual-qa-dry-run-checklist-review-recording-template-checkpoint-v1.md) → · ← [readiness arc exit](./www-project-phase-267-public-mvp-launch-readiness-runtime-review-final-checkpoint-v1.md)
+
+**Authoritative current release status (Phase 284):** manual release preparation approved per Phase 273; operator release execution authorized; Actual deployment NOT EXECUTED; no deploy scripts added; no production configuration changed. Historical phase baselines do not imply deployment or production configuration change. See [Phase 280 final checkpoint](./www-project-phase-280-public-mvp-release-authorization-not-executed-status-final-checkpoint-v1.md) and [Phase 284 implementation](./www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md).
+
 ## 1. Plan Purpose
 
 Phase 268 is **plan only**. It provides a **manual QA runbook and execution plan** so operators can execute browser-based QA against the Public MVP using consistent steps, expected outcomes, and result recording.

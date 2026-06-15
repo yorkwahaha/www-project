@@ -20,6 +20,10 @@
 
 ---
 
+**Release docs arc navigation (Phase 284):** **operator release arc** (middle) — ← [Phase 277](./www-project-phase-277-public-mvp-manual-release-pre-execution-gate-review-v1.md) · **Phase 278** · [Phase 279](./www-project-phase-279-public-mvp-manual-release-execution-record-operator-result-v1.md) →
+
+**Authoritative current release status (Phase 284):** manual release preparation approved per Phase 273; operator release execution authorized; Actual deployment NOT EXECUTED; no deploy scripts added; no production configuration changed. Historical phase baselines do not imply deployment or production configuration change. See [Phase 280 final checkpoint](./www-project-phase-280-public-mvp-release-authorization-not-executed-status-final-checkpoint-v1.md) and [Phase 284 implementation](./www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md).
+
 ## 1. Authorization Purpose
 
 Phase 278 is a **manual release execution authorization record** that:

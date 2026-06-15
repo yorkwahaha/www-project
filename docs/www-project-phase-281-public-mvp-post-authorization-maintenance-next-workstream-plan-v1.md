@@ -18,6 +18,10 @@
 
 ---
 
+**Release docs arc navigation (Phase 284):** **post-authorization backlog/docs arc** (entry) — ← [Phase 280](./www-project-phase-280-public-mvp-release-authorization-not-executed-status-final-checkpoint-v1.md) · **Phase 281** · [Phase 282](./www-project-phase-282-public-mvp-post-authorization-product-backlog-seed-plan-v1.md) → · ← [operator release arc exit](./www-project-phase-280-public-mvp-release-authorization-not-executed-status-final-checkpoint-v1.md)
+
+**Authoritative current release status (Phase 284):** manual release preparation approved per Phase 273; operator release execution authorized; Actual deployment NOT EXECUTED; no deploy scripts added; no production configuration changed. Historical phase baselines do not imply deployment or production configuration change. See [Phase 280 final checkpoint](./www-project-phase-280-public-mvp-release-authorization-not-executed-status-final-checkpoint-v1.md) and [Phase 284 implementation](./www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md).
+
 ## 1. Plan Purpose
 
 Phase 281 is **plan only**. It defines **post-authorization maintenance** and **next workstream** options after Phase 280 confirmed:

@@ -225,8 +225,10 @@ describe('Phase 261 public static HTML shell copy runtime review checkpoint', ()
     expect(doc).toContain('syncHomePageAccountFlowNote');
     expect(doc).toContain('Phase 262 candidate');
     expect(homeSource).toContain('syncHomePageAccountFlowNote');
-    expect(homeSource).toContain("creatorSessionCode.textContent = 'creator_session'");
-    expect(homeSource).toContain("userIdCode.textContent = 'X-User-Id'");
+    expect(homeSource).not.toContain("creatorSessionCode.textContent = 'creator_session'");
+    expect(homeSource).not.toContain("userIdCode.textContent = 'X-User-Id'");
+    expect(homeSource).not.toContain('creator_session');
+    expect(homeSource).not.toContain('X-User-Id');
     expect(indexHtml).not.toContain('creator_session');
     expect(indexHtml).not.toContain('X-User-Id');
   });

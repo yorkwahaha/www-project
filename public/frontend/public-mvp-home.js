@@ -16,7 +16,6 @@ import {
   PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE,
   PUBLIC_HOME_HERO_LEAD,
   PUBLIC_HOME_LOCK_PERIOD_CARD_HEADING,
-  PUBLIC_HOME_MANUAL_QA_DOC_NOTE,
   PUBLIC_HOME_PAGE_TITLE,
   PUBLIC_HOME_QUALITY_FEEDBACK_CARD_HEADING,
   PUBLIC_HOME_SAMPLE_POLLS_EXPLORE_LINK_LABEL,
@@ -204,11 +203,7 @@ export function syncHomePageAccountFlowNote(documentObject) {
   profileLink.href = PUBLIC_HOME_PROFILE_HREF;
   profileLink.textContent = '個人資料';
 
-  const creatorSessionCode = documentObject.createElement('code');
-  creatorSessionCode.textContent = 'creator_session';
-
-  const userIdCode = documentObject.createElement('code');
-  userIdCode.textContent = 'X-User-Id';
+  const profileVoteSuffix = PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE.replace(/^個人資料/, '');
 
   note.append(
     documentObject.createTextNode(PUBLIC_HOME_ACCOUNT_FLOW_FORMAL_LEAD),
@@ -216,15 +211,11 @@ export function syncHomePageAccountFlowNote(documentObject) {
     documentObject.createTextNode(`（${PUBLIC_HOME_ACCOUNT_FLOW_REGISTRATION_NOTE}）· `),
     loginLink,
     documentObject.createTextNode(`（${PUBLIC_HOME_ACCOUNT_FLOW_LOGIN_NOTE}）。 `),
-    documentObject.createTextNode(`${PUBLIC_HOME_DEMO_FLOW_LEAD}`),
+    documentObject.createTextNode(PUBLIC_HOME_DEMO_FLOW_LEAD),
     createPollLink,
-    documentObject.createTextNode(' '),
-    creatorSessionCode,
-    documentObject.createTextNode(` ${PUBLIC_HOME_DEMO_CREATOR_SESSION_NOTE} `),
+    documentObject.createTextNode(` ${PUBLIC_HOME_DEMO_CREATOR_SESSION_NOTE}`),
     profileLink,
-    documentObject.createTextNode('／投票用 MVP '),
-    userIdCode,
-    documentObject.createTextNode(`。${PUBLIC_HOME_MANUAL_QA_DOC_NOTE}`),
+    documentObject.createTextNode(profileVoteSuffix),
   );
 }
 

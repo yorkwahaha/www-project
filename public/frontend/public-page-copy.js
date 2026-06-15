@@ -49,6 +49,9 @@ export const PUBLIC_LOGIN_PAGE_LEAD_PRIMARY =
 export const PUBLIC_LOGIN_PAGE_LEAD_SECONDARY =
   '正式環境中，個人資料、投票與發起者操作須透過已核准憑證；若後端無法驗證身分，系統會拒絕存取，不會退回本機測試身份。';
 
+export const PUBLIC_LOGIN_ACCOUNT_FLOW_CARD_BODY =
+  '註冊只建立帳號與個人資料欄位，不會自動登入，也不會建立瀏覽器工作階段。請用相同憑證登入後，頁首才會顯示帳號名稱。';
+
 export const PUBLIC_REGISTRATION_PAGE_LEAD_PRIMARY =
   '註冊只建立帳號與個人資料欄位，不會自動登入，也不會建立瀏覽器工作階段。完成後請使用相同憑證到登入頁登入；登入才會控制頁首的已登入狀態。';
 

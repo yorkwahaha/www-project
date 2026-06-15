@@ -96,13 +96,13 @@ describe('Phase 240 public poll unavailable state presentation polish', () => {
     const documentObject = createDocumentStub();
     const emptyHost = documentObject.createElement('div');
     unavailable.renderPublicEmptyStatePanel(documentObject, emptyHost, {
-      message: '目前沒有正在收集中的公開問卷。',
-      summary: '你可以先發起一則問卷並分享投票連結。',
+      message: '目前沒有可瀏覽的公開問卷。',
+      summary: '請稍後再回來看看，或建立一則新問卷。',
       ctaHref: '/polls/new?live=1',
       ctaLabel: '建立問卷',
     });
     expect(emptyHost.className).toContain('mvp-public-empty-state');
-    expect(collectText(emptyHost)).toContain('目前沒有正在收集中的公開問卷。');
+    expect(collectText(emptyHost)).toContain('目前沒有可瀏覽的公開問卷。');
 
     const failureHost = documentObject.createElement('div');
     unavailable.renderPublicLoadFailurePanel(documentObject, failureHost, {
@@ -149,7 +149,7 @@ describe('Phase 240 public poll unavailable state presentation polish', () => {
     expect(exploreSource).not.toMatch(/errorPanel\.textContent\s*=\s*message/);
     expect(exploreHtml).toContain('id="explore-empty"');
     expect(exploreHtml).toContain('mvp-empty-state');
-    expect(collectText(emptyPanel)).toContain('目前沒有正在收集中的公開問卷。');
+    expect(collectText(emptyPanel)).toContain('目前沒有可瀏覽的公開問卷。');
   });
 
   it('unifies my-polls empty and load failure presentation', async () => {

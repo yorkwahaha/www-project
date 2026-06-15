@@ -156,7 +156,7 @@ describe('explore page feed helpers', () => {
     expect(html).toContain('data-explore-feed="freshness-only"');
     expect(html).toContain('/frontend/explore-page.js');
     expect(html).toContain('不顯示');
-    expect(html).toContain('目前沒有正在收集中的公開問卷');
+    expect(html).toContain('目前沒有可瀏覽的公開問卷');
     expect(html).not.toContain('mvp-result-preview');
     expect(html).not.toContain('/vote/demo');
     expect(html).not.toContain('data-static-examples');

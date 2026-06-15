@@ -61,9 +61,9 @@ describe('Phase 117 explore page empty unavailable state runtime polish', () => 
     expect(EXPLORE_FEED_LIST_SUMMARY).toBe(
       '依最近發布排序；非熱門、票數、個人化或榜單。',
     );
-    expect(EXPLORE_FEED_EMPTY_MESSAGE).toBe('目前沒有正在收集中的公開問卷。');
+    expect(EXPLORE_FEED_EMPTY_MESSAGE).toBe('目前沒有可瀏覽的公開問卷。');
     expect(EXPLORE_FEED_EMPTY_SUMMARY).toBe(
-      '你可以先發起一則問卷並分享投票連結。',
+      '請稍後再回來看看，或建立一則新問卷。',
     );
   });
 
@@ -154,7 +154,7 @@ describe('Phase 117 explore page empty unavailable state runtime polish', () => 
     expect(indexHtml).toContain('/vote/demo');
     expect(exploreHtml).toContain('data-explore-feed="freshness-only"');
     expect(exploreHtml).toContain('id="explore-feed-list"');
-    expect(exploreHtml).toContain('目前沒有正在收集中的公開問卷');
+    expect(exploreHtml).toContain('目前沒有可瀏覽的公開問卷');
     expect(exploreHtml).not.toContain('/vote/demo');
     expect(exploreHtml).not.toContain('data-static-examples');
   });

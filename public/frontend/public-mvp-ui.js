@@ -317,9 +317,9 @@ export const PUBLIC_LOAD_FAILURE_USER_MESSAGES = [
   PUBLIC_PROFILE_SAVE_FAILURE_MESSAGE,
 ];
 
-export const PUBLIC_EXPLORE_EMPTY_MESSAGE = '目前沒有正在收集中的公開問卷。';
+export const PUBLIC_EXPLORE_EMPTY_MESSAGE = '目前沒有可瀏覽的公開問卷。';
 export const PUBLIC_EXPLORE_EMPTY_SUMMARY =
-  '你可以先發起一則問卷並分享投票連結。';
+  '請稍後再回來看看，或建立一則新問卷。';
 export const PUBLIC_EXPLORE_EMPTY_CTA_LABEL = '建立問卷';
 
 /** Frontend-owned my-polls creator list empty-state copy. */

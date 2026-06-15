@@ -111,7 +111,7 @@ describe('Phase 136 public error copy runtime review checkpoint', () => {
     ).rejects.toThrow(explore.EXPLORE_LOAD_FAILURE_MESSAGE);
 
     expect(explore.EXPLORE_FEED_EMPTY_MESSAGE).toBe(
-      '目前沒有正在收集中的公開問卷。',
+      '目前沒有可瀏覽的公開問卷。',
     );
   });
 

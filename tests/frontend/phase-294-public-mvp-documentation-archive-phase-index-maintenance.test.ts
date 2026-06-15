@@ -42,7 +42,7 @@ const README_ARC_MARKERS = [
   'operator release arc',
   'post-authorization backlog/docs arc',
   'post-copy polish arc',
-  'backlog reprioritization arc',
+  'backlog planning arc',
   'manual QA follow-up arc',
   'post-release monitoring arc',
 ] as const;
@@ -67,8 +67,8 @@ describe('Phase 294 public MVP documentation archive phase index maintenance', (
     expect(maintenance).toContain('1913ee0');
     expect(readme).toContain('Phase 294');
     expect(readme).toContain(PHASE_294_DOC);
-    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–294)');
-    expect(readme).toContain('Post-authorization extension arcs (Phase 285–293)');
+    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–296)');
+    expect(readme).toContain('Post-authorization extension arcs (Phase 285–296)');
   });
 
   it('keeps Phase 294 as docs-only without runtime or HTML delivery markers', async () => {

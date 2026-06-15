@@ -152,11 +152,11 @@ describe('Phase 294 public MVP documentation archive phase index maintenance doc
 
     expect(readme).toContain('Phase 294');
     expect(readme).toContain(PHASE_294_DOC);
-    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–294)');
-    expect(readme).toContain('Post-authorization extension arcs (Phase 285–293)');
-    expect(readme).toContain('Topic quick lookup (Phase 265–293)');
+    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–296)');
+    expect(readme).toContain('Post-authorization extension arcs (Phase 285–296)');
+    expect(readme).toContain('Topic quick lookup (Phase 265–296)');
     expect(readme).toContain('post-copy polish arc');
-    expect(readme).toContain('backlog reprioritization arc');
+    expect(readme).toContain('backlog planning arc');
     expect(readme).toContain('manual QA follow-up arc');
     expect(readme).toContain('post-release monitoring arc');
     expect(readme).toContain('Phase 295 blockers: none identified');

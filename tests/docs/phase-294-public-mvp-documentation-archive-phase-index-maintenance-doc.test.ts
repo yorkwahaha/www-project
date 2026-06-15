@@ -6,10 +6,16 @@ const PHASE_283_DOC =
   'docs/www-project-phase-283-public-mvp-documentation-cleanup-release-docs-cross-link-plan-v1.md';
 const PHASE_284_DOC =
   'docs/www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md';
+const PHASE_291_DOC =
+  'docs/www-project-phase-291-public-mvp-backlog-reprioritization-checkpoint-v1.md';
+const PHASE_293_DOC =
+  'docs/www-project-phase-293-public-mvp-post-release-monitoring-notes-draft-v1.md';
+const PHASE_294_DOC =
+  'docs/www-project-phase-294-public-mvp-documentation-archive-phase-index-maintenance-v1.md';
 
 const ARC_NAV_MARKER = 'Release docs arc navigation (Phase 284)';
 
-const UPDATED_PHASE_DOCS = [
+const PHASE_265_293_DOC_PATHS = [
   'docs/www-project-phase-265-public-mvp-launch-readiness-checklist-plan-v1.md',
   'docs/www-project-phase-266-public-mvp-launch-readiness-checklist-checkpoint-v1.md',
   'docs/www-project-phase-267-public-mvp-launch-readiness-runtime-review-final-checkpoint-v1.md',
@@ -29,26 +35,38 @@ const UPDATED_PHASE_DOCS = [
   'docs/www-project-phase-281-public-mvp-post-authorization-maintenance-next-workstream-plan-v1.md',
   'docs/www-project-phase-282-public-mvp-post-authorization-product-backlog-seed-plan-v1.md',
   'docs/www-project-phase-283-public-mvp-documentation-cleanup-release-docs-cross-link-plan-v1.md',
+  'docs/www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md',
+  'docs/www-project-phase-285-public-explore-feed-empty-state-copy-polish-v1.md',
+  'docs/www-project-phase-286-public-mvp-copy-consistency-review-checkpoint-v1.md',
+  'docs/www-project-phase-287-login-account-flow-card-copy-polish-v1.md',
+  'docs/www-project-phase-288-my-polls-empty-state-copy-polish-v1.md',
+  'docs/www-project-phase-289-public-faq-copy-alignment-polish-v1.md',
+  'docs/www-project-phase-290-public-mvp-post-copy-polish-checkpoint-v1.md',
+  'docs/www-project-phase-291-public-mvp-backlog-reprioritization-checkpoint-v1.md',
+  'docs/www-project-phase-292-public-mvp-manual-qa-follow-up-execution-record-v1.md',
+  'docs/www-project-phase-293-public-mvp-post-release-monitoring-notes-draft-v1.md',
 ] as const;
 
-describe('Phase 284 public MVP documentation cleanup release docs cross-link implementation doc', () => {
-  it('documents implementation purpose, status, README changes, and updated doc list', async () => {
-    const source = await readFile(join(process.cwd(), PHASE_284_DOC), 'utf8');
+describe('Phase 294 public MVP documentation archive phase index maintenance doc', () => {
+  it('documents archive purpose, status, README changes, and Phase 265–293 index', async () => {
+    const source = await readFile(join(process.cwd(), PHASE_294_DOC), 'utf8');
     const readme = await readFile(join(process.cwd(), 'README.md'), 'utf8');
 
-    expect(source).toContain('Phase 284');
-    expect(source).toContain(
-      'Public MVP Documentation Cleanup / Release Docs Cross-Link Implementation',
-    );
+    expect(source).toContain('Phase 294');
+    expect(source).toContain('Documentation Archive / Phase Index Maintenance');
     expect(source).toContain('docs/tests/README only');
-    expect(source).toContain('6c35cac');
+    expect(source).toContain('1913ee0');
+    expect(source).toContain('BL-282-08');
     expect(source).toContain(PHASE_283_DOC.replace('docs/', './'));
+    expect(source).toContain(PHASE_284_DOC.replace('docs/', './'));
+    expect(source).toContain(PHASE_291_DOC.replace('docs/', './'));
+    expect(source).toContain(PHASE_293_DOC.replace('docs/', './'));
 
     for (const statusField of [
-      'Current Release Status',
       'Launch approved for manual release preparation',
       'Operator release execution authorized',
       'Actual deployment NOT EXECUTED',
+      'Formal launch NOT COMPLETED',
       'No deploy scripts added',
       'No production configuration changed',
     ]) {
@@ -56,44 +74,48 @@ describe('Phase 284 public MVP documentation cleanup release docs cross-link imp
     }
 
     for (const section of [
-      'README Changes',
-      'Inter-Doc Cross-Link Blocks Added',
-      'What Was Not Changed',
+      'Topic Quick Lookup',
+      'Phase 265–293 Complete Archive Index',
       'readiness arc',
       'manual QA arc',
       'launch decision arc',
       'operator release arc',
       'post-authorization backlog/docs arc',
-      ARC_NAV_MARKER,
+      'Post-copy polish arc',
+      'sealed',
+      'backlog reprioritization',
+      'manual QA follow-up',
+      'post-release monitoring',
+      'Post-authorization extension arcs',
     ]) {
       expect(source).toContain(section);
     }
 
     for (const rule of [
-      'Any future archive/rename/delete requires a separate numbered phase',
-      'Any runtime bug must be fixed in a separate numbered phase',
-      'Any actual release execution must be separately executed and recorded',
-      'does not perform deployment',
-      'does not add deploy scripts',
-      'does not modify production configuration',
-      'no deployment performed',
       'historical doc delete',
       'historical doc rename',
+      'does not execute release',
+      'does not deploy',
+      'does not add deploy scripts',
+      'does not change production configuration',
+      'no deployment performed',
+      'separate numbered phase',
     ]) {
       expect(source).toContain(rule);
     }
 
-    for (const route of [
-      '/',
-      '/explore',
-      '/registration',
-      '/login',
-      '/profile',
-      '/vote',
-      '/results',
-      '/my-polls',
+    for (const arc of [
+      '265–267',
+      '268–271',
+      '272–273',
+      '274–280',
+      '281–284',
+      '285–290',
+      '291',
+      '292',
+      '293',
     ]) {
-      expect(source).toContain(route);
+      expect(source).toContain(arc);
     }
 
     expect(source).toContain('option_index');
@@ -101,63 +123,56 @@ describe('Phase 284 public MVP documentation cleanup release docs cross-link imp
     expect(source).toContain('Raw Option Linkage Ban');
     expect(source).toContain('positive_feedback');
     expect(source).toContain('回饋良好');
-    expect(source).toContain('does not call `GET /users/me` after success');
-    expect(source).toContain('birth_year_month');
-    expect(source).toContain('residential_region');
     expect(source).toContain('UserAuthResolver');
+    expect(source).toContain('hidden aggregate');
     expect(source).toContain('smoke:public:local');
-    expect(source).toContain('migrate:check');
 
     for (const nonGoal of [
       'no runtime change',
       'no API change',
       'no frontend behavior change',
       'no migration',
-      'no schema change',
       'localStorage',
       'sessionStorage',
-      'analytics / metrics / APM / debug tracking',
       'design-drafts/',
     ]) {
       expect(source).toContain(nonGoal);
     }
 
-    expect(source).toContain('Phase 285 blockers: none identified');
+    expect(source).toContain('Phase 295 blockers: none identified');
     expect(source).toContain(
-      'phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-doc.test.ts',
+      'phase-294-public-mvp-documentation-archive-phase-index-maintenance-doc.test.ts',
     );
     expect(source).toContain(
-      'phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation.test.ts',
+      'phase-294-public-mvp-documentation-archive-phase-index-maintenance.test.ts',
     );
     expect(source).toContain(
       'I verified that no new logs, metrics, error payloads, APM traces, debug payloads, or analytics records capture option_id or link an option choice with a user, session, device, request, or traceable identifier.',
     );
 
-    expect(readme).toContain('Phase 284');
-    expect(readme).toContain(PHASE_284_DOC);
+    expect(readme).toContain('Phase 294');
+    expect(readme).toContain(PHASE_294_DOC);
     expect(readme).toContain('Public MVP release documentation arcs (Phase 265–294)');
-    expect(readme).toContain('readiness arc');
-    expect(readme).toContain('manual QA arc');
-    expect(readme).toContain('launch decision arc');
-    expect(readme).toContain('operator release arc');
-    expect(readme).toContain('post-authorization backlog/docs arc');
-    expect(readme).toContain(ARC_NAV_MARKER);
-    expect(readme).toContain('Phase 285 blockers: none identified');
+    expect(readme).toContain('Post-authorization extension arcs (Phase 285–293)');
+    expect(readme).toContain('Topic quick lookup (Phase 265–293)');
+    expect(readme).toContain('post-copy polish arc');
+    expect(readme).toContain('backlog reprioritization arc');
+    expect(readme).toContain('manual QA follow-up arc');
+    expect(readme).toContain('post-release monitoring arc');
+    expect(readme).toContain('Phase 295 blockers: none identified');
   });
 
-  it('confirms Phase 283 plan exists and Phase 265–283 docs have arc navigation blocks', async () => {
-    const plan = await readFile(join(process.cwd(), PHASE_283_DOC), 'utf8');
+  it('confirms Phase 265–293 doc paths exist and Phase 265–283 retain Phase 284 arc navigation', async () => {
+    for (const relativePath of PHASE_265_293_DOC_PATHS) {
+      const doc = await readFile(join(process.cwd(), relativePath), 'utf8');
+      expect(doc.length, relativePath).toBeGreaterThan(0);
+    }
 
-    expect(plan).toContain('Phase 284 blockers: none identified');
-
-    for (const relativePath of UPDATED_PHASE_DOCS) {
+    const phase265to283 = PHASE_265_293_DOC_PATHS.slice(0, 19);
+    for (const relativePath of phase265to283) {
       const doc = await readFile(join(process.cwd(), relativePath), 'utf8');
       expect(doc, relativePath).toContain(ARC_NAV_MARKER);
-      expect(doc, relativePath).toContain('Authoritative current release status (Phase 284)');
       expect(doc, relativePath).toContain('Actual deployment NOT EXECUTED');
-      expect(doc, relativePath).toContain(
-        'www-project-phase-284-public-mvp-documentation-cleanup-release-docs-cross-link-implementation-v1.md',
-      );
     }
   });
 });

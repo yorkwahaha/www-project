@@ -74,7 +74,7 @@ describe('Phase 284 public MVP documentation cleanup release docs cross-link imp
     expect(implementation).toContain('6c35cac');
     expect(readme).toContain('Phase 284');
     expect(readme).toContain(PHASE_284_DOC);
-    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–284)');
+    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–294)');
   });
 
   it('keeps Phase 284 as docs-only without runtime, HTML, CSS, or JS delivery markers', async () => {

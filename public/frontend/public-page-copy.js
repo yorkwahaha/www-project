@@ -181,6 +181,9 @@ export const PUBLIC_CREATOR_VOTE_URL_HINT_PREFIX = '投票頁完整網址：';
 export const PUBLIC_FAQ_PAGE_HERO_LEAD =
   '帳號註冊登入、問卷建立、投票與結果查看，以及收集中盲測、截止公開、取消與下架的差別，這裡用最直白的方式說明。';
 
+export const PUBLIC_FAQ_PAGE_BANNER_BODY =
+  '政策說明頁：展示用，不儲存。以下為公開 MVP 規則摘要；本產品尚未正式對外上線，部分功能尚未開放，上線後以系統狀態與公告為準。';
+
 export const PUBLIC_FAQ_ACCOUNT_FLOW_INTRO =
   '註冊只建立帳號與個人資料欄位，不會自動登入，也不會建立瀏覽器工作階段。';
 
@@ -200,7 +203,7 @@ export const PUBLIC_FAQ_CREATOR_FLOW_MY_POLLS_STEP =
   '建立成功後可至「我的問卷」管理已建立的問卷、分享投票連結；此頁僅管理你透過本站台建立流程所建立的問卷。';
 
 export const PUBLIC_FAQ_PARTICIPANT_VOTE_STEP =
-  '投票頁可閱讀問卷、選擇一個選項並送出。正式投票可能需要登入；送出當下由系統處理，並判定是否可計票。';
+  '投票頁可閱讀問卷、選擇一個選項並送出。正式投票可能需要登入；送出當下由系統判定是否可計票。此說明不代表一定可以完成投票。';
 
 export const PUBLIC_FAQ_PARTICIPANT_DEMO_STEP =
   '範例問卷（如 /vote/demo）僅展示流程，不儲存票數。';

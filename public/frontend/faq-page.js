@@ -8,6 +8,7 @@ import {
   PUBLIC_FAQ_CREATOR_FLOW_LIVE_STEP,
   PUBLIC_FAQ_CREATOR_FLOW_MY_POLLS_STEP,
   PUBLIC_FAQ_ELIGIBILITY_FAILURE_REFERENCE_NOTE,
+  PUBLIC_FAQ_PAGE_BANNER_BODY,
   PUBLIC_FAQ_PAGE_HERO_LEAD,
   PUBLIC_FAQ_PARTICIPANT_COLLECTING_STEP,
   PUBLIC_FAQ_PARTICIPANT_DEMO_STEP,
@@ -27,6 +28,7 @@ function syncTextContent(documentObject, elementId, text) {
 }
 
 export function syncFaqPageOnboardingCopy(documentObject) {
+  syncTextContent(documentObject, 'faq-page-banner', PUBLIC_FAQ_PAGE_BANNER_BODY);
   syncTextContent(documentObject, 'faq-page-hero-lead', PUBLIC_FAQ_PAGE_HERO_LEAD);
   syncTextContent(documentObject, 'faq-account-flow-intro', PUBLIC_FAQ_ACCOUNT_FLOW_INTRO);
   syncTextContent(documentObject, 'faq-account-flow-login-step', PUBLIC_FAQ_ACCOUNT_FLOW_LOGIN_STEP);

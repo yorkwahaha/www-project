@@ -18,10 +18,10 @@ describe('login page frontend shell', () => {
     expect(html).toContain('會拒絕存取');
     expect(html).not.toMatch(/fail closed/i);
     expect(html).not.toMatch(/AUTH_REQUIRED/);
-    expect(html).toContain('X-User-Id');
-    expect(html).toContain('creator_session');
-    expect(html).toContain('/creator/*');
-    expect(html).toContain('Reference Answer');
+    expect(html).toContain('測試身份');
+    expect(html).toContain('即時模式');
+    expect(html).toContain('帳號流程');
+    expect(html).toContain('個人資料頁');
     expect(html).toContain('login-shell-form');
     expect(html).toContain('name="credential"');
     expect(html).toContain('aria-live="polite"');

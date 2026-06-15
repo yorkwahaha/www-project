@@ -23,7 +23,7 @@
         aria-label="頁面標題"
       >
         <h1>建立問卷</h1>
-        <p class="mvp-lead" id="create-poll-page-lead">在此建立並發布問卷。發布後無法在此修改題目或選項；收集中看不到期中結果。</p>
+        <p class="mvp-lead" id="create-poll-page-lead">在此建立並發布問卷。發布後無法在此修改題目或選項；收集中看不到期中票數或百分比。</p>
       </header>
 
       <section
@@ -32,13 +32,13 @@
         aria-label="發起說明"
       >
         <p class="mvp-mock-banner" id="create-poll-page-banner" role="note">
-          目前為公開展示版：此頁預設為展示流程，送出僅做欄位檢查，資料不會儲存。若要實際建立並管理問卷，請使用即時模式（網址加上 ?live=1）。
+          目前為展示模式：此頁預設僅做欄位檢查，資料不會儲存。若要實際建立並管理問卷，請在網址加上 ?live=1（即時模式）。
         </p>
         <p class="mvp-meta" id="create-poll-live-mode-hint">
-          即時模式會實際建立問卷。建立成功後可至「我的問卷」管理、分享投票連結，或變更公開狀態。
+          即時模式會實際建立問卷。建立成功後可至「我的問卷」管理、分享投票連結，或執行取消／結束收集／下架等狀態操作。
         </p>
         <p class="mvp-meta" id="create-poll-my-polls-nav-hint">
-          建立問卷後，可到<a href="/my-polls?live=1">前往我的問卷</a>管理已建立的問卷、分享投票連結。
+          建立問卷後，可到<a href="/my-polls?live=1">我的問卷</a>管理已建立的問卷、分享投票連結。
         </p>
 
         <aside class="mvp-policy-panel mvp-policy-panel-compact" aria-label="發起須知">
@@ -46,8 +46,8 @@
           <ul class="mvp-form-hint-list" style="margin:0">
             <li><strong>Lv.1 註冊用戶</strong>可發起一般問卷（每日額度較低，正式上線後計算）</li>
             <li><strong>政治／高風險</strong>類別需更高信任並經事前審核，無法以一般流程發布（<a href="/trust-levels">說明</a>）</li>
-            <li>收集中看不到期中結果；詳見<a href="/faq">常見問題</a></li>
-            <li>累積<strong>優質題目</strong>有助信任提升；依投票後品質回饋判定，非單純按讚</li>
+            <li>收集中看不到期中票數或百分比；詳見<a href="/faq">常見問題</a></li>
+            <li>投票後可協助回饋題目是否清楚易懂；此回饋不是按讚、評分、排名，也不是正式檢舉</li>
           </ul>
         </aside>
 
@@ -58,7 +58,7 @@
             <li>結果公開後約 <strong>5 天</strong>鎖定期，期間不可下架或修改。
               <span class="mvp-help" tabindex="0" role="button" aria-label="鎖定期">
                 <span class="mvp-help-icon" aria-hidden="true">?</span>
-                <span class="mvp-help-tip" role="tooltip">鎖定期內不可編輯、下架、刪除、重開投票或隱藏結果。</span>
+                <span class="mvp-help-tip" role="tooltip">鎖定期內不可下架、修改或刪除、重開投票或隱藏結果。</span>
               </span>
             </li>
           </ul>

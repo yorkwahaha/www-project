@@ -194,7 +194,7 @@ describe('Phase 153 public section title / panel heading consistency polish', ()
     expect(indexHtml).toContain(publicUi.PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE);
     expect(exploreHtml).toContain(publicUi.PUBLIC_EXPLORE_PAGE_TITLE);
     expect(loginHtml).toContain(publicUi.PUBLIC_LOGIN_PAGE_TITLE);
-    expect(loginHtml).toContain(publicUi.PUBLIC_LOGIN_PRODUCTION_CARD_HEADING);
+    expect(loginHtml).toContain('正式環境');
     expect(myPollsHtml).toContain(publicUi.PUBLIC_MY_POLLS_PAGE_TITLE);
     expect(myPollsHtml).toContain(publicUi.PUBLIC_MY_POLLS_QUOTA_PANEL_HEADING);
     expect(voteHtml).toContain(publicUi.PUBLIC_VOTE_POLICY_PANEL_HEADING);

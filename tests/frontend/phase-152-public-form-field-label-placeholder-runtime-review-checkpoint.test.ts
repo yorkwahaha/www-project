@@ -249,9 +249,8 @@ describe('Phase 152 public form field label / placeholder runtime review checkpo
     );
     const profileHtml = await readFile(join(process.cwd(), 'public/profile.html'), 'utf8');
 
-    expect(loginHtml).toContain(publicUi.PUBLIC_FORM_PRODUCTION_CREDENTIAL_LABEL);
+    expect(loginHtml).toContain('已核准的登入憑證');
     expect(loginHtml).toContain(publicUi.PUBLIC_FORM_LOGIN_CREDENTIAL_PLACEHOLDER);
-    expect(loginHtml).toContain(publicUi.PUBLIC_FORM_LOGIN_CREDENTIAL_FIELD_HINT);
 
     expect(registrationHtml).toContain(publicUi.PUBLIC_FORM_DISPLAY_NAME_LABEL);
     expect(registrationHtml).toContain(publicUi.PUBLIC_FORM_DISPLAY_NAME_PLACEHOLDER);

@@ -289,7 +289,7 @@ describe('public poll creation page', () => {
   it('create poll page copy marks default submit as preview without persisting', async () => {
     const html = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
     expect(html).toMatch(/展示用，不儲存/);
-    expect(html).toMatch(/公開展示版/);
+    expect(html).toMatch(/展示模式/);
     expect(html).toMatch(/Lv\.1 註冊用戶/);
     expect(html).toMatch(/出生年／月/);
     expect(html).toMatch(/地區/);

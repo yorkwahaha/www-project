@@ -79,7 +79,7 @@ const POLICY_EDUCATIONAL_COPY_FILES = new Set([
   'public/frontend/creator-flow-copy.js',
 ]);
 
-const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html']);
+const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html', 'public/index.html']);
 
 async function listFilesRecursive(dir: string): Promise<string[]> {
   const entries = await readdir(join(process.cwd(), dir), {

@@ -207,7 +207,7 @@ describe('Phase 169 public MVP full-flow smoke checkpoint', () => {
     const { shouldReadLoginState } = await loadModule('public/frontend/public-mvp-layout.js');
 
     expect(registrationHtml).toContain('href="/login"');
-    expect(loginHtml).toContain('href="/profile"');
+    expect(loginHtml).toContain('個人資料頁');
     expect(profileHtml).toContain('birth_year_month');
     expect(profileHtml).toContain('residential_region');
     expect(indexHtml).toContain('註冊');

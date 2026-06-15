@@ -70,8 +70,8 @@ describe('Phase 128 static public pages copy privacy boundary review checkpoint'
     expect(index).toContain('data-static-examples="true"');
     expect(index).toContain('靜態範例');
     expect(index).toContain('範例資料');
-    expect(index).toContain('creator_session');
-    expect(index).toContain('X-User-Id');
+    expect(index).toContain('即時模式');
+    expect(index).toContain('測試身份');
     expect(index).toContain('收集中不公開票數');
     expect(index).not.toMatch(FORBIDDEN_GUARANTEE_COPY);
     expect(index).not.toMatch(/真實即時票數|live vote count/i);
@@ -90,8 +90,9 @@ describe('Phase 128 static public pages copy privacy boundary review checkpoint'
 
     expect(login).toContain('登入會建立瀏覽器工作階段');
     expect(login).toContain('註冊不會自動登入');
-    expect(login).toContain('creator_session');
-    expect(login).toContain('X-User-Id');
+    expect(login).toContain('測試身份');
+    expect(login).toContain('即時模式');
+    expect(login).toContain('個人資料頁');
     expect(login).not.toMatch(/POST \/login\/session/);
     expect(login).not.toMatch(FORBIDDEN_GUARANTEE_COPY);
   });
@@ -114,7 +115,7 @@ describe('Phase 128 static public pages copy privacy boundary review checkpoint'
     expect(results).toContain('收集中不顯示票數');
     expect(results).toContain('範例展示');
 
-    expect(vote).toContain('送出當下由系統處理');
+    expect(vote).toContain('送出當下由系統判定');
     expect(vote).toContain('不顯示');
     expect(vote).toContain('票數、百分比、總計、排名、趨勢或進度');
     expect(vote).toContain('/vote/demo');

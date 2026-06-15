@@ -79,7 +79,7 @@ const POLICY_EDUCATIONAL_COPY_FILES = new Set([
   'public/frontend/creator-flow-copy.js',
 ]);
 
-const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html']);
+const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html', 'public/index.html']);
 
 const DETAIL_RESULTS_SURFACE_FILES = new Set([
   'public/frontend/result-page.js',

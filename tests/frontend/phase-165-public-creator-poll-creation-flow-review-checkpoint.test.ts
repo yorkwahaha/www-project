@@ -166,10 +166,10 @@ describe('Phase 165 public creator poll creation flow review checkpoint', () => 
   it('keeps static create-poll.html in demo posture with disabled future eligibility fields', async () => {
     const html = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
 
-    expect(html).toContain('公開展示版');
+    expect(html).toContain('展示模式');
     expect(html).toContain('展示用，不儲存');
     expect(html).toContain('資料不會儲存');
-    expect(html).toContain('收集中看不到期中結果');
+    expect(html).toContain('收集中看不到期中票數或百分比');
     expect(html).toContain('mvp-form-demo-fields');
     expect(html).toContain('正式上線後開放');
     expect(html).toMatch(/poll-eligibility-age[\s\S]*disabled/);

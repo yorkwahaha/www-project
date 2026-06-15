@@ -27,32 +27,31 @@
           登入會建立瀏覽器工作階段，並在頁首顯示帳號名稱。若你剛完成註冊，請用相同憑證登入；若尚未註冊，請先到註冊頁建立帳號（註冊不會自動登入）。
         </p>
         <p class="mvp-lead" id="login-lead-secondary">
-          正式環境中，個人資料、投票與發起者操作須透過已核准憑證；若後端無法驗證身分，系統會拒絕存取，不會退回本機測試用 X-User-Id 或 creator_session。
+          正式環境中，個人資料、投票與發起者操作須透過已核准憑證；若後端無法驗證身分，系統會拒絕存取，不會退回本機測試身份。
         </p>
       </header>
 
       <section class="mvp-value-grid mvp-auth-state-grid" aria-label="身分狀態說明">
         <article class="mvp-value-card">
-          <h2>Production（正式）</h2>
-          <p>須有已核准的 production credential verifier；缺少時 protected routes 一律拒絕。</p>
+          <h2>正式環境</h2>
+          <p>須有已核准的登入憑證；缺少有效憑證時，受保護功能會拒絕存取，不會退回測試身份。</p>
         </article>
         <article class="mvp-value-card">
-          <h2>Local demo（本機展示）</h2>
+          <h2>本機展示</h2>
           <p>
-            訪客投票與 <a href="/profile">個人資料</a> 使用明確標記的 MVP <code>X-User-Id</code> 測試身份；
-            發起者流程使用 <code>creator_session</code>（僅 <code>/creator/*</code>，非一般 user auth）。
+            本機展示可使用個人資料頁與投票頁的測試身份示範，或以即時模式（?live=1）發起問卷。
           </p>
         </article>
         <article class="mvp-value-card">
-          <h2>Reference Answer</h2>
-          <p>尚未接入 production login；亦不接 profile eligibility（見 Phase 70 邊界）。</p>
+          <h2>帳號流程</h2>
+          <p>註冊只建立帳號與個人資料欄位，不會自動登入。完成後請使用相同憑證到登入頁登入；登入才會在頁首顯示帳號名稱。</p>
         </article>
       </section>
 
       <div class="mvp-form-card mvp-login-form-card">
         <form id="login-shell-form" class="mvp-form mvp-production-login-form" novalidate aria-describedby="login-shell-hint login-shell-message">
           <p class="mvp-form-hint" id="login-form-ready-hint">
-            請輸入已核准的 production credential proof。登入狀態會由伺服器驗證後更新。
+            請輸入已核准的登入憑證。登入狀態會由伺服器驗證後更新。
           </p>
           <p class="mvp-form-hint" id="login-registration-crosslink-hint">
             若你剛完成註冊，請用相同憑證登入。尚未註冊？請先前往 <a href="/registration">註冊頁</a> 建立帳號。
@@ -60,7 +59,7 @@
           <p class="mvp-form-hint" id="login-profile-next-step-hint">
             登入後可先至個人資料頁填寫出生年月與居住地區，有助準備正式投票；這不表示可保證符合任何問卷資格。
           </p>
-          <label for="login-credential">Production credential proof</label>
+          <label for="login-credential">已核准的登入憑證</label>
           <input
             id="login-credential"
             name="credential"
@@ -71,7 +70,7 @@
             placeholder="輸入已核准的登入憑證"
           >
           <p id="login-shell-hint" class="mvp-form-hint">
-            不要輸入 X-User-Id、creator 身分、個人資料或任何問卷選項資料。
+            請只輸入已核准的登入憑證；不要輸入個人資料或問卷選項資料。
           </p>
 
           <div class="mvp-form-actions">

@@ -99,9 +99,9 @@ describe('Phase 259 public static HTML shell copy alignment plan', () => {
       expect(plan).toContain(marker);
     }
 
-    expect(resultsHtml).toContain('優質題目');
-    expect(voteHtml).toContain('優質題目');
-    expect(createPollHtml).toContain('優質題目');
+    expect(resultsHtml).not.toContain('優質題目');
+    expect(voteHtml).not.toContain('優質題目');
+    expect(createPollHtml).not.toContain('優質題目');
     expect(ui.PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD).not.toContain('優質題目');
     expect(ui.PUBLIC_VOTE_POLICY_QUALITY_FEEDBACK_TEXT).not.toContain('優質題目');
 

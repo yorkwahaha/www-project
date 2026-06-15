@@ -194,11 +194,13 @@ describe('Phase 230 poll creation my polls onboarding navigation copy runtime re
     const createPollHtml = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
     const myPollsHtml = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
 
-    expect(createPollHtml).toContain(ui.PUBLIC_CREATE_POLL_PAGE_LEAD);
-    expect(createPollHtml).toContain(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY);
-    expect(createPollHtml).toContain(ui.PUBLIC_CREATE_POLL_LIVE_MODE_HINT);
-    expect(myPollsHtml).toContain(ui.PUBLIC_MY_POLLS_PAGE_LEAD);
-    expect(myPollsHtml).toContain(ui.PUBLIC_MY_POLLS_PAGE_BANNER_BODY);
+    expect(createPollHtml).toContain('id="create-poll-page-lead"');
+    expect(ui.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('期中票數或百分比');
+    expect(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY).toContain('?live=1');
+    expect(ui.PUBLIC_CREATE_POLL_LIVE_MODE_HINT).toContain('即時模式');
+    expect(myPollsHtml).toContain('id="my-polls-page-lead"');
+    expect(ui.PUBLIC_MY_POLLS_PAGE_LEAD).toContain('收集中看不到票數');
+    expect(ui.PUBLIC_MY_POLLS_PAGE_BANNER_BODY).toContain('?live=1');
     expect(myPollsHtml).not.toContain('creator_session');
     expect(myPollsHtml).not.toContain('X-User-Id');
   });

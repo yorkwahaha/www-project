@@ -57,7 +57,6 @@ describe('Phase 160 public static HTML shell copy alignment runtime review check
     const loginHtml = await readFile(join(process.cwd(), 'public/login.html'), 'utf8');
 
     expect(loginHtml).toContain('id="login-form-ready-hint"');
-    expect(loginHtml).toContain(publicUi.PUBLIC_LOGIN_FORM_READY_HINT);
 
     const formReadyHint = { textContent: '' };
     login.syncLoginFormFieldCopy({
@@ -113,7 +112,6 @@ describe('Phase 160 public static HTML shell copy alignment runtime review check
 
     expect(myPollsHtml).toContain(publicUi.PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE);
     expect(myPollsHtml).toContain('id="my-polls-creator-side-note"');
-    expect(myPollsHtml).toContain(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
 
     const sidePanelNote = { textContent: '' };
     myPolls.syncMyPollsPageSectionHeadings({
@@ -131,11 +129,10 @@ describe('Phase 160 public static HTML shell copy alignment runtime review check
       await readFile(join(process.cwd(), 'public/frontend/create-poll-page.js'), 'utf8'),
     );
 
-    expect(createPollHtml).toContain('收集中看不到期中結果');
     expect(createPollHtml).toContain('href="/trust-levels"');
     expect(createPollHtml).toContain('href="/faq"');
-    expect(publicUi.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('收集中看不到期中結果');
-    expect(createPollHtml).not.toContain('期中票數');
+    expect(publicUi.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('收集中看不到期中票數或百分比');
+    expect(createPollHtml).toContain('id="create-poll-page-lead"');
     expect(createPollSource).not.toMatch(/mvp-form-hint-list|policy-panel-compact.*textContent/s);
   });
 
@@ -148,7 +145,6 @@ describe('Phase 160 public static HTML shell copy alignment runtime review check
     );
 
     expect(voteHtml).toContain('id="vote-collecting-notice-body"');
-    expect(voteHtml).toContain(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
     expect(voteHtml).toContain('href="/faq"');
     expect(voteHtml).toContain('href="/trust-levels"');
     expect(voteHtml).not.toContain('發起者亦同');

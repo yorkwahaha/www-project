@@ -45,7 +45,7 @@ describe('Phase 149 public help / hint text consistency polish', () => {
     const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
 
     expect(publicUi.PUBLIC_HINT_TEXT_MESSAGES.length).toBeGreaterThanOrEqual(20);
-    expect(publicUi.PUBLIC_LOGIN_FORM_READY_HINT).toContain('production credential proof');
+    expect(publicUi.PUBLIC_LOGIN_FORM_READY_HINT).toContain('已核准的登入憑證');
     expect(publicUi.PUBLIC_REGISTRATION_READY_HINT).toContain('註冊完成後仍須前往登入');
     expect(publicUi.PUBLIC_PROFILE_COMPLETION_PROMPT_HINT).toContain('不代表你一定符合或不符合');
 

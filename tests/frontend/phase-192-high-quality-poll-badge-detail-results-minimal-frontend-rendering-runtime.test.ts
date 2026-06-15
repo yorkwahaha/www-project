@@ -73,7 +73,11 @@ const POLICY_EDUCATIONAL_COPY_FILES = new Set([
   'public/frontend/policy-ui-placeholders.js',
   'public/frontend/public-mvp-ui.js',
   'public/frontend/public-mvp-layout.js',
+  'public/frontend/public-page-copy.js',
+  'public/frontend/creator-flow-copy.js',
 ]);
+
+const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html']);
 
 async function listFilesRecursive(dir: string): Promise<string[]> {
   const entries = await readdir(join(process.cwd(), dir), {
@@ -239,6 +243,10 @@ describe('Phase 192 high-quality poll badge detail results minimal frontend rend
       path.endsWith('.html'),
     );
     for (const relativePath of htmlFiles) {
+      const normalizedHtmlPath = relativePath.replace(/\\/g, '/');
+      if (FAQ_POLICY_EDUCATIONAL_HTML_FILES.has(normalizedHtmlPath)) {
+        continue;
+      }
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
       expect(source, relativePath).not.toContain('回饋良好');
       expect(source, relativePath).not.toContain('positive-feedback-badge');

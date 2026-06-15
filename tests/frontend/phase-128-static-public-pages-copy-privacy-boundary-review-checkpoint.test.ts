@@ -31,7 +31,7 @@ describe('Phase 128 static public pages copy privacy boundary review checkpoint'
     const faq = await readFile(join(process.cwd(), 'public/faq.html'), 'utf8');
 
     expect(faq).toContain('發起者也不例外，無法查看中途統計');
-    expect(faq).toContain('收集期間完全不顯示票數、百分比、排名或趨勢');
+    expect(faq).toContain('收集中完全不顯示票數、百分比、總計、排名、趨勢或進度');
     expect(faq).toContain('不對外公開個人投票紀錄');
     expect(faq).toContain('不做公開統計分群展示');
     expect(faq).not.toMatch(/發起者.*可.*查看.*個別|creator.*see.*individual.*choice/i);

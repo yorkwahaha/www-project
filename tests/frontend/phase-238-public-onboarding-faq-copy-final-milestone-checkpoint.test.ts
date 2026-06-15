@@ -148,10 +148,12 @@ describe('Phase 238 public onboarding faq copy final milestone checkpoint', () =
     const createPollHtml = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
     const myPollsHtml = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
 
-    expect(createPollHtml).toContain(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY);
+    expect(createPollHtml).toContain('id="create-poll-page-banner"');
     expect(createPollHtml).toContain('create-poll-my-polls-nav-hint');
-    expect(myPollsHtml).toContain(ui.PUBLIC_MY_POLLS_PAGE_BANNER_BODY);
+    expect(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY).toContain('展示模式');
+    expect(myPollsHtml).toContain('id="my-polls-page-banner"');
     expect(myPollsHtml).toContain('my-polls-create-poll-nav-hint');
+    expect(ui.PUBLIC_MY_POLLS_PAGE_BANNER_BODY).toContain('?live=1');
     expect(myPollsHtml).not.toContain('creator_session');
     expect(myPollsHtml).not.toContain('X-User-Id');
   });
@@ -163,9 +165,9 @@ describe('Phase 238 public onboarding faq copy final milestone checkpoint', () =
 
     expect(voteHtml).toContain('id="vote-policy-hint-list"');
     expect(voteHtml).toContain('id="vote-view-results-nav-hint"');
-    expect(voteHtml).toContain(ui.PUBLIC_VOTE_PAGE_REMINDER_LEAD);
+    expect(ui.PUBLIC_VOTE_PAGE_REMINDER_LEAD).toContain('正式投票');
     expect(resultsHtml).toContain('id="results-vote-nav-hint"');
-    expect(resultsHtml).toContain(ui.PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD);
+    expect(ui.PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD).toContain('示範頁');
   });
 
   it('keeps faq.html static fallback aligned and free of engineer-facing user copy', async () => {

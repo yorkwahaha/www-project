@@ -274,7 +274,7 @@ describe('Phase 133 public participation results flow milestone review checkpoin
 
     expect(faq).toContain('發起者也不例外，無法查看中途統計');
     expect(faq).toContain('不對外公開個人投票紀錄');
-    expect(faq).toContain('收集期間完全不顯示票數、百分比、排名或趨勢');
+    expect(faq).toContain('收集中完全不顯示票數、百分比、總計、排名、趨勢或進度');
     expect(voteHtml).not.toMatch(/你符合資格|一定能投票|保證可以投票/);
     expect(exploreHtml).toMatch(/不顯示票數|票數|百分比/);
     expect(faq).not.toMatch(/發起者.*可.*查看.*個別/i);

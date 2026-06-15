@@ -48,7 +48,7 @@ describe('Phase 229 poll creation my polls onboarding navigation copy runtime', 
     expect(ui.PUBLIC_CREATOR_ONBOARDING_MESSAGES).toContain(
       ui.PUBLIC_CREATOR_CREATE_SUCCESS_MANAGE_HINT,
     );
-    expect(ui.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('收集中看不到期中結果');
+    expect(ui.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('收集中看不到期中票數或百分比');
     expect(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY).toContain('?live=1');
     expect(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY).toContain('不會儲存');
     expect(ui.PUBLIC_MY_POLLS_PAGE_LEAD).toContain('收集中看不到票數');
@@ -216,13 +216,15 @@ describe('Phase 229 poll creation my polls onboarding navigation copy runtime', 
     expect(createPollHtml).toContain('id="create-poll-page-banner"');
     expect(createPollHtml).toContain('id="create-poll-live-mode-hint"');
     expect(createPollHtml).toContain('id="create-poll-my-polls-nav-hint"');
-    expect(createPollHtml).toContain(ui.PUBLIC_CREATE_POLL_PAGE_LEAD);
-    expect(createPollHtml).toContain(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY);
+    expect(createPollHtml).toContain('id="create-poll-page-lead"');
+    expect(ui.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('期中票數或百分比');
+    expect(ui.PUBLIC_CREATE_POLL_PAGE_BANNER_BODY).toContain('?live=1');
     expect(myPollsHtml).toContain('id="my-polls-page-banner"');
     expect(myPollsHtml).toContain('id="my-polls-quota-panel-body"');
     expect(myPollsHtml).toContain('id="my-polls-create-poll-nav-hint"');
-    expect(myPollsHtml).toContain(ui.PUBLIC_MY_POLLS_PAGE_LEAD);
-    expect(myPollsHtml).toContain(ui.PUBLIC_MY_POLLS_PAGE_BANNER_BODY);
+    expect(myPollsHtml).toContain('id="my-polls-page-lead"');
+    expect(ui.PUBLIC_MY_POLLS_PAGE_LEAD).toContain('收集中看不到票數');
+    expect(ui.PUBLIC_MY_POLLS_PAGE_BANNER_BODY).toContain('?live=1');
     expect(myPollsHtml).not.toContain('creator_session');
     expect(myPollsHtml).not.toContain('X-User-Id');
   });

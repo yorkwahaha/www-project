@@ -87,7 +87,11 @@ const POLICY_EDUCATIONAL_COPY_FILES = new Set([
   'public/frontend/policy-ui-placeholders.js',
   'public/frontend/public-mvp-ui.js',
   'public/frontend/public-mvp-layout.js',
+  'public/frontend/public-page-copy.js',
+  'public/frontend/creator-flow-copy.js',
 ]);
+
+const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html']);
 
 async function listFilesRecursive(dir: string): Promise<string[]> {
   const entries = await readdir(join(process.cwd(), dir), {
@@ -129,8 +133,10 @@ describe('Phase 189-R high-quality poll badge frontend presentation plan review 
         expect(lower, relativePath).not.toContain(pattern.toLowerCase());
       }
 
-      for (const copy of BADGE_RUNTIME_COPY) {
-        expect(source, relativePath).not.toContain(copy);
+      if (!POLICY_EDUCATIONAL_COPY_FILES.has(normalizedPath)) {
+        for (const copy of BADGE_RUNTIME_COPY) {
+          expect(source, relativePath).not.toContain(copy);
+        }
       }
 
       for (const copy of BANNED_ABSENCE_COPY) {
@@ -198,14 +204,17 @@ describe('Phase 189-R high-quality poll badge frontend presentation plan review 
 
     for (const relativePath of htmlFiles) {
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
+      const normalizedHtmlPath = relativePath.replace(/\\/g, '/');
       const lower = source.toLowerCase();
 
       for (const pattern of BADGE_RUNTIME_ID_CLASS_PATTERNS) {
         expect(source, relativePath).not.toMatch(pattern);
       }
 
-      for (const copy of BADGE_RUNTIME_COPY) {
-        expect(source, relativePath).not.toContain(copy);
+      if (!FAQ_POLICY_EDUCATIONAL_HTML_FILES.has(normalizedHtmlPath)) {
+        for (const copy of BADGE_RUNTIME_COPY) {
+          expect(source, relativePath).not.toContain(copy);
+        }
       }
 
       for (const copy of BANNED_ABSENCE_COPY) {

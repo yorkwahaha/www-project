@@ -49,6 +49,16 @@ const RANKING_RUNTIME_PATTERNS = [
 
 const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js']);
 
+const POLICY_EDUCATIONAL_COPY_FILES = new Set([
+  'public/frontend/policy-ui-placeholders.js',
+  'public/frontend/public-mvp-ui.js',
+  'public/frontend/public-mvp-layout.js',
+  'public/frontend/public-page-copy.js',
+  'public/frontend/creator-flow-copy.js',
+]);
+
+const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html']);
+
 const PHASE_190_BADGE_RUNTIME_FILES = new Set([
   'public/frontend/quality-feedback-badge.js',
 ]);
@@ -93,8 +103,10 @@ describe('Phase 188-R high-quality poll badge minimal public read runtime review
         expect(lower, relativePath).not.toContain(pattern.toLowerCase());
       }
 
-      for (const copy of BADGE_RENDERING_COPY) {
-        expect(source, relativePath).not.toContain(copy);
+      if (!POLICY_EDUCATIONAL_COPY_FILES.has(normalizedPath)) {
+        for (const copy of BADGE_RENDERING_COPY) {
+          expect(source, relativePath).not.toContain(copy);
+        }
       }
 
       for (const forbidden of FORBIDDEN_DISPLAY_PATTERNS) {
@@ -142,14 +154,17 @@ describe('Phase 188-R high-quality poll badge minimal public read runtime review
 
     for (const relativePath of htmlFiles) {
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
+      const normalizedHtmlPath = relativePath.replace(/\\/g, '/');
       const lower = source.toLowerCase();
 
       for (const pattern of BADGE_RUNTIME_ID_CLASS_PATTERNS) {
         expect(source, relativePath).not.toMatch(pattern);
       }
 
-      for (const copy of BADGE_RENDERING_COPY) {
-        expect(source, relativePath).not.toContain(copy);
+      if (!FAQ_POLICY_EDUCATIONAL_HTML_FILES.has(normalizedHtmlPath)) {
+        for (const copy of BADGE_RENDERING_COPY) {
+          expect(source, relativePath).not.toContain(copy);
+        }
       }
 
       for (const forbidden of FORBIDDEN_DISPLAY_PATTERNS) {

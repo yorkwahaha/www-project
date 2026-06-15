@@ -168,20 +168,28 @@ describe('Phase 155 public page intro / lead paragraph consistency polish', () =
     expect(resultsIntro.textContent).toBe(publicUi.PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD);
   });
 
-  it('keeps static HTML shells aligned with PUBLIC_* lead constants', async () => {
+  it('keeps PUBLIC_* lead constants centralized for runtime sync (Phase 257 copy refinement)', async () => {
     const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
+    const home = await loadModule('public/frontend/public-mvp-home.js');
+    const explore = await loadModule('public/frontend/explore-page.js');
 
-    const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
-    const exploreHtml = await readFile(join(process.cwd(), 'public/explore.html'), 'utf8');
-    const loginHtml = await readFile(join(process.cwd(), 'public/login.html'), 'utf8');
-    const profileHtml = await readFile(join(process.cwd(), 'public/profile.html'), 'utf8');
-    const voteHtml = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
+    expect(publicUi.PUBLIC_HOME_HERO_LEAD).toContain('收集中不公開票數');
+    expect(publicUi.PUBLIC_EXPLORE_PAGE_LEAD).toContain('最近發布');
+    expect(publicUi.PUBLIC_LOGIN_PAGE_LEAD_PRIMARY).toContain('註冊');
+    expect(publicUi.PUBLIC_PROFILE_PAGE_LEAD).toContain('出生年月');
+    expect(publicUi.PUBLIC_VOTE_PAGE_REMINDER_LEAD).toContain('正式投票');
 
-    expect(indexHtml).toContain(publicUi.PUBLIC_HOME_HERO_LEAD);
-    expect(exploreHtml).toContain(publicUi.PUBLIC_EXPLORE_PAGE_LEAD);
-    expect(loginHtml).toContain(publicUi.PUBLIC_LOGIN_PAGE_LEAD_PRIMARY);
-    expect(profileHtml).toContain(publicUi.PUBLIC_PROFILE_PAGE_LEAD);
-    expect(voteHtml).toContain(publicUi.PUBLIC_VOTE_PAGE_REMINDER_LEAD);
+    const heroLead = { textContent: '' };
+    home.syncHomePageLeadParagraphs({
+      getElementById: (id: string) => (id === 'home-hero-lead' ? heroLead : null),
+    });
+    expect(heroLead.textContent).toBe(publicUi.PUBLIC_HOME_HERO_LEAD);
+
+    const exploreLead = { textContent: '' };
+    explore.syncExplorePageLeadParagraphs({
+      getElementById: (id: string) => (id === 'explore-page-lead' ? exploreLead : null),
+    });
+    expect(exploreLead.textContent).toBe(publicUi.PUBLIC_EXPLORE_PAGE_LEAD);
   });
 
   it('keeps vote poll description API-driven and outside page lead allowlists', async () => {

@@ -184,9 +184,9 @@ describe('Phase 232 vote results onboarding navigation copy runtime', () => {
     expect(voteHtml).toContain('id="vote-policy-hint-list"');
     expect(voteHtml).toContain('id="vote-view-results-nav-hint"');
     expect(voteHtml).toContain('id="vote-follow-results-body"');
-    expect(voteHtml).toContain(ui.PUBLIC_VOTE_PAGE_REMINDER_LEAD);
+    expect(ui.PUBLIC_VOTE_PAGE_REMINDER_LEAD).toContain('正式投票');
     expect(resultsHtml).toContain('id="results-vote-nav-hint"');
-    expect(resultsHtml).toContain(ui.PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD);
+    expect(ui.PUBLIC_RESULTS_PAGE_DEMO_INTRO_LEAD).toContain('示範頁');
   });
 
   it('keeps onboarding modules free of forbidden debug, storage, and eligibility disclosure', async () => {

@@ -227,15 +227,23 @@ describe('Phase 158 public microcopy / inline note runtime review checkpoint', (
     expect(publicUi.PUBLIC_SUPPORTING_NOTES).not.toContain(layout.HELP_COPY.eligibility);
   });
 
-  it('keeps static HTML shells aligned with homepage supporting notes and explore microcopy', async () => {
+  it('keeps homepage supporting notes on shared PUBLIC_* constants (Phase 257 copy refinement)', async () => {
     const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
-    const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
-    const exploreHtml = await readFile(join(process.cwd(), 'public/explore.html'), 'utf8');
+    const home = await loadModule('public/frontend/public-mvp-home.js');
 
-    expect(indexHtml).toContain(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
-    expect(indexHtml).toContain(publicUi.PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM);
-    expect(indexHtml).toContain(publicUi.PUBLIC_HOME_COLLECTING_CARD_TOOLTIP);
-    expect(exploreHtml).toContain(publicUi.PUBLIC_EXPLORE_LOAD_MORE_LABEL);
+    expect(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY).toContain('收集中不顯示');
+    expect(publicUi.PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM).toBe('收集中不顯示結果');
+    expect(publicUi.PUBLIC_HOME_COLLECTING_CARD_TOOLTIP).toBe(
+      publicUi.PUBLIC_VOTE_POLICY_COLLECTING_HIDDEN_TEXT,
+    );
+    expect(publicUi.PUBLIC_EXPLORE_LOAD_MORE_LABEL).toBeTruthy();
+
+    const collectingBody = { textContent: '' };
+    home.syncHomePageSupportingNotes({
+      querySelector: () => null,
+      querySelectorAll: () => [collectingBody],
+    });
+    expect(collectingBody.textContent).toBe(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
   });
 
   it('keeps registration boundary off auto-login, Set-Cookie, and GET /users/me', async () => {

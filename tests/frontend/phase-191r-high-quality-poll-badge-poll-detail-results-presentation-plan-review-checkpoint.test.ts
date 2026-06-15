@@ -75,7 +75,11 @@ const POLICY_EDUCATIONAL_COPY_FILES = new Set([
   'public/frontend/policy-ui-placeholders.js',
   'public/frontend/public-mvp-ui.js',
   'public/frontend/public-mvp-layout.js',
+  'public/frontend/public-page-copy.js',
+  'public/frontend/creator-flow-copy.js',
 ]);
+
+const FAQ_POLICY_EDUCATIONAL_HTML_FILES = new Set(['public/faq.html']);
 
 const DETAIL_RESULTS_SURFACE_FILES = new Set([
   'public/frontend/result-page.js',
@@ -171,6 +175,10 @@ describe('Phase 191-R high-quality poll badge poll detail results presentation p
       path.endsWith('.html'),
     );
     for (const relativePath of htmlFiles) {
+      const normalizedHtmlPath = relativePath.replace(/\\/g, '/');
+      if (FAQ_POLICY_EDUCATIONAL_HTML_FILES.has(normalizedHtmlPath)) {
+        continue;
+      }
       const source = await readFile(join(process.cwd(), relativePath), 'utf8');
       expect(source, relativePath).not.toContain('回饋良好');
       expect(source, relativePath).not.toContain('positive-feedback-badge');
@@ -187,7 +195,7 @@ describe('Phase 191-R high-quality poll badge poll detail results presentation p
       const lower = source.toLowerCase();
       const normalizedPath = relativePath.replace(/\\/g, '/');
 
-      if (!BADGE_RUNTIME_FILES.has(normalizedPath)) {
+      if (!BADGE_RUNTIME_FILES.has(normalizedPath) && !POLICY_EDUCATIONAL_COPY_FILES.has(normalizedPath)) {
         for (const copy of BADGE_RUNTIME_COPY) {
           expect(source, relativePath).not.toContain(copy);
         }

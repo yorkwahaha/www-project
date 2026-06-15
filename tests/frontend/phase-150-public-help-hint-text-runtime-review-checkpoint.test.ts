@@ -48,7 +48,7 @@ describe('Phase 150 public help / hint text runtime review checkpoint', () => {
     const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
 
     expect(publicUi.PUBLIC_HINT_TEXT_MESSAGES.length).toBeGreaterThanOrEqual(20);
-    expect(publicUi.PUBLIC_LOGIN_FORM_READY_HINT).toContain('production credential proof');
+    expect(publicUi.PUBLIC_LOGIN_FORM_READY_HINT).toContain('已核准的登入憑證');
     expect(publicUi.PUBLIC_REGISTRATION_READY_HINT).toContain('註冊完成後仍須前往登入');
     expect(publicUi.PUBLIC_PROFILE_COMPLETION_PROMPT_HINT).toContain('不代表你一定符合或不符合');
     expect(publicUi.PUBLIC_RESULTS_INTRO_SCOPE_HINT).toContain('非即時原始票數');

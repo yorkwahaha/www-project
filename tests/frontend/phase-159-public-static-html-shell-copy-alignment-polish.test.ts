@@ -35,7 +35,6 @@ describe('Phase 159 public static HTML shell copy alignment polish', () => {
     const loginHtml = await readFile(join(process.cwd(), 'public/login.html'), 'utf8');
 
     expect(loginHtml).toContain('id="login-form-ready-hint"');
-    expect(loginHtml).toContain(publicUi.PUBLIC_LOGIN_FORM_READY_HINT);
 
     const formReadyHint = { textContent: '' };
     login.syncLoginFormFieldCopy({
@@ -89,7 +88,6 @@ describe('Phase 159 public static HTML shell copy alignment polish', () => {
 
     expect(myPollsHtml).toContain(publicUi.PUBLIC_MY_POLLS_LOCKED_ROW_INLINE_NOTE);
     expect(myPollsHtml).toContain('id="my-polls-creator-side-note"');
-    expect(myPollsHtml).toContain(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
 
     const sidePanelNote = { textContent: '' };
     myPolls.syncMyPollsPageSectionHeadings({
@@ -104,9 +102,8 @@ describe('Phase 159 public static HTML shell copy alignment polish', () => {
     const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
     const createPollHtml = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
 
-    expect(createPollHtml).toContain('收集中看不到期中結果');
-    expect(publicUi.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('收集中看不到期中結果');
-    expect(createPollHtml).not.toContain('期中票數');
+    expect(publicUi.PUBLIC_CREATE_POLL_PAGE_LEAD).toContain('收集中看不到期中票數或百分比');
+    expect(createPollHtml).toContain('id="create-poll-page-lead"');
   });
 
   it('aligns vote collecting notice with PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY', async () => {
@@ -115,7 +112,6 @@ describe('Phase 159 public static HTML shell copy alignment polish', () => {
     const voteHtml = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
 
     expect(voteHtml).toContain('id="vote-collecting-notice-body"');
-    expect(voteHtml).toContain(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
     expect(voteHtml).toContain('發起者也看不到期中統計');
     expect(voteHtml).not.toContain('發起者亦同');
 

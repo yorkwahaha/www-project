@@ -58,7 +58,7 @@ describe('Phase 296 public MVP backlog planning checkpoint', () => {
     expect(checkpoint296).toContain('Phases 291–295 sealed');
     expect(readme).toContain('Phase 296');
     expect(readme).toContain(PHASE_296_DOC);
-    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–298)');
+    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–299)');
   });
 
   it('keeps Phase 296 as docs-only without runtime or HTML delivery markers', async () => {

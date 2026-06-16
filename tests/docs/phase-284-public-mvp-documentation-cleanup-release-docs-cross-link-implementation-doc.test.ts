@@ -135,7 +135,7 @@ describe('Phase 284 public MVP documentation cleanup release docs cross-link imp
 
     expect(readme).toContain('Phase 284');
     expect(readme).toContain(PHASE_284_DOC);
-    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–298)');
+    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–299)');
     expect(readme).toContain('readiness arc');
     expect(readme).toContain('manual QA arc');
     expect(readme).toContain('launch decision arc');

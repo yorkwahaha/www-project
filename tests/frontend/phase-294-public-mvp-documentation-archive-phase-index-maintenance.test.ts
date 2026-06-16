@@ -67,8 +67,8 @@ describe('Phase 294 public MVP documentation archive phase index maintenance', (
     expect(maintenance).toContain('1913ee0');
     expect(readme).toContain('Phase 294');
     expect(readme).toContain(PHASE_294_DOC);
-    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–297)');
-    expect(readme).toContain('Post-authorization extension arcs (Phase 285–297)');
+    expect(readme).toContain('Public MVP release documentation arcs (Phase 265–298)');
+    expect(readme).toContain('Post-authorization extension arcs (Phase 285–298)');
   });
 
   it('keeps Phase 294 as docs-only without runtime or HTML delivery markers', async () => {

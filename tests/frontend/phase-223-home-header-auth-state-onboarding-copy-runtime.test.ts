@@ -51,7 +51,12 @@ describe('Phase 223 home header auth state onboarding copy runtime', () => {
     expect(auth.AUTH_STATE_COPY.bannerGuestBody).toBe(ui.PUBLIC_AUTH_BANNER_GUEST_BODY);
   });
 
-  it('wires homepage onboarding notes from frontend-owned constants', async () => {
+  // Retired by Phase 301: the homepage account-flow / onboarding notes and the
+  // syncHomePageOnboardingCopy helper were removed when the home became an
+  // ultra-minimal collecting-only swipe shell. This historical runtime check
+  // described the pre-Phase-301 home; current homepage assertions live in
+  // tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
+  it.skip('wires homepage onboarding notes from frontend-owned constants', async () => {
     const ui = await loadModule('public/frontend/public-mvp-ui.js');
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const documentObject = {

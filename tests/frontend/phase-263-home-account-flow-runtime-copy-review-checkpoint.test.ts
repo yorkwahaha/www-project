@@ -85,7 +85,12 @@ describe('Phase 263 home account flow runtime copy review checkpoint', () => {
     }
   });
 
-  it('reviews public-mvp-home.js without engineer tokens in account flow runtime copy', async () => {
+  // Retired by Phase 301: the homepage account-flow note and its
+  // syncHomePageAccountFlowNote helper were removed when the home became an
+  // ultra-minimal collecting-only swipe shell. This historical review checkpoint
+  // described the pre-Phase-301 home; current homepage assertions live in
+  // tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
+  it.skip('reviews public-mvp-home.js without engineer tokens in account flow runtime copy', async () => {
     const doc = await readFile(join(process.cwd(), PHASE_262_DOC), 'utf8');
     const homeSource = stripJsComments(await readFile(join(process.cwd(), PUBLIC_MVP_HOME), 'utf8'));
 
@@ -100,7 +105,8 @@ describe('Phase 263 home account flow runtime copy review checkpoint', () => {
     expect(homeSource).toContain('PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE');
   });
 
-  it('reviews syncHomePageAccountFlowNote preserves navigation targets and mount contract', async () => {
+  // Retired by Phase 301 (homepage account-flow note removed — see phase-301 test).
+  it.skip('reviews syncHomePageAccountFlowNote preserves navigation targets and mount contract', async () => {
     const home = await loadModule(PUBLIC_MVP_HOME);
     const ui = await loadModule('public/frontend/public-mvp-ui.js');
     const links: Array<{ href: string; textContent: string }> = [];
@@ -157,7 +163,11 @@ describe('Phase 263 home account flow runtime copy review checkpoint', () => {
     expect(ui.PUBLIC_HOME_ACCOUNT_FLOW_REGISTRATION_NOTE).toContain('不會自動登入');
   });
 
-  it('reviews public-mvp-home.js as copy assembly without fetch, storage, listener, or tracking', async () => {
+  // Retired by Phase 301: the swipe-shell home intentionally reuses /polls/feed
+  // (fetch) and attaches a whole-card click listener; this "copy assembly without
+  // fetch/listener" review described the pre-Phase-301 home. Current network /
+  // listener behavior is guarded by the phase-301 home swipe shell test.
+  it.skip('reviews public-mvp-home.js as copy assembly without fetch, storage, listener, or tracking', async () => {
     const homeSource = stripJsComments(await readFile(join(process.cwd(), PUBLIC_MVP_HOME), 'utf8'));
 
     expect(homeSource).not.toMatch(FORBIDDEN_SIDE_EFFECTS);
@@ -177,7 +187,9 @@ describe('Phase 263 home account flow runtime copy review checkpoint', () => {
     }
   });
 
-  it('keeps public/index.html and public-page-copy.js untouched by Phase 262', async () => {
+  // Retired by Phase 301: index.html (now the swipe shell) and public-page-copy.js
+  // (Phase 301 home-swipe constants added) were intentionally changed by Phase 301.
+  it.skip('keeps public/index.html and public-page-copy.js untouched by Phase 262', async () => {
     const indexHtml = await readFile(join(process.cwd(), INDEX_HTML), 'utf8');
     const pageCopy = await readFile(join(process.cwd(), PUBLIC_PAGE_COPY), 'utf8');
 

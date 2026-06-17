@@ -96,7 +96,13 @@ describe('Phase 154 public section title / panel heading runtime review checkpoi
     }
   });
 
-  it('keeps public-mvp-home.js safe for index.html module load', async () => {
+  it('keeps public-mvp-home.js safe for index.html module load (Phase 301 swipe shell)', async () => {
+    // This checkpoint reviewed the pre-Phase-301 homepage, which only synced
+    // headings and performed no fetch. Phase 301 superseded the home with a
+    // collecting-only swipe feed that reuses the existing freshness-only
+    // /polls/feed via explore-page.js. The runtime heading-sync helper is gone;
+    // the module now exports the swipe-card renderer/mount. It must still avoid
+    // auth/session reads and observability sinks.
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const homeSource = stripJsComments(
       await readFile(join(process.cwd(), 'public/frontend/public-mvp-home.js'), 'utf8'),
@@ -104,17 +110,11 @@ describe('Phase 154 public section title / panel heading runtime review checkpoi
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
 
     expect(indexHtml).toContain('<script type="module" src="/frontend/public-mvp-home.js"></script>');
-    expect(homeSource).toContain('syncHomePageSectionHeadings');
-    expect(homeSource).not.toMatch(/\bfetch\b|\/users\/me|\/polls\/|\/vote|mountLoginStateRead/i);
+    expect(home.syncHomePageSectionHeadings).toBeUndefined();
+    expect(typeof home.renderHomeSwipeCard).toBe('function');
+    expect(typeof home.mountHomeSwipeFeed).toBe('function');
+    expect(homeSource).not.toMatch(/\/users\/me|mountLoginStateRead/i);
     expect(homeSource).not.toMatch(FORBIDDEN_OBSERVABILITY);
-
-    const homeHeading = { textContent: '' };
-    home.syncHomePageSectionHeadings({
-      getElementById: (id: string) => (id === 'home-heading' ? homeHeading : null),
-      querySelector: () => null,
-      querySelectorAll: () => [],
-    });
-    expect(homeHeading.textContent).toBe(home.HOME_PAGE_TITLE);
   });
 
   it('keeps results option list headings fixed without option-level linkage', async () => {
@@ -194,7 +194,9 @@ describe('Phase 154 public section title / panel heading runtime review checkpoi
     const resultsHtml = await readFile(join(process.cwd(), 'public/results.html'), 'utf8');
     const profileHtml = await readFile(join(process.cwd(), 'public/profile.html'), 'utf8');
 
-    expect(indexHtml).toContain(publicUi.PUBLIC_HOME_PAGE_TITLE);
+    // Phase 301: the homepage swipe shell no longer renders the old page title
+    // in static HTML; the remaining shells below still align with PUBLIC_*.
+    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
     expect(exploreHtml).toContain(publicUi.PUBLIC_EXPLORE_PAGE_TITLE);
     expect(resultsHtml).toContain(publicUi.PUBLIC_RESULTS_PUBLIC_READONLY_TITLE);
     expect(profileHtml).toContain(publicUi.PUBLIC_PROFILE_PAGE_TITLE);

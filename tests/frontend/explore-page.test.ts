@@ -162,16 +162,17 @@ describe('explore page feed helpers', () => {
     expect(html).not.toContain('data-static-examples');
   });
 
-  it('homepage copy points to live explore feed without launch-delay wording', async () => {
+  it('homepage swipe shell keeps /explore as the list fallback (Phase 301)', async () => {
+    // Phase 301 superseded the old content-rich homepage with an ultra-minimal
+    // collecting-only swipe card feed. The home no longer carries static sample
+    // cards; /explore remains the non-swipe list fallback. Current homepage
+    // structure assertions live in
+    // tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
     const html = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
     expect(html).toContain('href="/explore"');
-    expect(html).toContain('最近發布');
-    expect(html).toContain('收集中');
-    expect(html).toContain('靜態範例');
-    expect(html).toContain('data-static-examples="true"');
-    expect(html).toMatch(/依發布時間|發布時間排序/);
-    expect(html).toMatch(/非熱門|票數|個人化|榜單/);
-    expect(html).toMatch(/不顯示票數與結果預覽/);
+    expect(html).toContain('data-home-swipe-feed="collecting-only"');
+    expect(html).not.toContain('data-static-examples');
+    expect(html).not.toContain('靜態範例');
     expect(html).not.toMatch(/完整探索列表將在正式上線後開放/);
   });
 

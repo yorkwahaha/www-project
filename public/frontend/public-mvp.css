@@ -3882,6 +3882,230 @@ button:disabled {
   border: 1px solid var(--mvp-border);
 }
 
+/* =========================================================================
+   Phase 301 — home swipe card visual shell (home-only; `/` route)
+   Ultra-minimal, vertically swipeable feed of collecting-only poll cards.
+   Soft macaron palette, warmer cream background, larger radius, softer
+   shadows. Home-only classes; shared explore/result card primitives are
+   intentionally left untouched.
+   ========================================================================= */
+.home-swipe {
+  --home-cream: #fbf6ee;
+  --home-card-bg: #fdfbf7;
+  --home-card-radius: 1.85rem;
+  --home-card-shadow: 0 12px 34px rgba(33, 51, 49, 0.07);
+  --home-macaron-mint: #e8f3ee;
+  --home-macaron-peach: #fbeadf;
+  --home-macaron-lilac: #f0ecf8;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Warmer cream backdrop only on the swipe home (progressive enhancement). */
+body.mvp-body:has(.home-swipe) {
+  background: var(--home-cream);
+}
+
+.home-swipe-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-height: min(78vh, 46rem);
+  padding: 0.35rem 0.15rem 0.6rem;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-padding: 0.6rem;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.home-swipe-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-height: clamp(17rem, 60vh, 29rem);
+  padding: clamp(1.35rem, 5vw, 2.25rem);
+  border: 1px solid rgba(47, 118, 109, 0.14);
+  border-radius: var(--home-card-radius);
+  background: linear-gradient(158deg, var(--home-macaron-mint), var(--home-card-bg) 62%);
+  box-shadow: var(--home-card-shadow);
+  scroll-snap-align: center;
+  cursor: pointer;
+}
+
+.home-swipe-card:nth-child(3n + 2) {
+  background: linear-gradient(158deg, var(--home-macaron-peach), var(--home-card-bg) 62%);
+}
+
+.home-swipe-card:nth-child(3n + 3) {
+  background: linear-gradient(158deg, var(--home-macaron-lilac), var(--home-card-bg) 62%);
+}
+
+.home-swipe-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+  align-items: center;
+}
+
+.home-swipe-card-meta {
+  color: var(--mvp-muted);
+  font-size: 0.85rem;
+}
+
+.home-swipe-card-title {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.3rem, 4.5vw, 1.95rem);
+  line-height: 1.25;
+  text-wrap: pretty;
+}
+
+.home-swipe-card-hint {
+  margin: 0;
+  color: var(--mvp-muted);
+  font-size: 0.9rem;
+}
+
+.home-swipe-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.9rem;
+  margin-top: auto;
+}
+
+.home-swipe-card-cta {
+  min-width: 7.5rem;
+}
+
+.home-swipe-card-next {
+  color: var(--mvp-muted);
+  font-size: 0.82rem;
+}
+
+.home-swipe-load-more {
+  align-self: center;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.home-swipe-panel {
+  margin: 0;
+}
+
+.home-swipe-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  margin-top: 0.6rem;
+}
+
+.home-swipe-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0 calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--home-cream) 70%, transparent);
+}
+
+.home-swipe-create-cta {
+  width: 100%;
+  max-width: 22rem;
+}
+
+.home-swipe-access {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 0.6rem;
+  margin: 0;
+}
+
+/* Calm loading skeleton */
+.home-swipe-card--skeleton {
+  cursor: default;
+  background: var(--home-card-bg);
+  border-color: var(--mvp-border);
+}
+
+.home-swipe-skeleton-badge,
+.home-swipe-skeleton-line,
+.home-swipe-skeleton-cta {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(33, 51, 49, 0.06),
+    rgba(33, 51, 49, 0.12),
+    rgba(33, 51, 49, 0.06)
+  );
+  background-size: 200% 100%;
+  animation: home-swipe-shimmer 1.4s ease-in-out infinite;
+}
+
+.home-swipe-skeleton-badge {
+  width: 4.5rem;
+  height: 1.2rem;
+}
+
+.home-swipe-skeleton-line {
+  height: 1.1rem;
+  margin-top: 0.9rem;
+  border-radius: var(--mvp-radius-sm);
+}
+
+.home-swipe-skeleton-line--lg {
+  height: 1.8rem;
+  width: 80%;
+}
+
+.home-swipe-skeleton-cta {
+  width: 8rem;
+  height: 2.75rem;
+  margin-top: auto;
+  border-radius: var(--mvp-radius);
+}
+
+@keyframes home-swipe-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-swipe-stage {
+    max-height: calc(100dvh - 9rem);
+  }
+
+  .home-swipe-card {
+    min-height: clamp(20rem, 66vh, 34rem);
+  }
+
+  .home-swipe-card-cta {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-swipe-stage {
+    scroll-behavior: auto;
+  }
+
+  .home-swipe-skeleton-badge,
+  .home-swipe-skeleton-line,
+  .home-swipe-skeleton-cta {
+    animation: none;
+  }
+}
+
 /* Phase 253 — public page reduced motion CSS-only polish (extends Phase 161) */
 @media (prefers-reduced-motion: reduce) {
   html {

@@ -139,21 +139,10 @@ describe('Phase 197 public MVP copy and layout consistency polish', () => {
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const vote = await loadModule('public/frontend/vote-page.js');
 
-    const exploreLink = { textContent: '' };
-    const createLink = { textContent: '' };
-    home.syncHomePageCtas({
-      getElementById: (id: string) => {
-        if (id === 'home-explore-cta') {
-          return exploreLink;
-        }
-        if (id === 'home-create-cta') {
-          return createLink;
-        }
-        return null;
-      },
-    });
-    expect(exploreLink.textContent).toBe(publicUi.PUBLIC_CTA_EXPLORE_LABEL);
-    expect(createLink.textContent).toBe(publicUi.PUBLIC_CTA_CREATE_POLL_NAV_LABEL);
+    // Phase 301: the homepage swipe shell no longer runs a runtime CTA sync;
+    // its create/explore affordances are static links in index.html. The vote
+    // page brand sync below remains the live assertion here.
+    expect(home.syncHomePageCtas).toBeUndefined();
 
     const pageBrand = { textContent: '' };
     vote.syncVotePageSectionHeadings({

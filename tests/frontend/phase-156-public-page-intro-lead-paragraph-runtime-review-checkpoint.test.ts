@@ -101,22 +101,21 @@ describe('Phase 156 public page intro / lead paragraph runtime review checkpoint
     }
   });
 
-  it('keeps public-mvp-home.js safe for homepage lead sync only', async () => {
-    const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
+  it('keeps public-mvp-home.js a Phase 301 swipe shell without auth reads or observability', async () => {
+    // This checkpoint reviewed the pre-Phase-301 homepage, which only synced a
+    // hero lead paragraph and performed no fetch. Phase 301 superseded the home
+    // with a collecting-only swipe feed that reuses the existing /polls/feed via
+    // explore-page.js; the lead-sync helper is gone. The home must still avoid
+    // auth/session reads and observability sinks.
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const homeSource = stripJsComments(
       await readFile(join(process.cwd(), 'public/frontend/public-mvp-home.js'), 'utf8'),
     );
 
-    expect(homeSource).toContain('syncHomePageLeadParagraphs');
-    expect(homeSource).not.toMatch(/\bfetch\b|\/users\/me|\/polls\/|\/vote|mountLoginStateRead/i);
+    expect(home.syncHomePageLeadParagraphs).toBeUndefined();
+    expect(typeof home.renderHomeSwipeCard).toBe('function');
+    expect(homeSource).not.toMatch(/\/users\/me|mountLoginStateRead/i);
     expect(homeSource).not.toMatch(FORBIDDEN_OBSERVABILITY);
-
-    const heroLead = { textContent: '' };
-    home.syncHomePageLeadParagraphs({
-      getElementById: (id: string) => (id === 'home-hero-lead' ? heroLead : null),
-    });
-    expect(heroLead.textContent).toBe(publicUi.PUBLIC_HOME_HERO_LEAD);
   });
 
   it('keeps results readonly intro and collecting block off counter preview paths', async () => {

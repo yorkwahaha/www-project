@@ -103,7 +103,10 @@ describe('Phase 234 public onboarding copy milestone checkpoint', () => {
     expect(loginHtml).toContain(ui.PUBLIC_LOGIN_PAGE_BANNER_BODY);
     expect(ui.PUBLIC_LOGIN_PAGE_BANNER_BODY).not.toMatch(FORBIDDEN_ENGINEER_COPY);
     expect(profileHtml).toContain(ui.PUBLIC_PROFILE_PAGE_LEAD);
-    expect(indexHtml).toContain('home-account-flow-note');
+    // Phase 301: the homepage account-flow note was removed; the home keeps the
+    // register/login access links while the long-form copy lives on those pages.
+    expect(indexHtml).toContain('href="/registration"');
+    expect(indexHtml).toContain('href="/login"');
     expect(ui.PUBLIC_PROFILE_PAGE_LEAD).toContain('不表示可保證符合或不符合');
   });
 

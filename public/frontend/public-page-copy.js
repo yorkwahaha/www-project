@@ -18,6 +18,27 @@ export const PUBLIC_PROFILE_COMPLETION_PROMPT_HINT =
 export const PUBLIC_HOME_HERO_LEAD =
   '收集中不公開票數；截止後才顯示彙總結果，並進入約 5 天公開鎖定期。';
 
+/**
+ * Phase 301 — home swipe card visual shell copy (Traditional Chinese).
+ * Collecting-only; never references counts, percentages, totals, ranks,
+ * trends, progress or any aggregate. Presentation-only strings.
+ */
+export const PUBLIC_HOME_SWIPE_HEADING = '大家想知道 — 匿名問卷卡片';
+export const PUBLIC_HOME_SWIPE_STAGE_LABEL = '問卷卡片';
+export const PUBLIC_HOME_SWIPE_STAGE_ROLEDESCRIPTION = '可向下滑動瀏覽的問卷卡片列表';
+export const PUBLIC_HOME_SWIPE_COLLECTING_HINT = '收集中 · 答案截止後才公開';
+export const PUBLIC_HOME_SWIPE_ANSWER_CTA = '回答';
+export const PUBLIC_HOME_SWIPE_NEXT_HINT = '向下滑動看下一則';
+export const PUBLIC_HOME_SWIPE_LOADING_MESSAGE = '載入問卷卡片中，請稍候。';
+export const PUBLIC_HOME_SWIPE_LIST_READY_MESSAGE = '已載入問卷卡片，可向下滑動瀏覽。';
+export const PUBLIC_HOME_SWIPE_EMPTY_MESSAGE = '目前沒有可瀏覽的公開問卷。';
+export const PUBLIC_HOME_SWIPE_EMPTY_SUMMARY = '請稍後再回來看看，或建立一則新問卷。';
+export const PUBLIC_HOME_SWIPE_EMPTY_CTA_LABEL = '建立問卷';
+export const PUBLIC_HOME_SWIPE_ERROR_MESSAGE = '目前無法載入問卷卡片，請稍後再試。';
+export const PUBLIC_HOME_SWIPE_RETRY_LABEL = '重新載入';
+export const PUBLIC_HOME_SWIPE_LOAD_MORE_LABEL = '載入更多';
+export const PUBLIC_HOME_SWIPE_EXPLORE_FALLBACK_LABEL = '改用列表瀏覽';
+
 export const PUBLIC_EXPLORE_PAGE_LEAD =
   '依最近發布顯示目前可公開探索、仍在收集中的問卷。不提供熱門、票數、個人化或榜單排序；列表亦不顯示票數或結果百分比。';
 

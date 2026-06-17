@@ -42,14 +42,16 @@ describe('frontend static routes', () => {
       expect(page.headers.get('content-type')).toContain('text/html');
       expect(page.headers.get('cache-control')).toBe('no-store');
       expect(page.headers.get('content-security-policy')).toContain("style-src 'self'");
+      // Phase 301: the landing page is now an ultra-minimal collecting-only
+      // swipe card feed. It still exposes the required actions (create / explore
+      // fallback / register / login), but the long-form account/onboarding copy
+      // and FAQ link cluster now live on the FAQ / login / registration pages.
       expect(pageBody).toContain('What We Wonder');
+      expect(pageBody).toContain('data-home-swipe-feed="collecting-only"');
       expect(pageBody).toContain('href="/polls/new"');
       expect(pageBody).toContain('href="/explore"');
-      expect(pageBody).toContain('href="/faq"');
       expect(pageBody).toContain('href="/registration"');
       expect(pageBody).toContain('href="/login"');
-      expect(pageBody).toContain('不會自動登入');
-      expect(pageBody).toContain('登入後頁首才顯示帳號名稱');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('class="mvp-body"');
       expect(layoutScript.status).toBe(200);
@@ -62,7 +64,10 @@ describe('frontend static routes', () => {
       expect(promptBody).not.toMatch(
         /\/login\/session|\/registration|\/vote|reference-answer|option_id|option_text|option_index/i,
       );
-      expect(pageBody).not.toMatch(/localStorage|sessionStorage|feed|ranking|option_id/i);
+      // Phase 301: the home is now a freshness-only collecting swipe *feed*
+      // (data-home-swipe-feed="collecting-only"), so the literal "feed" token is
+      // expected; the anti-ranking / anti-tracking intent below is preserved.
+      expect(pageBody).not.toMatch(/localStorage|sessionStorage|ranking|option_id/i);
 
       const stylesheet = await fetch(`${baseUrl}/frontend/public-mvp.css`);
       expect(stylesheet.status).toBe(200);

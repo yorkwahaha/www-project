@@ -76,11 +76,10 @@ describe('Phase 155 public page intro / lead paragraph consistency polish', () =
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const explore = await loadModule('public/frontend/explore-page.js');
 
-    const heroLead = { textContent: '' };
-    home.syncHomePageLeadParagraphs({
-      getElementById: (id: string) => (id === 'home-hero-lead' ? heroLead : null),
-    });
-    expect(heroLead.textContent).toBe(publicUi.PUBLIC_HOME_HERO_LEAD);
+    // Phase 301: the homepage swipe shell no longer renders a synced hero lead
+    // paragraph (its long-form copy moved to FAQ/login/registration). The
+    // explore lead sync below remains the live assertion.
+    expect(home.syncHomePageLeadParagraphs).toBeUndefined();
 
     const exploreLead = { textContent: '' };
     explore.syncExplorePageLeadParagraphs({
@@ -179,11 +178,10 @@ describe('Phase 155 public page intro / lead paragraph consistency polish', () =
     expect(publicUi.PUBLIC_PROFILE_PAGE_LEAD).toContain('出生年月');
     expect(publicUi.PUBLIC_VOTE_PAGE_REMINDER_LEAD).toContain('正式投票');
 
-    const heroLead = { textContent: '' };
-    home.syncHomePageLeadParagraphs({
-      getElementById: (id: string) => (id === 'home-hero-lead' ? heroLead : null),
-    });
-    expect(heroLead.textContent).toBe(publicUi.PUBLIC_HOME_HERO_LEAD);
+    // Phase 301: the homepage swipe shell no longer renders a synced hero lead
+    // paragraph (its long-form copy moved to FAQ/login/registration). The
+    // explore lead sync below remains the live assertion.
+    expect(home.syncHomePageLeadParagraphs).toBeUndefined();
 
     const exploreLead = { textContent: '' };
     explore.syncExplorePageLeadParagraphs({

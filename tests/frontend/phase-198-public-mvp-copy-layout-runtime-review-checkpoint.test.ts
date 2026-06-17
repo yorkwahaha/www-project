@@ -69,20 +69,10 @@ const PHASE_197_CTA_BINDINGS = [
     syncFn: 'syncProfilePageCtas',
     constant: 'PUBLIC_CTA_GO_TO_REGISTER_FROM_PROFILE_LABEL',
   },
-  {
-    shell: 'public/index.html',
-    id: 'home-explore-cta',
-    module: 'public/frontend/public-mvp-home.js',
-    syncFn: 'syncHomePageCtas',
-    constant: 'PUBLIC_CTA_EXPLORE_LABEL',
-  },
-  {
-    shell: 'public/index.html',
-    id: 'home-create-cta',
-    module: 'public/frontend/public-mvp-home.js',
-    syncFn: 'syncHomePageCtas',
-    constant: 'PUBLIC_CTA_CREATE_POLL_NAV_LABEL',
-  },
+  // Phase 301: the homepage swipe shell no longer runs a runtime CTA sync; its
+  // create/explore affordances are static links in index.html, so the former
+  // home-explore-cta / home-create-cta syncHomePageCtas targets were removed
+  // from this review scope.
   {
     shell: 'public/explore.html',
     id: 'explore-home-cta',
@@ -297,7 +287,9 @@ describe('Phase 198 public MVP copy layout runtime review checkpoint', () => {
     expect(loginSource).toMatch(/mountLoginShellPage[\s\S]*syncLoginPageOnboardingCopy/);
     expect(registrationSource).toMatch(/mountRegistrationPage[\s\S]*syncRegistrationPageOnboardingCopy/);
     expect(profileSource).toMatch(/mountProfilePage[\s\S]*syncProfilePageOnboardingCopy/);
-    expect(homeSource).toMatch(/syncHomePageCtas\(document\)/);
+    // Phase 301: the homepage no longer runs syncHomePageCtas; it mounts the
+    // collecting-only swipe feed instead.
+    expect(homeSource).toMatch(/mountHomeSwipeFeed\(document\)/);
     expect(exploreSource).toMatch(/mountExplorePage[\s\S]*syncExplorePageLeadLinks/);
     expect(exploreSource).toMatch(/mountExplorePage[\s\S]*syncExplorePageStatusCopy/);
   });

@@ -427,7 +427,11 @@ export function mountSiteChrome(documentObject, options = {}) {
     ? resolveDemoNavMode(header, search)
     : parseDemoNavMode(search) ?? 'guest';
   const main = documentObject.getElementById('main-content');
-  if (main && !elementHasClass(main, 'mvp-login-shell')) {
+  if (
+    main &&
+    !elementHasClass(main, 'mvp-login-shell') &&
+    main.dataset?.authBanner !== 'off'
+  ) {
     renderAuthStateBanner(main, navMode);
   }
   enhanceDemoNavSwitch(documentObject);

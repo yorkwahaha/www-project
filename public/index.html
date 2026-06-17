@@ -9,118 +9,72 @@
   <body class="mvp-body">
     <a class="skip-link" href="#main-content">跳到主要內容</a>
     <header id="site-header" data-nav="guest" data-active="home"></header>
-    <div id="main-content" class="mvp-page">
-      <p class="mvp-demo-nav-switch" role="note">
-        切換瀏覽身分（展示用）：
-        <a href="?nav=guest">訪客</a>
-        ·
-        <a href="?nav=logged-in-mock">登入後</a>
+    <main
+      id="main-content"
+      class="mvp-page home-swipe"
+      data-auth-banner="off"
+      data-home-swipe-feed="collecting-only"
+      aria-labelledby="home-heading"
+    >
+      <h1 id="home-heading" class="mvp-sr-only">大家想知道 — 匿名問卷卡片</h1>
+
+      <p
+        id="home-swipe-status"
+        class="mvp-sr-only"
+        role="status"
+        aria-live="polite"
+      >
+        載入問卷卡片中，請稍候。
       </p>
-      <section class="mvp-hero" aria-labelledby="home-heading">
-        <div class="mvp-hero-copy">
-          <p class="mvp-brand">What We Wonder · 公開展示版</p>
-          <h1 id="home-heading">匿名問卷，公平揭曉</h1>
-          <p class="mvp-hero-lead" id="home-hero-lead">
-            收集中不公開票數；截止後才顯示彙總結果，並進入約 5 天公開鎖定期。
-          </p>
-          <div class="mvp-hero-cta">
-            <a id="home-explore-cta" class="mvp-btn mvp-btn-primary" href="/explore">探索問卷</a>
-            <a id="home-create-cta" class="mvp-btn mvp-btn-secondary" href="/polls/new">發起提問</a>
-          </div>
-          <ul class="mvp-trust-row">
-            <li>收集中不顯示結果</li>
-            <li>截止即公開結果</li>
-            <li>公開鎖定期約 5 天</li>
-          </ul>
-          <p class="mvp-meta mvp-preview-links" style="margin-top:0.65rem">
-            <a href="/faq">常見問題</a>
-            ·
-            <a href="/trust-levels">權限與信任等級</a>
-            ·
-            <a href="/profile">個人資料</a>
-          </p>
-          <p class="mvp-meta" id="home-account-flow-note" role="note" style="margin-top:0.5rem">
-            正式帳號：<a href="/registration">註冊</a>（只建立帳號，不會自動登入）·
-            <a href="/login">登入</a>（登入後頁首才顯示帳號名稱）。
-            本機 demo：<a href="/polls/new?live=1">建立問卷（?live=1）</a> 發起問卷請使用即時模式；
-            <a href="/profile">個人資料</a>與投票可使用測試身份示範。
-          </p>
-        </div>
-        <div class="mvp-mascot mvp-mascot--collecting" aria-hidden="true" title="問問">
-          <span class="mvp-mascot-body"><span class="mvp-mascot-face"></span><span class="mvp-mascot-prop"></span></span>
-        </div>
+
+      <section
+        id="home-swipe-stage"
+        class="home-swipe-stage"
+        aria-label="問卷卡片"
+        aria-roledescription="可向下滑動瀏覽的問卷卡片列表"
+        aria-busy="true"
+      >
+        <article class="home-swipe-card home-swipe-card--skeleton" aria-hidden="true">
+          <span class="home-swipe-skeleton-badge"></span>
+          <span class="home-swipe-skeleton-line home-swipe-skeleton-line--lg"></span>
+          <span class="home-swipe-skeleton-line"></span>
+          <span class="home-swipe-skeleton-cta"></span>
+        </article>
       </section>
 
-      <div class="mvp-value-grid" aria-label="平台原則">
-        <article class="mvp-value-card">
-          <h3>收集中不公開結果</h3>
-          <p>不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。</p>
-        </article>
-        <article class="mvp-value-card">
-          <h3>公開鎖定期</h3>
-          <p>結果公開後約 5 天為公開鎖定期，期間不能下架或隱藏；結束後可下架。</p>
-        </article>
-        <article class="mvp-value-card">
-          <h3>投票後回饋題目品質</h3>
-          <p>投票後可協助回饋題目是否清楚易懂。部分問卷標題旁可能顯示「回饋良好」，僅表示回饋評價，不是分數、排名或推薦。</p>
-        </article>
-      </div>
+      <button
+        type="button"
+        id="home-swipe-load-more"
+        class="mvp-btn mvp-btn-secondary home-swipe-load-more"
+        hidden
+      >
+        載入更多
+      </button>
 
-      <h2 class="mvp-section-title">範例問卷</h2>
-      <p class="mvp-meta" id="home-sample-polls-section-note" style="margin-top:-0.5rem;margin-bottom:0.75rem">
-        <a href="/explore">探索問卷</a>已列出最近發布、仍在收集中的公開問卷（依發布時間排序；非熱門、票數、個人化或榜單；不顯示票數與結果預覽）。下方卡片為靜態範例，僅供預覽各狀態文案。
-      </p>
+      <div id="home-swipe-empty" class="home-swipe-panel mvp-empty-state" hidden></div>
 
-      <div class="mvp-card-grid" data-static-examples="true" aria-label="靜態範例問卷">
-        <article class="mvp-poll-card">
-          <h3>你平常通勤主要使用哪種交通工具？</h3>
-          <div class="mvp-poll-card-status-row">
-            <span class="mvp-badge mvp-badge-collecting">收集中</span>
-          </div>
-          <p class="mvp-poll-card-meta">生活 · 06/15 公開結果</p>
-          <p class="mvp-poll-card-hint">
-            收集中 · 不顯示票數
-            <span class="mvp-help" tabindex="0" role="button" aria-label="收集中說明">
-              <span class="mvp-help-icon" aria-hidden="true">?</span>
-              <span class="mvp-help-tip" role="tooltip">收集中不顯示票數、百分比、總計、排名、趨勢或進度；發起者也看不到期中統計。</span>
-            </span>
-          </p>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-primary" href="/vote/demo">投票</a>
-          </div>
-        </article>
+      <div
+        id="home-swipe-error"
+        class="home-swipe-panel mvp-error-panel"
+        role="alert"
+        hidden
+      ></div>
 
-        <article class="mvp-poll-card">
-          <h3>遠端工作一週幾天最適合？</h3>
-          <div class="mvp-poll-card-status-row">
-            <span class="mvp-badge mvp-badge-revealed">已公開</span>
-          </div>
-          <p class="mvp-poll-card-meta">職場 · 05/28 已公開</p>
-          <div class="mvp-result-preview" aria-label="聚合結果範例">
-            約 42%（區間摘要 · 範例資料）
-            <div class="mvp-result-preview-bar" aria-hidden="true"><span style="width:42%"></span></div>
-          </div>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-secondary" href="/results/demo?ui_state=revealed">查看結果</a>
-          </div>
-        </article>
-
-        <article class="mvp-poll-card">
-          <h3>今年最期待的科技產品類別？</h3>
-          <div class="mvp-poll-card-status-row">
-            <span class="mvp-badge mvp-badge-muted">鎖定期已結束</span>
-          </div>
-          <p class="mvp-poll-card-meta">科技 · 可查看結果</p>
-          <div class="mvp-poll-card-footer">
-            <a class="mvp-btn mvp-btn-secondary" href="/results/demo?ui_state=post_lock">查看結果</a>
-          </div>
-        </article>
-      </div>
-
-      <p class="note mvp-meta" id="home-static-examples-footer-note">
-        想認識各種問卷狀態？可在<a href="/results/demo">結果頁</a>切換「收集中」「公開鎖定期」「已取消」等範例，或查看<a href="/faq">常見問題</a>。
-      </p>
-    </div>
+      <nav class="home-swipe-actions" aria-label="首頁操作">
+        <a
+          id="home-create-cta"
+          class="mvp-btn mvp-btn-primary home-swipe-create-cta"
+          href="/polls/new"
+        >發起提問</a>
+        <p class="home-swipe-access mvp-meta">
+          <a id="home-register-cta" href="/registration">註冊</a>
+          ·
+          <a id="home-login-cta" href="/login">登入</a>
+          ·
+          <a id="home-explore-fallback" href="/explore">改用列表瀏覽</a>
+        </p>
+      </nav>
+    </main>
     <script type="module" src="/frontend/public-mvp-layout.js"></script>
     <script type="module" src="/frontend/public-mvp-home.js"></script>
   </body>

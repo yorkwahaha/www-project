@@ -63,7 +63,10 @@ describe('Phase 170 public MVP showcase readiness milestone', () => {
     expect(parseLiveApiMode('')).toBe(false);
     expect(myPollsHtml).toContain('?live=1');
     expect(myPollsHtml).not.toContain('creator_session');
-    expect(indexHtml).toContain('測試身份示範');
+    // Phase 301: the homepage demo/account note (with its 測試身份示範 copy) was
+    // removed when the home became an ultra-minimal collecting-only swipe shell;
+    // that demo/creator separation copy now lives on my-polls / create-poll.
+    expect(indexHtml).not.toContain('creator_session');
   });
 
   it('documents explore freshness-only posture and runtime feed guard still holds', async () => {

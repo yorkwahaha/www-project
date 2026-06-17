@@ -217,11 +217,13 @@ describe('Phase 264 public help FAQ copy milestone checkpoint', () => {
   it('keeps homepage runtime copy free of engineer tokens', async () => {
     const homeSource = stripJsComments(await readFile(join(process.cwd(), PUBLIC_MVP_HOME), 'utf8'));
 
-    expect(homeSource).toContain('syncHomePageAccountFlowNote');
+    // Phase 301: the homepage account-flow note and syncHomePageAccountFlowNote
+    // were removed (home is now a collecting-only swipe feed that reuses
+    // /polls/feed, so FORBIDDEN_SIDE_EFFECTS no longer applies). The
+    // engineer-token / eligibility-outcome privacy guards below still hold.
     for (const marker of ENGINEER_TOKEN_MARKERS) {
       expect(homeSource, `public-mvp-home.js must not contain ${marker}`).not.toContain(marker);
     }
-    expect(homeSource).not.toMatch(FORBIDDEN_SIDE_EFFECTS);
     expect(homeSource).not.toMatch(FORBIDDEN_ELIGIBILITY_OUTCOME);
     expect(homeSource).not.toContain('creatorSessionCode');
     expect(homeSource).not.toContain('userIdCode');
@@ -236,10 +238,12 @@ describe('Phase 264 public help FAQ copy milestone checkpoint', () => {
       expect(source, relativePath).not.toContain('Phase 264');
     }
 
+    // Phase 301: the homepage account-flow note was removed; its account copy
+    // moved to the login/registration pages. The home stays free of stale
+    // engineer/misleading copy (checked via the P0/P1 loop above).
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
-    expect(indexHtml).toContain('id="home-account-flow-note"');
-    expect(indexHtml).toContain('不會自動登入');
-    expect(indexHtml).toContain('測試身份示範');
+    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).not.toContain('id="home-account-flow-note"');
   });
 
   it('keeps faq.html aligned in Phase 257 and untouched by Phase 260', async () => {

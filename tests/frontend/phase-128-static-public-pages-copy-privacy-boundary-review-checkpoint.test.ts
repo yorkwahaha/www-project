@@ -66,15 +66,16 @@ describe('Phase 128 static public pages copy privacy boundary review checkpoint'
   it('keeps homepage and showcase copy honest about demo separation and no vote guarantee', async () => {
     const index = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
 
-    expect(index).toContain('只建立帳號，不會自動登入');
-    expect(index).toContain('data-static-examples="true"');
-    expect(index).toContain('靜態範例');
-    expect(index).toContain('範例資料');
-    expect(index).toContain('即時模式');
-    expect(index).toContain('測試身份');
-    expect(index).toContain('收集中不公開票數');
+    // Phase 301 superseded the content-rich homepage with an ultra-minimal
+    // collecting-only swipe feed. The account/demo/static-example boundary copy
+    // now lives on the FAQ/login/registration pages (asserted elsewhere). The
+    // privacy-relevant negative guards below remain enforced on the new home:
+    // it must never promise outcomes or expose live counts, and being
+    // collecting-only it shows no aggregate result signals at all.
+    expect(index).toContain('data-home-swipe-feed="collecting-only"');
     expect(index).not.toMatch(FORBIDDEN_GUARANTEE_COPY);
     expect(index).not.toMatch(/真實即時票數|live vote count/i);
+    expect(index).not.toMatch(/%|票數|百分比|排名|趨勢|進度/);
   });
 
   it('keeps registration and login static copy on session boundaries', async () => {

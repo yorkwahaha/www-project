@@ -66,12 +66,14 @@ const SCRIPT_COUNTS: Record<(typeof PHASE_260_ALLOWED_HTML)[number], number> = {
 };
 
 const SYNC_MOUNT_CONTRACTS: Record<string, string[]> = {
+  // Phase 301: the homepage is now an ultra-minimal collecting-only swipe shell;
+  // its former synced mount points (hero lead, account-flow note, sample-poll
+  // notes, value grid) were removed. These are its current primary contracts.
   'public/index.html': [
-    'id="home-hero-lead"',
-    'id="home-account-flow-note"',
-    'id="home-sample-polls-section-note"',
-    'id="home-static-examples-footer-note"',
-    'class="mvp-value-grid"',
+    'id="home-swipe-status"',
+    'id="home-swipe-stage"',
+    'data-home-swipe-feed="collecting-only"',
+    'id="home-create-cta"',
   ],
   'public/login.html': [
     'id="login-page-banner"',
@@ -159,7 +161,9 @@ describe('Phase 260 public static HTML shell copy alignment', () => {
     const createPollHtml = await readFile(join(process.cwd(), 'public/create-poll.html'), 'utf8');
     const myPollsHtml = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
 
-    expect(extractElementTextById(indexHtml, 'home-hero-lead')).toBe(ui.PUBLIC_HOME_HERO_LEAD);
+    // Phase 301: the homepage swipe shell no longer renders a synced hero lead
+    // or value-card body; the remaining shells below keep their PUBLIC_* sync.
+    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
     expect(extractElementTextById(loginHtml, 'login-lead-secondary')).toBe(
       ui.PUBLIC_LOGIN_PAGE_LEAD_SECONDARY,
     );
@@ -189,13 +193,9 @@ describe('Phase 260 public static HTML shell copy alignment', () => {
     );
 
     expect(voteHtml).toContain(ui.PUBLIC_VOTE_POLICY_QUALITY_FEEDBACK_TEXT);
-
-    const indexValueBody = indexHtml.match(
-      /<article class="mvp-value-card">[\s\S]*?<h3>投票後回饋題目品質<\/h3>\s*<p>([\s\S]*?)<\/p>/,
-    )?.[1];
-    expect(indexValueBody?.replace(/\s+/g, ' ').trim()).toBe(
-      ui.PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY,
-    );
+    // Phase 301: the homepage value grid was removed, so its quality-feedback
+    // body is no longer rendered on the home (the constant remains exported and
+    // is asserted in phase-286 / on the FAQ page).
   });
 
   it('keeps faq.html out of Phase 260 scope', async () => {

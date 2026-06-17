@@ -84,7 +84,12 @@ describe('Phase 224 home header auth state onboarding copy runtime review checkp
     expect(authSource).not.toMatch(FORBIDDEN_STORAGE);
   });
 
-  it('keeps public-mvp-home.js syncing copy into mount points without API calls', async () => {
+  // Retired by Phase 301: the homepage account-flow / sample / onboarding notes
+  // and their sync helpers were removed when the home became an ultra-minimal
+  // collecting-only swipe shell. This historical review checkpoint described the
+  // pre-Phase-301 home; current homepage assertions live in
+  // tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
+  it.skip('keeps public-mvp-home.js syncing copy into mount points without API calls', async () => {
     const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const homeSource = stripJsComments(
@@ -131,18 +136,17 @@ describe('Phase 224 home header auth state onboarding copy runtime review checkp
     expect(homeSource).not.toMatch(FORBIDDEN_ELIGIBILITY_OUTCOME);
   });
 
-  it('keeps public/index.html static fallback and mount points only', async () => {
+  it('keeps public/index.html static fallback and Phase 301 swipe-shell mount points only', async () => {
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
 
-    for (const mountId of [
-      'home-account-flow-note',
-      'home-sample-polls-section-note',
-      'home-static-examples-footer-note',
-    ]) {
+    // Phase 301: the account-flow / sample / footer mount points were removed;
+    // the home is now a collecting-only swipe shell with these mount points.
+    for (const mountId of ['home-swipe-stage', 'home-swipe-status']) {
       expect(indexHtml).toContain(`id="${mountId}"`);
     }
 
-    expect(indexHtml).toContain('不會自動登入');
+    // The required register/login access links remain; long-form account copy
+    // moved to the login/registration pages. Negative auth guards still hold.
     expect(indexHtml).toContain('/registration');
     expect(indexHtml).toContain('/login');
     expect(indexHtml).toContain('public-mvp-home.js');

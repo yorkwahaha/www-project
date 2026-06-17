@@ -73,11 +73,14 @@ const SCRIPT_COUNTS: Record<(typeof PHASE_260_TOUCHED_HTML)[number], number> = {
 };
 
 const SYNC_MOUNT_CONTRACTS: Record<string, string[]> = {
+  // Phase 301: the homepage is now an ultra-minimal collecting-only swipe shell;
+  // its former synced mount points and static sample cards were removed. These
+  // are its current primary contracts.
   'public/index.html': [
-    'id="home-hero-lead"',
-    'id="home-account-flow-note"',
-    'id="home-sample-polls-section-note"',
-    'data-static-examples="true"',
+    'id="home-swipe-stage"',
+    'id="home-swipe-status"',
+    'data-home-swipe-feed="collecting-only"',
+    'id="home-create-cta"',
   ],
   'public/login.html': [
     'id="login-page-banner"',
@@ -111,7 +114,8 @@ const SYNC_MOUNT_CONTRACTS: Record<string, string[]> = {
 };
 
 const RUNTIME_SYNC_EXPORTS = [
-  ['public/frontend/public-mvp-home.js', 'syncHomePageOnboardingCopy'],
+  // Phase 301: public-mvp-home.js no longer exports a runtime onboarding-copy
+  // sync helper; the swipe shell renders cards from /polls/feed instead.
   ['public/frontend/login-page.js', 'syncLoginPageOnboardingCopy'],
   ['public/frontend/vote-page.js', 'syncVotePageOnboardingCopy'],
   ['public/frontend/result-page.js', 'syncResultsPageOnboardingCopy'],
@@ -215,7 +219,12 @@ describe('Phase 261 public static HTML shell copy runtime review checkpoint', ()
     expect(ui.PUBLIC_VOTE_POLICY_QUALITY_FEEDBACK_TEXT).not.toContain('優質題目');
   });
 
-  it('documents homepage account note runtime engineer tokens as Phase 262 candidate only', async () => {
+  // Retired by Phase 301: the homepage account-flow note and its
+  // syncHomePageAccountFlowNote helper were removed when the home became an
+  // ultra-minimal collecting-only swipe shell. This historical review checkpoint
+  // described the pre-Phase-301 home; current homepage assertions live in
+  // tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
+  it.skip('documents homepage account note runtime engineer tokens as Phase 262 candidate only', async () => {
     const doc = await readFile(join(process.cwd(), PHASE_261_DOC), 'utf8');
     const homeSource = stripJsComments(
       await readFile(join(process.cwd(), 'public/frontend/public-mvp-home.js'), 'utf8'),

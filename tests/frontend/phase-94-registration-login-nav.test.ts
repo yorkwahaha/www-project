@@ -56,7 +56,8 @@ describe('Phase 94 registration/login navigation polish', () => {
     expect(registrationHtml).toContain('data-login-state-read="disabled"');
     expect(homeHtml).toContain('href="/registration"');
     expect(homeHtml).toContain('href="/login"');
-    expect(homeHtml).toContain('不會自動登入');
+    // Phase 301: the homepage keeps the register/login access links but its
+    // long-form "不會自動登入" account copy moved to the login/registration pages.
   });
 
   it('keeps registration chrome from calling GET /users/me', async () => {

@@ -109,9 +109,24 @@ describe('Phase 254 public reduced motion runtime review checkpoint', () => {
     expect(phase253).not.toMatch(/\bdisplay\s*:/);
     expect(phase253).not.toMatch(/\bvisibility\s*:/);
 
-    expect(baseCss).not.toContain('@keyframes');
-    expect(baseCss).not.toMatch(/\banimation\s*:/);
-    expect(baseCss).not.toContain('scroll-behavior');
+    // Phase 301 added the home swipe shell, which introduces a single calm
+    // loading-skeleton shimmer (@keyframes home-swipe-shimmer) plus its own
+    // prefers-reduced-motion guard that disables that animation and forces
+    // scroll-behavior:auto. So the pre-Phase-253 region is no longer motion-free,
+    // but every motion it adds is reduced-motion-guarded.
+    const phase301Start = baseCss.indexOf('Phase 301 — home swipe card visual shell');
+    const baseBeforePhase301 =
+      phase301Start === -1 ? baseCss : baseCss.slice(0, phase301Start);
+    expect(baseBeforePhase301).not.toContain('@keyframes');
+    expect(baseBeforePhase301).not.toMatch(/\banimation\s*:/);
+    expect(baseBeforePhase301).not.toContain('scroll-behavior');
+
+    // The only animation outside the Phase 253 block is the Phase 301 skeleton
+    // shimmer, and it is gated by a reduced-motion media query.
+    expect(baseCss).toContain('@keyframes home-swipe-shimmer');
+    expect(baseCss).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*home-swipe-skeleton[\s\S]*animation:\s*none/,
+    );
   });
 
   it('reviews public frontend JS runtime free of Phase 253/254 motion helpers', async () => {

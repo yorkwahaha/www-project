@@ -70,55 +70,22 @@ describe('Phase 158 public microcopy / inline note runtime review checkpoint', (
     }
   });
 
-  it('keeps syncHomePageSupportingNotes and syncHomePageMicrocopy on shared constants only', async () => {
-    const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
+  it('keeps public-mvp-home.js a Phase 301 swipe shell without observability', async () => {
+    // This checkpoint reviewed the pre-Phase-301 homepage value/trust microcopy
+    // sync. Phase 301 removed those blocks from the home and the runtime sync
+    // helpers with them; the module now exports the swipe-card renderer and
+    // reuses the existing /polls/feed via explore-page.js. It must still avoid
+    // auth/session reads and observability sinks.
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const homeSource = stripJsComments(
       await readFile(join(process.cwd(), 'public/frontend/public-mvp-home.js'), 'utf8'),
     );
 
-    expect(homeSource).toContain('syncHomePageSupportingNotes');
-    expect(homeSource).toContain('syncHomePageMicrocopy');
-    expect(homeSource).not.toMatch(/\bfetch\b|\/users\/me|\/polls\/|\/vote|mountLoginStateRead/i);
+    expect(home.syncHomePageSupportingNotes).toBeUndefined();
+    expect(home.syncHomePageMicrocopy).toBeUndefined();
+    expect(typeof home.renderHomeSwipeCard).toBe('function');
+    expect(homeSource).not.toMatch(/\/users\/me|mountLoginStateRead/i);
     expect(homeSource).not.toMatch(FORBIDDEN_OBSERVABILITY);
-
-    const valueBodies = [{ textContent: '' }, { textContent: '' }, { textContent: '' }];
-    const trustItems = [{ textContent: '' }, { textContent: '' }, { textContent: '' }];
-    const collectingTip = { textContent: '' };
-
-    home.syncHomePageSupportingNotes({
-      querySelectorAll(selector: string) {
-        if (selector === '.mvp-value-grid .mvp-value-card p') {
-          return valueBodies;
-        }
-        return [];
-      },
-      querySelector() {
-        return null;
-      },
-    });
-    expect(valueBodies[0].textContent).toBe(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
-    expect(valueBodies[1].textContent).toBe(publicUi.PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY);
-    expect(valueBodies[2].textContent).toBe(publicUi.PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY);
-
-    home.syncHomePageMicrocopy({
-      querySelectorAll(selector: string) {
-        if (selector === '.mvp-trust-row li') {
-          return trustItems;
-        }
-        return [];
-      },
-      querySelector(selector: string) {
-        if (selector === '.mvp-help-tip') {
-          return collectingTip;
-        }
-        return null;
-      },
-    });
-    expect(trustItems[0].textContent).toBe(publicUi.PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM);
-    expect(trustItems[1].textContent).toBe(publicUi.PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM);
-    expect(trustItems[2].textContent).toBe(publicUi.PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM);
-    expect(collectingTip.textContent).toBe(publicUi.PUBLIC_HOME_COLLECTING_CARD_TOOLTIP);
   });
 
   it('keeps syncExplorePageMicrocopy on shared load-more label', async () => {
@@ -238,12 +205,9 @@ describe('Phase 158 public microcopy / inline note runtime review checkpoint', (
     );
     expect(publicUi.PUBLIC_EXPLORE_LOAD_MORE_LABEL).toBeTruthy();
 
-    const collectingBody = { textContent: '' };
-    home.syncHomePageSupportingNotes({
-      querySelector: () => null,
-      querySelectorAll: () => [collectingBody],
-    });
-    expect(collectingBody.textContent).toBe(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
+    // Phase 301: the home no longer renders these supporting notes (the runtime
+    // sync helper was removed); the shared PUBLIC_* constants above are retained.
+    expect(home.syncHomePageSupportingNotes).toBeUndefined();
   });
 
   it('keeps registration boundary off auto-login, Set-Cookie, and GET /users/me', async () => {

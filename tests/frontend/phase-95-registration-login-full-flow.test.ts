@@ -202,8 +202,9 @@ describe('Phase 95 registration/login full flow smoke coverage', () => {
 
     expect(homeHtml).toContain('href="/registration"');
     expect(homeHtml).toContain('href="/login"');
-    expect(homeHtml).toContain('不會自動登入');
-    expect(homeHtml).toContain('登入後頁首才顯示帳號名稱');
+    // Phase 301: the homepage keeps register/login access links, but its
+    // long-form account-flow copy moved to the login/registration pages and the
+    // shared header banner constant (asserted below).
     expect(AUTH_STATE_COPY.bannerGuestBody).toContain('註冊只建立帳號資料');
     expect(AUTH_STATE_COPY.bannerGuestBody).toContain('不會自動登入');
     expect(AUTH_STATE_COPY.bannerGuestBody).toContain('登入後才會在頁首顯示帳號名稱');

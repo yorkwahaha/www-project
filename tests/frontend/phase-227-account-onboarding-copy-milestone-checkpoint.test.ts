@@ -89,7 +89,11 @@ describe('Phase 227 account onboarding copy milestone checkpoint', () => {
     }
   });
 
-  it('keeps home onboarding sync copy-only without API calls', async () => {
+  // Retired by Phase 301: the homepage onboarding notes and the
+  // syncHomePageOnboardingCopy helper were removed when the home became an
+  // ultra-minimal collecting-only swipe shell. Current homepage assertions live
+  // in tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
+  it.skip('keeps home onboarding sync copy-only without API calls', async () => {
     const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const homeSource = stripJsComments(
@@ -146,7 +150,10 @@ describe('Phase 227 account onboarding copy milestone checkpoint', () => {
     expect(profileHtml).toContain(ui.PUBLIC_PROFILE_PAGE_LEAD);
     expect(profileHtml).toContain(ui.PUBLIC_PROFILE_SIGNED_IN_GUIDANCE_NOTE);
     expect(profileHtml).toContain(ui.PUBLIC_PROFILE_VIEW_SIGN_IN_REQUIRED_MESSAGE);
-    expect(indexHtml).toContain('home-account-flow-note');
+    // Phase 301: the homepage account-flow note was removed; the home keeps the
+    // register/login access links while the long-form copy lives on those pages.
+    expect(indexHtml).toContain('href="/registration"');
+    expect(indexHtml).toContain('href="/login"');
     expect(ui.PUBLIC_PROFILE_PAGE_LEAD).toContain('不表示可保證符合或不符合');
     expect(ui.PUBLIC_PROFILE_SIGNED_IN_GUIDANCE_NOTE).not.toMatch(
       FORBIDDEN_ELIGIBILITY_OUTCOME,

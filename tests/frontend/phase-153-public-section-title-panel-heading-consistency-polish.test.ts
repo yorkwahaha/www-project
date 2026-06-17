@@ -72,35 +72,22 @@ describe('Phase 153 public section title / panel heading consistency polish', ()
     const home = await loadModule('public/frontend/public-mvp-home.js');
     const explore = await loadModule('public/frontend/explore-page.js');
 
-    expect(home.HOME_PAGE_TITLE).toBe(publicUi.PUBLIC_HOME_PAGE_TITLE);
+    // Phase 301: the homepage is now a swipe-card shell and no longer re-exports
+    // a synced section title. The explore heading re-export and the shared
+    // PUBLIC_SECTION_TITLES allowlist (a UI constant set) remain unchanged.
     expect(explore.EXPLORE_PAGE_TITLE).toBe(publicUi.PUBLIC_EXPLORE_PAGE_TITLE);
     expect(publicUi.PUBLIC_SECTION_TITLES).toContain(publicUi.PUBLIC_HOME_PAGE_TITLE);
     expect(publicUi.PUBLIC_SECTION_TITLES).toContain(publicUi.PUBLIC_EXPLORE_PAGE_TITLE);
   });
 
-  it('keeps syncHomePageSectionHeadings on shared constants', async () => {
-    const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
+  it('drops homepage runtime heading sync in favour of the Phase 301 swipe shell', async () => {
+    // This polish checkpoint described the pre-Phase-301 homepage, which synced
+    // section/value headings at runtime. Phase 301 superseded the home with a
+    // collecting-only swipe feed: the runtime heading-sync helper is gone and
+    // the home module now exports the swipe-card renderer instead.
     const home = await loadModule('public/frontend/public-mvp-home.js');
-
-    const homeHeading = { textContent: '' };
-    const sampleSection = { textContent: '' };
-    const valueCards = [{ textContent: '' }, { textContent: '' }, { textContent: '' }];
-    const documentObject = {
-      getElementById(id: string) {
-        return id === 'home-heading' ? homeHeading : null;
-      },
-      querySelector(selector: string) {
-        return selector === '.mvp-section-title' ? sampleSection : null;
-      },
-      querySelectorAll(selector: string) {
-        return selector === '.mvp-value-grid .mvp-value-card h3' ? valueCards : [];
-      },
-    };
-
-    home.syncHomePageSectionHeadings(documentObject);
-    expect(homeHeading.textContent).toBe(publicUi.PUBLIC_HOME_PAGE_TITLE);
-    expect(sampleSection.textContent).toBe(publicUi.PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE);
-    expect(valueCards[0].textContent).toBe(publicUi.PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING);
+    expect(home.syncHomePageSectionHeadings).toBeUndefined();
+    expect(typeof home.renderHomeSwipeCard).toBe('function');
   });
 
   it('keeps syncLoginPageSectionHeadings and syncVotePageSectionHeadings on shared panel headings', async () => {
@@ -190,8 +177,9 @@ describe('Phase 153 public section title / panel heading consistency polish', ()
     const myPollsHtml = await readFile(join(process.cwd(), 'public/my-polls.html'), 'utf8');
     const voteHtml = await readFile(join(process.cwd(), 'public/vote.html'), 'utf8');
 
-    expect(indexHtml).toContain(publicUi.PUBLIC_HOME_PAGE_TITLE);
-    expect(indexHtml).toContain(publicUi.PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE);
+    // Phase 301: the homepage swipe shell no longer renders the old page title
+    // or "sample polls" section heading in static HTML; the remaining shells
+    // below still align with their PUBLIC_* heading constants.
     expect(exploreHtml).toContain(publicUi.PUBLIC_EXPLORE_PAGE_TITLE);
     expect(loginHtml).toContain(publicUi.PUBLIC_LOGIN_PAGE_TITLE);
     expect(loginHtml).toContain('正式環境');

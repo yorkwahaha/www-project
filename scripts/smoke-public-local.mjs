@@ -166,13 +166,17 @@ try {
     if (!body.includes('href="/explore"')) {
       throw new Error('Landing page missing link to /explore');
     }
-    const hasExploreLiveFeedCopy =
-      body.includes('最近發布') &&
-      body.includes('靜態範例') &&
+    // Phase 301: the landing page is now an ultra-minimal collecting-only swipe
+    // card feed that reuses /polls/feed; it no longer carries static sample
+    // cards or the long-form account copy (those moved to FAQ/login/registration).
+    const isSwipeShell =
+      body.includes('data-home-swipe-feed="collecting-only"') &&
+      body.includes('id="home-swipe-stage"') &&
+      !body.includes('data-static-examples') &&
       !body.includes('完整探索列表將在正式上線後開放');
-    if (!hasExploreLiveFeedCopy) {
+    if (!isSwipeShell) {
       throw new Error(
-        'Landing page missing live explore feed copy (recently published + static examples)',
+        'Landing page missing Phase 301 collecting-only swipe shell markers',
       );
     }
     if (!body.includes('/frontend/public-mvp.css')) {
@@ -181,11 +185,8 @@ try {
     if (!body.includes('href="/registration"') || !body.includes('href="/login"')) {
       throw new Error('Landing page missing registration/login auth navigation links');
     }
-    if (!body.includes('不會自動登入') || !body.includes('登入後頁首才顯示帳號名稱')) {
-      throw new Error('Landing page missing registration/login flow copy');
-    }
-    pass('GET / links /polls/new and /explore with live-feed copy');
-    pass('GET / exposes registration/login auth navigation copy');
+    pass('GET / serves the Phase 301 collecting-only swipe shell');
+    pass('GET / links /polls/new, /explore, and registration/login access');
   }
 
   {

@@ -45,7 +45,12 @@ describe('Phase 262 home account flow runtime copy token cleanup', () => {
     expect(doc).toContain('syncHomePageAccountFlowNote');
   });
 
-  it('removes engineer tokens from syncHomePageAccountFlowNote runtime source', async () => {
+  // Retired by Phase 301: the homepage account-flow note and its
+  // syncHomePageAccountFlowNote runtime helper were removed when the home became
+  // an ultra-minimal collecting-only swipe shell. This historical token-cleanup
+  // checkpoint described the pre-Phase-301 home; current homepage assertions
+  // live in tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
+  it.skip('removes engineer tokens from syncHomePageAccountFlowNote runtime source', async () => {
     const raw = await readFile(join(process.cwd(), PUBLIC_MVP_HOME), 'utf8');
     const source = stripJsComments(raw);
 
@@ -59,7 +64,8 @@ describe('Phase 262 home account flow runtime copy token cleanup', () => {
     expect(source).toContain('PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE');
   });
 
-  it('builds homepage account flow note from user-facing PUBLIC_* constants', async () => {
+  // Retired by Phase 301 (homepage account-flow note removed — see phase-301 test).
+  it.skip('builds homepage account flow note from user-facing PUBLIC_* constants', async () => {
     const ui = await loadModule('public/frontend/public-mvp-ui.js');
     const home = await loadModule(PUBLIC_MVP_HOME);
     const appended: unknown[] = [];
@@ -123,7 +129,11 @@ describe('Phase 262 home account flow runtime copy token cleanup', () => {
     expect(source).not.toMatch(/\bexport async function\b/);
   });
 
-  it('keeps public-mvp-home.js free of fetch, storage, listener, or tracking', async () => {
+  // Retired by Phase 301: the swipe-shell home intentionally reuses /polls/feed
+  // (fetch) and attaches a whole-card click listener; the no-fetch/no-listener
+  // guard described the pre-Phase-301 copy-only home. Network/listener/no-storage
+  // behavior is now guarded by the phase-301 home swipe shell test.
+  it.skip('keeps public-mvp-home.js free of fetch, storage, listener, or tracking', async () => {
     const homeSource = stripJsComments(
       await readFile(join(process.cwd(), PUBLIC_MVP_HOME), 'utf8'),
     );
@@ -185,7 +195,8 @@ describe('Phase 262 home account flow runtime copy token cleanup', () => {
     expect(badge.shouldRenderQualityFeedbackBadge({ quality_badge: 'unexpected' })).toBe(false);
   });
 
-  it('aligns static index.html fallback with engineer-token-free account flow copy', async () => {
+  // Retired by Phase 301 (homepage account-flow note removed — see phase-301 test).
+  it.skip('aligns static index.html fallback with engineer-token-free account flow copy', async () => {
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
 
     for (const marker of ENGINEER_TOKEN_MARKERS) {

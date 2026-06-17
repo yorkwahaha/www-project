@@ -212,7 +212,11 @@ describe('Phase 160 public static HTML shell copy alignment runtime review check
     expect(trustHtml).not.toContain('發起者亦同');
   });
 
-  it('documents homepage sample section and footer embedded links as intentionally not textContent-synced', async () => {
+  // Retired by Phase 301: the homepage sample section, footer preview-link
+  // cluster and their runtime heading sync were removed when the home became an
+  // ultra-minimal collecting-only swipe shell. Current homepage assertions live
+  // in tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
+  it.skip('documents homepage sample section and footer embedded links as intentionally not textContent-synced', async () => {
     const homeSource = stripJsComments(
       await readFile(join(process.cwd(), 'public/frontend/public-mvp-home.js'), 'utf8'),
     );
@@ -250,9 +254,10 @@ describe('Phase 160 public static HTML shell copy alignment runtime review check
   it('keeps reviewed sync modules on shared constants without fetch or backend echo', async () => {
     for (const relativePath of REVIEWED_SYNC_MODULES) {
       const source = stripJsComments(await readFile(join(process.cwd(), relativePath), 'utf8'));
-      if (relativePath.endsWith('public-mvp-home.js')) {
-        expect(source, relativePath).not.toMatch(/\bfetch\b|\/users\/me|\/polls\/|\/vote/i);
-      }
+      // Phase 301: public-mvp-home.js is now the swipe shell and intentionally
+      // reuses the existing freshness-only /polls/feed (so the former no-fetch
+      // guard for the home no longer applies). Backend-echo and observability
+      // guards still hold for every reviewed module, including the home.
       expect(source, relativePath).not.toMatch(FORBIDDEN_BACKEND_ECHO);
       expect(source, relativePath).not.toMatch(FORBIDDEN_OBSERVABILITY);
     }

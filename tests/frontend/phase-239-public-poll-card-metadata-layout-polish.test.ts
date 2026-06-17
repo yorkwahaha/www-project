@@ -138,14 +138,16 @@ describe('Phase 239 public poll card metadata layout polish', () => {
     expect(badge.shouldRenderQualityFeedbackBadge({ quality_badge: 'low_quality' })).toBe(false);
   });
 
-  it('aligns home static poll cards with shared status-row layout', async () => {
+  it('keeps shared poll-card status-row layout for explore after Phase 301 home redesign', async () => {
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
     const css = await readFile(join(process.cwd(), 'public/frontend/public-mvp.css'), 'utf8');
 
-    expect(indexHtml).toContain('mvp-poll-card-status-row');
-    expect(indexHtml).toContain('mvp-poll-card-meta');
-    expect(indexHtml).toContain('mvp-poll-card-footer');
-    expect(indexHtml).not.toMatch(/mvp-poll-card-top[\s\S]*?<h3>你平常通勤/);
+    // Phase 301: the homepage no longer renders shared mvp-poll-card static cards
+    // (it is now a collecting-only swipe shell using home-only home-swipe-card
+    // classes). The shared status-row layout primitive remains in CSS for the
+    // explore feed, which is covered by the explore-card tests above.
+    expect(indexHtml).not.toContain('mvp-poll-card-status-row');
+    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
     expect(css).toContain('.mvp-poll-card-status-row');
   });
 

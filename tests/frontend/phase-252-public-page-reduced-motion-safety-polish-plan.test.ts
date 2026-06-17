@@ -66,13 +66,21 @@ describe('Phase 252 public page reduced motion / motion safety polish plan', () 
     const plan = await readFile(join(process.cwd(), PHASE_252_DOC), 'utf8');
     const cssBaseline = cssBeforePhase253(css);
 
+    // Phase 301 added the home swipe shell, whose only motion is a calm
+    // loading-skeleton shimmer (@keyframes home-swipe-shimmer) disabled under
+    // prefers-reduced-motion. Exclude that home-only block from the base-level
+    // motion-inventory baseline this plan locks.
+    const phase301Start = cssBaseline.indexOf('Phase 301 — home swipe card visual shell');
+    const baselineBeforePhase301 =
+      phase301Start === -1 ? cssBaseline : cssBaseline.slice(0, phase301Start);
+
     expect(cssBaseline).toContain('transition: opacity 0.12s ease');
     expect(cssBaseline).toContain('transition: transform 0.15s ease');
     expect(cssBaseline).toContain('@media (prefers-reduced-motion: reduce)');
     expect(cssBaseline).toContain('transition: none');
-    expect(cssBaseline).not.toContain('@keyframes');
-    expect(cssBaseline).not.toContain('scroll-behavior');
-    expect(cssBaseline).not.toMatch(/\banimation\s*:/);
+    expect(baselineBeforePhase301).not.toContain('@keyframes');
+    expect(baselineBeforePhase301).not.toContain('scroll-behavior');
+    expect(baselineBeforePhase301).not.toMatch(/\banimation\s*:/);
 
     expect(plan).toContain('.mvp-help-tip');
     expect(plan).toContain('.mvp-faq-question::before');

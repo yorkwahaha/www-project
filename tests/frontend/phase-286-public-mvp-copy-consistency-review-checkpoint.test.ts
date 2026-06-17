@@ -222,7 +222,9 @@ describe('Phase 286 public MVP copy consistency review checkpoint', () => {
     );
     expect(badge.shouldRenderQualityFeedbackBadge({ quality_badge: null })).toBe(false);
     expect(pageCopy.PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY).toContain('回饋良好');
-    expect(indexHtml).toContain('回饋良好');
+    // Phase 301: the homepage no longer renders quality-feedback copy (it is a
+    // collecting-only swipe shell); the 回饋良好 label remains explained on FAQ and
+    // in the shared constant above.
     expect(faqHtml).toContain('回饋良好');
   });
 
@@ -233,9 +235,13 @@ describe('Phase 286 public MVP copy consistency review checkpoint', () => {
       expect(html, relativePath).not.toMatch(FORBIDDEN_PRE_VOTE_LEAKAGE);
     }
 
+    // Phase 301: the FORBIDDEN_* negative guards above still apply to the home
+    // shell. Its long-form collecting-hidden / no-auto-login copy moved to the
+    // FAQ / login / registration pages; being collecting-only, the home shows no
+    // aggregate result signals.
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
-    expect(indexHtml).toContain('不會自動登入');
-    expect(indexHtml).toContain('收集中不公開票數');
+    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).not.toMatch(/%|票數|百分比|排名|趨勢|進度/);
   });
 
   it('keeps vote-by-index body unchanged during copy review', async () => {

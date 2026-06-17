@@ -1,245 +1,272 @@
+/**
+ * Phase 301 — home swipe card visual shell.
+ *
+ * Renders the public homepage `/` as an ultra-minimal, vertically swipeable
+ * feed of *collecting-only* poll cards. It reuses the existing freshness-only
+ * `/polls/feed` contract (via explore-page.js) without changing it, and never
+ * renders counts, percentages, totals, ranks, trends, progress or any other
+ * aggregate. Revealed-result cards are intentionally out of scope.
+ */
 import {
-  PUBLIC_CTA_CREATE_POLL_NAV_LABEL,
-  PUBLIC_CTA_EXPLORE_LABEL,
-  PUBLIC_CTA_REGISTER_LABEL,
-  PUBLIC_CTA_SIGN_IN_LABEL,
-  PUBLIC_HOME_ACCOUNT_FLOW_FORMAL_LEAD,
-  PUBLIC_HOME_ACCOUNT_FLOW_LOGIN_NOTE,
-  PUBLIC_HOME_ACCOUNT_FLOW_REGISTRATION_NOTE,
-  PUBLIC_HOME_COLLECTING_CARD_TOOLTIP,
-  PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING,
-  PUBLIC_HOME_DEMO_CREATE_POLL_LINK_LABEL,
-  PUBLIC_HOME_DEMO_CREATE_POLL_HREF,
-  PUBLIC_HOME_PROFILE_HREF,
-  PUBLIC_HOME_DEMO_CREATOR_SESSION_NOTE,
-  PUBLIC_HOME_DEMO_FLOW_LEAD,
-  PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE,
-  PUBLIC_HOME_HERO_LEAD,
-  PUBLIC_HOME_LOCK_PERIOD_CARD_HEADING,
-  PUBLIC_HOME_PAGE_TITLE,
-  PUBLIC_HOME_QUALITY_FEEDBACK_CARD_HEADING,
-  PUBLIC_HOME_SAMPLE_POLLS_EXPLORE_LINK_LABEL,
-  PUBLIC_HOME_SAMPLE_POLLS_SECTION_NOTE,
-  PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE,
-  PUBLIC_HOME_STATIC_EXAMPLES_FOOTER_NOTE,
-  PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM,
-  PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM,
-  PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM,
-  PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY,
-  PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY,
-  PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY,
+  fetchExploreFeedPage,
+  formatExploreCategory,
+  isExploreFeedItemSafe,
+} from './explore-page.js';
+import { renderPublicEmptyStatePanel } from './public-unavailable-state.js';
+import {
+  buildPublicVotePath,
+  PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL,
+  PUBLIC_HOME_SWIPE_ANSWER_CTA,
+  PUBLIC_HOME_SWIPE_COLLECTING_HINT,
+  PUBLIC_HOME_SWIPE_EMPTY_CTA_LABEL,
+  PUBLIC_HOME_SWIPE_EMPTY_MESSAGE,
+  PUBLIC_HOME_SWIPE_EMPTY_SUMMARY,
+  PUBLIC_HOME_SWIPE_ERROR_MESSAGE,
+  PUBLIC_HOME_SWIPE_EXPLORE_FALLBACK_LABEL,
+  PUBLIC_HOME_SWIPE_LIST_READY_MESSAGE,
+  PUBLIC_HOME_SWIPE_LOADING_MESSAGE,
+  PUBLIC_HOME_SWIPE_LOAD_MORE_LABEL,
+  PUBLIC_HOME_SWIPE_NEXT_HINT,
+  PUBLIC_HOME_SWIPE_RETRY_LABEL,
 } from './public-mvp-ui.js';
 
-export const HOME_PAGE_TITLE = PUBLIC_HOME_PAGE_TITLE;
-export const HOME_HERO_LEAD = PUBLIC_HOME_HERO_LEAD;
-export const HOME_SAMPLE_POLLS_SECTION_TITLE = PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE;
-export const HOME_COLLECTING_HIDDEN_CARD_HEADING = PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING;
-export const HOME_LOCK_PERIOD_CARD_HEADING = PUBLIC_HOME_LOCK_PERIOD_CARD_HEADING;
-export const HOME_QUALITY_FEEDBACK_CARD_HEADING = PUBLIC_HOME_QUALITY_FEEDBACK_CARD_HEADING;
+export const HOME_SWIPE_CARD_CLASS = 'home-swipe-card';
+export const HOME_SWIPE_COLLECTING_STATUS_LABEL = PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL;
+export const HOME_SWIPE_COLLECTING_HINT = PUBLIC_HOME_SWIPE_COLLECTING_HINT;
+export const HOME_SWIPE_ANSWER_CTA_LABEL = PUBLIC_HOME_SWIPE_ANSWER_CTA;
+export const HOME_SWIPE_LOADING_MESSAGE = PUBLIC_HOME_SWIPE_LOADING_MESSAGE;
+export const HOME_SWIPE_EMPTY_MESSAGE = PUBLIC_HOME_SWIPE_EMPTY_MESSAGE;
+export const HOME_SWIPE_ERROR_MESSAGE = PUBLIC_HOME_SWIPE_ERROR_MESSAGE;
+
+/** Re-export of the freshness-only feed item guard (collecting-only contract). */
+export const isHomeSwipeFeedItemSafe = isExploreFeedItemSafe;
+
+/**
+ * Build one collecting-only home swipe card. Reads ONLY non-aggregate fields
+ * (poll_id, title, category, published_display). Throws on unsafe items so an
+ * accidental aggregate field can never reach the DOM.
+ *
+ * @param {Document} documentObject
+ * @param {Record<string, unknown>} poll
+ */
+export function renderHomeSwipeCard(documentObject, poll) {
+  if (!isExploreFeedItemSafe(poll)) {
+    throw new Error('Unsafe home swipe feed item');
+  }
+
+  const article = documentObject.createElement('article');
+  article.className = HOME_SWIPE_CARD_CLASS;
+  article.dataset.pollId = poll.poll_id;
+
+  const top = documentObject.createElement('div');
+  top.className = 'home-swipe-card-top';
+
+  const statusBadge = documentObject.createElement('span');
+  statusBadge.className = 'mvp-badge mvp-badge-collecting';
+  statusBadge.textContent = HOME_SWIPE_COLLECTING_STATUS_LABEL;
+
+  const meta = documentObject.createElement('span');
+  meta.className = 'home-swipe-card-meta';
+  meta.textContent = `${formatExploreCategory(poll.category)} · ${poll.published_display}`;
+
+  top.append(statusBadge, meta);
+
+  const title = documentObject.createElement('h2');
+  title.className = 'home-swipe-card-title';
+  title.textContent = poll.title;
+
+  const hint = documentObject.createElement('p');
+  hint.className = 'home-swipe-card-hint';
+  hint.textContent = HOME_SWIPE_COLLECTING_HINT;
+
+  const actions = documentObject.createElement('div');
+  actions.className = 'home-swipe-card-actions';
+
+  const voteLink = documentObject.createElement('a');
+  voteLink.className = 'mvp-btn mvp-btn-primary home-swipe-card-cta';
+  voteLink.href = buildPublicVotePath(poll.poll_id);
+  voteLink.textContent = HOME_SWIPE_ANSWER_CTA_LABEL;
+
+  const nextHint = documentObject.createElement('span');
+  nextHint.className = 'home-swipe-card-next';
+  nextHint.setAttribute('aria-hidden', 'true');
+  nextHint.textContent = PUBLIC_HOME_SWIPE_NEXT_HINT;
+
+  actions.append(voteLink, nextHint);
+  article.append(top, title, hint, actions);
+
+  // Whole-card navigation as a progressive enhancement. The CTA link stays the
+  // real focusable/activatable target; clicks originating from it (or any other
+  // interactive descendant) are left alone so focus and keyboard activation are
+  // never hijacked, and a scroll/swipe gesture never fires a click.
+  if (typeof article.addEventListener === 'function') {
+    article.addEventListener('click', (event) => {
+      const target = /** @type {Element | null} */ (event.target);
+      if (target && typeof target.closest === 'function' && target.closest('a, button')) {
+        return;
+      }
+      const win = documentObject.defaultView ?? globalThis;
+      win.location.assign(buildPublicVotePath(poll.poll_id));
+    });
+  }
+
+  return article;
+}
+
+function setPanelVisible(panel, visible) {
+  if (panel) {
+    panel.hidden = !visible;
+  }
+}
 
 /**
  * @param {Document} documentObject
+ * @param {Window} [windowObject]
  */
-export function syncHomePageSectionHeadings(documentObject) {
+export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
   if (typeof documentObject.getElementById !== 'function') {
     return;
   }
-  const homeHeading = documentObject.getElementById('home-heading');
-  if (homeHeading) {
-    homeHeading.textContent = PUBLIC_HOME_PAGE_TITLE;
-  }
-  const sampleSection = documentObject.querySelector('.mvp-section-title');
-  if (sampleSection) {
-    sampleSection.textContent = PUBLIC_HOME_SAMPLE_POLLS_SECTION_TITLE;
-  }
-  const valueCards = documentObject.querySelectorAll('.mvp-value-grid .mvp-value-card h3');
-  if (valueCards[0]) {
-    valueCards[0].textContent = PUBLIC_HOME_COLLECTING_HIDDEN_CARD_HEADING;
-  }
-  if (valueCards[1]) {
-    valueCards[1].textContent = PUBLIC_HOME_LOCK_PERIOD_CARD_HEADING;
-  }
-  if (valueCards[2]) {
-    valueCards[2].textContent = PUBLIC_HOME_QUALITY_FEEDBACK_CARD_HEADING;
-  }
-}
-
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageLeadParagraphs(documentObject) {
-  if (typeof documentObject.getElementById !== 'function') {
+  const stage = documentObject.getElementById('home-swipe-stage');
+  const statusRegion = documentObject.getElementById('home-swipe-status');
+  if (!stage || !statusRegion) {
     return;
   }
-  const heroLead = documentObject.getElementById('home-hero-lead');
-  if (heroLead) {
-    heroLead.textContent = PUBLIC_HOME_HERO_LEAD;
-  }
-}
+  const loadMoreButton = documentObject.getElementById('home-swipe-load-more');
+  const emptyPanel = documentObject.getElementById('home-swipe-empty');
+  const errorPanel = documentObject.getElementById('home-swipe-error');
 
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageSupportingNotes(documentObject) {
-  if (typeof documentObject.querySelector !== 'function') {
-    return;
-  }
-  const valueBodies = documentObject.querySelectorAll('.mvp-value-grid .mvp-value-card p');
-  if (valueBodies[0]) {
-    valueBodies[0].textContent = PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY;
-  }
-  if (valueBodies[1]) {
-    valueBodies[1].textContent = PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY;
-  }
-  if (valueBodies[2]) {
-    valueBodies[2].textContent = PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY;
-  }
-}
+  let nextCursor = null;
+  let loading = false;
+  let cardCount = 0;
 
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageMicrocopy(documentObject) {
-  if (typeof documentObject.querySelector !== 'function') {
-    return;
-  }
-  const trustItems = documentObject.querySelectorAll('.mvp-trust-row li');
-  if (trustItems[0]) {
-    trustItems[0].textContent = PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM;
-  }
-  if (trustItems[1]) {
-    trustItems[1].textContent = PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM;
-  }
-  if (trustItems[2]) {
-    trustItems[2].textContent = PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM;
-  }
-  const collectingTip = documentObject.querySelector('.mvp-help-tip');
-  if (collectingTip) {
-    collectingTip.textContent = PUBLIC_HOME_COLLECTING_CARD_TOOLTIP;
-  }
-}
+  const announce = (message) => {
+    statusRegion.textContent = message;
+  };
 
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageCtas(documentObject) {
-  if (typeof documentObject.getElementById !== 'function') {
-    return;
-  }
-  const exploreLink = documentObject.getElementById('home-explore-cta');
-  if (exploreLink) {
-    exploreLink.textContent = PUBLIC_CTA_EXPLORE_LABEL;
-  }
-  const createLink = documentObject.getElementById('home-create-cta');
-  if (createLink) {
-    createLink.textContent = PUBLIC_CTA_CREATE_POLL_NAV_LABEL;
-  }
-}
+  const clearError = () => {
+    setPanelVisible(errorPanel, false);
+    if (errorPanel && typeof errorPanel.replaceChildren === 'function') {
+      errorPanel.replaceChildren();
+    }
+  };
 
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageSamplePollsSectionNote(documentObject) {
-  const note = documentObject.getElementById('home-sample-polls-section-note');
-  if (!note || typeof note.replaceChildren !== 'function') {
-    return;
-  }
-  note.replaceChildren();
-  const exploreLink = documentObject.createElement('a');
-  exploreLink.href = '/explore';
-  exploreLink.textContent = PUBLIC_HOME_SAMPLE_POLLS_EXPLORE_LINK_LABEL;
-  note.append(
-    exploreLink,
-    documentObject.createTextNode(PUBLIC_HOME_SAMPLE_POLLS_SECTION_NOTE),
-  );
-}
+  const showError = () => {
+    if (errorPanel && typeof errorPanel.replaceChildren === 'function') {
+      errorPanel.replaceChildren();
 
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageStaticExamplesFooterNote(documentObject) {
-  const note = documentObject.getElementById('home-static-examples-footer-note');
-  if (!note || typeof note.replaceChildren !== 'function') {
-    return;
-  }
-  note.replaceChildren();
-  const lead = documentObject.createTextNode('想認識各種問卷狀態？可在');
-  const resultsLink = documentObject.createElement('a');
-  resultsLink.href = '/results/demo';
-  resultsLink.textContent = '結果頁';
-  const middle = documentObject.createTextNode(
-    '切換「收集中」「公開鎖定期」「已取消」等範例，或查看',
-  );
-  const faqLink = documentObject.createElement('a');
-  faqLink.href = '/faq';
-  faqLink.textContent = '常見問題';
-  const tail = documentObject.createTextNode('。');
-  note.append(lead, resultsLink, middle, faqLink, tail);
-}
+      const body = documentObject.createElement('p');
+      body.className = 'panel-message';
+      body.textContent = PUBLIC_HOME_SWIPE_ERROR_MESSAGE;
 
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageAccountFlowNote(documentObject) {
-  const note = documentObject.getElementById('home-account-flow-note');
-  if (!note || typeof note.replaceChildren !== 'function') {
-    return;
-  }
-  note.replaceChildren();
+      const actions = documentObject.createElement('div');
+      actions.className = 'home-swipe-error-actions';
 
-  const registrationLink = documentObject.createElement('a');
-  registrationLink.href = '/registration';
-  registrationLink.textContent = PUBLIC_CTA_REGISTER_LABEL;
+      const retry = documentObject.createElement('button');
+      retry.type = 'button';
+      retry.className = 'mvp-btn mvp-btn-secondary';
+      retry.textContent = PUBLIC_HOME_SWIPE_RETRY_LABEL;
+      retry.addEventListener?.('click', () => {
+        void loadPage({ reset: true });
+      });
 
-  const loginLink = documentObject.createElement('a');
-  loginLink.href = '/login';
-  loginLink.textContent = PUBLIC_CTA_SIGN_IN_LABEL;
+      const exploreLink = documentObject.createElement('a');
+      exploreLink.className = 'mvp-action-link';
+      exploreLink.href = '/explore';
+      exploreLink.textContent = PUBLIC_HOME_SWIPE_EXPLORE_FALLBACK_LABEL;
 
-  const createPollLink = documentObject.createElement('a');
-  createPollLink.href = PUBLIC_HOME_DEMO_CREATE_POLL_HREF;
-  createPollLink.textContent = PUBLIC_HOME_DEMO_CREATE_POLL_LINK_LABEL;
+      actions.append(retry, exploreLink);
+      errorPanel.append(body, actions);
+      setPanelVisible(errorPanel, true);
+    }
+    announce(PUBLIC_HOME_SWIPE_ERROR_MESSAGE);
+  };
 
-  const profileLink = documentObject.createElement('a');
-  profileLink.href = PUBLIC_HOME_PROFILE_HREF;
-  profileLink.textContent = '個人資料';
+  const showEmpty = () => {
+    if (emptyPanel) {
+      renderPublicEmptyStatePanel(documentObject, emptyPanel, {
+        message: PUBLIC_HOME_SWIPE_EMPTY_MESSAGE,
+        summary: PUBLIC_HOME_SWIPE_EMPTY_SUMMARY,
+        ctaHref: '/polls/new?live=1',
+        ctaLabel: PUBLIC_HOME_SWIPE_EMPTY_CTA_LABEL,
+      });
+      setPanelVisible(emptyPanel, true);
+    }
+    announce(PUBLIC_HOME_SWIPE_EMPTY_MESSAGE);
+  };
 
-  const profileVoteSuffix = PUBLIC_HOME_DEMO_PROFILE_VOTE_NOTE.replace(/^個人資料/, '');
+  const updateLoadMore = () => {
+    setPanelVisible(loadMoreButton, Boolean(nextCursor));
+    if (loadMoreButton) {
+      loadMoreButton.disabled = loading;
+      loadMoreButton.textContent = PUBLIC_HOME_SWIPE_LOAD_MORE_LABEL;
+    }
+  };
 
-  note.append(
-    documentObject.createTextNode(PUBLIC_HOME_ACCOUNT_FLOW_FORMAL_LEAD),
-    registrationLink,
-    documentObject.createTextNode(`（${PUBLIC_HOME_ACCOUNT_FLOW_REGISTRATION_NOTE}）· `),
-    loginLink,
-    documentObject.createTextNode(`（${PUBLIC_HOME_ACCOUNT_FLOW_LOGIN_NOTE}）。 `),
-    documentObject.createTextNode(PUBLIC_HOME_DEMO_FLOW_LEAD),
-    createPollLink,
-    documentObject.createTextNode(` ${PUBLIC_HOME_DEMO_CREATOR_SESSION_NOTE}`),
-    profileLink,
-    documentObject.createTextNode(profileVoteSuffix),
-  );
-}
+  const clearSkeleton = () => {
+    const skeleton = stage.querySelector?.('.home-swipe-card--skeleton');
+    skeleton?.remove?.();
+  };
 
-/**
- * @param {Document} documentObject
- */
-export function syncHomePageOnboardingCopy(documentObject) {
-  syncHomePageSectionHeadings(documentObject);
-  syncHomePageLeadParagraphs(documentObject);
-  syncHomePageSupportingNotes(documentObject);
-  syncHomePageMicrocopy(documentObject);
-  syncHomePageCtas(documentObject);
-  syncHomePageSamplePollsSectionNote(documentObject);
-  syncHomePageStaticExamplesFooterNote(documentObject);
-  syncHomePageAccountFlowNote(documentObject);
+  const appendPolls = (polls) => {
+    for (const poll of polls) {
+      stage.append(renderHomeSwipeCard(documentObject, poll));
+      cardCount += 1;
+    }
+  };
+
+  const loadPage = async ({ reset = false } = {}) => {
+    if (loading) {
+      return;
+    }
+    loading = true;
+    clearError();
+    if (reset) {
+      announce(PUBLIC_HOME_SWIPE_LOADING_MESSAGE);
+      stage.setAttribute('aria-busy', 'true');
+    }
+    updateLoadMore();
+
+    try {
+      const body = await fetchExploreFeedPage({
+        fetchImpl: windowObject.fetch.bind(windowObject),
+        origin: windowObject.location.origin,
+        cursor: reset ? null : nextCursor,
+      });
+      if (reset) {
+        clearSkeleton();
+      }
+      appendPolls(body.polls);
+      nextCursor = body.next_cursor;
+      if (cardCount === 0) {
+        showEmpty();
+      } else {
+        setPanelVisible(emptyPanel, false);
+        announce(PUBLIC_HOME_SWIPE_LIST_READY_MESSAGE);
+      }
+    } catch {
+      if (reset) {
+        clearSkeleton();
+      }
+      showError();
+    } finally {
+      loading = false;
+      stage.removeAttribute('aria-busy');
+      updateLoadMore();
+    }
+  };
+
+  loadMoreButton?.addEventListener?.('click', () => {
+    void loadPage({ reset: false });
+  });
+
+  void loadPage({ reset: true });
 }
 
 if (typeof document !== 'undefined') {
-  syncHomePageSectionHeadings(document);
-  syncHomePageLeadParagraphs(document);
-  syncHomePageSupportingNotes(document);
-  syncHomePageMicrocopy(document);
-  syncHomePageCtas(document);
-  syncHomePageSamplePollsSectionNote(document);
-  syncHomePageStaticExamplesFooterNote(document);
-  syncHomePageAccountFlowNote(document);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => mountHomeSwipeFeed(document));
+  } else {
+    mountHomeSwipeFeed(document);
+  }
 }

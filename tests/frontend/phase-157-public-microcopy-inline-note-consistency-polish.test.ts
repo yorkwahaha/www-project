@@ -64,53 +64,17 @@ describe('Phase 157 public microcopy / inline note consistency polish', () => {
     }
   });
 
-  it('keeps syncHomePageSupportingNotes and syncHomePageMicrocopy on shared constants', async () => {
-    const publicUi = await loadModule('public/frontend/public-mvp-ui.js');
+  it('drops homepage value/trust microcopy sync in favour of the Phase 301 swipe shell', async () => {
+    // This polish checkpoint described the pre-Phase-301 homepage value grid,
+    // trust row and collecting tooltip, which were synced at runtime. Phase 301
+    // removed those blocks from the home (their copy now lives on FAQ/results).
+    // The supporting-notes / microcopy sync helpers no longer exist; the home
+    // module exports the swipe-card renderer instead. The PUBLIC_* microcopy
+    // constants themselves remain available (asserted elsewhere).
     const home = await loadModule('public/frontend/public-mvp-home.js');
-
-    const valueBodies = [{ textContent: '' }, { textContent: '' }, { textContent: '' }];
-    const trustItems = [{ textContent: '' }, { textContent: '' }, { textContent: '' }];
-    const collectingTip = { textContent: '' };
-
-    home.syncHomePageSupportingNotes({
-      querySelectorAll(selector: string) {
-        if (selector === '.mvp-value-grid .mvp-value-card p') {
-          return valueBodies;
-        }
-        if (selector === '.mvp-trust-row li') {
-          return trustItems;
-        }
-        return [];
-      },
-      querySelector(selector: string) {
-        if (selector === '.mvp-help-tip') {
-          return collectingTip;
-        }
-        return null;
-      },
-    });
-    expect(valueBodies[0].textContent).toBe(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
-    expect(valueBodies[1].textContent).toBe(publicUi.PUBLIC_HOME_VALUE_LOCK_PERIOD_BODY);
-    expect(valueBodies[2].textContent).toBe(publicUi.PUBLIC_HOME_VALUE_QUALITY_FEEDBACK_BODY);
-
-    home.syncHomePageMicrocopy({
-      querySelectorAll(selector: string) {
-        if (selector === '.mvp-trust-row li') {
-          return trustItems;
-        }
-        return [];
-      },
-      querySelector(selector: string) {
-        if (selector === '.mvp-help-tip') {
-          return collectingTip;
-        }
-        return null;
-      },
-    });
-    expect(trustItems[0].textContent).toBe(publicUi.PUBLIC_HOME_TRUST_COLLECTING_HIDDEN_ITEM);
-    expect(trustItems[1].textContent).toBe(publicUi.PUBLIC_HOME_TRUST_DEADLINE_REVEAL_ITEM);
-    expect(trustItems[2].textContent).toBe(publicUi.PUBLIC_HOME_TRUST_LOCK_PERIOD_ITEM);
-    expect(collectingTip.textContent).toBe(publicUi.PUBLIC_HOME_COLLECTING_CARD_TOOLTIP);
+    expect(home.syncHomePageSupportingNotes).toBeUndefined();
+    expect(home.syncHomePageMicrocopy).toBeUndefined();
+    expect(typeof home.renderHomeSwipeCard).toBe('function');
   });
 
   it('keeps syncExplorePageMicrocopy on shared load-more label', async () => {
@@ -187,12 +151,9 @@ describe('Phase 157 public microcopy / inline note consistency polish', () => {
     );
     expect(publicUi.PUBLIC_EXPLORE_LOAD_MORE_LABEL).toBeTruthy();
 
-    const collectingBody = { textContent: '' };
-    home.syncHomePageSupportingNotes({
-      querySelector: () => null,
-      querySelectorAll: () => [collectingBody],
-    });
-    expect(collectingBody.textContent).toBe(publicUi.PUBLIC_HOME_VALUE_COLLECTING_HIDDEN_BODY);
+    // Phase 301: the home no longer renders these supporting notes (the runtime
+    // sync helper was removed); the shared PUBLIC_* constants above are retained.
+    expect(home.syncHomePageSupportingNotes).toBeUndefined();
   });
 
   it('keeps registration boundary off auto-login, Set-Cookie, and GET /users/me', async () => {

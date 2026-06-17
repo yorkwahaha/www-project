@@ -68,10 +68,22 @@ describe('Phase 253 public page reduced motion CSS-only polish', () => {
   it('does not add new base-level keyframes, animation, or scroll-behavior motion', async () => {
     const css = await readFile(join(process.cwd(), PUBLIC_MVP_CSS), 'utf8');
     const baseCss = cssBeforePhase253(css);
+    // Phase 301 added the home swipe shell, whose only motion is a calm
+    // loading-skeleton shimmer (@keyframes home-swipe-shimmer) that is disabled
+    // under prefers-reduced-motion. Exclude that home-only block from the
+    // base-level motion-inventory baseline.
+    const phase301Start = baseCss.indexOf('Phase 301 — home swipe card visual shell');
+    const baseBeforePhase301 =
+      phase301Start === -1 ? baseCss : baseCss.slice(0, phase301Start);
 
-    expect(baseCss).not.toContain('@keyframes');
-    expect(baseCss).not.toMatch(/\banimation\s*:/);
-    expect(baseCss).not.toContain('scroll-behavior');
+    expect(baseBeforePhase301).not.toContain('@keyframes');
+    expect(baseBeforePhase301).not.toMatch(/\banimation\s*:/);
+    expect(baseBeforePhase301).not.toContain('scroll-behavior');
+
+    // The Phase 301 skeleton shimmer must stay reduced-motion-guarded.
+    expect(baseCss).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*home-swipe-skeleton[\s\S]*animation:\s*none/,
+    );
   });
 
   it('keeps existing motion sources and Phase 161 reduced-motion baseline', async () => {

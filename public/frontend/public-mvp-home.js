@@ -1,12 +1,14 @@
 /**
- * Phase 301 / 303 — home swipe card visual shell + mixed feed.
+ * Phase 301 / 303 / 305 — home swipe card visual shell + mixed feed.
  *
  * Renders the public homepage `/` as an ultra-minimal, vertically swipeable
  * feed. Phase 303 switches the data source to the mixed `GET /home/feed`
  * (collecting + revealed items) via home-feed.js, keeping the Phase 301 visual
- * shell. Collecting cards stay question-only (never any aggregate); revealed
- * cards show only the display-safe bucketed result summary the public results
- * page already exposes. `/polls/feed` and the explore client are untouched.
+ * shell. Phase 305 adds conservative IntersectionObserver auto paging when the
+ * last card enters the stage viewport; the manual load-more button remains.
+ * Collecting cards stay question-only (never any aggregate); revealed cards
+ * show only the display-safe bucketed result summary the public results page
+ * already exposes. `/polls/feed` and the explore client are untouched.
  */
 import { formatExploreCategory } from './explore-page.js';
 import {
@@ -48,6 +50,9 @@ export const HOME_SWIPE_ERROR_MESSAGE = PUBLIC_HOME_SWIPE_ERROR_MESSAGE;
 export const isHomeSwipeFeedItemSafe = isHomeCollectingFeedItemSafe;
 
 export const HOME_SWIPE_ADJACENT_SCROLL_BLOCK = 'center';
+
+/** Conservative threshold: last card must be mostly visible inside the stage. */
+export const HOME_SWIPE_AUTO_LOAD_INTERSECTION_THRESHOLD = 0.55;
 
 const HOME_SWIPE_POINTER_CLICK_THRESHOLD_PX = 8;
 
@@ -139,6 +144,59 @@ export function handleHomeSwipeStageKeydown(event, stage, windowObject = globalT
     event.preventDefault();
   }
   return scrolled;
+}
+
+/**
+ * @param {{ nextCursor?: unknown, loading?: boolean, cardCount?: number }} state
+ * @returns {boolean}
+ */
+export function shouldHomeAutoLoadMore({
+  nextCursor = null,
+  loading = false,
+  cardCount = 0,
+} = {}) {
+  return Boolean(nextCursor) && !loading && cardCount > 0;
+}
+
+/**
+ * @param {Element | null | undefined} stage
+ * @returns {Element | null}
+ */
+export function getHomeAutoLoadObserveTarget(stage) {
+  const cards = getHomeSwipeCards(stage);
+  return cards.length > 0 ? cards[cards.length - 1] ?? null : null;
+}
+
+/**
+ * @param {Element} stage
+ * @param {() => void} onIntersect
+ * @param {Window} [windowObject]
+ * @returns {IntersectionObserver | null}
+ */
+export function createHomeAutoLoadIntersectionObserver(
+  stage,
+  onIntersect,
+  windowObject = globalThis,
+) {
+  const IntersectionObserverCtor = windowObject.IntersectionObserver;
+  if (!IntersectionObserverCtor || typeof onIntersect !== 'function') {
+    return null;
+  }
+  return new IntersectionObserverCtor(
+    (entries) => {
+      const hit = entries.some(
+        (entry) => entry.isIntersecting && entry.intersectionRatio >= HOME_SWIPE_AUTO_LOAD_INTERSECTION_THRESHOLD,
+      );
+      if (hit) {
+        onIntersect();
+      }
+    },
+    {
+      root: stage,
+      rootMargin: '0px',
+      threshold: [0, HOME_SWIPE_AUTO_LOAD_INTERSECTION_THRESHOLD, 1],
+    },
+  );
 }
 
 /**
@@ -367,6 +425,38 @@ export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
   let nextCursor = null;
   let loading = false;
   let cardCount = 0;
+  let autoLoadObserver = null;
+
+  const disconnectAutoLoadObserver = () => {
+    autoLoadObserver?.disconnect?.();
+    autoLoadObserver = null;
+  };
+
+  const syncAutoLoadObserver = () => {
+    disconnectAutoLoadObserver();
+    if (!shouldHomeAutoLoadMore({ nextCursor, loading, cardCount })) {
+      return;
+    }
+    const target = getHomeAutoLoadObserveTarget(stage);
+    if (!target) {
+      return;
+    }
+    const observer = createHomeAutoLoadIntersectionObserver(
+      stage,
+      () => {
+        if (!shouldHomeAutoLoadMore({ nextCursor, loading, cardCount })) {
+          return;
+        }
+        void loadPage({ reset: false });
+      },
+      windowObject,
+    );
+    if (!observer) {
+      return;
+    }
+    observer.observe(target);
+    autoLoadObserver = observer;
+  };
 
   const announce = (message) => {
     statusRegion.textContent = message;
@@ -451,6 +541,7 @@ export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
       return;
     }
     loading = true;
+    disconnectAutoLoadObserver();
     clearError();
     if (reset) {
       announce(PUBLIC_HOME_SWIPE_LOADING_MESSAGE);
@@ -484,6 +575,7 @@ export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
       loading = false;
       stage.removeAttribute('aria-busy');
       updateLoadMore();
+      syncAutoLoadObserver();
     }
   };
 

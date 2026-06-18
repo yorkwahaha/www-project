@@ -31,8 +31,9 @@
         id="home-swipe-stage"
         class="home-swipe-stage"
         aria-label="問卷卡片"
-        aria-roledescription="可向下滑動瀏覽的問卷卡片列表"
+        aria-roledescription="可向下滑動瀏覽的問卷卡片列表；方向鍵或 Page Up／Page Down 可切換卡片"
         aria-busy="true"
+        tabindex="0"
       >
         <article class="home-swipe-card home-swipe-card--skeleton" aria-hidden="true">
           <span class="home-swipe-skeleton-badge"></span>
@@ -51,11 +52,15 @@
         載入更多
       </button>
 
-      <div id="home-swipe-empty" class="home-swipe-panel mvp-empty-state" hidden></div>
+      <div
+        id="home-swipe-empty"
+        class="home-swipe-panel home-swipe-card home-swipe-card--panel home-swipe-card--empty mvp-empty-state"
+        hidden
+      ></div>
 
       <div
         id="home-swipe-error"
-        class="home-swipe-panel mvp-error-panel"
+        class="home-swipe-panel home-swipe-card home-swipe-card--panel home-swipe-card--error mvp-error-panel mvp-keyboard-focus-error-panel"
         role="alert"
         hidden
       ></div>

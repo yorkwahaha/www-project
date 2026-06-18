@@ -32,6 +32,7 @@ import {
   PUBLIC_HOME_SWIPE_NEXT_HINT,
   PUBLIC_HOME_SWIPE_RETRY_LABEL,
   PUBLIC_HOME_SWIPE_REVEALED_CTA,
+  PUBLIC_HOME_SWIPE_REVEALED_HINT,
 } from './public-mvp-ui.js';
 
 export const HOME_SWIPE_CARD_CLASS = 'home-swipe-card';
@@ -45,6 +46,100 @@ export const HOME_SWIPE_ERROR_MESSAGE = PUBLIC_HOME_SWIPE_ERROR_MESSAGE;
 
 /** Backwards-compatible alias: the collecting-card guard. */
 export const isHomeSwipeFeedItemSafe = isHomeCollectingFeedItemSafe;
+
+export const HOME_SWIPE_ADJACENT_SCROLL_BLOCK = 'center';
+
+const HOME_SWIPE_POINTER_CLICK_THRESHOLD_PX = 8;
+
+/**
+ * @param {Element | null | undefined} stage
+ * @returns {Element[]}
+ */
+export function getHomeSwipeCards(stage) {
+  if (!stage || typeof stage.querySelectorAll !== 'function') {
+    return [];
+  }
+  return [...stage.querySelectorAll('.home-swipe-card:not(.home-swipe-card--skeleton)')];
+}
+
+/**
+ * @param {Element} stage
+ * @returns {number}
+ */
+export function resolveFocusedHomeSwipeCardIndex(stage) {
+  const cards = getHomeSwipeCards(stage);
+  if (!cards.length || typeof stage.getBoundingClientRect !== 'function') {
+    return -1;
+  }
+  const stageRect = stage.getBoundingClientRect();
+  const stageCenter = stageRect.top + stageRect.height / 2;
+  let currentIndex = 0;
+  let minDistance = Number.POSITIVE_INFINITY;
+  cards.forEach((card, index) => {
+    if (typeof card.getBoundingClientRect !== 'function') {
+      return;
+    }
+    const cardRect = card.getBoundingClientRect();
+    const cardCenter = cardRect.top + cardRect.height / 2;
+    const distance = Math.abs(cardCenter - stageCenter);
+    if (distance < minDistance) {
+      minDistance = distance;
+      currentIndex = index;
+    }
+  });
+  return currentIndex;
+}
+
+/**
+ * @param {Element} stage
+ * @param {'next' | 'prev'} direction
+ * @param {{ behavior?: ScrollBehavior }} [options]
+ * @returns {boolean}
+ */
+export function scrollAdjacentHomeSwipeCard(
+  stage,
+  direction,
+  { behavior = 'smooth' } = {},
+) {
+  const cards = getHomeSwipeCards(stage);
+  const currentIndex = resolveFocusedHomeSwipeCardIndex(stage);
+  if (currentIndex < 0) {
+    return false;
+  }
+  const nextIndex =
+    direction === 'next'
+      ? Math.min(currentIndex + 1, cards.length - 1)
+      : Math.max(currentIndex - 1, 0);
+  if (nextIndex === currentIndex) {
+    return false;
+  }
+  const target = cards[nextIndex];
+  target?.scrollIntoView?.({ behavior, block: HOME_SWIPE_ADJACENT_SCROLL_BLOCK });
+  return true;
+}
+
+/**
+ * @param {KeyboardEvent} event
+ * @param {Element} stage
+ * @param {Window} [windowObject]
+ * @returns {boolean}
+ */
+export function handleHomeSwipeStageKeydown(event, stage, windowObject = globalThis) {
+  const isNext = event.key === 'ArrowDown' || event.key === 'PageDown';
+  const isPrev = event.key === 'ArrowUp' || event.key === 'PageUp';
+  if (!isNext && !isPrev) {
+    return false;
+  }
+  const reducedMotion = windowObject.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  const behavior = reducedMotion ? 'auto' : 'smooth';
+  const scrolled = scrollAdjacentHomeSwipeCard(stage, isNext ? 'next' : 'prev', {
+    behavior,
+  });
+  if (scrolled) {
+    event.preventDefault();
+  }
+  return scrolled;
+}
 
 /**
  * Attach safe whole-card navigation. The inner CTA link stays the real
@@ -60,10 +155,28 @@ function attachWholeCardNavigation(documentObject, article, href) {
   if (typeof article.addEventListener !== 'function') {
     return;
   }
+  let pointerStart = null;
+  article.addEventListener('pointerdown', (event) => {
+    pointerStart = { x: event.clientX, y: event.clientY };
+  });
+  article.addEventListener('pointercancel', () => {
+    pointerStart = null;
+  });
   article.addEventListener('click', (event) => {
     const target = /** @type {Element | null} */ (event.target);
     if (target && typeof target.closest === 'function' && target.closest('a, button')) {
       return;
+    }
+    if (pointerStart) {
+      const deltaX = Math.abs(event.clientX - pointerStart.x);
+      const deltaY = Math.abs(event.clientY - pointerStart.y);
+      pointerStart = null;
+      if (
+        deltaX > HOME_SWIPE_POINTER_CLICK_THRESHOLD_PX ||
+        deltaY > HOME_SWIPE_POINTER_CLICK_THRESHOLD_PX
+      ) {
+        return;
+      }
     }
     const win = documentObject.defaultView ?? globalThis;
     win.location.assign(href);
@@ -168,6 +281,10 @@ export function renderHomeRevealedCard(documentObject, item) {
   title.className = 'home-swipe-card-title';
   title.textContent = item.title;
 
+  const hint = documentObject.createElement('p');
+  hint.className = 'home-swipe-card-hint';
+  hint.textContent = PUBLIC_HOME_SWIPE_REVEALED_HINT;
+
   const summary = documentObject.createElement('div');
   summary.className = 'home-swipe-card-result';
   const lead = item.result_summary.leading_option;
@@ -201,7 +318,7 @@ export function renderHomeRevealedCard(documentObject, item) {
   nextHint.textContent = PUBLIC_HOME_SWIPE_NEXT_HINT;
 
   actions.append(resultLink, nextHint);
-  article.append(top, title, summary, actions);
+  article.append(top, title, hint, summary, actions);
 
   attachWholeCardNavigation(documentObject, article, item.result_page_url);
   return article;
@@ -373,6 +490,13 @@ export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
   loadMoreButton?.addEventListener?.('click', () => {
     void loadPage({ reset: false });
   });
+
+  if (typeof stage.addEventListener === 'function') {
+    stage.tabIndex = 0;
+    stage.addEventListener('keydown', (event) => {
+      handleHomeSwipeStageKeydown(event, stage, windowObject);
+    });
+  }
 
   void loadPage({ reset: true });
 }

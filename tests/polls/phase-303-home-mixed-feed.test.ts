@@ -161,12 +161,16 @@ describe('Phase 303 public home mixed feed (service)', () => {
       expect(item.result_summary.leading_option?.display_label).toBe('Option A');
       expect(item.result_summary.leading_option?.display_percentage).toMatch(/^約 /);
     }
-    // Raw counts (40 / 20) must never leak; only bucketed display strings appear
-    // (e.g. '30–99', '約 60–70%'), which never contain the raw per-option counts.
-    const serialized = JSON.stringify(item);
-    expect(serialized).not.toContain('40');
-    expect(serialized).not.toContain('20');
-    expect(serialized).not.toMatch(/option_id|option_index|vote_count/);
+    // Raw counts (40 / 20) must never leak; the result_summary carries only
+    // bucketed display strings (e.g. '30–99', '約 60–70%'), which never contain
+    // the raw per-option counts. (Serialize the summary only — the item's random
+    // poll_id UUID can coincidentally contain those digits.)
+    const summarySerialized = JSON.stringify(
+      item?.state === 'revealed' ? item.result_summary : null,
+    );
+    expect(summarySerialized).not.toContain('40');
+    expect(summarySerialized).not.toContain('20');
+    expect(JSON.stringify(item)).not.toMatch(/option_id|option_index|vote_count/);
   });
 
   it('never exposes option linkage or identity fields in either state', async () => {

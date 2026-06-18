@@ -242,7 +242,7 @@ describe('Phase 264 public help FAQ copy milestone checkpoint', () => {
     // moved to the login/registration pages. The home stays free of stale
     // engineer/misleading copy (checked via the P0/P1 loop above).
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
-    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).toContain('data-home-swipe-feed="mixed"');
     expect(indexHtml).not.toContain('id="home-account-flow-note"');
   });
 

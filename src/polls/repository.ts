@@ -60,6 +60,7 @@ export type PollRepository = {
     pollIds: string[],
   ): Promise<QualityFeedbackAggregateRow[]>;
   listPublicFeedPolls(params: ListPublicFeedPollsParams): Promise<PublicFeedPollRow[]>;
+  listPublicHomeFeedPolls(params: ListPublicFeedPollsParams): Promise<PollRow[]>;
   listCreatorOwnedPolls(creatorId: string, limit: number): Promise<CreatorOwnedPollRow[]>;
   listPublicLifecycleSchedulerCandidateIds(limit: number): Promise<string[]>;
   optionBelongsToPoll(pollId: string, optionId: string): Promise<boolean>;
@@ -109,6 +110,7 @@ export function createPgPollRepository(pool: Pool): PollRepository {
     listQualityFeedbackAggregatesByPollIds: (pollIds) =>
       listQualityFeedbackAggregatesByPollIds(pool, pollIds),
     listPublicFeedPolls: (params) => listPublicFeedPolls(pool, params),
+    listPublicHomeFeedPolls: (params) => listPublicHomeFeedPolls(pool, params),
     listCreatorOwnedPolls: (creatorId, limit) => listCreatorOwnedPolls(pool, creatorId, limit),
     listPublicLifecycleSchedulerCandidateIds: (limit) =>
       listPublicLifecycleSchedulerCandidateIds(pool, limit),
@@ -605,6 +607,53 @@ async function listPublicFeedPolls(
   values.push(params.limit + 1);
   const result = await pool.query<PublicFeedPollRow>(
     `SELECT id, title, category, status, published_at
+     FROM polls
+     WHERE ${conditions.join(' AND ')}
+     ORDER BY published_at DESC, id ASC
+     LIMIT $${values.length}`,
+    values,
+  );
+  return result.rows;
+}
+
+/**
+ * Phase 303 — coarse page of polls eligible for the public home mixed feed:
+ * collecting-feed-eligible polls OR publicly aggregate-readable (revealed /
+ * locked / post_lock) polls, freshness-ordered with the same keyset cursor.
+ * The service re-checks each visibility gate per poll before emitting an item.
+ * Reuses the same column set as findPollById so the service can run the gates.
+ */
+async function listPublicHomeFeedPolls(
+  pool: Pool,
+  params: ListPublicFeedPollsParams,
+): Promise<PollRow[]> {
+  const feedOpenAt = new Date();
+  const conditions = [
+    'published_at IS NOT NULL',
+    `(
+      (status = 'active' AND public_lifecycle_state = 'collecting'
+        AND archived_at IS NULL AND closes_at > $1)
+      OR
+      (status IN ('active', 'closed')
+        AND public_lifecycle_state IN ('revealed', 'locked', 'post_lock'))
+    )`,
+  ];
+  const values: unknown[] = [feedOpenAt];
+
+  if (params.cursor) {
+    values.push(params.cursor.publishedAt, params.cursor.pollId);
+    conditions.push(
+      `(published_at < $${values.length - 1} OR (published_at = $${values.length - 1} AND id > $${values.length}))`,
+    );
+  }
+
+  values.push(params.limit + 1);
+  const result = await pool.query<PollRow>(
+    `SELECT
+       id, creator_id, title, description, category, status,
+       public_lifecycle_state, eligible_rule_id, published_at, archived_at, closes_at,
+       revealed_at, public_lock_ends_at, cancelled_at, unpublished_at, deleted_at,
+       created_at, updated_at
      FROM polls
      WHERE ${conditions.join(' AND ')}
      ORDER BY published_at DESC, id ASC

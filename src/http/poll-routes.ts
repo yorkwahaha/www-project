@@ -96,6 +96,19 @@ export function createPollRouteHandlers(
       }
     },
 
+    async handleGetHomeFeed(
+      _req: IncomingMessage,
+      res: ServerResponse,
+      query: PublicFeedQuery = {},
+    ): Promise<void> {
+      try {
+        const feed = await pollService.getHomeFeed(query);
+        sendJson(res, 200, feed);
+      } catch (err) {
+        handlePollRouteError(res, err);
+      }
+    },
+
     async handleGetPollResults(
       _req: IncomingMessage,
       res: ServerResponse,

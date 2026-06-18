@@ -170,7 +170,7 @@ describe('explore page feed helpers', () => {
     // tests/frontend/phase-301-home-swipe-card-visual-shell.test.ts.
     const html = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
     expect(html).toContain('href="/explore"');
-    expect(html).toContain('data-home-swipe-feed="collecting-only"');
+    expect(html).toContain('data-home-swipe-feed="mixed"');
     expect(html).not.toContain('data-static-examples');
     expect(html).not.toContain('靜態範例');
     expect(html).not.toMatch(/完整探索列表將在正式上線後開放/);

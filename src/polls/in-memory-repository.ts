@@ -31,6 +31,7 @@ import {
   isParticipationAllowed,
   isPublicFeedEligible,
   isPublicHiddenPoll,
+  isPublicHomeFeedEligible,
   participationRejectionMessage,
 } from './public-visibility.js';
 import { isOfficialVoteUser } from './trust.js';
@@ -247,6 +248,19 @@ export function createInMemoryPollRepository(): PollRepository & {
           status: 'active' as const,
           published_at: poll.published_at!,
         }));
+    },
+
+    async listPublicHomeFeedPolls(params: ListPublicFeedPollsParams) {
+      return [...polls.values()]
+        .filter((poll) => isPublicHomeFeedEligible(poll))
+        .filter((poll) => (
+          !params.cursor || isPublicFeedRowAfterCursor(poll, params.cursor)
+        ))
+        .sort((a, b) => (
+          b.published_at!.getTime() - a.published_at!.getTime() ||
+          a.id.localeCompare(b.id)
+        ))
+        .slice(0, params.limit + 1);
     },
 
     async listCreatorOwnedPolls(creatorId, limit) {

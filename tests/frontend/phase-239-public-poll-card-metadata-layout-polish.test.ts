@@ -147,7 +147,7 @@ describe('Phase 239 public poll card metadata layout polish', () => {
     // classes). The shared status-row layout primitive remains in CSS for the
     // explore feed, which is covered by the explore-card tests above.
     expect(indexHtml).not.toContain('mvp-poll-card-status-row');
-    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).toContain('data-home-swipe-feed="mixed"');
     expect(css).toContain('.mvp-poll-card-status-row');
   });
 

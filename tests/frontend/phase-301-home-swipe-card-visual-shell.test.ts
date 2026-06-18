@@ -21,14 +21,16 @@ async function readHomeSource() {
   );
 }
 
+// Phase 303: the home consumes the mixed /home/feed; a collecting item is the
+// current shape rendered by renderHomeSwipeCard.
 const safePoll = {
+  state: 'collecting' as const,
   poll_id: '11111111-1111-4111-8111-111111111111',
   title: '週末你更想宅在家還是出門？',
   category: 'life',
-  status: 'active' as const,
+  lifecycle_label: '收集中' as const,
   published_display: '最近發布' as const,
-  result_page_url: '/results/11111111-1111-4111-8111-111111111111',
-  quality_badge: null as const,
+  vote_page_url: '/vote/11111111-1111-4111-8111-111111111111',
 };
 
 function createDocumentStub() {
@@ -61,7 +63,7 @@ describe('Phase 301 home swipe card visual shell', () => {
     // Brand + minimal shell wiring.
     expect(html).toContain('What We Wonder');
     expect(html).toContain('id="main-content"');
-    expect(html).toContain('data-home-swipe-feed="collecting-only"');
+    expect(html).toContain('data-home-swipe-feed="mixed"');
     expect(html).toContain('data-auth-banner="off"');
     expect(html).toContain('id="home-swipe-stage"');
     expect(html).toContain('home-swipe-card--skeleton');
@@ -110,12 +112,12 @@ describe('Phase 301 home swipe card visual shell', () => {
     );
   });
 
-  it('rejects any feed item that carries an aggregate or extra field', async () => {
+  it('rejects any collecting item that carries an aggregate or extra field', async () => {
     const { isHomeSwipeFeedItemSafe, renderHomeSwipeCard } = await loadHomeModule();
     expect(isHomeSwipeFeedItemSafe(safePoll)).toBe(true);
     expect(isHomeSwipeFeedItemSafe({ ...safePoll, vote_count: 5 })).toBe(false);
-    expect(isHomeSwipeFeedItemSafe({ ...safePoll, percentage: 42 })).toBe(false);
-    expect(isHomeSwipeFeedItemSafe({ ...safePoll, status: 'revealed' })).toBe(false);
+    expect(isHomeSwipeFeedItemSafe({ ...safePoll, result_summary: {} })).toBe(false);
+    expect(isHomeSwipeFeedItemSafe({ ...safePoll, state: 'revealed' })).toBe(false);
 
     const documentObject = createDocumentStub();
     expect(() =>
@@ -123,19 +125,16 @@ describe('Phase 301 home swipe card visual shell', () => {
     ).toThrow();
   });
 
-  it('reuses the existing freshness-only /polls/feed without search or category params', async () => {
+  it('consumes /home/feed via home-feed.js without search or category params', async () => {
     const source = await readHomeSource();
 
-    // Reuses the shared, validated feed data layer.
-    expect(source).toContain("from './explore-page.js'");
-    expect(source).toContain('fetchExploreFeedPage');
+    // Phase 303: the home now consumes the mixed /home/feed (home-feed.js).
+    expect(source).toContain("from './home-feed.js'");
+    expect(source).toContain('fetchHomeFeedPage');
 
-    // No new endpoint, no search box, no category filter params.
-    expect(source).not.toMatch(/['"]q['"]|searchParams\.set\(\s*['"]q['"]/);
+    // No search box, no category filter params, no search endpoint.
+    expect(source).not.toMatch(/searchParams\.set\(\s*['"]q['"]/);
     expect(source).not.toMatch(/category=|set\(\s*['"]category['"]/);
     expect(source).not.toContain('/polls/search');
-
-    // No revealed-result / aggregate rendering in this phase.
-    expect(source).not.toMatch(/百分比|vote_count|option_id|result_preview/i);
   });
 });

@@ -170,7 +170,7 @@ try {
     // card feed that reuses /polls/feed; it no longer carries static sample
     // cards or the long-form account copy (those moved to FAQ/login/registration).
     const isSwipeShell =
-      body.includes('data-home-swipe-feed="collecting-only"') &&
+      body.includes('data-home-swipe-feed="mixed"') &&
       body.includes('id="home-swipe-stage"') &&
       !body.includes('data-static-examples') &&
       !body.includes('完整探索列表將在正式上線後開放');
@@ -350,7 +350,36 @@ try {
     if (/option_id|vote_count|published_at|closes_at|rank|hot|trend|personalization/i.test(serialized)) {
       throw new Error('Feed JSON exposed forbidden fields');
     }
+    if (/\bstate\b|result_summary/i.test(serialized)) {
+      throw new Error('Explore /polls/feed must stay collecting-only (no mixed-feed fields)');
+    }
     pass('GET /polls/feed returns privacy-safe freshness-only payload');
+  }
+
+  {
+    // Phase 303: public home mixed feed — discriminated union, public/no-login.
+    const homeFeed = await requestJson(baseUrl, '/home/feed?limit=5');
+    expectStatus('GET /home/feed', homeFeed.response, 200);
+    const serialized = JSON.stringify(homeFeed.body);
+    if (!Array.isArray(homeFeed.body.items)) {
+      throw new Error('Home feed response missing items array');
+    }
+    for (const item of homeFeed.body.items) {
+      if (item.state !== 'collecting' && item.state !== 'revealed') {
+        throw new Error('Home feed item has an unknown state');
+      }
+      if (item.state === 'collecting' && 'result_summary' in item) {
+        throw new Error('Collecting home feed item leaked a result_summary');
+      }
+    }
+    if (
+      /option_id|option_index|vote_count|published_at|closes_at|shard|vote_token|user_id|session|request_id|device|trace/i.test(
+        serialized,
+      )
+    ) {
+      throw new Error('Home feed JSON exposed forbidden option-linkage or identity fields');
+    }
+    pass('GET /home/feed returns a privacy-safe discriminated-union payload');
   }
 
   {

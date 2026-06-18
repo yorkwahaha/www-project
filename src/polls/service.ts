@@ -26,6 +26,9 @@ import type {
   PollResultDisplay,
   PublicFeedQuery,
   PublicFeedResult,
+  HomeFeedItem,
+  HomeFeedResult,
+  HomeFeedResultSummary,
   RevealPollResult,
   OfficialVoteResult,
   ReferenceAnswerResult,
@@ -44,6 +47,7 @@ import {
   isParticipationAllowed,
   isPublicAggregateResultsReadable,
   isPublicDirectReadable,
+  isPublicFeedEligible,
   isPublicHiddenPoll,
   isPublicResultsReadable,
   participationRejectionMessage,
@@ -58,6 +62,7 @@ export type PollService = {
   getPollById(pollId: string): Promise<PollDetail>;
   getPollResults(pollId: string): Promise<PollResultDisplay>;
   getPublicFeed(query?: PublicFeedQuery): Promise<PublicFeedResult>;
+  getHomeFeed(query?: PublicFeedQuery): Promise<HomeFeedResult>;
   getCurrentUserIdentity(userId: string): Promise<CurrentUserIdentity>;
   getUserProfile(userId: string): Promise<UserProfile>;
   updateUserProfile(userId: string, input: UpdateUserProfileInput): Promise<UserProfile>;
@@ -167,6 +172,68 @@ export function createPollService(
         })),
         next_cursor:
           hasMore && lastRow
+            ? encodeFeedCursor(lastRow.published_at, lastRow.id)
+            : null,
+      };
+    },
+
+    async getHomeFeed(query = {}) {
+      const limit = parseFeedLimit(query.limit);
+      const cursor =
+        query.cursor === undefined ? undefined : decodeFeedCursor(query.cursor);
+      const now = new Date();
+      const rows = await repository.listPublicHomeFeedPolls({ limit, cursor });
+      const hasMore = rows.length > limit;
+      const pageRows = hasMore ? rows.slice(0, limit) : rows;
+      const lastRow = pageRows.at(-1);
+      const pollIds = pageRows.map((poll) => poll.id);
+      const aggregates =
+        await repository.listQualityFeedbackAggregatesByPollIds(pollIds);
+      const aggregatesByPollId = groupQualityFeedbackAggregatesByPollId(aggregates);
+
+      const items: HomeFeedItem[] = [];
+      for (const poll of pageRows) {
+        // Revealed branch: gated by the SAME rule the public results page uses.
+        if (isPublicAggregateResultsReadable(poll)) {
+          const options = await repository.listVoteAggregatesByPollId(poll.id);
+          const resultSummary = toHomeRevealedResultSummary(options);
+          // Omit revealed polls whose display-safe tier has no presentable
+          // bucket yet (total < 30 → '收集中' tier). They stay reachable on
+          // their results page; the home shows no misleading "result". (FU-303-01)
+          if (resultSummary) {
+            items.push({
+              state: 'revealed',
+              poll_id: poll.id,
+              title: poll.title,
+              category: poll.category,
+              lifecycle_label: revealedLifecycleLabel(poll.public_lifecycle_state),
+              published_display: '最近發布',
+              result_page_url: `/results/${poll.id}`,
+              result_summary: resultSummary,
+              quality_badge: deriveQualityBadge(aggregatesByPollId.get(poll.id) ?? []),
+            });
+          }
+          continue;
+        }
+        // Collecting branch: question-only card, no aggregate fields at all.
+        if (isPublicFeedEligible(poll, now)) {
+          items.push({
+            state: 'collecting',
+            poll_id: poll.id,
+            title: poll.title,
+            category: poll.category,
+            lifecycle_label: '收集中',
+            published_display: '最近發布',
+            vote_page_url: `/vote/${poll.id}`,
+          });
+        }
+        // Any other poll is dropped (fail closed).
+      }
+
+      return {
+        items,
+        next_cursor:
+          hasMore && lastRow && lastRow.published_at
             ? encodeFeedCursor(lastRow.published_at, lastRow.id)
             : null,
       };
@@ -505,6 +572,72 @@ function toPollResultDisplay(
     updated_display: '最近更新',
     quality_badge: qualityBadge,
   };
+}
+
+/**
+ * Phase 303 — build the display-safe home revealed result summary from the
+ * SAME bucketed model the public results page uses. Returns `null` when the
+ * tier is not yet presentable (total < 30), so the home omits the item rather
+ * than showing a misleading result. Never exposes raw counts or option linkage.
+ */
+function toHomeRevealedResultSummary(
+  options: PollOptionVoteAggregateRow[],
+): HomeFeedResultSummary | null {
+  const counts = options.map((option) => BigInt(option.vote_count));
+  const total = counts.reduce((sum, count) => sum + count, 0n);
+  const tier = getResultTier(total);
+  let displayMode: HomeFeedResultSummary['display_mode'];
+  let totalVotesDisplay: HomeFeedResultSummary['total_votes_display'];
+  if (tier.displayMode === 'bucketed_percentage') {
+    displayMode = 'bucketed_percentage';
+    totalVotesDisplay = '30–99';
+  } else if (tier.displayMode === 'rounded_with_bucketed_votes') {
+    displayMode = 'rounded_with_bucketed_votes';
+    totalVotesDisplay = '100–499';
+  } else if (tier.displayMode === 'precise') {
+    displayMode = 'precise';
+    totalVotesDisplay = '500+';
+  } else {
+    return null;
+  }
+
+  let leadingIndex = -1;
+  let leadingCount = -1n;
+  counts.forEach((count, index) => {
+    if (count > leadingCount) {
+      leadingCount = count;
+      leadingIndex = index;
+    }
+  });
+
+  let leadingOption: HomeFeedResultSummary['leading_option'] = null;
+  if (leadingIndex >= 0) {
+    const displayPercentage = formatPercentage(counts[leadingIndex]!, total);
+    if (displayPercentage !== null) {
+      leadingOption = {
+        display_label: options[leadingIndex]!.option_text,
+        display_percentage: displayPercentage,
+      };
+    }
+  }
+
+  return {
+    display_mode: displayMode,
+    total_votes_display: totalVotesDisplay,
+    leading_option: leadingOption,
+  };
+}
+
+function revealedLifecycleLabel(
+  lifecycleState: PollRow['public_lifecycle_state'],
+): '已公開' | '公開鎖定期' | '鎖定期已結束' {
+  if (lifecycleState === 'locked') {
+    return '公開鎖定期';
+  }
+  if (lifecycleState === 'post_lock') {
+    return '鎖定期已結束';
+  }
+  return '已公開';
 }
 
 function toPollResultShell(

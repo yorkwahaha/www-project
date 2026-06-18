@@ -77,7 +77,7 @@ const BEHAVIOR_RUNTIME_PATTERNS = [
   'rankingBadge',
 ] as const;
 
-const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js']);
+const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js', 'public/frontend/home-feed.js']);
 
 const PHASE_190_BADGE_RUNTIME_FILES = new Set([
   'public/frontend/quality-feedback-badge.js',

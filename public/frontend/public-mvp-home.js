@@ -1,20 +1,23 @@
 /**
- * Phase 301 — home swipe card visual shell.
+ * Phase 301 / 303 — home swipe card visual shell + mixed feed.
  *
  * Renders the public homepage `/` as an ultra-minimal, vertically swipeable
- * feed of *collecting-only* poll cards. It reuses the existing freshness-only
- * `/polls/feed` contract (via explore-page.js) without changing it, and never
- * renders counts, percentages, totals, ranks, trends, progress or any other
- * aggregate. Revealed-result cards are intentionally out of scope.
+ * feed. Phase 303 switches the data source to the mixed `GET /home/feed`
+ * (collecting + revealed items) via home-feed.js, keeping the Phase 301 visual
+ * shell. Collecting cards stay question-only (never any aggregate); revealed
+ * cards show only the display-safe bucketed result summary the public results
+ * page already exposes. `/polls/feed` and the explore client are untouched.
  */
+import { formatExploreCategory } from './explore-page.js';
 import {
-  fetchExploreFeedPage,
-  formatExploreCategory,
-  isExploreFeedItemSafe,
-} from './explore-page.js';
+  fetchHomeFeedPage,
+  isHomeCollectingFeedItemSafe,
+  isHomeFeedItemSafe,
+  isHomeRevealedFeedItemSafe,
+} from './home-feed.js';
+import { renderQualityFeedbackBadge } from './quality-feedback-badge.js';
 import { renderPublicEmptyStatePanel } from './public-unavailable-state.js';
 import {
-  buildPublicVotePath,
   PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL,
   PUBLIC_HOME_SWIPE_ANSWER_CTA,
   PUBLIC_HOME_SWIPE_COLLECTING_HINT,
@@ -28,35 +31,61 @@ import {
   PUBLIC_HOME_SWIPE_LOAD_MORE_LABEL,
   PUBLIC_HOME_SWIPE_NEXT_HINT,
   PUBLIC_HOME_SWIPE_RETRY_LABEL,
+  PUBLIC_HOME_SWIPE_REVEALED_CTA,
 } from './public-mvp-ui.js';
 
 export const HOME_SWIPE_CARD_CLASS = 'home-swipe-card';
 export const HOME_SWIPE_COLLECTING_STATUS_LABEL = PUBLIC_EXPLORE_COLLECTING_STATUS_LABEL;
 export const HOME_SWIPE_COLLECTING_HINT = PUBLIC_HOME_SWIPE_COLLECTING_HINT;
 export const HOME_SWIPE_ANSWER_CTA_LABEL = PUBLIC_HOME_SWIPE_ANSWER_CTA;
+export const HOME_SWIPE_REVEALED_CTA_LABEL = PUBLIC_HOME_SWIPE_REVEALED_CTA;
 export const HOME_SWIPE_LOADING_MESSAGE = PUBLIC_HOME_SWIPE_LOADING_MESSAGE;
 export const HOME_SWIPE_EMPTY_MESSAGE = PUBLIC_HOME_SWIPE_EMPTY_MESSAGE;
 export const HOME_SWIPE_ERROR_MESSAGE = PUBLIC_HOME_SWIPE_ERROR_MESSAGE;
 
-/** Re-export of the freshness-only feed item guard (collecting-only contract). */
-export const isHomeSwipeFeedItemSafe = isExploreFeedItemSafe;
+/** Backwards-compatible alias: the collecting-card guard. */
+export const isHomeSwipeFeedItemSafe = isHomeCollectingFeedItemSafe;
 
 /**
- * Build one collecting-only home swipe card. Reads ONLY non-aggregate fields
- * (poll_id, title, category, published_display). Throws on unsafe items so an
- * accidental aggregate field can never reach the DOM.
+ * Attach safe whole-card navigation. The inner CTA link stays the real
+ * focusable/activatable target; clicks from it (or any interactive descendant)
+ * are left alone so focus and keyboard activation are never hijacked, and a
+ * scroll/swipe gesture never fires a click.
  *
  * @param {Document} documentObject
- * @param {Record<string, unknown>} poll
+ * @param {{ addEventListener?: Function }} article
+ * @param {string} href
  */
-export function renderHomeSwipeCard(documentObject, poll) {
-  if (!isExploreFeedItemSafe(poll)) {
-    throw new Error('Unsafe home swipe feed item');
+function attachWholeCardNavigation(documentObject, article, href) {
+  if (typeof article.addEventListener !== 'function') {
+    return;
+  }
+  article.addEventListener('click', (event) => {
+    const target = /** @type {Element | null} */ (event.target);
+    if (target && typeof target.closest === 'function' && target.closest('a, button')) {
+      return;
+    }
+    const win = documentObject.defaultView ?? globalThis;
+    win.location.assign(href);
+  });
+}
+
+/**
+ * Build one collecting home card (question-only). Throws on unsafe items so an
+ * accidental aggregate/extra field can never reach the DOM.
+ *
+ * @param {Document} documentObject
+ * @param {Record<string, unknown>} item
+ */
+export function renderHomeSwipeCard(documentObject, item) {
+  if (!isHomeCollectingFeedItemSafe(item)) {
+    throw new Error('Unsafe home collecting feed item');
   }
 
   const article = documentObject.createElement('article');
   article.className = HOME_SWIPE_CARD_CLASS;
-  article.dataset.pollId = poll.poll_id;
+  article.dataset.pollId = item.poll_id;
+  article.dataset.state = 'collecting';
 
   const top = documentObject.createElement('div');
   top.className = 'home-swipe-card-top';
@@ -67,13 +96,13 @@ export function renderHomeSwipeCard(documentObject, poll) {
 
   const meta = documentObject.createElement('span');
   meta.className = 'home-swipe-card-meta';
-  meta.textContent = `${formatExploreCategory(poll.category)} · ${poll.published_display}`;
+  meta.textContent = `${formatExploreCategory(item.category)} · ${item.published_display}`;
 
   top.append(statusBadge, meta);
 
   const title = documentObject.createElement('h2');
   title.className = 'home-swipe-card-title';
-  title.textContent = poll.title;
+  title.textContent = item.title;
 
   const hint = documentObject.createElement('p');
   hint.className = 'home-swipe-card-hint';
@@ -84,7 +113,7 @@ export function renderHomeSwipeCard(documentObject, poll) {
 
   const voteLink = documentObject.createElement('a');
   voteLink.className = 'mvp-btn mvp-btn-primary home-swipe-card-cta';
-  voteLink.href = buildPublicVotePath(poll.poll_id);
+  voteLink.href = item.vote_page_url;
   voteLink.textContent = HOME_SWIPE_ANSWER_CTA_LABEL;
 
   const nextHint = documentObject.createElement('span');
@@ -95,22 +124,104 @@ export function renderHomeSwipeCard(documentObject, poll) {
   actions.append(voteLink, nextHint);
   article.append(top, title, hint, actions);
 
-  // Whole-card navigation as a progressive enhancement. The CTA link stays the
-  // real focusable/activatable target; clicks originating from it (or any other
-  // interactive descendant) are left alone so focus and keyboard activation are
-  // never hijacked, and a scroll/swipe gesture never fires a click.
-  if (typeof article.addEventListener === 'function') {
-    article.addEventListener('click', (event) => {
-      const target = /** @type {Element | null} */ (event.target);
-      if (target && typeof target.closest === 'function' && target.closest('a, button')) {
-        return;
-      }
-      const win = documentObject.defaultView ?? globalThis;
-      win.location.assign(buildPublicVotePath(poll.poll_id));
-    });
+  attachWholeCardNavigation(documentObject, article, item.vote_page_url);
+  return article;
+}
+
+/**
+ * Build one revealed home card showing only the display-safe bucketed result
+ * summary (leading option label + bucketed percentage + bucketed total). Never
+ * renders raw counts or option linkage. Throws on unsafe items.
+ *
+ * @param {Document} documentObject
+ * @param {Record<string, any>} item
+ */
+export function renderHomeRevealedCard(documentObject, item) {
+  if (!isHomeRevealedFeedItemSafe(item)) {
+    throw new Error('Unsafe home revealed feed item');
   }
 
+  const article = documentObject.createElement('article');
+  article.className = `${HOME_SWIPE_CARD_CLASS} home-swipe-card--revealed`;
+  article.dataset.pollId = item.poll_id;
+  article.dataset.state = 'revealed';
+
+  const top = documentObject.createElement('div');
+  top.className = 'home-swipe-card-top';
+
+  const statusBadge = documentObject.createElement('span');
+  statusBadge.className = 'mvp-badge mvp-badge-revealed';
+  statusBadge.textContent = item.lifecycle_label;
+  top.append(statusBadge);
+
+  const feedbackBadge = renderQualityFeedbackBadge(documentObject, item);
+  if (feedbackBadge) {
+    top.append(feedbackBadge);
+  }
+
+  const meta = documentObject.createElement('span');
+  meta.className = 'home-swipe-card-meta';
+  meta.textContent = `${formatExploreCategory(item.category)} · ${item.published_display}`;
+  top.append(meta);
+
+  const title = documentObject.createElement('h2');
+  title.className = 'home-swipe-card-title';
+  title.textContent = item.title;
+
+  const summary = documentObject.createElement('div');
+  summary.className = 'home-swipe-card-result';
+  const lead = item.result_summary.leading_option;
+  if (lead) {
+    const leadLabel = documentObject.createElement('span');
+    leadLabel.className = 'home-swipe-card-result-lead';
+    leadLabel.textContent = lead.display_label;
+
+    const leadPercent = documentObject.createElement('span');
+    leadPercent.className = 'home-swipe-card-result-percent';
+    leadPercent.textContent = lead.display_percentage;
+
+    summary.append(leadLabel, leadPercent);
+  }
+  const totalMeta = documentObject.createElement('span');
+  totalMeta.className = 'home-swipe-card-result-total';
+  totalMeta.textContent = item.result_summary.total_votes_display;
+  summary.append(totalMeta);
+
+  const actions = documentObject.createElement('div');
+  actions.className = 'home-swipe-card-actions';
+
+  const resultLink = documentObject.createElement('a');
+  resultLink.className = 'mvp-btn mvp-btn-primary home-swipe-card-cta';
+  resultLink.href = item.result_page_url;
+  resultLink.textContent = HOME_SWIPE_REVEALED_CTA_LABEL;
+
+  const nextHint = documentObject.createElement('span');
+  nextHint.className = 'home-swipe-card-next';
+  nextHint.setAttribute('aria-hidden', 'true');
+  nextHint.textContent = PUBLIC_HOME_SWIPE_NEXT_HINT;
+
+  actions.append(resultLink, nextHint);
+  article.append(top, title, summary, actions);
+
+  attachWholeCardNavigation(documentObject, article, item.result_page_url);
   return article;
+}
+
+/**
+ * Dispatch one validated home feed item to its renderer. Returns `null` for
+ * any item that fails validation (dropped, never rendered).
+ *
+ * @param {Document} documentObject
+ * @param {Record<string, unknown>} item
+ */
+export function renderHomeFeedItem(documentObject, item) {
+  if (!isHomeFeedItemSafe(item)) {
+    return null;
+  }
+  if (item.state === 'revealed') {
+    return renderHomeRevealedCard(documentObject, item);
+  }
+  return renderHomeSwipeCard(documentObject, item);
 }
 
 function setPanelVisible(panel, visible) {
@@ -208,10 +319,13 @@ export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
     skeleton?.remove?.();
   };
 
-  const appendPolls = (polls) => {
-    for (const poll of polls) {
-      stage.append(renderHomeSwipeCard(documentObject, poll));
-      cardCount += 1;
+  const appendItems = (items) => {
+    for (const item of items) {
+      const card = renderHomeFeedItem(documentObject, item);
+      if (card) {
+        stage.append(card);
+        cardCount += 1;
+      }
     }
   };
 
@@ -228,7 +342,7 @@ export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
     updateLoadMore();
 
     try {
-      const body = await fetchExploreFeedPage({
+      const body = await fetchHomeFeedPage({
         fetchImpl: windowObject.fetch.bind(windowObject),
         origin: windowObject.location.origin,
         cursor: reset ? null : nextCursor,
@@ -236,7 +350,7 @@ export function mountHomeSwipeFeed(documentObject, windowObject = globalThis) {
       if (reset) {
         clearSkeleton();
       }
-      appendPolls(body.polls);
+      appendItems(body.items);
       nextCursor = body.next_cursor;
       if (cardCount === 0) {
         showEmpty();

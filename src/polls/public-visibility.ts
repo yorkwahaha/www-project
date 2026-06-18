@@ -51,6 +51,20 @@ export function isPublicAggregateResultsReadable(poll: PollRow): boolean {
   );
 }
 
+/**
+ * Phase 303 — coarse eligibility for the public home mixed feed (`GET /home/feed`).
+ * A poll qualifies if it is either collecting-feed-eligible (rendered as a
+ * collecting card) or publicly aggregate-readable (rendered as a revealed card).
+ * The service still re-checks each gate per poll before emitting an item, so
+ * this is only a pre-filter — never a visibility decision on its own.
+ */
+export function isPublicHomeFeedEligible(
+  poll: PollRow,
+  now: Date = new Date(),
+): boolean {
+  return isPublicFeedEligible(poll, now) || isPublicAggregateResultsReadable(poll);
+}
+
 export function isParticipationAllowed(
   poll: PollRow,
   now: Date = new Date(),

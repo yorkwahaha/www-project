@@ -27,7 +27,7 @@ const BADGE_RENDERING_JS_PATTERNS = [
   'qualityBadge',
 ] as const;
 
-const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js']);
+const FEED_PARSING_TOLERANCE_FILES = new Set(['public/frontend/explore-page.js', 'public/frontend/home-feed.js']);
 
 const POLICY_EDUCATIONAL_COPY_FILES = new Set([
   'public/frontend/policy-ui-placeholders.js',

@@ -299,6 +299,47 @@ export type PublicFeedResult = {
   next_cursor: string | null;
 };
 
+/**
+ * Phase 303 — public home mixed feed (`GET /home/feed`) discriminated union.
+ * `collecting` items are question-only; `revealed` items carry a display-safe
+ * result summary derived from the same gated results model the public results
+ * page uses. No raw counts, no option linkage, no identity fields.
+ */
+export type HomeFeedCollectingItem = {
+  state: 'collecting';
+  poll_id: string;
+  title: string;
+  category: string;
+  lifecycle_label: '收集中';
+  published_display: '最近發布';
+  vote_page_url: string;
+};
+
+export type HomeFeedResultSummary = {
+  display_mode: 'bucketed_percentage' | 'rounded_with_bucketed_votes' | 'precise';
+  total_votes_display: '30–99' | '100–499' | '500+';
+  leading_option: { display_label: string; display_percentage: string } | null;
+};
+
+export type HomeFeedRevealedItem = {
+  state: 'revealed';
+  poll_id: string;
+  title: string;
+  category: string;
+  lifecycle_label: '已公開' | '公開鎖定期' | '鎖定期已結束';
+  published_display: '最近發布';
+  result_page_url: string;
+  result_summary: HomeFeedResultSummary;
+  quality_badge: QualityBadge;
+};
+
+export type HomeFeedItem = HomeFeedCollectingItem | HomeFeedRevealedItem;
+
+export type HomeFeedResult = {
+  items: HomeFeedItem[];
+  next_cursor: string | null;
+};
+
 export type CreatorOwnedPollListResult = {
   polls: Array<{
     poll_id: string;

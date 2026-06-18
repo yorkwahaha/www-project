@@ -375,6 +375,16 @@ async function routeRequest(
     return;
   }
 
+  if (path === '/home/feed' && method === 'GET') {
+    const feedQuery = parsePublicFeedQuery(url);
+    if ('error' in feedQuery) {
+      sendJson(res, 400, feedQuery.error);
+      return;
+    }
+    await pollRoutes.handleGetHomeFeed(req, res, feedQuery.value);
+    return;
+  }
+
   const referenceAnswerMatch = path.match(/^\/polls\/([^/]+)\/reference-answer$/);
   if (referenceAnswerMatch && method === 'POST') {
     const pollId = referenceAnswerMatch[1]!;

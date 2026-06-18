@@ -3984,6 +3984,36 @@ body.mvp-body:has(.home-swipe) {
   font-size: 0.82rem;
 }
 
+/* Phase 303 — revealed home card display-safe result summary (home-only) */
+.home-swipe-card--revealed {
+  background: linear-gradient(158deg, #edf7f2, var(--home-card-bg) 62%);
+}
+
+.home-swipe-card-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.7rem;
+  margin: 0;
+}
+
+.home-swipe-card-result-lead {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--mvp-text);
+}
+
+.home-swipe-card-result-percent {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--mvp-accent);
+}
+
+.home-swipe-card-result-total {
+  color: var(--mvp-muted);
+  font-size: 0.85rem;
+}
+
 .home-swipe-load-more {
   align-self: center;
   width: 100%;

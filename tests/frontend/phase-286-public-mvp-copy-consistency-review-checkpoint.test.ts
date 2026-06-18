@@ -240,7 +240,7 @@ describe('Phase 286 public MVP copy consistency review checkpoint', () => {
     // FAQ / login / registration pages; being collecting-only, the home shows no
     // aggregate result signals.
     const indexHtml = await readFile(join(process.cwd(), 'public/index.html'), 'utf8');
-    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).toContain('data-home-swipe-feed="mixed"');
     expect(indexHtml).not.toMatch(/%|票數|百分比|排名|趨勢|進度/);
   });
 

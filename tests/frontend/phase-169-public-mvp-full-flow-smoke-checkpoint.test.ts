@@ -189,7 +189,7 @@ describe('Phase 169 public MVP full-flow smoke checkpoint', () => {
 
     // Phase 301: the homepage is now an ultra-minimal collecting-only swipe
     // shell; its long-form account copy moved to the login/registration pages.
-    expect(index).toContain('data-home-swipe-feed="collecting-only"');
+    expect(index).toContain('data-home-swipe-feed="mixed"');
     expect(registration).toContain('data-login-state-read="disabled"');
     expect(explore).toContain('data-explore-feed="freshness-only"');
     expect(createPoll).toContain('/frontend/create-poll-page.js');
@@ -417,7 +417,7 @@ describe('Phase 169 public MVP full-flow smoke checkpoint', () => {
     // Phase 301: the homepage no longer carries static sample cards (it is now a
     // collecting-only swipe feed). The explore-side separation below remains the
     // assertion this checkpoint protects.
-    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).toContain('data-home-swipe-feed="mixed"');
     expect(indexHtml).not.toContain('data-static-examples');
     expect(exploreHtml).toContain('data-explore-feed="freshness-only"');
     expect(exploreHtml).not.toContain('data-static-examples');

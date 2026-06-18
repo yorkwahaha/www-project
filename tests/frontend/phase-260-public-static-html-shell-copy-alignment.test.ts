@@ -72,7 +72,7 @@ const SYNC_MOUNT_CONTRACTS: Record<string, string[]> = {
   'public/index.html': [
     'id="home-swipe-status"',
     'id="home-swipe-stage"',
-    'data-home-swipe-feed="collecting-only"',
+    'data-home-swipe-feed="mixed"',
     'id="home-create-cta"',
   ],
   'public/login.html': [
@@ -163,7 +163,7 @@ describe('Phase 260 public static HTML shell copy alignment', () => {
 
     // Phase 301: the homepage swipe shell no longer renders a synced hero lead
     // or value-card body; the remaining shells below keep their PUBLIC_* sync.
-    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).toContain('data-home-swipe-feed="mixed"');
     expect(extractElementTextById(loginHtml, 'login-lead-secondary')).toBe(
       ui.PUBLIC_LOGIN_PAGE_LEAD_SECONDARY,
     );

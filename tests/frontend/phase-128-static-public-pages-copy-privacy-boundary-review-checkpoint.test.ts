@@ -72,7 +72,7 @@ describe('Phase 128 static public pages copy privacy boundary review checkpoint'
     // privacy-relevant negative guards below remain enforced on the new home:
     // it must never promise outcomes or expose live counts, and being
     // collecting-only it shows no aggregate result signals at all.
-    expect(index).toContain('data-home-swipe-feed="collecting-only"');
+    expect(index).toContain('data-home-swipe-feed="mixed"');
     expect(index).not.toMatch(FORBIDDEN_GUARANTEE_COPY);
     expect(index).not.toMatch(/真實即時票數|live vote count/i);
     expect(index).not.toMatch(/%|票數|百分比|排名|趨勢|進度/);

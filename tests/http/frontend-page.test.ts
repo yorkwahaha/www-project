@@ -47,7 +47,7 @@ describe('frontend static routes', () => {
       // fallback / register / login), but the long-form account/onboarding copy
       // and FAQ link cluster now live on the FAQ / login / registration pages.
       expect(pageBody).toContain('What We Wonder');
-      expect(pageBody).toContain('data-home-swipe-feed="collecting-only"');
+      expect(pageBody).toContain('data-home-swipe-feed="mixed"');
       expect(pageBody).toContain('href="/polls/new"');
       expect(pageBody).toContain('href="/explore"');
       expect(pageBody).toContain('href="/registration"');
@@ -65,7 +65,7 @@ describe('frontend static routes', () => {
         /\/login\/session|\/registration|\/vote|reference-answer|option_id|option_text|option_index/i,
       );
       // Phase 301: the home is now a freshness-only collecting swipe *feed*
-      // (data-home-swipe-feed="collecting-only"), so the literal "feed" token is
+      // (data-home-swipe-feed="mixed"), so the literal "feed" token is
       // expected; the anti-ranking / anti-tracking intent below is preserved.
       expect(pageBody).not.toMatch(/localStorage|sessionStorage|ranking|option_id/i);
 

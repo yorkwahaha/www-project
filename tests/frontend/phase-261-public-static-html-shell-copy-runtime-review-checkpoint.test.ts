@@ -79,7 +79,7 @@ const SYNC_MOUNT_CONTRACTS: Record<string, string[]> = {
   'public/index.html': [
     'id="home-swipe-stage"',
     'id="home-swipe-status"',
-    'data-home-swipe-feed="collecting-only"',
+    'data-home-swipe-feed="mixed"',
     'id="home-create-cta"',
   ],
   'public/login.html': [

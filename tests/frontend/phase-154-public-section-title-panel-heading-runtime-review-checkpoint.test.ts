@@ -196,7 +196,7 @@ describe('Phase 154 public section title / panel heading runtime review checkpoi
 
     // Phase 301: the homepage swipe shell no longer renders the old page title
     // in static HTML; the remaining shells below still align with PUBLIC_*.
-    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).toContain('data-home-swipe-feed="mixed"');
     expect(exploreHtml).toContain(publicUi.PUBLIC_EXPLORE_PAGE_TITLE);
     expect(resultsHtml).toContain(publicUi.PUBLIC_RESULTS_PUBLIC_READONLY_TITLE);
     expect(profileHtml).toContain(publicUi.PUBLIC_PROFILE_PAGE_TITLE);

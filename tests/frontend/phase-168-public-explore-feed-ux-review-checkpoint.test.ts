@@ -167,7 +167,7 @@ describe('Phase 168 public explore feed UX review checkpoint', () => {
     // Phase 301: the homepage no longer carries static sample cards (it is now
     // a collecting-only swipe feed). The explore-side separation below is the
     // assertion this checkpoint protects.
-    expect(indexHtml).toContain('data-home-swipe-feed="collecting-only"');
+    expect(indexHtml).toContain('data-home-swipe-feed="mixed"');
     expect(indexHtml).not.toContain('data-static-examples');
     expect(exploreHtml).toContain('data-explore-feed="freshness-only"');
     expect(exploreHtml).toContain('id="explore-feed-list"');

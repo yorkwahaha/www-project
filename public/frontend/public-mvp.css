@@ -4246,3 +4246,68 @@ body.mvp-body:has(.home-swipe) {
     animation: none;
   }
 }
+
+/* Phase 309 — results aggregate reveal animation (FU-304-02) */
+@keyframes results-aggregate-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.results-page #result-display.results-aggregate-reveal:not([data-results-reveal-ready='true']) > .result-total,
+.results-page #result-display.results-aggregate-reveal:not([data-results-reveal-ready='true']) > .result-updated,
+.results-page #result-display.results-aggregate-reveal:not([data-results-reveal-ready='true']) > .result-option,
+.results-page #result-display.results-aggregate-reveal:not([data-results-reveal-ready='true']) > .result-empty {
+  opacity: 0;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-total {
+  animation: results-aggregate-reveal-in 520ms ease-out both;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-updated {
+  animation: results-aggregate-reveal-in 520ms ease-out both;
+  animation-delay: 70ms;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-option {
+  animation: results-aggregate-reveal-in 520ms ease-out both;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-option:nth-of-type(1) {
+  animation-delay: 140ms;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-option:nth-of-type(2) {
+  animation-delay: 210ms;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-option:nth-of-type(3) {
+  animation-delay: 280ms;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-option:nth-of-type(n + 4) {
+  animation-delay: 350ms;
+}
+
+.results-page #result-display.results-aggregate-reveal[data-results-reveal-ready='true'] > .result-empty {
+  animation: results-aggregate-reveal-in 520ms ease-out both;
+  animation-delay: 70ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .results-page #result-display.results-aggregate-reveal > .result-total,
+  .results-page #result-display.results-aggregate-reveal > .result-updated,
+  .results-page #result-display.results-aggregate-reveal > .result-option,
+  .results-page #result-display.results-aggregate-reveal > .result-empty {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

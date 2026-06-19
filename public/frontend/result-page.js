@@ -69,6 +69,64 @@ function appendText(parent, tagName, text, className) {
   parent.append(element);
 }
 
+function addRootClass(root, className) {
+  if (!root) {
+    return;
+  }
+  if (root.classList) {
+    root.classList.add(className);
+    return;
+  }
+  const parts = String(root.className || '')
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.includes(className)) {
+    root.className = parts.concat(className).join(' ');
+  }
+}
+
+function removeRootClass(root, className) {
+  if (!root) {
+    return;
+  }
+  if (root.classList) {
+    root.classList.remove(className);
+    return;
+  }
+  root.className = String(root.className || '')
+    .split(/\s+/)
+    .filter((part) => part && part !== className)
+    .join(' ');
+}
+
+export const RESULTS_AGGREGATE_REVEAL_CLASS = 'results-aggregate-reveal';
+export const RESULTS_AGGREGATE_REVEAL_READY_ATTR = 'data-results-reveal-ready';
+
+export function shouldApplyResultsAggregateReveal(mode) {
+  return mode === 'aggregate';
+}
+
+export function clearResultsAggregateRevealPresentation(root) {
+  if (!root) {
+    return;
+  }
+  removeRootClass(root, RESULTS_AGGREGATE_REVEAL_CLASS);
+  if (typeof root.removeAttribute === 'function') {
+    root.removeAttribute(RESULTS_AGGREGATE_REVEAL_READY_ATTR);
+  }
+}
+
+/** Presentation-only reveal for display-safe aggregate results (FU-304-02). */
+export function syncResultsAggregateRevealPresentation(root, mode) {
+  clearResultsAggregateRevealPresentation(root);
+  if (!shouldApplyResultsAggregateReveal(mode)) {
+    return;
+  }
+
+  addRootClass(root, RESULTS_AGGREGATE_REVEAL_CLASS);
+  root.setAttribute(RESULTS_AGGREGATE_REVEAL_READY_ATTR, 'true');
+}
+
 const PUBLIC_NOTICE_TYPE = 'suspended_typo_correction_applied';
 export const RESULTS_COLLECTING_TITLE = PUBLIC_RESULTS_COLLECTING_TITLE;
 export const RESULTS_COLLECTING_SUMMARY = PUBLIC_RESULTS_COLLECTING_SUMMARY;
@@ -359,6 +417,7 @@ export function renderResultDisplay(
   const normalized = normalizeDisplaySafeResult(result);
   if (!normalized) {
     appendText(root, 'p', RESULTS_LOAD_FAILURE_MESSAGE, 'result-empty');
+    syncResultsAggregateRevealPresentation(root, null);
     return;
   }
 
@@ -368,6 +427,7 @@ export function renderResultDisplay(
       if (attachPolicyExtras) {
         renderResultPagePolicyExtras(root, { collecting: true });
       }
+      syncResultsAggregateRevealPresentation(root, normalized.mode);
       return;
     }
     renderOptionLabelsList(root, normalized.options, {
@@ -376,6 +436,7 @@ export function renderResultDisplay(
     if (attachPolicyExtras) {
       renderResultPagePolicyExtras(root, { collecting: true });
     }
+    syncResultsAggregateRevealPresentation(root, normalized.mode);
     return;
   }
 
@@ -388,6 +449,7 @@ export function renderResultDisplay(
       if (attachPolicyExtras) {
         renderResultPagePolicyExtras(root, { collecting: false });
       }
+      syncResultsAggregateRevealPresentation(root, normalized.mode);
       return;
     }
     renderOptionLabelsList(root, normalized.options, {
@@ -396,6 +458,7 @@ export function renderResultDisplay(
     if (attachPolicyExtras) {
       renderResultPagePolicyExtras(root, { collecting: false });
     }
+    syncResultsAggregateRevealPresentation(root, normalized.mode);
     return;
   }
 
@@ -411,6 +474,7 @@ export function renderResultDisplay(
     if (attachPolicyExtras) {
       renderResultPagePolicyExtras(root, { collecting: false });
     }
+    syncResultsAggregateRevealPresentation(root, normalized.mode);
     return;
   }
 
@@ -430,6 +494,7 @@ export function renderResultDisplay(
   if (attachPolicyExtras) {
     renderResultPagePolicyExtras(root, { collecting: false });
   }
+  syncResultsAggregateRevealPresentation(root, normalized.mode);
 }
 
 export function renderPublicNotices(root, noticeList) {
@@ -562,6 +627,8 @@ function paintResultPageFromPayload(pageContext, result) {
         uiMockState === 'followed' || uiMockState === 'ineligible',
       skipGlossary: Boolean(uiMockState) || demoOnly,
     });
+  } else {
+    syncResultsAggregateRevealPresentation(root, null);
   }
 }
 

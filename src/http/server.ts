@@ -570,6 +570,65 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/home-feed.js') {
+    await sendPublicFile(res, 'frontend/home-feed.js', 'text/javascript; charset=utf-8');
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/public-mvp-home.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-mvp-home.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/public-poll-card.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-poll-card.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/public-unavailable-state.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-unavailable-state.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/quality-feedback-badge.js') {
+    await sendPublicFile(
+      res,
+      'frontend/quality-feedback-badge.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/public-page-copy.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-page-copy.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/public-keyboard-focus-a11y.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-keyboard-focus-a11y.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   const votePageMatch = path.match(/^\/vote\/([^/]+)$/);
   if (votePageMatch && method === 'GET') {
     const pollId = votePageMatch[1]!;

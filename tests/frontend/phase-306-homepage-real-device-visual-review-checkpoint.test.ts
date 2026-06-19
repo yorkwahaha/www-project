@@ -7,18 +7,15 @@ const PHASE_306_DOC =
 const INDEX_HTML = 'public/index.html';
 const HOME_JS = 'public/frontend/public-mvp-home.js';
 const HOME_CSS = 'public/frontend/public-mvp.css';
-const SERVER_TS = 'src/http/server.ts';
 
 describe('Phase 306 homepage real-device visual review checkpoint (static guards)', () => {
-  it('documents the missing home JS static routes blocker', async () => {
+  it('documents the B-306-01 blocker recorded at Phase 306 review', async () => {
     const doc = await readFile(join(process.cwd(), PHASE_306_DOC), 'utf8');
-    const server = await readFile(join(process.cwd(), SERVER_TS), 'utf8');
 
     expect(doc).toContain('B-306-01');
     expect(doc).toContain('public-mvp-home.js');
     expect(doc).toContain('home-feed.js');
-    expect(server).not.toContain("path === '/frontend/public-mvp-home.js'");
-    expect(server).not.toContain("path === '/frontend/home-feed.js'");
+    expect(doc).toContain('FU-306-01');
   });
 
   it('keeps collecting vs revealed visual distinction in home source and CSS', async () => {

@@ -185,8 +185,25 @@ try {
     if (!body.includes('href="/registration"') || !body.includes('href="/login"')) {
       throw new Error('Landing page missing registration/login auth navigation links');
     }
+    if (!body.includes('/frontend/public-mvp-home.js')) {
+      throw new Error('Landing page missing public-mvp-home.js module reference');
+    }
     pass('GET / serves the Phase 301 collecting-only swipe shell');
     pass('GET / links /polls/new, /explore, and registration/login access');
+
+    const homeScript = await requestText(baseUrl, '/frontend/public-mvp-home.js');
+    expectStatus('GET /frontend/public-mvp-home.js', homeScript.response, 200);
+    if (!homeScript.body.includes('fetchHomeFeedPage')) {
+      throw new Error('public-mvp-home.js missing home feed mount wiring');
+    }
+    pass('GET /frontend/public-mvp-home.js serves homepage swipe client');
+
+    const homeFeedScript = await requestText(baseUrl, '/frontend/home-feed.js');
+    expectStatus('GET /frontend/home-feed.js', homeFeedScript.response, 200);
+    if (!homeFeedScript.body.includes("'/home/feed'")) {
+      throw new Error('home-feed.js missing /home/feed client path');
+    }
+    pass('GET /frontend/home-feed.js serves home mixed feed client');
   }
 
   {

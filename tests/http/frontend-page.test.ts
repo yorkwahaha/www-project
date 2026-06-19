@@ -54,6 +54,7 @@ describe('frontend static routes', () => {
       expect(pageBody).toContain('href="/login"');
       expect(pageBody).toContain('/frontend/public-mvp.css');
       expect(pageBody).toContain('class="mvp-body"');
+      expect(pageBody).toContain('/frontend/public-mvp-home.js');
       expect(layoutScript.status).toBe(200);
       expect(await layoutScript.text()).toContain('mountProfileCompletionPrompt');
       expect(promptScript.status).toBe(200);
@@ -73,6 +74,35 @@ describe('frontend static routes', () => {
       expect(stylesheet.status).toBe(200);
       expect(stylesheet.headers.get('content-type')).toContain('text/css');
       expect(await stylesheet.text()).toContain('.mvp-shell');
+
+      const homeScript = await fetch(`${baseUrl}/frontend/public-mvp-home.js`);
+      const homeFeedScript = await fetch(`${baseUrl}/frontend/home-feed.js`);
+      expect(homeScript.status).toBe(200);
+      expect(homeFeedScript.status).toBe(200);
+      expect(homeScript.headers.get('content-type')).toContain('text/javascript');
+      expect(homeFeedScript.headers.get('content-type')).toContain('text/javascript');
+      expect(await homeScript.text()).toContain('mountHomeSwipeFeed');
+      expect(await homeFeedScript.text()).toContain("'/home/feed'");
+    });
+  });
+
+  it('serves homepage swipe client static import dependencies', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      for (const path of [
+        '/frontend/public-poll-card.js',
+        '/frontend/quality-feedback-badge.js',
+        '/frontend/public-unavailable-state.js',
+        '/frontend/public-page-copy.js',
+        '/frontend/public-keyboard-focus-a11y.js',
+      ]) {
+        const script = await fetch(`${baseUrl}${path}`);
+        expect(script.status).toBe(200);
+        expect(script.headers.get('content-type')).toContain('text/javascript');
+      }
     });
   });
 

@@ -19,7 +19,7 @@ describe('Phase 308 hydrated homepage visual review checkpoint (static guards)',
     expect(doc).toContain('Hydrated feed visual');
     expect(doc).toContain('PASS');
     expect(doc).toContain('FU-307-01');
-    expect(doc).toContain('not a Phase 308 blocker');
+    expect(doc).toContain('homepage mixed-feed visual acceptance blocker');
   });
 
   it('keeps home module routes and smoke guards that unblock hydration', async () => {

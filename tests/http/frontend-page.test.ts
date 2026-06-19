@@ -136,6 +136,44 @@ describe('frontend static routes', () => {
     });
   });
 
+  it('serves site chrome modules required by public-mvp-layout on results pages', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      for (const path of [
+        '/frontend/auth-state-copy.js',
+        '/frontend/login-state-ui.js',
+        '/frontend/login-state-read.js',
+        '/frontend/login-state-logout.js',
+      ]) {
+        const script = await fetch(`${baseUrl}${path}`);
+        expect(script.status).toBe(200);
+        expect(script.headers.get('content-type')).toContain('text/javascript');
+      }
+    });
+  });
+
+  it('serves result-page static import dependencies for /results runtime', async () => {
+    const server = createHttpServer({
+      pollService: createPollService(createInMemoryPollRepository()),
+    });
+
+    await withServer(server, async (baseUrl) => {
+      for (const path of [
+        '/frontend/public-results-detail-layout.js',
+        '/frontend/public-vote-detail-layout.js',
+        '/frontend/poll-lifecycle-controls.js',
+        '/frontend/creator-flow-copy.js',
+      ]) {
+        const script = await fetch(`${baseUrl}${path}`);
+        expect(script.status).toBe(200);
+        expect(script.headers.get('content-type')).toContain('text/javascript');
+      }
+    });
+  });
+
   it('returns a safe 400 for an invalid public result page poll id', async () => {
     const server = createHttpServer({
       pollService: createPollService(createInMemoryPollRepository()),

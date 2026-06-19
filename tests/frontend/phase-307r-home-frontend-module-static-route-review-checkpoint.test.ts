@@ -50,13 +50,13 @@ describe('Phase 307-R home frontend module static route review checkpoint (stati
     expect(smoke).toContain("'/home/feed'");
   });
 
-  it('records site chrome route gap without blocking home feed validators', async () => {
+  it('records FU-307-01 site chrome follow-up and Phase 310 closure without blocking home feed validators', async () => {
     const server = await readFile(join(process.cwd(), SERVER_TS), 'utf8');
     const homeFeed = await readFile(join(process.cwd(), HOME_FEED_JS), 'utf8');
     const reviewDoc = await readFile(join(process.cwd(), PHASE_307R_DOC), 'utf8');
 
     for (const route of SITE_CHROME_ROUTES_STILL_MISSING) {
-      expect(server, `observation: ${route} still lacks explicit route`).not.toContain(
+      expect(server, `${route} registered after Phase 310 (FU-307-01 closed)`).toContain(
         `path === '${route}'`,
       );
     }

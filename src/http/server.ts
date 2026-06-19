@@ -307,6 +307,42 @@ async function routeRequest(
     return;
   }
 
+  if (method === 'GET' && path === '/frontend/auth-state-copy.js') {
+    await sendPublicFile(
+      res,
+      'frontend/auth-state-copy.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/login-state-ui.js') {
+    await sendPublicFile(
+      res,
+      'frontend/login-state-ui.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/login-state-read.js') {
+    await sendPublicFile(
+      res,
+      'frontend/login-state-read.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/login-state-logout.js') {
+    await sendPublicFile(
+      res,
+      'frontend/login-state-logout.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
   if (method === 'GET' && path === '/frontend/public-mvp-demo.js') {
     await sendPublicFile(
       res,
@@ -327,6 +363,42 @@ async function routeRequest(
 
   if (method === 'GET' && path === '/frontend/result-page.js') {
     await sendPublicFile(res, 'frontend/result-page.js', 'text/javascript; charset=utf-8');
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/public-results-detail-layout.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-results-detail-layout.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/public-vote-detail-layout.js') {
+    await sendPublicFile(
+      res,
+      'frontend/public-vote-detail-layout.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/poll-lifecycle-controls.js') {
+    await sendPublicFile(
+      res,
+      'frontend/poll-lifecycle-controls.js',
+      'text/javascript; charset=utf-8',
+    );
+    return;
+  }
+
+  if (method === 'GET' && path === '/frontend/creator-flow-copy.js') {
+    await sendPublicFile(
+      res,
+      'frontend/creator-flow-copy.js',
+      'text/javascript; charset=utf-8',
+    );
     return;
   }
 

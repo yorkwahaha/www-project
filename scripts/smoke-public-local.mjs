@@ -677,7 +677,38 @@ try {
     if (!body.includes('results-intro') || !body.includes('公開結果（唯讀）')) {
       throw new Error('Results page missing read-only result semantics');
     }
+    if (!body.includes('/frontend/public-mvp-layout.js')) {
+      throw new Error('Results page missing shared site chrome layout module');
+    }
     pass('GET /results/:pollId links shared stylesheet');
+  }
+
+  for (const siteChromeModule of [
+    '/frontend/auth-state-copy.js',
+    '/frontend/login-state-ui.js',
+    '/frontend/login-state-read.js',
+    '/frontend/login-state-logout.js',
+  ]) {
+    const { response, body } = await requestText(baseUrl, siteChromeModule);
+    expectStatus(`GET ${siteChromeModule}`, response, 200);
+    if (!body.includes('export')) {
+      throw new Error(`${siteChromeModule} missing ES module exports`);
+    }
+    pass(`GET ${siteChromeModule} serves site chrome module for results layout graph`);
+  }
+
+  for (const resultRuntimeModule of [
+    '/frontend/public-results-detail-layout.js',
+    '/frontend/public-vote-detail-layout.js',
+    '/frontend/poll-lifecycle-controls.js',
+    '/frontend/creator-flow-copy.js',
+  ]) {
+    const { response, body } = await requestText(baseUrl, resultRuntimeModule);
+    expectStatus(`GET ${resultRuntimeModule}`, response, 200);
+    if (!body.includes('export')) {
+      throw new Error(`${resultRuntimeModule} missing ES module exports`);
+    }
+    pass(`GET ${resultRuntimeModule} serves result-page static import for /results runtime`);
   }
 
   await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
